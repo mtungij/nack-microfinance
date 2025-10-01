@@ -56,6 +56,13 @@ include_once APPPATH . "views/partials/header.php";
         <h2 class="text-sm text-green-500 text-center font-semibold">(<?= $customer->famous_area; ?>)</h2>
         <p class="text-center mt-2 text-gray-800 font-medium"><?= $customer->phone_no; ?></p>
 
+               <div class="mt-4 text-center">
+  <a href="<?= base_url('Admin/send_payment/' . $customer->customer_id); ?>" 
+     class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+     📩 Tuma SMS ya Malipo
+  </a>
+</div>
+
         <?php
           $customer_loan = !empty($customer->customer_id) ? $this->queries->get_loan_active_customer($customer->customer_id) : null;
           $total_deposit = $this->queries->get_total_amount_paid_loan($customer_loan->loan_id ?? 0);

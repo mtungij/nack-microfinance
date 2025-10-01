@@ -3631,6 +3631,83 @@ $empl_id = $this->session->userdata('empl_id');
 }
 
 
+public function send_payment($customer_id)
+{
+    $this->load->model('queries');
+
+    // Pata data za customer
+    $customer_data = $this->queries->get_customerData($customer_id);
+
+    if (!$customer_data) {
+        $this->session->set_flashdata('error', 'Mteja haipo.');
+        redirect('customer/list');
+        return;
+    }
+
+    $first_name = $customer_data->f_name;
+    $middle_name = $customer_data->m_name;
+    $last_name = $customer_data->l_name;
+    $phone = $customer_data->phone_no;
+
+    // Pata loan ya mteja (active loan)
+    $customer_loan = $this->queries->get_loan_active_customer($customer_id);
+
+    if (!$customer_loan) {
+        $this->session->set_flashdata('error', 'Mteja hana mkopo hai.');
+        redirect('customer/view/' . $customer_id);
+        return;
+    }
+
+    $loan_id = $customer_loan->loan_id;
+
+    // Jumla na latest deposit
+    $total_deposit_loan = $this->queries->get_total_and_latest_deposit($loan_id);
+    $total_paid = $total_deposit_loan->total_depost ?? 0;
+    $latest_paid = $total_deposit_loan->latest_deposit ?? 0;
+$latest_paid_day = isset($total_deposit_loan->latest_deposit_day) 
+    ? date('d-m-Y', strtotime($total_deposit_loan->latest_deposit_day)) 
+    : 'N/A';
+
+	 $comp_id = $this->session->userdata('comp_id');
+	 $compdata = $this->queries->get_companyData($comp_id);
+//   $blanch_id = $this->session->userdata('blanch_id');
+    // $empl_id = $this->session->userdata('empl_id');
+    // $manager_data = $this->queries->get_manager_data($empl_id);
+    // $comp_id = $manager_data->comp_id;
+    // $company_data = $this->queries->get_companyData($comp_id);
+    // $blanch_data = $this->queries->get_blanchData($blanch_id);
+    // $empl_data = $this->queries->get_employee_data($empl_id);
+    // Deni lililobaki
+    $remaining = max(0, $customer_loan->loan_int - $total_paid);
+
+    // Company name (au default)
+    $comp_name = $compdata->comp_name;
+
+
+  // echo "<pre>";
+  //   print_r($comp_name);
+  //  echo "<pre>";
+  //  exit();
+
+    // Build message
+    $massage = "Ndugu {$first_name} {$last_name}, umelipa jumla TZS " . number_format($total_paid) . ". "
+        . "Deni lililobaki TZS " . number_format($remaining) . ". "
+        . "Kiasi ulicholipa mara ya mwisho TZS " . number_format($latest_paid) . " tarehe {$latest_paid_day}. "
+        . "Asante, {$comp_name}";
+
+    // Tuma SMS
+     $this->sendsms($phone, $massage);
+
+    if ($massage) {
+        $this->session->set_flashdata('success', 'SMS ya malipo imetumwa kwa mteja.');
+    } else {
+        $this->session->set_flashdata('error', 'SMS haikuweza kutumwa. Angalia namba ya simu au huduma ya SMS.');
+    }
+
+   return redirect('admin/data_with_depost/'.$customer_id);
+}
+
+
 
 public function today_transactions(){
 	$this->load->model('queries');

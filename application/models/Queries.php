@@ -5167,6 +5167,18 @@ public function total_outstand_loan($comp_id, $blanch_id = null, $empl_id = null
        	 return $data->row();
        }
 
+	   public function get_total_and_latest_deposit($loan_id) {
+    $query = $this->db->query("
+        SELECT 
+            SUM(depost) AS total_depost,
+            (SELECT depost FROM tbl_depost WHERE loan_id = '$loan_id' ORDER BY deposit_day DESC LIMIT 1) AS latest_deposit,
+            (SELECT deposit_day FROM tbl_depost WHERE loan_id = '$loan_id' ORDER BY deposit_day DESC LIMIT 1) AS latest_deposit_day
+        FROM tbl_depost
+        WHERE loan_id = '$loan_id'
+    ");
+    return $query->row();
+}
+
 
    public function get_all_customerBlanch($blanch_id){
  	$customer = $this->db->query("SELECT * FROM tbl_customer WHERE blanch_id = '$blanch_id' ORDER BY customer_id DESC");
