@@ -2415,15 +2415,14 @@ public function search_customer()
 {
     $this->load->model('queries');
     $blanch_id = $this->session->userdata('blanch_id');
-    $empl_id = $this->session->userdata('empl_id');
+    $empl_id   = $this->session->userdata('empl_id');
     $manager_data = $this->queries->get_manager_data($empl_id);
-    $comp_id = $manager_data->comp_id;
+    $comp_id   = $manager_data->comp_id;
     $company_data = $this->queries->get_companyData($comp_id);
-    $blanch_data = $this->queries->get_blanchData($blanch_id);
-    $empl_data = $this->queries->get_employee_data($empl_id);
+    $blanch_data  = $this->queries->get_blanchData($blanch_id);
+    $empl_data    = $this->queries->get_employee_data($empl_id);
 
     $customer_id = $this->input->post('customer_id');
-
     $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
     
     if (!$customer) {
@@ -2439,34 +2438,23 @@ public function search_customer()
         ->row();
 
     if ($open_loan) {
-        $sponser = $this->queries->get_sponser($customer_id);
-        $sponsers_data = $this->queries->get_sponserCustomer($customer_id);
-        $region = $this->queries->get_region();
-        $privillage = $this->queries->get_position_empl($empl_id);
-        $manager = $this->queries->get_position_manager($empl_id);
-
-        $this->load->view('officer/search_customer', [
-            'customer' => $customer,
-            'sponser' => $sponser,
-            'sponsers_data' => $sponsers_data,
-            'region' => $region,
-            'empl_data' => $empl_data,
-            'privillage' => $privillage,
-            'manager' => $manager
+        return $this->load->view('officer/search_customer', [
+            'customer'      => $customer,
+            'sponser'       => $this->queries->get_sponser($customer_id),
+            'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
+            'region'        => $this->queries->get_region(),
+            'empl_data'     => $empl_data,
+            'privillage'    => $this->queries->get_position_empl($empl_id),
+            'manager'       => $this->queries->get_position_manager($empl_id)
         ]);
-        return;
     }
 
-    // ⚠️ Check if there’s a pending loan (not done and not open)
+    // ⚠️ Check if pending loan exists
     if ($this->queries->has_pending_loans($customer_id)) {
-        $data = [
-             'message' => 'Mteja <span class="font-bold">' . 
-                      $customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name . 
-                      '</span> bado hajamaliza mkopo wake. Tafadhali maliza mkopo kabla ya kuomba tena.',
-        'type'    => 'loan'
-        ];
-        $this->load->view('officer/toast_message_view', $data);
-        return;
+        return $this->load->view('officer/toast_message_view', [
+            'message' => "Mteja <span class='font-bold'>{$customer->f_name} {$customer->m_name} {$customer->l_name}</span> bado hajamaliza mkopo wake. Tafadhali maliza mkopo kabla ya kuomba tena.",
+            'type'    => 'loan'
+        ]);
     }
 
     // ✅ Check penalties for latest done loan
@@ -2480,49 +2468,31 @@ public function search_customer()
         ->row();
 
     if ($latestLoan) {
-        $total_penart = $this->queries->get_total_penart_loan($latestLoan->loan_id);
-        $total_penart = @$total_penart->total_penart ?: 0;
-
-        $paid_penart = $this->queries->get_total_penart_paid_loan($latestLoan->loan_id);
-        $paid = @$paid_penart->total_PaidPenart ?: 0;
+        $total_penart = @$this->queries->get_total_penart_loan($latestLoan->loan_id)->total_penart ?: 0;
+        $paid         = @$this->queries->get_total_penart_paid_loan($latestLoan->loan_id)->total_PaidPenart ?: 0;
 
         // ✅ Check if penalty has been waived
         $msamaha = $this->queries->get_penart_check($latestLoan->loan_id);
-       $waived = ($msamaha && isset($msamaha->status) && $msamaha->status === 'checked') ? true : false;
-  //  echo "<pre>";
-  //     print_r( $waived);
-  //          exit();
-        if ($waived) {
-         $sponser = $this->queries->get_sponser($customer_id);
-    $sponsers_data = $this->queries->get_sponserCustomer($customer_id);
-    $region = $this->queries->get_region();
-    $privillage = $this->queries->get_position_empl($empl_id);
-    $manager = $this->queries->get_position_manager($empl_id);
+        $waived  = ($msamaha && isset($msamaha->status) && $msamaha->status === 'checked');
 
-    $this->load->view('officer/search_customer', [
-        'customer' => $customer,
-        'sponser' => $sponser,
-        'sponsers_data' => $sponsers_data,
-        'region' => $region,
-        'empl_data' => $empl_data,
-        'privillage' => $privillage,
-        'manager' => $manager
-    ]);
+        if (!$waived && ($total_penart > $paid)) {
+            return $this->load->view('officer/toast_message_view', [
+                'message' => "Habari, Mteja {$customer->f_name} {$customer->m_name} {$customer->l_name} anadaiwa faini Jumla ya TZS " . number_format($total_penart - $paid) . ". Tafadhali alipe deni la faini au omba ahakikiwe ili umuombee mkopo.",
+                'type'    => 'penalty'
+            ]);
         }
-        else {
-          $data = [
-    'message' => "Habari, Mteja {$customer->f_name} {$customer->m_name} {$customer->l_name} anadaiwa faini Jumla ya TZS " . number_format($total_penart - $paid) . ". Tafadhali alipe deni la faini au omba ahakikiwe ili umuombee mkopo.",
-    'type' => 'penalty'
-];
-
-$this->load->view('officer/toast_message_view', $data);
-return;
-
     }
 
-    // ✅ If everything is fine, proceed to load customer view
-    
-}
+    // ✅ If no open loan, no pending loan, and no penalty → PROCEED NORMALLY
+    return $this->load->view('officer/search_customer', [
+        'customer'      => $customer,
+        'sponser'       => $this->queries->get_sponser($customer_id),
+        'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
+        'region'        => $this->queries->get_region(),
+        'empl_data'     => $empl_data,
+        'privillage'    => $this->queries->get_position_empl($empl_id),
+        'manager'       => $this->queries->get_position_manager($empl_id)
+    ]);
 }
 
 
