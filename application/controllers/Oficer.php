@@ -7004,9 +7004,9 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     @$sum_penart = $this->queries->get_penart_amount_total($customer_id);
     $privillage = $this->queries->get_position_empl($empl_id);
     $manager = $this->queries->get_position_manager($empl_id);
-    //    echo "<pre>";
-    // print_r($customer_report);
-    //       exit();
+       echo "<pre>";
+    print_r($customer_report);
+          exit();
     $this->load->view('officer/customer_report',['customer'=>$customer,'customer_report'=>$customer_report,'sum_recevable'=>$sum_recevable,'sum_pend'=>$sum_pend,'sum_penart'=>$sum_penart,'customer_id'=>$customer_id,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);
     }
 

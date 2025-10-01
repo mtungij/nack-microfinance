@@ -1656,11 +1656,12 @@ public function get_DisbarsedLoanBlanch_today($blanch_id) {
 
 public function get_customer_loanReport($customer_id){
     $data_report = $this->db->query("
-        SELECT cr.*, l.*, d.*, o.*, c.*
+        SELECT cr.*, l.*, d.*, o.*, c.*, p.*
         FROM tbl_customer_report cr
         JOIN tbl_loans l ON l.loan_id = cr.loan_id
         LEFT JOIN tbl_depost d ON d.loan_id = cr.loan_id
         LEFT JOIN tbl_outstand o ON o.loan_id = cr.loan_id
+        LEFT JOIN tbl_pay p ON p.loan_id = cr.loan_id
         JOIN tbl_customer c ON c.customer_id = cr.customer_id
         WHERE cr.customer_id = ?
         ORDER BY cr.rep_id DESC
@@ -1668,6 +1669,7 @@ public function get_customer_loanReport($customer_id){
 
     return $data_report->result();
 }
+
 
 
 
