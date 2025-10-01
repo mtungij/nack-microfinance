@@ -1654,10 +1654,25 @@ public function get_DisbarsedLoanBlanch_today($blanch_id) {
          return $data->row();
         }
 
-        public function get_customer_loanReport($customer_id){
-        	$data_report = $this->db->query("SELECT * FROM tbl_customer_report cr JOIN tbl_loans l ON l.loan_id = cr.loan_id WHERE cr.customer_id = '$customer_id' ORDER BY cr.rep_id DESC");
-        	return $data_report->result();
-        }
+public function get_customer_loanReport($customer_id){
+    $data_report = $this->db->query("
+        SELECT cr.*, l.*, d.*, o.*, c.*
+        FROM tbl_customer_report cr
+        JOIN tbl_loans l ON l.loan_id = cr.loan_id
+        LEFT JOIN tbl_depost d ON d.loan_id = cr.loan_id
+        LEFT JOIN tbl_outstand o ON o.loan_id = cr.loan_id
+        JOIN tbl_customer c ON c.customer_id = cr.customer_id
+        WHERE cr.customer_id = ?
+        ORDER BY cr.rep_id DESC
+    ", [$customer_id]);
+
+    return $data_report->result();
+}
+
+
+
+
+
 
 
         public function get_sum_receivableAmountCustomer($customer_id){
