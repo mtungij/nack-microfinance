@@ -74,7 +74,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
 
 
 
-
+  <div class="flex flex-col h-full overflow-y-auto">
   <nav class="hs-accordion-group p-6 w-full flex flex-col flex-wrap" data-hs-accordion-always-open>
     <ul class="space-y-1.5">
       <li>
@@ -327,5 +327,6 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
 
     </ul>
   </nav>
+</div>
 </div>
 <!-- ========== END SIDEBAR ========== -->
