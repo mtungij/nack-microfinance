@@ -181,72 +181,91 @@ public function create_blanch()
 	
 	
 	
-	public function Employee_signin() {
+public function Employee_signin() {
+    // Validation rules
     $this->form_validation->set_rules('empl_no', 'Employee Phone number', 'required');
     $this->form_validation->set_rules('password', 'Password', 'required');
     $this->form_validation->set_error_delimiters('<div class="text-danger">','</div>');
 
-    if ($this->form_validation->run()) {
-        $empl_no = $this->input->post('empl_no');
-        $password_input = $this->input->post('password');
+    if (!$this->form_validation->run()) {
+        return $this->employee_login();
+    }
 
-        $this->load->model('queries');
-        $userexit = $this->queries->employee_user_data($empl_no);
+    $empl_no = $this->input->post('empl_no');
+    $password_input = $this->input->post('password');
 
-        if ($userexit && password_verify($password_input, $userexit->password)) {
+    $this->load->model('queries');
+    $user = $this->queries->employee_user_data($empl_no);
 
-            $sessionData = [
-                'empl_id'        => $userexit->empl_id,
-                'blanch_id'      => $userexit->blanch_id,
-                'username'       => $userexit->username,
-                'empl_name'      => $userexit->empl_name,
-                'comp_id'        => $userexit->comp_id ?? null,
-                'position_id'    => $userexit->position_id,
-                'position_name'  => $userexit->position,
-                'user_id'        => $userexit->empl_id,
-                'must_update'    => $userexit->must_update ?? 0,
-            ];
+    if (!$user) {
+        $this->session->set_flashdata('mass', "Your Phone number or password is invalid, please try again");
+        return redirect("welcome/employee_login");
+    }
 
-            // Load links for management only
-            if ($userexit->position_id == 22) {
-                $allowed_links = $this->queries->get_employee_links($userexit->empl_id);
-                $sessionData['permissions'] = $allowed_links;
-            }
+    $stored_password = $user->password;
+    $login_success = false;
 
-            $this->session->set_userdata($sessionData);
+    // Check if password is old SHA1
+    if (strlen($stored_password) === 40 && sha1($password_input) === $stored_password) {
+        $login_success = true;
 
-            if ($userexit->empl_status == 'open') {
+        // Re-hash password with bcrypt and update DB
+        $new_hash = password_hash($password_input, PASSWORD_BCRYPT);
+        $this->db->update('tbl_employee`', ['password' => $new_hash], ['empl_id' => $user->empl_id]);
+    } 
+    // Check bcrypt password
+    elseif (password_verify($password_input, $stored_password)) {
+        $login_success = true;
+    }
 
-                // ✅ Force update for management who have must_update flag
-                if ($userexit->position_id == 22 && $userexit->must_update == 1) {
-                    return redirect('welcome/update_profile');
-                }
+    if (!$login_success) {
+        $this->session->set_flashdata('mass', "Your Phone number or password is invalid, please try again");
+        return redirect("welcome/employee_login");
+    }
 
-                // Redirect by position
-                switch ($userexit->position_id) {
-                    case '1':
-                    case '2':
-                    case '6':
-                    case '17':
-                        return redirect('oficer/index');
-                    case '22':
-                        return redirect('admin/index');
-                    default:
-                        return redirect('oficer/index');
-                }
+    // Prepare session data
+    $sessionData = [
+        'empl_id'       => $user->empl_id,
+        'blanch_id'     => $user->blanch_id,
+        'username'      => $user->username,
+        'empl_name'     => $user->empl_name,
+        'comp_id'       => $user->comp_id ?? null,
+        'position_id'   => $user->position_id,
+        'position_name' => $user->position,
+        'user_id'       => $user->empl_id,
+        'must_update'   => $user->must_update ?? 0,
+    ];
 
-            } else {
-                $this->session->set_flashdata('mass', $this->lang->line("blocked_menu"));
-                return redirect("welcome/employee_login");
-            }
+    // Load management permissions if applicable
+    if ($user->position_id == 22) {
+        $allowed_links = $this->queries->get_employee_links($user->empl_id);
+        $sessionData['permissions'] = $allowed_links;
+    }
 
-        } else {
-            $this->session->set_flashdata('mass', "Your Phone number or password is invalid please try again");
-            return redirect("welcome/employee_login");
-        }
+    $this->session->set_userdata($sessionData);
 
-    } else {
-        $this->employee_login();
+    // Check account status
+    if ($user->empl_status !== 'open') {
+        $this->session->set_flashdata('mass', $this->lang->line("blocked_menu"));
+        return redirect("welcome/employee_login");
+    }
+
+    // Force profile update for management if required
+    if ($user->position_id == 22 && $user->must_update == 1) {
+        return redirect('welcome/update_profile');
+    }
+
+    // Redirect based on position
+    switch ($user->position_id) {
+        case '1':
+        case '2':
+        case '6':
+        case '17':
+            return redirect('oficer/index');
+        case '22':
+            return redirect('admin/index');
+        default:
+            return redirect('oficer/index');
     }
 }
 
