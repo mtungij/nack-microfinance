@@ -4177,6 +4177,8 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
 		//   exit();
 	      $admin_data = $this->queries->get_admin_role($comp_id);
 	      $remain_balance = @$data_depost->balance;
+
+		  
 	      $old_balance = $remain_balance;
 		//    echo "<pre>";
 		//   print_r($old_balance);
@@ -4284,8 +4286,17 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
          $loan_dep = $total_depost->remain_balance_loan;
          $kumaliza_depost = $loan_dep + $kumaliza;
 
+
+		 
+
 	     $loan_int = $loan_restoration->loan_int;
 	     $remain_loan = $loan_int - $total_depost->remain_balance_loan;
+
+         $baki = $loan_int - ($loan_dep + $kumaliza);
+
+		//  print_r($baki);
+		//  exit();
+
 
 	     if ($kumaliza_depost < $loan_int){
 	     	//print_r($kumaliza_depost);
@@ -4355,7 +4366,7 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
 	      }else{
 	      $this->insert_loan_lecordDataDeposit($comp_id,$customer_id,$loan_id,$blanch_id,$update_res,$dep_id,$group_id,$trans_id,$restoration,$loan_aproved,$deposit_date,$empl_id,$wakala_name);	
 	      }
-        $this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name);
+        $this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name,$baki);
 	     $this->insert_remainloan($loan_id,$depost_amount,$paid_out,$dep_id);
 	     $this->update_loastatus($loan_id);
 	     //$this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date);
@@ -4433,7 +4444,7 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
 	      }else{
 	      $this->insert_loan_lecordDataDeposit($comp_id,$customer_id,$loan_id,$blanch_id,$update_res,$dep_id,$group_id,$trans_id,$restoration,$loan_aproved,$deposit_date,$empl_id,$wakala_name);	
 	      }
-        $this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name);
+        $this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name,$baki);
 	     $this->insert_remainloan($loan_id,$depost_amount,$paid_out,$dep_id);
 	     //$this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date);
 	     //$this->depost_Blanch_accountBalance($comp_id,$blanch_id,$payment_method,$depost_money);
@@ -4527,7 +4538,7 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
 	      }else{
 	      $this->insert_loan_lecordDataDeposit($comp_id,$customer_id,$loan_id,$blanch_id,$update_res,$dep_id,$group_id,$trans_id,$restoration,$loan_aproved,$deposit_date,$empl_id,$wakala_name);	
 	      }
-        $this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name);
+        $this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name,$baki);
 	     
 
 	     //$this->depost_Blanch_accountBalance($comp_id,$blanch_id,$payment_method,$depost_money);
@@ -4994,9 +5005,9 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
 
     }
 
-   public function depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name){
+   public function depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name,$baki){
    	$day = date("Y-m-d");
-  $this->db->query("INSERT INTO tbl_pay (`loan_id`,`blanch_id`,`comp_id`,`customer_id`,`depost`,`balance`,`description`,`pay_status`,`stat`,`date_pay`,`emply`,`group_id`,`date_data`,`p_method`,`dep_id`,`wakala_name`) VALUES ('$loan_id','$blanch_id','$comp_id','$customer_id','$new_depost','$sum_balance','CASH DEPOSIT','1','1','$day','$role','$group_id','$deposit_date','$p_method','$dep_id','$wakala_name')");
+  $this->db->query("INSERT INTO tbl_pay (`loan_id`,`blanch_id`,`comp_id`,`customer_id`,`depost`,`balance`,`description`,`pay_status`,`stat`,`date_pay`,`emply`,`group_id`,`date_data`,`p_method`,`dep_id`,`wakala_name`,`rem_debt`) VALUES ('$loan_id','$blanch_id','$comp_id','$customer_id','$new_depost','$sum_balance','CASH DEPOSIT','1','1','$day','$role','$group_id','$deposit_date','$p_method','$dep_id','$wakala_name','$baki')");
 
       }
 
@@ -5570,7 +5581,7 @@ public function previous_transfor(){
  	$comp_id = $this->session->userdata('comp_id');
  	$cash = $this->queries->get_cash_transaction($comp_id);
  	$sum_depost = $this->queries->get_sumCashtransDepost($comp_id);
-	 $lazo = $this->queries->get_today_expected_collections($comp_id);
+	 $lazo = $this->queries->get_expected_collections($comp_id);
  	$sum_withdrawls = $this->queries->get_sumCashtransWithdrow($comp_id);
  	$blanch = $this->queries->get_blanch($comp_id);
  	//     echo "<pre>";

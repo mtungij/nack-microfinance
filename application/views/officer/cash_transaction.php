@@ -143,6 +143,7 @@ include_once APPPATH . "views/partials/officerheader.php";
             <!-- <th scope="col" class="px-4 py-3">Wakala</th> -->
             <th scope="col" class="px-4 py-3">Lazo</th>
             <th scope="col" class="px-4 py-3">Dabo</th>
+            <th scope="col" class="px-4 py-3">Deni</th>
             <th scope="col" class="px-4 py-3">Tarehe</th>
         </tr>
     </thead>
@@ -197,6 +198,7 @@ include_once APPPATH . "views/partials/officerheader.php";
                      <!-- <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $item->wakala ?></td> -->
                     <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $laza > 0 ? number_format($laza) : '-' ?></td>
                     <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $zidi > 0 ? number_format($zidi) : '-' ?></td>
+                      <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= number_format($item->rem_debt) ?></td>
                    
                     <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= htmlspecialchars($item->expected_date) ?></td>
                    

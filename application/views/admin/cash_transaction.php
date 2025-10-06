@@ -90,6 +90,8 @@ include_once APPPATH . "views/partials/header.php";
             <th scope="col" class="px-4 py-3">Lipwa</th>
             <th scope="col" class="px-4 py-3">Laza</th>
             <th scope="col" class="px-4 py-3">Zidi</th>
+             <th scope="col" class="px-4 py-3">Deni</th>
+            
             <th scope="col" class="px-4 py-3">Tarehe</th>
             
         </tr>
@@ -144,7 +146,11 @@ include_once APPPATH . "views/partials/header.php";
                     <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= number_format($item->depost) ?></td>
                     <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $laza > 0 ? number_format($laza) : '-' ?></td>
                     <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $zidi > 0 ? number_format($zidi) : '-' ?></td>
-                    <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= htmlspecialchars($item->expected_date) ?></td>
+                    <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?=  number_format($item->rem_debt) > 0 ? number_format($item->rem_debt) : 0.00 ?></td>
+                    <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+    <?= htmlspecialchars(date('d-m-y')) ?>
+</td>
+
                    
                 </tr>
             <?php endforeach; ?>

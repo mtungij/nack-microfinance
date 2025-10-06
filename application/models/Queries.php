@@ -7836,6 +7836,144 @@ public function get_today_expected_collections($comp_id)
     ];
 }
 
+public function depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$p_method,$group_id,$deposit_date,$dep_id,$wakala,$baki){
+    $day = date("Y-m-d H:i:s");
+    $this->db->query("INSERT INTO tbl_pay (`loan_id`,`blanch_id`,`comp_id`,`customer_id`,`depost`,`balance`,`description`,`pay_status`,`stat`,`date_pay`,`emply`,`p_method`,`group_id`,`date_data`,`dep_id`,`wakala`,`rem_debt`) 
+    VALUES ('$loan_id','$blanch_id','$comp_id','$customer_id','$new_depost','$sum_balance','$description','1','1','$day','$role','$p_method','$group_id','$deposit_date','$dep_id','$wakala','$baki')");
+    return $this->db->insert_id();
+}
+
+
+    public function get_active_loans_with_status() {
+        $this->db->where_in('loan_status', ['withdrawal', 'out']);
+        $query = $this->db->get('tbl_loans'); // replace with your actual loan table
+        return $query->result();
+    }
+
+public function get_expected_collections($comp_id)
+{
+    $today = date('Y-m-d'); // current date
+
+    // Get detailed loan and payment info with one row per loan
+    $this->db->select("
+        l.loan_id,
+        l.loan_status,
+        l.customer_id,
+        l.day,
+        l.session,
+        CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS full_name,
+        c.phone_no,
+        e.empl_name AS empl_name,
+        l.how_loan AS loan_amount,
+        l.restration,
+        COALESCE(p.depost, 0) AS depost,
+        COALESCE(p.rem_debt, 0) AS rem_debt,
+        COALESCE(d.empl_username, '') AS depositor_username,
+        cat.loan_name,
+        o.loan_stat_date,
+        o.loan_end_date,
+        b.blanch_name
+    ");
+    $this->db->from('tbl_loans l');
+    $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
+    $this->db->join('tbl_employee e', 'e.empl_id = l.empl_id', 'left');
+
+    // Subquery to get latest deposit and rem_debt from tbl_pay
+    $this->db->join(
+        "(SELECT p1.loan_id, p1.depost, p1.rem_debt, p1.pay_day
+          FROM tbl_pay p1
+          INNER JOIN (
+              SELECT loan_id, MAX(pay_day) AS latest_pay
+              FROM tbl_pay
+              WHERE description = 'CASH DEPOSIT'
+              GROUP BY loan_id
+          ) p2 ON p1.loan_id = p2.loan_id AND p1.pay_day = p2.latest_pay
+          WHERE p1.description = 'CASH DEPOSIT'
+        ) p",
+        "l.loan_id = p.loan_id",
+        'left'
+    );
+
+    // Subquery to get last depositor username per loan
+    $this->db->join(
+        "(SELECT loan_id, MAX(empl_username) AS empl_username
+          FROM tbl_depost
+          GROUP BY loan_id) d",
+        'l.loan_id = d.loan_id',
+        'left'
+    );
+
+    $this->db->join('tbl_loan_category cat', 'cat.category_id = l.category_id', 'left');
+    $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = l.blanch_id', 'left');
+
+    // Filter loans: either status is 'withdrawal'/'out' OR there is a deposit today
+    $this->db->group_start();
+    $this->db->where_in('l.loan_status', ['withdrawal', 'out']);
+    $this->db->or_where('DATE(p.pay_day)', $today);
+    $this->db->group_end();
+
+    $this->db->where('l.comp_id', $comp_id);
+
+    $details = $this->db->get()->result();
+
+    // Total restration for withdrawal/out loans
+    $this->db->select('SUM(restration) AS total_restration');
+    $this->db->from('tbl_loans');
+    $this->db->where_in('loan_status', ['withdrawal', 'out']);
+    $this->db->where('comp_id', $comp_id);
+    $sum_restration = $this->db->get()->row();
+
+    // Total deposit and rem_debt (latest per loan)
+    $this->db->select('SUM(p.depost) AS total_depost, SUM(p.rem_debt) AS total_rem_debt');
+    $this->db->from('tbl_loans l');
+    $this->db->join(
+        "(SELECT p1.loan_id, p1.depost, p1.rem_debt, p1.pay_day
+          FROM tbl_pay p1
+          INNER JOIN (
+              SELECT loan_id, MAX(pay_day) AS latest_pay
+              FROM tbl_pay
+              WHERE description = 'CASH DEPOSIT'
+              GROUP BY loan_id
+          ) p2 ON p1.loan_id = p2.loan_id AND p1.pay_day = p2.latest_pay
+          WHERE p1.description = 'CASH DEPOSIT'
+        ) p",
+        "l.loan_id = p.loan_id",
+        'inner'
+    );
+    $this->db->where('l.comp_id', $comp_id);
+    $sum_depost = $this->db->get()->row();
+
+    // Count of total customers expected to pay (status withdrawal/out)
+    $this->db->select('COUNT(DISTINCT customer_id) AS total_customers');
+    $this->db->from('tbl_loans');
+    $this->db->where_in('loan_status', ['withdrawal', 'out']);
+    $this->db->where('comp_id', $comp_id);
+    $total_customers = $this->db->get()->row();
+
+    // Count of customers who made a deposit today
+    $this->db->select('COUNT(DISTINCT l.customer_id) AS deposited_customers');
+    $this->db->from('tbl_loans l');
+    $this->db->join('tbl_pay p', "l.loan_id = p.loan_id AND p.description = 'CASH DEPOSIT' AND DATE(p.pay_day) = '{$today}'", 'inner');
+    $this->db->where('l.comp_id', $comp_id);
+    $this->db->where('p.depost >', 0);
+    $deposited_customers = $this->db->get()->row();
+
+    $no_deposit_customers = ($total_customers->total_customers ?? 0) - ($deposited_customers->deposited_customers ?? 0);
+
+    return [
+        'details' => $details,
+        'total_restration' => $sum_restration->total_restration ?? 0,
+        'total_depost' => $sum_depost->total_depost ?? 0,
+        'total_rem_debt' => $sum_depost->total_rem_debt ?? 0,
+        'total_customers' => $total_customers->total_customers ?? 0,
+        'deposited_customers' => $deposited_customers->deposited_customers ?? 0,
+        'no_deposit_customers' => $no_deposit_customers
+    ];
+}
+
+
+
 
 	public function get_cash_transaction_by_officer($empl_id) {
 		$date = date("Y-m-d");
@@ -7869,11 +8007,12 @@ public function get_today_expected_collections($comp_id)
 		return $data->result();
 	}
 
+
 public function managerexpected_collections($blanch_id)
 {
     $today = date('Y-m-d');
 
-    // Get detailed loan and payment info with one row per loan
+    // Get detailed loan and payment info with latest deposit/rem_debt per loan
     $this->db->select("
         l.loan_id,
         l.loan_status,
@@ -7883,12 +8022,12 @@ public function managerexpected_collections($blanch_id)
         CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS full_name,
         c.phone_no,
         c.customer_code,
-        e.empl_id,  
-        e.empl_name AS empl_name,
+        l.empl_id,
         l.how_loan AS loan_amount,
         l.restration,
         l.date_show AS expected_date,
-        COALESCE(p.total_depost, 0) AS depost,
+        COALESCE(p.depost, 0) AS depost,
+        COALESCE(p.rem_debt, 0) AS rem_debt,
         p.wakala,
         p.p_method,
         COALESCE(d.empl_username, '') AS depositor_username,
@@ -7900,102 +8039,108 @@ public function managerexpected_collections($blanch_id)
     ");
     $this->db->from('tbl_loans l');
     $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
-    $this->db->join('tbl_employee e', 'e.empl_id = l.empl_id', 'left');
 
-    // Filter by branch
-    $this->db->where('e.blanch_id', $blanch_id);
-
-    // Subquery: total deposit + wakala + pay_method (last entry per loan today)
+    // Latest deposit + rem_debt + wakala + pay_method per loan
     $this->db->join("
         (
-            SELECT t1.loan_id, 
-                   SUM(t1.depost) AS total_depost,
-                   MAX(t1.wakala) AS wakala,
-                   MAX(t1.p_method) AS p_method
+            SELECT t1.loan_id,
+                   t1.depost,
+                   t1.rem_debt,
+                   t1.wakala,
+                   t1.p_method,
+                   t1.pay_day
             FROM tbl_pay t1
-            WHERE t1.description = 'CASH DEPOSIT' AND t1.date_data = '{$today}'
-            GROUP BY t1.loan_id
-        ) p", "l.loan_id = p.loan_id", 'left');
+            INNER JOIN (
+                SELECT loan_id, MAX(pay_day) AS latest_pay
+                FROM tbl_pay
+                WHERE description = 'CASH DEPOSIT'
+                GROUP BY loan_id
+            ) t2 ON t1.loan_id = t2.loan_id AND t1.pay_day = t2.latest_pay
+            WHERE t1.description = 'CASH DEPOSIT'
+        ) p", "l.loan_id = p.loan_id", 'left'
+    );
 
-    // Join account name based on p.p_method
-    $this->db->join('tbl_account_transaction at', 'at.trans_id = p.p_method', 'left');
-
-    // Subquery: last depositor username per loan today
+    // Last depositor username per loan today
     $this->db->join("
         (
             SELECT loan_id, MAX(empl_username) AS empl_username
             FROM tbl_depost
             WHERE depost_day = '{$today}'
             GROUP BY loan_id
-        ) d", 'l.loan_id = d.loan_id', 'left');
+        ) d", 'l.loan_id = d.loan_id', 'left'
+    );
 
     $this->db->join('tbl_loan_category cat', 'cat.category_id = l.category_id', 'left');
     $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
     $this->db->join('tbl_blanch b', 'b.blanch_id = l.blanch_id', 'left');
+    $this->db->join('tbl_account_transaction at', 'at.trans_id = p.p_method', 'left');
 
-    $this->db->where('l.date_show', $today);
+    // Filter: either status withdrawal/out OR done with a deposit today
+    $this->db->group_start();
+    $this->db->where_in('l.loan_status', ['withdrawal', 'out']);
+    $this->db->or_group_start();
+    $this->db->where('l.loan_status', 'done');
+    $this->db->where('DATE(p.pay_day)', $today);
+    $this->db->group_end();
+    $this->db->group_end();
+
+    // Branch filter using l.blanch_id
+    $this->db->where('l.blanch_id', $blanch_id);
+
     $details = $this->db->get()->result();
 
-    // Total restration for branch
+    // Total restration for branch (status withdrawal/out)
     $this->db->select('SUM(restration) AS total_restration');
     $this->db->from('tbl_loans l');
-    $this->db->join('tbl_employee e', 'e.empl_id = l.empl_id', 'left');
-    $this->db->where('l.date_show', $today);
-    $this->db->where('e.blanch_id', $blanch_id);
+    $this->db->where_in('l.loan_status', ['withdrawal', 'out']);
+    $this->db->where('l.blanch_id', $blanch_id);
     $sum_restration = $this->db->get()->row();
 
-    // Total deposit for branch
-    $this->db->select('SUM(p.depost) AS total_depost');
+    // Total deposit and rem_debt (latest per loan)
+    $this->db->select('SUM(p.depost) AS total_depost, SUM(p.rem_debt) AS total_rem_debt');
     $this->db->from('tbl_loans l');
-    $this->db->join('tbl_employee e', 'e.empl_id = l.empl_id', 'left');
-    $this->db->join('tbl_pay p', "l.loan_id = p.loan_id AND p.date_data = '{$today}' AND p.description = 'CASH DEPOSIT'", 'inner');
-    $this->db->where('l.date_show', $today);
-    $this->db->where('e.blanch_id', $blanch_id);
+    $this->db->join(
+        "(SELECT t1.loan_id, t1.depost, t1.rem_debt
+          FROM tbl_pay t1
+          INNER JOIN (
+              SELECT loan_id, MAX(pay_day) AS latest_pay
+              FROM tbl_pay
+              WHERE description = 'CASH DEPOSIT'
+              GROUP BY loan_id
+          ) t2 ON t1.loan_id = t2.loan_id AND t1.pay_day = t2.latest_pay
+          WHERE t1.description = 'CASH DEPOSIT'
+        ) p",
+        "l.loan_id = p.loan_id",
+        'left'
+    );
+    $this->db->where('l.blanch_id', $blanch_id);
     $sum_depost = $this->db->get()->row();
 
-    // Total expected customers
+    // Total expected customers (status withdrawal/out)
     $this->db->select('COUNT(DISTINCT l.customer_id) AS total_customers');
     $this->db->from('tbl_loans l');
-    $this->db->join('tbl_employee e', 'e.empl_id = l.empl_id', 'left');
-    $this->db->where('l.date_show', $today);
-    $this->db->where('e.blanch_id', $blanch_id);
+    $this->db->where_in('l.loan_status', ['withdrawal', 'out']);
+    $this->db->where('l.blanch_id', $blanch_id);
     $total_customers = $this->db->get()->row();
 
-    // Customers who deposited
+    // Customers who deposited today
     $this->db->select('COUNT(DISTINCT l.customer_id) AS deposited_customers');
     $this->db->from('tbl_loans l');
-    $this->db->join('tbl_employee e', 'e.empl_id = l.empl_id', 'left');
-    $this->db->join('tbl_pay p', "l.loan_id = p.loan_id AND p.date_data = '{$today}' AND p.description = 'CASH DEPOSIT'", 'inner');
-    $this->db->where('l.date_show', $today);
-    $this->db->where('e.blanch_id', $blanch_id);
+    $this->db->join('tbl_pay p', "l.loan_id = p.loan_id AND p.description = 'CASH DEPOSIT' AND DATE(p.pay_day) = '{$today}'", 'inner');
+    $this->db->where('l.blanch_id', $blanch_id);
     $this->db->where('p.depost >', 0);
     $deposited_customers = $this->db->get()->row();
 
     $no_deposit_customers = ($total_customers->total_customers ?? 0) - ($deposited_customers->deposited_customers ?? 0);
 
-    // 🔹 Extra: Total deposit per loan from tbl_pay
-    $this->db->select('loan_id, SUM(depost) AS total_depost');
-    $this->db->from('tbl_pay');
-    $this->db->where('date_data', $today);
-    $this->db->where('description', 'CASH DEPOSIT');
-    $this->db->group_by('loan_id');
-    $deposit_per_loan = $this->db->get()->result();
-
-    // 🔹 Extra: Total deposit per loan from tbl_depost
-    $this->db->select('loan_id, SUM(depost) AS total_depost');
-    $this->db->from('tbl_depost');
-    $this->db->group_by('loan_id');
-    $deposit_from_depost = $this->db->get()->result();
-
     return [
         'details' => $details,
         'total_restration' => $sum_restration->total_restration ?? 0,
         'total_depost' => $sum_depost->total_depost ?? 0,
+        'total_rem_debt' => $sum_depost->total_rem_debt ?? 0,
         'total_customers' => $total_customers->total_customers ?? 0,
         'deposited_customers' => $deposited_customers->deposited_customers ?? 0,
-        'no_deposit_customers' => $no_deposit_customers,
-        'deposit_per_loan' => $deposit_per_loan,          // kutoka tbl_pay
-        'deposit_from_depost' => $deposit_from_depost     // kutoka tbl_depost
+        'no_deposit_customers' => $no_deposit_customers
     ];
 }
 

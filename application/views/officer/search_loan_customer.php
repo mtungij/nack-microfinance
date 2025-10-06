@@ -261,7 +261,6 @@ include_once APPPATH . "views/partials/officerheader.php";
     <?php echo form_close(); ?>
 </div>
 
-       
 
                 <div class="overflow-x-auto">
                     <div class="min-w-full inline-block align-middle">
@@ -274,6 +273,7 @@ include_once APPPATH . "views/partials/officerheader.php";
                                         <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Lipwa</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
                                          <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Toka</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
                                         <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Salio</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Baki Deni</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
 
                                     </tr>
                                 </thead>
@@ -313,6 +313,8 @@ include_once APPPATH . "views/partials/officerheader.php";
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?= ($payisnulls->depost) ? round($payisnulls->depost, 2) : '0.00'; ?></td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?= ($payisnulls->withdrow) ? round($payisnulls->withdrow, 2) : '0.00'; ?></td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?= ($payisnulls->balance) ? round($payisnulls->balance, 2) : '0.00'; ?></td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?= ($payisnulls->rem_debt) ? round($payisnulls->rem_debt, 2) : '0.00'; ?></td>
+
     
 </tr>
                                         <?php endforeach; ?>
@@ -387,15 +389,15 @@ include_once APPPATH . "views/partials/officerheader.php";
         required>
     </div>
 
-    <!-- Code -->
-     <!-- <div class="sm:col-span-6">
+  
+      <div class="sm:col-span-6">
       <label for="code_</?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">
         * Code Number:
       </label>
       <input type="number" placeholder="andika code ya Mteja" id="code_<?php echo $customer->customer_id; ?>" name="code"
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
         >
-    </div>    -->
+    </div>    
 
   </div>
 
@@ -414,7 +416,7 @@ include_once APPPATH . "views/partials/officerheader.php";
     <button type="button" class="py-2 px-3 btn-secondary-sm"
       data-hs-overlay="#hs-edit-shareholder-modal-<?= $customer->customer_id; ?>">Funga</button>
 
-     <!-- <a href="<?php echo base_url("oficer/get_loan_code_resend/{$customer->customer_id}"); ?>"
+     <a href="<?php echo base_url("oficer/get_loan_code_resend/{$customer->customer_id}"); ?>"
    class="py-2 px-3 btn-primary-sm bg-green-600 hover:bg-cyan-700 text-white flex items-center gap-2"
    onclick="showSvgLoaderAndRedirect(event, this)">
   <span>Resend Code</span>
@@ -441,7 +443,7 @@ include_once APPPATH . "views/partials/officerheader.php";
       </g>
     </svg>
   </span>
-</a>     -->
+</a>     
 
 
     <button type="submit" class="py-2 px-3 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white">Gawa</button>
@@ -523,25 +525,20 @@ include_once APPPATH . "views/partials/officerheader.php";
 
 
 
-    <div class="sm:col-span-6">
+    <!-- <div class="sm:col-span-6">
     <?php if ($customer_loan->loan_status == 'withdrawal') { ?>
         <label for="pending" class="block text-sm font-medium mb-2 dark:text-gray-300">Recovery Amount</label>
         <input type="text" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                value="<?php echo number_format($total_recovery->total_pending, 2); ?>" 
                readonly style="color:red"> 
 
-    <?php } elseif ($customer_loan->loan_status == 'out') { ?>
-        <span style="color:red;">Deni</span>
-        <input type="text" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
-               value="<?php echo number_format($out_stand->total_out, 2); ?>" 
-               readonly style="color:red"> 
-
+ 
     <?php } else { ?>
         <label for="pending" class="block text-sm font-medium mb-2 dark:text-gray-300">Recovery Amount</label>
         <input type="text" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                 value="<?php echo number_format($total_recovery->pending, 2); ?>"
                readonly style="color:red"> 
-    <?php } ?>
+    <?php } ?> -->
 </div>
 
 

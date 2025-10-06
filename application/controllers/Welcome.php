@@ -333,6 +333,57 @@ public function save_updated_profile() {
 }
 
 
+public function insert_remain_debt() {
+      $this->load->model('queries');
+        $loans = $this->queries->get_active_loans_with_status();
+
+        foreach ($loans as $loan) {
+            $loan_id     = $loan->loan_id;
+            $customer_id = $loan->customer_id;
+            $blanch_id   = $loan->blanch_id;
+            $comp_id     = $loan->comp_id;
+            $empl_id     = $loan->empl_id;
+            $loan_int    = $loan->loan_int;
+
+            // Get total deposits so far
+            $total_depost = $this->queries->get_sum_dapost($loan_id);
+            $loan_dep = $total_depost->remain_balance_loan ?? 0;
+
+            // Deposit is zero for cron
+            $new_depost = 0;
+
+            // Calculate remaining debt
+            $baki = $loan_int - ($loan_dep + $new_depost);
+
+            // Prevent duplicate entry for the same loan on same day
+            $today = date('Y-m-d');
+            $this->db->where('loan_id', $loan_id);
+            $this->db->where('DATE(date_data)', $today);
+            $exists = $this->db->get('tbl_pay')->num_rows();
+
+            if ($exists == 0) {
+                // Insert remain_debt record
+                $this->queries->depost_balance(
+                    $loan_id,
+                    $comp_id,
+                    $blanch_id,
+                    $customer_id,
+                    $new_depost, // 0 deposit
+                    $loan_dep,   // sum balance
+                    'AUTO CRON REMAIN DEBT',
+                    'SYSTEM',    // role
+                    'SYSTEM',    // payment method
+                    $loan->group_id ?? 0,
+                    date('Y-m-d H:i:s'),
+                    0,           // dep_id
+                    'SYSTEM',    // wakala
+                    $baki
+                );
+            }
+        }
+
+        echo "✅ Cron insert_remain_debt executed successfully at " . date('Y-m-d H:i:s');
+    }
 
 	
 	
