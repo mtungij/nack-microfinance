@@ -429,7 +429,7 @@ public function insert_remain_debt() {
        public function notify_no_deposit_customers($comp_id = 263, $debug = true) 
 {
     // Only allow CLI
-    if (!$this->input->is_cli_request()) {
+    if ($this->input->is_cli_request()){
         echo "❌ This script can only be run via CLI.\n";
         return;
     }
