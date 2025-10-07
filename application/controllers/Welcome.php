@@ -437,6 +437,12 @@ public function notify_no_deposit_customers($comp_id)
     // Get customers who have not deposited today
     $customers = $this->queries->get_customers_pending_payment($comp_id);
 
+    // Debug: print customers
+    echo "<pre>";
+    print_r($customers);
+    echo "</pre>";
+    // exit(); // comment this out when ready to send SMS
+
     if (empty($customers)) {
         echo "✅ Wateja wote wamefanya malipo leo.";
         return;
@@ -449,15 +455,19 @@ public function notify_no_deposit_customers($comp_id)
         $full_name = trim($customer->full_name ?: 'Mteja');
         $status = strtolower($customer->loan_status);
 
-        // Loan amount
+        // Loan amount & remaining debt formatting
         $loan_amount = number_format($customer->loan_amount, 0, '.', ',');
+        $rem_debt = number_format($customer->rem_debt ?? 0, 0, '.', ',');
+
+        // Format loan_end_date
+        $loan_end_date = isset($customer->loan_end_date) ? date('d/m/Y', strtotime($customer->loan_end_date)) : '';
 
         // Different messages for loan status
         if ($status === 'withdrawal') {
-            $massage = "Ndugu {$full_name}, kumbuka bado hujafanya malipo yako ya leo. Tafadhali hakikisha unafanya malipo ili kuepuka sifa mbaya ya ukopeshaji.";
+            $massage = "Ndugu {$full_name}, hujafanya malipo yako ya Leo. Epuka kukosa sifa ya kukukopeshwa na kulipa faini kwa kutokulipa kwa wakati. Ahsante.";
         } elseif ($status === 'out') {
-            // SMS ya mdaiwa sugu, bila rem_debt
-            $massage = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} bado haujalipwa. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
+            // SMS ya mdaiwa sugu, includes loan amount, rem_debt, and loan_end_date
+            $massage = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
         } else {
             $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
         }

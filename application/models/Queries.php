@@ -7770,7 +7770,8 @@ public function get_customers_pending_payment($comp_id)
         l.loan_int AS loan_amount,
         o.loan_stat_date,
         o.loan_end_date,
-        COALESCE(p.rem_debt, 0) AS rem_debt
+        COALESCE(p.rem_debt, 0) AS rem_debt,
+        p.latest_pay_id
     ");
     $this->db->from('tbl_loans l');
     $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
@@ -7780,13 +7781,14 @@ public function get_customers_pending_payment($comp_id)
     $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
 
     // Join tbl_pay to get latest rem_debt per loan
-    $this->db->join("(SELECT p1.loan_id, p1.rem_debt
+    $this->db->join("(SELECT p1.loan_id, p1.rem_debt, p1.pay_id AS latest_pay_id
                       FROM tbl_pay p1
                       INNER JOIN (
-                          SELECT loan_id, MAX(pay_day) AS latest_pay
+                          SELECT loan_id, MAX(pay_id) AS latest_pay_id
                           FROM tbl_pay
+                          WHERE description = 'CASH DEPOSIT'
                           GROUP BY loan_id
-                      ) p2 ON p1.loan_id = p2.loan_id AND p1.pay_day = p2.latest_pay
+                      ) p2 ON p1.loan_id = p2.loan_id AND p1.pay_id = p2.latest_pay_id
                       WHERE p1.description = 'CASH DEPOSIT'
                      ) p", 
                      "l.loan_id = p.loan_id", 
@@ -7806,10 +7808,14 @@ public function get_customers_pending_payment($comp_id)
     )", null, false);
 
     $this->db->group_by('l.customer_id');
+
+    // Ordering by latest payment first
+    $this->db->order_by('p.latest_pay_id', 'DESC');
     $this->db->order_by('c.f_name', 'ASC');
 
     return $this->db->get()->result();
 }
+
 
 
 
