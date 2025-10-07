@@ -126,6 +126,8 @@ public function create_blanch()
 		$this->load->view('home/register',['region'=>$region]);
 	}
 
+    
+
 
 
    // user sing in
@@ -425,33 +427,49 @@ public function insert_remain_debt() {
 
 
 
-	   public function clone_today_loans() {
-		// Step 1: Clone today's loans (optional if needed elsewhere)
-		$this->load->model('queries');
-		$comp_id = 256;
-	
-		// Step 2: Get branch-wise total
-		$kusanyo = $this->queries->get_today_recevable_loan_branchwise($comp_id);
-	
-		// Step 3: Prepare SMS message
-		$massage = "Habari, matarajio ya makusanyo ya leo kwa matawi ni kama ifuatavyo:\n";
-		foreach ($kusanyo as $row) {
-			$blanch = $row->blanch_name;
-			$amount = number_format($row->total_restration);
-			$massage .= "- $blanch: Tsh $amount\n";
-		}
-	
-		// Step 4: Send to multiple recipients
-		$phone_numbers = ['255763727272', '255629364847']; // Add more if needed
-	
-		foreach ($phone_numbers as $phone) {
-			$this->sendsms($phone, $massage);
-		}
-	
-		// Optional: Feedback or redirection
-		// $this->session->set_flashdata('success', 'Makusanyo cloned na SMS zimetumwa.');
-		// redirect('admin/some_page');
-	}
+
+
+public function notify_no_deposit_customers($comp_id)
+{
+    // Load model
+    $this->load->model('queries');
+
+    // Get customers who have not deposited today
+    $customers = $this->queries->get_customers_pending_payment($comp_id);
+
+    if (empty($customers)) {
+        echo "✅ Wateja wote wamefanya malipo leo.";
+        return;
+    }
+
+    foreach ($customers as $customer) {
+        $phone = trim($customer->phone_no);
+        if (empty($phone)) continue;
+
+        $full_name = trim($customer->full_name ?: 'Mteja');
+        $status = strtolower($customer->loan_status);
+
+        // Loan amount
+        $loan_amount = number_format($customer->loan_amount, 0, '.', ',');
+
+        // Different messages for loan status
+        if ($status === 'withdrawal') {
+            $massage = "Ndugu {$full_name}, kumbuka bado hujafanya malipo yako ya leo. Tafadhali hakikisha unafanya malipo ili kuepuka sifa mbaya ya ukopeshaji.";
+        } elseif ($status === 'out') {
+            // SMS ya mdaiwa sugu, bila rem_debt
+            $massage = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} bado haujalipwa. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
+        } else {
+            $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
+        }
+
+        // Send SMS
+        $this->sendsms($phone, $massage);
+    }
+
+    echo "📩 Ujumbe umetumwa kwa wateja " . count($customers) . " ambao hawajafanya malipo leo.";
+}
+
+
 
 
 	public function clone_today_disbursed() {
