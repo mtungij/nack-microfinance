@@ -439,6 +439,8 @@ public function notify_no_deposit_customers($comp_id = 263, $debug = true)
         return;
     }
 
+    $today = date('d/m/Y'); // Tarehe ya leo
+
     foreach ($customers as $customer) {
         $phone = trim($customer->phone_no);
         if (empty($phone)) continue;
@@ -453,27 +455,28 @@ public function notify_no_deposit_customers($comp_id = 263, $debug = true)
 
         // Messages based on loan status
         if ($status === 'withdrawal') {
-            $massage = "Ndugu {$full_name}, hujafanya malipo yako ya leo ya mkopo TZS {$loan_amount}. Epuka kulipa faini za kulaza  na kukosa sifa ya kukukopeshwa. Ahsante.";
+            $message = "Ndugu {$full_name}, hujafanya malipo yako ya tarehe {$today} ya mkopo TZS {$loan_amount}. Epuka kulipa faini za kulaza na kukosa sifa ya kukukopeshwa. Ahsante.";
         } elseif ($status === 'out') {
-            $massage = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
+            $message = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
         } else {
-            $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
+            $message = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
         }
 
         if ($debug) {
             // Debug mode: print message
             echo "-----------------------------------\n";
             echo "To: $phone\n";
-            echo "Massage: $massage\n";
+            echo "Message: $message\n";
             echo "-----------------------------------\n\n";
         } else {
             // Send SMS
-            $this->sendsms($phone, $massage);
+            $this->sendsms($phone, $message);
         }
     }
 
-    echo "📩 Jumla ya wateja: " . count($customers) . "\n";
+    
 }
+
 
 
 //  public function notify_no_deposit_customers($comp_id = 263) // optional default comp_id
