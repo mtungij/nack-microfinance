@@ -426,6 +426,11 @@ public function insert_remain_debt() {
        }
 
 
+            public function notify_customers()
+    {
+        $this->notify_no_deposit_customers(263); // replace 263 with your comp_id
+    }
+
 
 
 
@@ -972,6 +977,8 @@ $sqldata="UPDATE `tbl_customer` SET `customer_status`= 'close' WHERE `customer_i
 		}
 	}
 
+
+ 
  
 
 	public function sendsms($phone,$massage){
