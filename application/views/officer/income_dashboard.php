@@ -484,6 +484,38 @@ $('#loan').html('<option value="">Select Active loan</option>');
 $('.select2').select2();
 </script>
 
+<script>
+  const amountInput = document.getElementById('receve_amount');
+  const form = document.querySelector('form');
+
+  // Function to format the input as money while typing
+  amountInput.addEventListener('input', function (e) {
+    let value = e.target.value;
+
+    // Remove all characters except numbers and decimal
+    value = value.replace(/[^\d.]/g, '');
+
+    // Allow only one decimal point
+    const parts = value.split('.');
+    if (parts.length > 2) {
+      value = parts[0] + '.' + parts[1];
+    }
+
+    // Format integer part with commas
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    value = parts.join('.');
+
+    e.target.value = value;
+  });
+
+  // Before form submission, remove formatting (commas)
+  form.addEventListener('submit', function () {
+    let rawValue = amountInput.value.replace(/,/g, '');
+    amountInput.value = rawValue;
+  });
+</script>
+
+
 
 
 

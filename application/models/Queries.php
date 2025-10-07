@@ -3137,7 +3137,24 @@ public function get_blanchAccountremain($blanch_id){
 
 public function get_income_detail($comp_id){
 	$date = date("Y-m-d");
-	$income = $this->db->query("SELECT * FROM tbl_receve r JOIN tbl_income i ON i.inc_id = r.inc_id JOIN tbl_customer c ON c.customer_id = r.customer_id JOIN tbl_blanch b ON b.blanch_id = c.blanch_id WHERE r.comp_id = '$comp_id' AND r.receve_day = '$date'");
+	$income = $this->db->query("SELECT * FROM tbl_receve r JOIN tbl_income i ON i.inc_id = r.inc_id JOIN tbl_customer c ON c.customer_id = r.customer_id JOIN tbl_blanch b ON b.blanch_id = c.blanch_id LEFT JOIN tbl_employee e ON e.empl_id = r.empl LEFT JOIN tbl_loans l ON l.loan_id = r.loan_id WHERE r.comp_id = '$comp_id' AND r.receve_day = '$date'");
+	 return $income->result();
+}
+
+
+public function get_sum_previousIncome_blanch($from,$to,$comp_id,$blanch_id){
+	$data = $this->db->query("SELECT SUM(receve_amount) AS total_receved_blanch FROM  tbl_receve WHERE receve_day between '$from' and '$to' AND  comp_id = '$comp_id' AND blanch_id = '$blanch_id'");
+	 return $data->row();
+}
+
+
+public function get_sum_previousIncome_COMP($from,$to,$comp_id){
+	$data = $this->db->query("SELECT SUM(receve_amount) AS total_receved_blanch FROM  tbl_receve WHERE receve_day between '$from' and '$to' AND  comp_id = '$comp_id'");
+	 return $data->row();
+}
+
+public function get_previous_income_all($from,$to,$comp_id){
+	$income = $this->db->query("SELECT * FROM tbl_receve r JOIN tbl_income i ON i.inc_id = r.inc_id JOIN tbl_customer c ON c.customer_id = r.customer_id JOIN tbl_blanch b ON b.blanch_id = c.blanch_id WHERE r.receve_day between '$from' and '$to' AND r.comp_id = '$comp_id' GROUP BY r.blanch_id");
 	 return $income->result();
 }
 

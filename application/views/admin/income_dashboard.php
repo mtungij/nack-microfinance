@@ -1,310 +1,473 @@
-<?php include('incs/header_1.php'); ?>
-<?php include('incs/side_1.php'); ?>
-<?php include('incs/subheader.php'); ?>
-	
-<style>
-    .select2-container .select2-selection--single{
-    height:37px !important;
-}
-.select2-container--default .select2-selection--single{
-         border: 1px solid #ccc !important; 
-     border-radius: 0px !important; 
-}
-</style>
+ 
+<?php
+include_once APPPATH . "views/partials/header.php";
 
-<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor">					
-<!-- begin:: Subheader -->
-<div class="kt-subheader   kt-grid__item" id="kt_subheader">
-   
-</div>
-<!-- end:: Subheader -->										
-<!-- begin:: Content -->
-<!-- begin:: Content -->
+// --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
+// Controller should pass $share, an array of shareholder objects.
+// Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
+// if (!isset($share)) {
+//     $share = [
+//         (object)['share_id' => 1, 'share_name' => 'Alice Wonderland', 'share_mobile' => '0712345001', 'share_email' => 'alice@example.com', 'share_sex' => 'female', 'share_dob' => '1985-06-15'],
+//         (object)['share_id' => 2, 'share_name' => 'Bob The Builder', 'share_mobile' => '0712345002', 'share_email' => 'bob@example.com', 'share_sex' => 'male', 'share_dob' => '1978-11-02'],
+//     ];
+// }
+// --- END DUMMY DATA ---header.php
+?>
 
+<!-- ========== MAIN CONTENT BODY ========== -->
+<div class="w-full lg:ps-64">
+    <div class="p-4 sm:p-6 space-y-6">
 
-<div class="kt-content  kt-grid__item kt-grid__item--fluid" id="kt_content">
-	<!--begin::Portlet-->
-	<?php if ($das = $this->session->flashdata('massage')): ?>
-	  <div class="alert alert-success fade show alert-success" role="alert">
-                            <div class="alert-icon"><i class="flaticon2-check-mark"></i></div>
-                            <div class="alert-text"><?php echo $das;?></div>
-                            <div class="alert-close">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true"><i class="la la-close"></i></span>
-                                </button>
-                            </div>
-                  </div>
-         <?php endif; ?>
-<div class="row">
-	<div class="col-lg-12">
-		<div class="kt-portlet">
-			<div class="kt-portlet__head">
-				<div class="kt-portlet__head-label">
-					<h3 class="kt-portlet__head-title">
-						Income Dashboard
-					</h3>
-				</div>
-			</div>
-			<!--begin::Form-->
-			<!-- <form method="post" action="ss" class="kt-form kt-form--label-right" id="kt_form_2"> -->
-				<?php echo form_open("admin/create_income_detail",['class'=>'kt-form kt-form--label-right','novalidate']); ?>
-				<div class="kt-portlet__body">
-					<div class="kt-section">
-						<div class="kt-section__content">
-							<div class="form-group form-group-last row">
-								<div class="col-lg-4 form-group-sub">
-									<label class="form-control-label">*Branch:</label>
-									<select type="number" name="blanch_id" class="form-control kt-selectpicker" id="blanch" data-live-search="true">
-										<option value="">Select Branch</option>
-										<?php foreach ($blanch as $blanchs): ?>
-										<option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?></option>
-										<?php endforeach; ?>
-									</select>
-								</div> 
+        <!-- Page Title / Subheader -->
+        <div class="mb-6">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
+               Record New Income
+            </h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Register only New Income.
+            </p>
+        </div>
+        <!-- End Page Title / Subheader -->
 
-								
-				
-				<div class="col-lg-4 form-group-sub">
-					<label class="form-control-label">*Customer:</label>
-				<select class="form-control select2" name="customer_id" id="customer">
-						<option value="">Select customer</option>
-					</select>
-				</div>
-
-				<div class="col-lg-4 form-group-sub">
-					<label class="form-control-label">*Active Loan:</label>
-				<select class="form-control select2" name="loan_id" id="loan" required>
-				<option value="">Select Active Loan </option>
-					</select>
-				 </div>
-
-				 <div class="col-lg-6 form-group-sub">
-					<label class="form-control-label">*Income Type:</label>
-				<select class="form-control kt-selectpicker" name="inc_id" required data-live-search="true">
-				<option value="">Select Income type</option>
-					<?php foreach ($income as $incomes): ?>
-				   <option value="<?php echo $incomes->inc_id; ?>"><?php echo $incomes->inc_name; ?></option>
-					<?php endforeach; ?>
-					</select>
-				 </div>
-
-
-				<div class="col-lg-6 form-group-sub">
-			    <label class="form-control-label">*Income Amount</label>
-			<input type="number" name="receve_amount" autocomplete="off" class="form-control">
-								</div>
-				<input type="hidden" name="comp_id" value="<?php echo $_SESSION['comp_id']; ?>">
-			<!-- <input type="hidden" name="empl" value=""> -->
-				<?php $day = date("Y-m-d"); ?>
-			<input type="hidden" name="receve_day" value="<?php echo $day;?>">
-			
-			</div>
-		</div>
-	</div>
-	</div>
-				<div class="kt-portlet__foot">
-					<div class="kt-form__actions">
-						<div class="row">
-							<div class="col-lg-12">
-								<div class="text-center">
-								<button type="submit" class="btn btn-brand  btn-elevate btn-pill btn-sm">Save</button>
-								<button type="reset" class="btn btn-danger btn-elevate btn-pill btn-sm">Cancel</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			<?php echo form_close(); ?>
-			<!--end::Form-->
-		</div>
-		<!--end::Portlet-->
-	</div>
-</div>
-
-
-
-<div class="kt-portlet kt-portlet--mobile">
-	<div class="kt-portlet__head kt-portlet__head--lg">
-		<?php echo form_open("admin/search_income_inBlanch"); ?>
-		<div class="kt-portlet__head-label">
-			<span class="kt-portlet__head-icon">
-				<i class="kt-font-brand flaticon-list-2"></i>
-			</span>
-			<h3 class="kt-portlet__head-title">
-				Today Income List
-			</h3>
-			&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
-			<h3 class="kt-portlet__head-title">
-				<span>Search Branch</span>
-				<select type="number" class="form-control kt-selectpicker" name="blanch_id" data-live-search="true" required>
-					<option value="">Search Branch</option>
-					<?php foreach ($blanch as $blanchs): ?>
-					<option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?></option>
-					<?php endforeach; ?>
-				</select>
-				<?php $today = date("Y-m-d"); ?>
-				<input type="hidden" name="receve_day" value="<?php echo $today; ?>">
-			</h3>
-			<h3 class="kt-portlet__head-title">
-				<br>
-				<button type="submit" class="btn btn-primary">Get Data</button>
-			</h3>
-		</div>
-		<?php echo form_close(); ?>
-		<div class="kt-portlet__head-toolbar">
-            <div class="kt-portlet__head-wrapper">
-	<div class="kt-portlet__head-actions">
-
-	
-		&nbsp;
-		<!-- <a href="<?php //echo base_url("admin/previous_income"); ?>" class="btn btn-brand btn-elevate btn-icon-sm">
-			<i class="flaticon-event-calendar-symbol"></i>
-			Previous
-		</a> -->
-
-		<a href="" class="btn btn-info" class="kt-nav__link" data-toggle="modal" data-target="#kt_modal_4"><i class="flaticon-event-calendar-symbol"></i>Filter Previous</a>
-
-		<a href="<?php echo base_url("admin/print_todayIncome"); ?>" target="_blank" class="btn btn-brand btn-elevate btn-icon-sm">
-			<i class="flaticon-technology"></i>
-			Print
-		</a>
-	</div>	
-</div>		</div>
-	</div>
-
-	<div class="kt-portlet__body">
-		<!--begin: Datatable -->
-		<table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
-									     <thead>
-			  						          <tr>
-				  						
-												<th>Customer Name</th>
-												<th>Branch Name</th>
-												<th>Incomes Type</th>
-												<th>Income Amount</th>
-												<th>User Employee</th>
-												<th>Date</th>
-												<th>Action</th>
-				  									
-				  									
-				  						         </tr>
-						                  </thead>
-			
-								    <tbody>
-                                        <?php //$no = 1; ?>
-									<?php foreach ($detail_income as $detail_incomes): ?>
-									          <tr>
-				  			 <td><?php echo $detail_incomes->f_name; ?> <?php echo $detail_incomes->m_name; ?> <?php echo $detail_incomes->l_name; ?></td> 
-				  			 <td><?php echo $detail_incomes->blanch_name; ?></td>
-				  			 <td><?php echo $detail_incomes->inc_name; ?></td> 
-				  			 <td><?php echo number_format($detail_incomes->receve_amount); ?></td> 
-				  			  
-				  			 
-				  			 <td><?php echo $detail_incomes->empl; ?></td> 
-				  			 <td><?php echo $detail_incomes->receve_day; ?></td> 
-				  					
-				  				<td>	
-				  			<div class="dropdown dropdown-inline">
-			<button type="button" class="btn btn-info  btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<i class=""></i> Action  	
-			</button>
-			<div class="dropdown-menu dropdown-menu-right">
-				<ul class="kt-nav">
-					<li class="kt-nav__section kt-nav__section--first">
-						<span class="kt-nav__section-text">Choose an option</span>
-					</li>
-					<li class="kt-nav__item">
-						<a href="#" class="kt-nav__link" data-toggle="modal" data-target="#kt_modal_<?php echo $detail_incomes->receved_id; ?>">
-							<i class="kt-nav__link-icon flaticon-edit" ></i>
-							<span class="kt-nav__link-text">Edit</span>
-						</a>
-					</li>
-					<!-- <li class="kt-nav__item">
-						<a href="<?php //echo base_url("admin/delete_receved/{$detail_incomes->receved_id}") ?>" class="kt-nav__link" onclick="return confirm('Are you sure?')">
-							<i class="kt-nav__link-icon flaticon-delete"></i>
-							<span class="kt-nav__link-text">Delete</span>
-						</a>
-					</li> -->
-					
-				</ul>
-			</div>
-	</div>
-</td>			  											  							
-</tr>
-
-<!--begin::Modal-->
-<div class="modal fade" id="kt_modal_<?php echo $detail_incomes->receved_id; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Edit income</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                </button>
+        <?php // Flash Messages ?>
+        <?php if ($success = $this->session->flashdata('massage')): ?>
+    <!-- Success Alert -->
+    <div class="bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500" role="alert">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <span class="inline-flex justify-center items-center size-8 rounded-full border-4 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-500">
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </span>
             </div>
-                 <?php echo form_open("admin/modify_income_detail/{$detail_incomes->receved_id}"); ?>
-            <div class="modal-body">
-                    <div class="form-group">
-                     <label for="recipient-name" class="form-control-label">Customer Name:</label>
-                        <select class="form-control" name="customer_id">
-
-                       <option value="<?php echo $detail_incomes->customer_id; ?>"><?php echo $detail_incomes->f_name; ?> <?php echo $detail_incomes->m_name; ?> <?php echo $detail_incomes->l_name; ?></option>
-
-                        	<?php foreach ($customer as $customers): ?>
-                        	   <option value="<?php echo $customers->customer_id; ?>"><?php echo $customers->f_name; ?> <?php echo $customers->m_name; ?> <?php echo $customers->l_name; ?></option>
-                        	<?php endforeach; ?>
-                        </select>
-                     <label for="recipient-name" class="form-control-label">Income Type:</label>
-                       <select class="form-control" name="inc_id">
-                        	<option value="<?php echo $detail_incomes->inc_id; ?>"><?php echo $detail_incomes->inc_name; ?></option>
-                        	<?php foreach ($income as $incomes): ?>
-                        	   <option value="<?php echo $incomes->inc_id; ?>"><?php echo $incomes->inc_name; ?></option>
-                        	<?php endforeach; ?>
-                        </select>
-                        <input type="hidden" name="loan_id" value="<?php echo $detail_incomes->loan_id; ?>">
-                        <label for="recipient-name" class="form-control-label">Income:</label>
-                        <input type="text" class="form-control" autocomplete="off" name="receve_amount" value="<?php echo $detail_incomes->receve_amount; ?>">
-                    </div>  
-                   </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Update</button>
+            <div class="ms-3">
+                <h3 class="text-gray-800 font-semibold dark:text-white">Success</h3>
+                <p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $success; ?></p>
             </div>
-            <?php echo form_close(); ?>
+            <div class="ps-3 ms-auto">
+                <div class="-mx-1.5 -my-1.5">
+                    <button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none" data-hs-remove-element="[role=alert]">
+                        <span class="sr-only">Dismiss</span>
+                        <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
+<?php endif; ?>
+
+<?php if ($error = $this->session->flashdata('error')): ?>
+    <!-- Error Alert -->
+    <div class="bg-red-100 border border-red-200 text-sm text-red-800 rounded-lg p-4 dark:bg-red-800/10 dark:border-red-900 dark:text-red-500" role="alert">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <span class="inline-flex justify-center items-center size-8 rounded-full border-4 border-red-100 bg-red-200 text-red-800 dark:border-red-900 dark:bg-red-800 dark:text-red-500">
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+                </span>
+            </div>
+            <div class="ms-3">
+                <h3 class="text-gray-800 font-semibold dark:text-white">Error</h3>
+                <p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $error; ?></p>
+            </div>
+            <div class="ps-3 ms-auto">
+                <div class="-mx-1.5 -my-1.5">
+                    <button type="button" class="inline-flex bg-red-50 rounded-lg p-1.5 text-red-500 hover:bg-red-100 focus:outline-none" data-hs-remove-element="[role=alert]">
+                        <span class="sr-only">Dismiss</span>
+                        <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+
+        <!-- Card: Register Share Holder Form -->
+     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-2xl p-6 md:p-8">
+  <h3 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
+    Record New Income
+  </h3>
+
+  <?php echo form_open("admin/create_income_detail", ['novalidate' => true]); ?>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    
+    <!-- Branch -->
+    <div>
+      <label for="branchSelect" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+        * Branch:
+      </label>
+      <select id="branchSelect" name="blanch_id"
+        class="select2 block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 text-sm focus:ring-cyan-500 focus:border-cyan-500">
+        <option value="">Select Branch</option>
+        <?php foreach ($blanch as $blanchs): ?>
+          <option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <!-- Customer -->
+    <div>
+      <label for="customer" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+        * Customer Name:
+      </label>
+      <select name="customer_id" id="customer"
+        class="select2 block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 text-sm focus:ring-cyan-500 focus:border-cyan-500">
+        <option value="">Select Customer</option>
+      </select>
+    </div>
+
+    <!-- Active Loan -->
+    <div>
+      <label for="loan" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+        * Active Loan:
+      </label>
+      <select name="loan_id" id="loan"
+        class="select2 block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 text-sm focus:ring-cyan-500 focus:border-cyan-500">
+        <option value="">Select Loan</option>
+      </select>
+    </div>
+
+    <!-- Income Type -->
+    <div>
+      <label for="inc_id" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+        * Income Type:
+      </label>
+      <select name="inc_id"
+        class="select2 block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 text-sm focus:ring-cyan-500 focus:border-cyan-500">
+        <?php foreach ($income as $incomes): ?>
+          <option value="<?php echo $incomes->inc_id; ?>"><?php echo $incomes->inc_name; ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <!-- Amount -->
+    <div>
+      <label for="receve_amount" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+        * Income Amount:
+      </label>
+      <input type="text" name="receve_amount" id="receve_amount" autocomplete="off" placeholder="Income Amount"
+        class="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm focus:ring-cyan-500 focus:border-cyan-500"
+        value="<?php echo set_value('receve_amount'); ?>">
+      <?php echo form_error("receve_amount", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
+    </div>
+
+  </div>
+
+  <?php $day = date("Y-m-d"); ?>
+  <input type="hidden" name="receve_day" value="<?php echo $day; ?>">
+  <input type="hidden" name="comp_id" value="<?php echo $_SESSION['comp_id']; ?>">
+
+  <!-- Submit -->
+<div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-center">
+  <button type="submit"
+    class="inline-flex items-center justify-center gap-2 
+           px-8 py-3 text-sm font-semibold rounded-xl 
+           bg-gradient-to-r from-cyan-600 to-cyan-700 
+           hover:from-cyan-700 hover:to-cyan-800 
+           text-white shadow-md hover:shadow-lg 
+           focus:outline-none focus:ring-4 focus:ring-cyan-400/50 
+           dark:focus:ring-cyan-500/40 transition-all duration-200">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M5 13l4 4L19 7" />
+    </svg>
+    Submit
+  </button>
 </div>
-<!--end::Modal-->
-<?php endforeach; ?>
-									
-	                </tbody>
-	                <tfoot>
-                    <tr>
-					<th>TOTAL</th>
-					<th></th>
-					<th></th>
-					<th><?php echo number_format($total_receved->total_receved); ?></th>
-					<th></th>
-					<th></th>
-					<th></th>
-                    </tr>
-                   </tfoot>
-                   </table>
-		<!--end: Datatable -->
-	</div>
+
+
+
+<section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
+    <div class="w-full">
+        <!-- Start coding here -->
+        <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+                <div class="w-full md:w-1/2">
+                    <form class="flex items-center">
+                        <label for="simple-search" class="sr-only">Search</label>
+                        <div class="relative w-full">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              
+                            </div>
+                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" 
+							placeholder="tafuta mteja hapa"
+        data-hs-datatable-search="#shareholder_table"
+        aria-label="Search share holders"
+							>
+                        </div>
+                    </form>
+                </div>
+                <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+				<button type="button" class="flex items-center justify-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-basic-modal">
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
+    </svg>
+    Filter Data
+</button>
+
+                  
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="shareholder_table"  class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 dark:text-white">S/No</th>
+							<th scope="col" class="px-4 py-3 dark:text-white">Customer Name</th>
+                            <th scope="col" class="px-4 py-3 dark:text-white">Branch Name</th>
+                            <th scope="col" class="px-4 py-3 dark:text-white">Loan Amount</th>
+                            <th scope="col" class="px-4 py-3 dark:text-white">Income Type</th>
+                            <th scope="col" class="px-4 py-3 dark:text-white">Income Amount</th>
+                            <th scope="col" class="px-4 py-3 dark:text-white">Receiver</th>
+							<th scope="col" class="px-4 py-3 dark:text-white">Date</th>
+							<th scope="col" class="px-4 py-3 dark:text-white">Action</th>
+                           
+                         
+						
+							  
+                        </tr>
+                    </thead>
+					<tbody>
+  
+              <?php $no = 1; ?>
+                                    <?php foreach ($detail_income as $detail_incomes): ?>
+        <tr class="border-b dark:border-gray-700">
+            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></th>
+            <td class="px-4 py-3 dark:text-white"><?= $detail_incomes->f_name . ' ' . $detail_incomes->m_name . ' ' . $detail_incomes->l_name; ?></td>
+            <td class="px-4 py-3 dark:text-white"><?= $detail_incomes->blanch_name; ?></td>
+          <td><?php echo number_format($detail_incomes->loan_aprove); ?></td>
+			  <td class="px-4 py-3 dark:text-white"><?php echo $detail_incomes->inc_name; ?></td>
+          
+			 <td><?php echo number_format($detail_incomes->receve_amount); ?></td>
+			 <td class="px-4 py-3 dark:text-white"><?php if ($detail_incomes->empl_name == FALSE) {
+                                     ?>
+                                     -
+                                 <?php }else{ ?>
+                                        <?php echo $detail_incomes->empl_name; ?>
+                                        <?php } ?>
+                                    </td>
+                                    <td><?php echo $detail_incomes->receve_day; ?></td>
+                                <td>
+
+								 <td class="px-4 py-3 dark:text-white">
+								   <a href="<?php echo base_url("admin/delete_receved/{$detail_incomes->receved_id}") ?>" class="py-2  btn-primary-sm bg-red-600 hover:bg-red-700 text-white">Delete</button>
+                                </td>  
+        
+        </tr>
+    <?php endforeach; ?>
+
+    <!-- Totals Row -->
+    <!-- <tr class="bg-gray-100 dark:bg-gray-700 font-bold">
+        <td colspan="5" class="px-4 py-3 dark:text-white text-right">Total</td>
+        <td class="px-4 py-3 dark:text-white"><?= number_format($total_loan); ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= number_format($total_received); ?></td>
+        <td colspan="3"></td>
+    </tr> -->
+</tbody>
+
+                </table>
+				<div id="hs-basic-modal" class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none" role="dialog" tabindex="-1" aria-labelledby="hs-basic-modal-label">
+  <div class="sm:max-w-lg sm:w-full m-3 sm:mx-auto">
+    <div class="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+      <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
+        <h3 id="hs-basic-modal-label" class="font-bold text-gray-800 dark:text-white">
+          Filter Employee
+        </h3>
+        <button type="button" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600" aria-label="Close" data-hs-overlay="#hs-basic-modal">
+          <span class="sr-only">Close</span>
+          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+	   <?php echo form_open("admin/previous_income"); ?>
+  <div class="p-4 overflow-y-auto space-y-4">
+
+    <!-- Gender Dropdown -->
+    <div>
+      <label for="blanch" class="block text-sm font-medium text-gray-700 dark:text-white">Chagua Tawi</label>
+      <select  id="branchSelect" name="blanch_id"  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" data-live-search="true">
+	  <option value="">Chagua Tawi</option>
+			<?php foreach ($blanch as $blanchs): ?>
+		<option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?> </option>
+			<?php endforeach; ?>
+			  <option value="all">All</option>
+      </select>
+    </div>
+
+    <!-- 2-Column Grid: Phone, Email, Company Name, Address -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Phone -->
+      <!-- <div>
+        <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-white">Chagua Afisa</label>
+		<select  id="employeeSelect" name="empl_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+	  <option value="">Chagua Afisa</option>
+	  <option value="all">ALL</option>
+      </select>
+      </div> -->
+
+      <!-- Email -->
+      <!-- <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-white">Loan status:</label>
+        
+		<select  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" name="dep_status" id="empl" required>
+                                 <option value="">Select loan status</option>
+                                 <option value="withdrawal">Active</option>
+                                 <option value="out">Deni Sugu</option>
+                                </select>
+      </div> -->
+
+      <!-- Company Name -->
+	  <?php $date = date("Y-m-d"); ?>  
+
+      <div>
+        <label for="company" class="block text-sm font-medium text-gray-700 dark:text-white">Kwanzia Tarehe</label>
+		<input type="date" value="<?php echo $date; ?>" name="from"  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+      </div>
+
+      <!-- Address -->
+      <div>
+        <label for="address" class="block text-sm font-medium text-gray-700 dark:text-white">Mpaka Tarehe</label>
+		<input type="date" name="to" value="<?php echo $date; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal Footer Buttons -->
+  <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
+    <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700" data-hs-overlay="#hs-basic-modal">
+      Close
+    </button>
+    <button type="submit" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+      Apply Filters
+    </button>
+  </div>
+  <?php echo form_close(); ?>
+
+
+    </div>
+  </div>
 </div>
+
+            </div>
+          
+        </div>
+    </div>
+    </section>
+
+
+
+
+
+  </div>
+
+  <?php echo form_close(); ?>
 </div>
-<!-- end:: Content -->
-<!-- end:: Content -->
-				</div>				
-				
-<?php include('incs/footer_1.php') ?>
+
+</div>
+<!-- ========== END MAIN CONTENT BODY ========== -->
+
+<?php
+include_once APPPATH . "views/partials/footer.php";
+?>
+
+<?php // Script for cmd+a fix for DataTables search input (if used) ?>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Include Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<style>
+.select2-container--default .select2-selection--single {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 0.5rem;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    height: auto;
+    color: #06b6d4; 
+    font-size: 0.875rem;
+    position: relative;
+}
+.select2-selection__rendered,
+.select2-selection__clear,
+.select2-selection__arrow {
+    color: #d1d5db;
+}
+.select2-selection__arrow {
+    right: 1rem;
+    top: 0;
+    width: 1.5rem;
+    position: absolute;
+}
+.select2-selection__clear {
+    right: 2.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    position: absolute;
+}
+.custom-select2-dropdown {
+    background-color: #1f2937;
+    color: #d1d5db;
+    border: 1px solid #374151;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #ffffff !important; /* Force white text */
+}
+.custom-select2-dropdown .select2-results__option--highlighted {
+    background-color: #06b6d4 !important; /* Tailwind cyan-400 */
+    color: #ffffff !important;
+}
+
+/* White text in the dropdown input if searchable */
+.select2-search__field {
+    color: #ffffff !important;
+    background-color: #1f2937 !important; /* match dark bg */
+    border: 1px solid #374151;
+}
+.custom-select2-dropdown .select2-results__option--highlighted {
+    background-color: #06b6d4;
+    color: #ffffff;
+}
+.custom-select2-container { margin: 0; }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        HSStaticMethods.autoInit(); // This is required to initialize all hs-select dropdowns
+    });
+</script>
+<script>
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('input[data-hs-datatable-search]');
+    inputs.forEach((input) => {
+      input.addEventListener('keydown', function (evt) {
+        if ((evt.metaKey || evt.ctrlKey) && (evt.key === 'a' || evt.key === 'A')) {
+          this.select();
+        }
+      });
+    });
+    // HSStaticMethods.autoInit(['select']); // If Preline selects need explicit init
+  }, 500);
+});
+</script>
 
 
 
 
 <script>
 $(document).ready(function(){
-$('#blanch').change(function(){
-var blanch_id = $('#blanch').val();
+$('#branchSelect').change(function(){
+  var blanch_id = $('#branchSelect').val();
+
 //alert(blanch_id)
 if(blanch_id != ''){
 
@@ -384,49 +547,7 @@ $('#loan').html('<option value="">Select Active loan</option>');
 </script>
 
 
-<div class="modal fade" id="kt_modal_4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xs" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Filter previous</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <?php echo form_open("admin/previous_income"); ?>
 
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-lg-12">
-                            <label class="form-control-label">*Select Branch:</label>
-                            <select class="form-control kt-selectpicker" name="blanch_id" required data-live-search="true">
-                                   <option value="">Select Branch</option>
-                                    <?php foreach ($blanch as $blanchs): ?>
-                                <option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?> </option>
-                                    <?php endforeach; ?>
-                                    <option value="all">All</option>
-                                </select>
-                               
-                        </div>
-                         
-                          <input type="hidden" name="comp_id" value="<?php echo $_SESSION['comp_id']; ?>">  
-                        <?php $date = date("Y-m-d"); ?>
-                      <div class="col-lg-6">
-                          <label class="form-control-label">*From:</label>
-                            <input type="date" name="from" value="<?php echo $date; ?>" class="form-control">
-                        </div>
-                         <div class="col-lg-6">
-                          <label class="form-control-label">*To:</label>
-                            <input type="date" name="to" value="<?php echo $date; ?>" class="form-control">
-                        </div>
-                    </div>  
-                 </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Filter Data</button>
-            </div>
-            <?php echo form_close(); ?>
-        </div>
-    </div>
-</div>
-<!--end::Modal-->
-</div>
+
+
+

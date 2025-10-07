@@ -7269,6 +7269,7 @@ $data_exp_category = $this->queries->get_expenses_category_total($comp_id);
 	}
 
 
+	
 	public function income_dashboard(){
 		$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
@@ -7277,9 +7278,15 @@ $data_exp_category = $this->queries->get_expenses_category_total($comp_id);
 		$total_receved = $this->queries->get_sum_income($comp_id);
 		$customer = $this->queries->get_allcutomer($comp_id);
 		$blanch = $this->queries->get_blanch($comp_id);
-		 // echo "<pre>";
-		 //   print_r($blanch);
-		 //         exit();
+    
+   
+        
+    // echo "<pre>";
+    //   print_r(  $income_branchwise);
+    //         exit();
+		//  echo "<pre>";
+		//    print_r($income);
+		//          exit();
 		$this->load->view('admin/income_dashboard',['income'=>$income,'detail_income'=>$detail_income,'total_receved'=>$total_receved,'customer'=>$customer,'blanch'=>$blanch]);
 	}
 
@@ -7400,14 +7407,23 @@ echo $this->queries->fetch_loancustomer($this->input->post('customer_id'));
         $to = $this->input->post('to');
         $blanch_id = $this->input->post('blanch_id');
         $comp_id = $this->input->post('comp_id');
+
+         if ($blanch_id == 'all') {
+        $data = $this->queries->get_previous_income_all($from,$to,$comp_id);
+        $sum_income = $this->queries->get_sum_previousIncome_COMP($from,$to,$comp_id);
+         }else{
         $data = $this->queries->get_previous_income($from,$to,$comp_id,$blanch_id);
-        $sum_income = $this->queries->get_sum_previousIncome($from,$to,$comp_id,$blanch_id);
+        $sum_income = $this->queries->get_sum_previousIncome_blanch($from,$to,$comp_id,$blanch_id);
+          }
+       
+        $blanch_data = $this->queries->get_blanch_data($blanch_id);
 
           //   echo "<pre>";
           // print_r($data);
           //     exit();
-		$this->load->view('admin/previous_income',['data'=>$data,'sum_income'=>$sum_income,'from'=>$from,'to'=>$to,'comp_id'=>$comp_id,'blanch_id'=>$blanch_id,'blanch'=>$blanch]);
+		$this->load->view('admin/previous_income',['data'=>$data,'sum_income'=>$sum_income,'from'=>$from,'to'=>$to,'comp_id'=>$comp_id,'blanch_id'=>$blanch_id,'blanch'=>$blanch,'blanch_data'=>$blanch_data]);
 	}
+
 
 	public function print_previous_report($from,$to,$comp_id,$blanch_id){
 	  $this->load->model('queries');

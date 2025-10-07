@@ -941,9 +941,9 @@ return true;
         if ($this->form_validation->run()) {
              $data = $this->input->post();
 
-             // echo "<pre>";
-             // print_r($data);
-             //       exit();
+            //  echo "<pre>";
+            //  print_r($data);
+            //        exit();
              $this->load->model('queries');
              $empl_id = $this->session->userdata('empl_id');
              $empl_data = $this->queries->get_employee_data($empl_id);
