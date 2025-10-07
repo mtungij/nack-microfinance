@@ -74,7 +74,6 @@ $today = date('d-m-Y'); // Format: day-month-year
     <thead>
         <tr>
             <th>Customer Name</th>
-            <th>Phone Number</th>
             <th>Income Type</th>
             <th>Income Amount</th>
             <th>User Employee</th>
