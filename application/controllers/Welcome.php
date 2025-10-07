@@ -457,7 +457,7 @@ public function notify_no_deposit_customers($comp_id = 263, $debug = true)
         if ($status === 'withdrawal') {
             $message = "Ndugu {$full_name}, hujafanya malipo yako ya tarehe {$today} ya mkopo TZS {$loan_amount}. Epuka kulipa faini za kulaza na kukosa sifa ya kukukopeshwa. Ahsante.";
         } elseif ($status === 'out') {
-            $message = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
+            $message = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Lipa mara moja deni ili kuepuka hatua zaidi.";
         } else {
             $message = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
         }
