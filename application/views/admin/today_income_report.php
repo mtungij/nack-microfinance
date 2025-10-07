@@ -76,7 +76,7 @@ $today = date('d-m-Y'); // Format: day-month-year
             <th>Customer Name</th>
             <th>Income Type</th>
             <th>Income Amount</th>
-            <th>User Employee</th>
+            <th>Staff</th>
             <th>Date</th>
         </tr>
     </thead>
