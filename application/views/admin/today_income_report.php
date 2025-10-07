@@ -53,59 +53,77 @@
 <?php 
 $company_name = "NACK CREDIT LIMITED";
 $company_phone = "+255 753 979 112";
-
-
-
+$today = date('d-m-Y'); // Format: day-month-year
 ?>
-    <!-- Company Header -->
-    <div class="company-header">
-   
-        <h2><?= htmlspecialchars($company_name) ?></h2>
-       
-        <p> Phone: <?= htmlspecialchars($company_phone) ?></p>
-    </div>
 
-    <!-- Report Title -->
-    <h3 style="text-align: center; margin-top: 30px;">FAINI REPORT</h3>
+<!-- Company Header -->
+<div class="company-header">
+    <h2><?= htmlspecialchars($company_name) ?></h2>
+    <p>Phone: <?= htmlspecialchars($company_phone) ?></p>
+</div>
 
-    <!-- Table -->
+<!-- Report Title -->
+<h3 style="text-align: center; margin-top: 30px;">FAINI REPORT</h3>
+
+<!-- Report Date -->
+<p style="text-align: center; font-weight: bold;">Tarehe: <?= $today ?></p>
+
+<!-- Table -->
+
   <table>
-<tr>
-<th >Customer Name</th>
-<th >Branch Name</th>
-<th >Income Type</th>
-<th >Income Amount </th>
-<th >User Employee</th>
-<th >Date</th>
+    <thead>
+        <tr>
+            <th>Customer Name</th>
+            <th>Phone Number</th>
+            <th>Income Type</th>
+            <th>Income Amount</th>
+            <th>User Employee</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+<?php
+    // Group incomes by branch_code
+    $branches = [];
+    foreach ($detail_income as $income) {
+        $branch_code = $income->branch_code ?? 'Unknown'; // Use branch_code here
+        if (!isset($branches[$branch_code])) {
+            $branches[$branch_code] = [];
+        }
+        $branches[$branch_code][] = $income;
+    }
+?>
+
+<?php foreach ($branches as $branch_code => $incomes): ?>
+    <!-- Branch Header -->
+    <tr style="background-color:#ddd; font-weight:bold;">
+    <td colspan="5"><b>Branch Code: <?= htmlspecialchars(strtoupper($branch_code)) ?></b></td>
 </tr>
 
-                     <?php foreach ($detail_income as $detail_incomes): ?>
-                          <tr>
-                        <td ><?php  echo $detail_incomes->f_name; ?> <?php  echo $detail_incomes->m_name; ?> <?php  echo $detail_incomes->l_name; ?></td>
-                         <td  class="c"><?php  echo $detail_incomes->blanch_name; ?></td>
-                         <td > <?php  echo $detail_incomes->inc_name; ?></td>
-                         <td >
-                             <?php  echo number_format($detail_incomes->receve_amount); ?>
-                         </td>
-                         <td >
-                        <?php  echo $detail_incomes->empl; ?>
-                         </td>
-                         <td > <?php  echo $detail_incomes->receve_day; ?></td>
-                        </tr>
-                  <?php endforeach; ?>
-                            </tbody>
-          
-            <tr>
-        <td ><?php //echo substr(@$pay_customers->pay_day, 0,10); ?><b>TOTAL</b></td>
-        <td >  </td>
-        <td ><b><?php //echo number_format(@$sum_recevable->total_recevable); ?></b></td>
-        <td ><b><?php echo number_format($total_receved->total_receved); ?></b></td>
-        <td ><b><?php //echo number_format(@$sum_penart->total_penart); ?></b></td>
-        <td ><b><?php //echo number_format(@$sum_penart->total_penart); ?></b></td>
+
+    <?php $branch_total = 0; ?>
+    <?php foreach ($incomes as $income): ?>
+        <tr>
+            <td><?= htmlspecialchars($income->f_name . ' ' . $income->m_name . ' ' . $income->l_name) ?></td>
+            <td><?= htmlspecialchars($income->inc_name) ?></td>
+            <td><?= number_format($income->receve_amount) ?></td>
+            <td><?= htmlspecialchars($income->empl) ?></td>
+            <td><?= htmlspecialchars($income->receve_day) ?></td>
         </tr>
-        
+        <?php $branch_total += $income->receve_amount; ?>
+    <?php endforeach; ?>
+
+    <!-- Branch Total -->
+    <tr style="background-color:#ccc; font-weight:bold;">
+        <td colspan="2">TOTAL <?= htmlspecialchars(strtoupper($branch_code)) ?></td>
+        <td><?= number_format($branch_total) ?></td>
+        <td colspan="2"></td>
+    </tr>
+<?php endforeach; ?>
+</tbody>
 
 </table>
+
 
 <br><br>
 
