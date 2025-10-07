@@ -177,8 +177,10 @@ include_once APPPATH . "views/partials/header.php";
 </div>
 
 
+  </div>
 
-<section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
+
+  <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
     <div class="w-full">
         <!-- Start coding here -->
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
@@ -357,12 +359,6 @@ include_once APPPATH . "views/partials/header.php";
         </div>
     </div>
     </section>
-
-
-
-
-
-  </div>
 
   <?php echo form_close(); ?>
 </div>
