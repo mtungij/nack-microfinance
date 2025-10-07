@@ -425,66 +425,51 @@ public function insert_remain_debt() {
        	 }
        }
 
-
-            public function notify_customers()
+ public function notify_no_deposit_customers($comp_id = 263) // optional default comp_id
     {
-        $this->notify_no_deposit_customers(263); // replace 263 with your comp_id
-    }
-
-
-
-
-public function notify_no_deposit_customers($comp_id)
-{
-    // Load model
-    $this->load->model('queries');
-
-    // Get customers who have not deposited today
-    $customers = $this->queries->get_customers_pending_payment($comp_id);
-
-    // Debug: print customers
-    echo "<pre>";
-    print_r($customers);
-    echo "</pre>";
-    // exit(); // comment this out when ready to send SMS
-
-    if (empty($customers)) {
-        echo "✅ Wateja wote wamefanya malipo leo.";
-        return;
-    }
-
-    foreach ($customers as $customer) {
-        $phone = trim($customer->phone_no);
-        if (empty($phone)) continue;
-
-        $full_name = trim($customer->full_name ?: 'Mteja');
-        $status = strtolower($customer->loan_status);
-
-        // Loan amount & remaining debt formatting
-        $loan_amount = number_format($customer->loan_amount, 0, '.', ',');
-        $rem_debt = number_format($customer->rem_debt ?? 0, 0, '.', ',');
-
-        // Format loan_end_date
-        $loan_end_date = isset($customer->loan_end_date) ? date('d/m/Y', strtotime($customer->loan_end_date)) : '';
-
-        // Different messages for loan status
-        if ($status === 'withdrawal') {
-            $massage = "Ndugu {$full_name}, hujafanya malipo yako ya Leo. Epuka kukosa sifa ya kukukopeshwa na kulipa faini kwa kutokulipa kwa wakati. Ahsante.";
-        } elseif ($status === 'out') {
-            // SMS ya mdaiwa sugu, includes loan amount, rem_debt, and loan_end_date
-            $massage = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
-        } else {
-            $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
+        // Only allow CLI
+        if (!$this->input->is_cli_request()) {
+            echo "❌ This script can only be run via CLI.\n";
+            return;
         }
 
-        // Send SMS
-        $this->sendsms($phone, $massage);
+        $this->load->model('queries');
+
+        $customers = $this->queries->get_customers_pending_payment($comp_id);
+
+        if (empty($customers)) {
+            echo "✅ Wateja wote wamefanya malipo leo.\n";
+            return;
+        }
+
+        foreach ($customers as $customer) {
+            $phone = trim($customer->phone_no);
+            if (empty($phone)) continue;
+
+            $full_name = trim($customer->full_name ?: 'Mteja');
+            $status = strtolower($customer->loan_status);
+
+            $loan_amount = number_format($customer->loan_amount, 0, '.', ',');
+            $rem_debt = number_format($customer->rem_debt ?? 0, 0, '.', ',');
+            $loan_end_date = isset($customer->loan_end_date) ? date('d/m/Y', strtotime($customer->loan_end_date)) : '';
+
+            if ($status === 'withdrawal') {
+                $message = "Ndugu {$full_name}, hujafanya malipo yako ya leo. Epuka kukosa sifa ya kukukopeshwa. Ahsante.";
+            } elseif ($status === 'out') {
+                $message = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
+            } else {
+                $message = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
+            }
+
+            // Debug: print message before sending
+            echo "To: $phone\nMessage: $message\n\n";
+
+            // Send SMS
+            $this->sendsms($phone, $message);
+        }
+
+        echo "📩 Ujumbe umetumwa kwa wateja " . count($customers) . "\n";
     }
-
-    echo "📩 Ujumbe umetumwa kwa wateja " . count($customers) . " ambao hawajafanya malipo leo.";
-}
-
-
 
 
 	public function clone_today_disbursed() {
@@ -981,34 +966,30 @@ $sqldata="UPDATE `tbl_customer` SET `customer_status`= 'close' WHERE `customer_i
  
  
 
-	public function sendsms($phone,$massage){
-		//public function sendsms(){f
-		//$phone = '255628323760';
-		//$massage = 'mapenzi yanauwa';
-		// $api_key = '';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-		//$api_key = 'qFzd89PXu1e/DuwbwxOE5uUBn6';
-		//$curl = curl_init();
-		$url = "https://sms-api.kadolab.com/api/send-sms";
-		$token = getenv('SMS_TOKEN');
-	
-	  
-		$ch = curl_init($url);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
-		  'Authorization: Bearer '. $token,
-		  'Content-Type: application/json',
-		]);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-		  "phoneNumbers" => ["+$phone"],
-		  "message" => $massage
-		]));
-	  
-	  $server_output = curl_exec($ch);
-	  curl_close ($ch);
-	  
-	  //print_r($server_output);
-	  }
+	public function sendsms($phone, $message)
+    {
+        $url = "https://sms-api.kadolab.com/api/send-sms";
+        $token = getenv('SMS_TOKEN');
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer '. $token,
+            'Content-Type: application/json',
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            "phoneNumbers" => ["+$phone"],
+            "message" => $message
+        ]));
+
+        $server_output = curl_exec($ch);
+        curl_close($ch);
+
+        // Optional: log server response
+        echo "SMS API Response: $server_output\n";
+    }
+
 
 
 // 	//send sms function
