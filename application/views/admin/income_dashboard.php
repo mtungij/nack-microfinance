@@ -235,7 +235,7 @@ include_once APPPATH . "views/partials/header.php";
               <?php $no = 1; ?>
                                     <?php foreach ($detail_income as $detail_incomes): ?>
         <tr class="border-b dark:border-gray-700">
-            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></th>
+            <td scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></td>
             <td class="px-4 py-3 dark:text-white"><?= $detail_incomes->f_name . ' ' . $detail_incomes->m_name . ' ' . $detail_incomes->l_name; ?></td>
             <td class="px-4 py-3 dark:text-white"><?= $detail_incomes->blanch_name; ?></td>
           <td><?php echo number_format($detail_incomes->loan_aprove); ?></td>
@@ -249,9 +249,9 @@ include_once APPPATH . "views/partials/header.php";
                                         <?php echo $detail_incomes->empl_name; ?>
                                         <?php } ?>
                                     </td>
-                                    <td><?php echo $detail_incomes->receve_day; ?></td>
-                                <td>
-
+                                   
+                                
+ <td><?php echo $detail_incomes->receve_day; ?></td>
 								 <td class="px-4 py-3 dark:text-white">
 								   <a href="<?php echo base_url("admin/delete_receved/{$detail_incomes->receved_id}") ?>" class="py-2  btn-primary-sm bg-red-600 hover:bg-red-700 text-white">Delete</button>
                                 </td>  
@@ -379,6 +379,17 @@ include_once APPPATH . "views/partials/footer.php";
 
 <!-- Include Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+$(document).ready(function() {
+  var table = $('#shareholder_table').DataTable();
+  $('#simple-search').on('keyup', function() {
+    table.search(this.value).draw();
+  });
+});
+</script>
+
 <style>
 .select2-container--default .select2-selection--single {
     background-color: #1f2937;
