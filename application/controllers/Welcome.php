@@ -448,18 +448,18 @@ public function insert_remain_debt() {
         $loan_end_date = isset($customer->loan_end_date) ? date('d/m/Y', strtotime($customer->loan_end_date)) : '';
 
         if ($status === 'withdrawal') {
-               $message = "Ndugu {$full_name}, unakumbushwa kufanya malipo ya mkopo wako kabla ya saa kumi na nusu jioni ili kuepuka faini za kuchelewesha ama kulaza.";
+               $massage = "Ndugu {$full_name}, unakumbushwa kufanya malipo ya mkopo wako kabla ya saa kumi na nusu jioni ili kuepuka faini za kuchelewesha ama kulaza.";
         } elseif ($status === 'out') {
-               $message = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulitoka nje ya mkataba tarehe {$loan_end_date}. Unakumbushwa kulipa deni lote unalodaiwa leo ili kuepuka hatua zaidi.";
+               $massage = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulitoka nje ya mkataba tarehe {$loan_end_date}. Unakumbushwa kulipa deni lote unalodaiwa leo ili kuepuka hatua zaidi.";
         } else {
-            $message = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
+            $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
         }
 
         if ($debug) {
-            echo "To: $phone\nMessage: $message\n\n";
+            echo "To: $phone\nMessage: $massage\n\n";
         } else {
             try {
-                $this->sendsms($phone, $message);
+                $this->sendsms($phone, $massage);
                 echo "[" . date('Y-m-d H:i:s') . "] ✅ Message sent to: $phone\n";
             } catch (Exception $e) {
                 log_message('error', "❌ SMS sending failed to {$phone}: " . $e->getMessage());
