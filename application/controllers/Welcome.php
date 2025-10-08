@@ -426,47 +426,50 @@ public function insert_remain_debt() {
        }
 
 
-    public function notify_no_deposit_customers($comp_id = 263) // optional default comp_id
-    {
-    
+  public function notify_no_deposit_customers($comp_id = 263, $debug = false)
+{
+    $this->load->model('queries');
 
-        $this->load->model('queries');
+    $customers = $this->queries->get_customers_pending_payment($comp_id);
 
-        $customers = $this->queries->get_customers_pending_payment($comp_id);
-
-        if (empty($customers)) {
-            echo "✅ Wateja wote wamefanya malipo leo.\n";
-            return;
-        }
-
-        foreach ($customers as $customer) {
-            $phone = trim($customer->phone_no);
-            if (empty($phone)) continue;
-
-            $full_name = trim($customer->full_name ?: 'Mteja');
-            $status = strtolower($customer->loan_status);
-
-            $loan_amount = number_format($customer->loan_amount, 0, '.', ',');
-            $rem_debt = number_format($customer->rem_debt ?? 0, 0, '.', ',');
-            $loan_end_date = isset($customer->loan_end_date) ? date('d/m/Y', strtotime($customer->loan_end_date)) : '';
-
-            if ($status === 'withdrawal') {
-                $message = "Ndugu {$full_name}, hujafanya malipo yako ya leo. Epuka kukosa sifa ya kukukopeshwa. Ahsante.";
-            } elseif ($status === 'out') {
-                $message = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
-            } else {
-                $message = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
-            }
-
-            // Debug: print message before sending
-            echo "To: $phone\nMessage: $message\n\n";
-
-            // Send SMS
-            $this->sendsms($phone, $message);
-        }
-
-        echo "📩 Ujumbe umetumwa kwa wateja " . count($customers) . "\n";
+    if (empty($customers)) {
+        echo "✅ Wateja wote wamefanya malipo leo.\n";
+        return;
     }
+
+    foreach ($customers as $customer) {
+        $phone = trim($customer->phone_no);
+        if (empty($phone)) continue;
+
+        $full_name = trim($customer->full_name ?: 'Mteja');
+        $status = strtolower($customer->loan_status);
+        $loan_amount = number_format($customer->loan_amount, 0, '.', ',');
+        $rem_debt = number_format($customer->rem_debt ?? 0, 0, '.', ',');
+        $loan_end_date = isset($customer->loan_end_date) ? date('d/m/Y', strtotime($customer->loan_end_date)) : '';
+
+        if ($status === 'withdrawal') {
+               $message = "Ndugu {$full_name}, unakumbushwa kufanya malipo ya mkopo wako kabla ya saa kumi na nusu jioni ili kuepuka faini za kuchelewesha ama kulaza.";
+        } elseif ($status === 'out') {
+               $message = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulitoka nje ya mkataba tarehe {$loan_end_date}. Unakumbushwa kulipa deni lote unalodaiwa leo ili kuepuka hatua zaidi.";
+        } else {
+            $message = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
+        }
+
+        if ($debug) {
+            echo "To: $phone\nMessage: $message\n\n";
+        } else {
+            try {
+                $this->sendsms($phone, $message);
+                echo "[" . date('Y-m-d H:i:s') . "] ✅ Message sent to: $phone\n";
+            } catch (Exception $e) {
+                log_message('error', "❌ SMS sending failed to {$phone}: " . $e->getMessage());
+            }
+        }
+    }
+
+    echo "📩 Jumla ya wateja waliotumiwa ujumbe: " . count($customers) . "\n";
+    return count($customers);
+}
 
 
 
