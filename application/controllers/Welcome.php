@@ -455,17 +455,9 @@ public function insert_remain_debt() {
             $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
         }
 
-        if ($debug) {
-            echo "To: $phone\nMessage: $massage\n\n";
-        } else {
-            try {
-                $this->sendsms($phone, $massage);
-                echo "[" . date('Y-m-d H:i:s') . "] ✅ Message sent to: $phone\n";
-            } catch (Exception $e) {
-                log_message('error', "❌ SMS sending failed to {$phone}: " . $e->getMessage());
-            }
-        }
-    }
+          $this->sendsms($phone, $massage);
+       }
+    
 
     echo "📩 Jumla ya wateja waliotumiwa ujumbe: " . count($customers) . "\n";
     return count($customers);
