@@ -462,17 +462,9 @@ public function notify_no_deposit_customers($comp_id = 263, $debug = false)
             $message = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
         }
 
-        if ($debug) {
-            // Debug mode: print message
-            echo "-----------------------------------\n";
-            echo "To: $phone\n";
-            echo "Message: $message\n";
-            echo "-----------------------------------\n\n";
-        } else {
-            // Send SMS
             $this->sendsms($phone, $message);
         }
-    }
+    
 
     
 }
