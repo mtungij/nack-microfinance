@@ -426,7 +426,7 @@ public function insert_remain_debt() {
        }
 
 
-public function notify_no_deposit_customers($comp_id = 263, $debug = true) 
+public function notify_no_deposit_customers($comp_id = 263, $debug = false) 
 {
     // Load model
     $this->load->model('queries');
