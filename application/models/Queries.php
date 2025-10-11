@@ -7754,7 +7754,7 @@ public function get_employee_by_id($empl_id) {
 // }
 
 
-public function get_customers_pending_payment($comp_id)
+public function get_customers_pending_payment()
 {
     $today = date('Y-m-d');
 
@@ -7796,7 +7796,6 @@ public function get_customers_pending_payment($comp_id)
 
     // Only withdrawal or out loans
     $this->db->where_in('l.loan_status', ['withdrawal', 'out']);
-    $this->db->where('l.comp_id', $comp_id);
 
     // Exclude those who have paid today
     $this->db->where("l.loan_id NOT IN (
@@ -7815,7 +7814,6 @@ public function get_customers_pending_payment($comp_id)
 
     return $this->db->get()->result();
 }
-
 
 
 

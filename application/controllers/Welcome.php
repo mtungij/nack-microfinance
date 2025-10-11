@@ -433,10 +433,10 @@ public function insert_remain_debt() {
     }
 
 
-    public function notify_no_deposit_customers($comp_id)
+    public function notify_no_deposit_customers()
     {
          	$this->load->model('queries');
-        $customers = $this->queries->get_customers_pending_payment($comp_id);
+        $customers = $this->queries->get_customers_pending_payment();
 
         if (empty($customers)) {
             echo "✅ Wateja wote wamefanya malipo leo.\n";
@@ -462,9 +462,8 @@ public function insert_remain_debt() {
                 $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
             }
 
-                // Debug: print message
-         echo "To: $phone\nMessage: $massage\n\n";
-        exit(); // Uncomment hii tu unapohitaji ku-debug
+             
+        
 
             // Call your existing sendsms function
             $this->sendsms($phone, $massage);
