@@ -426,43 +426,50 @@ public function insert_remain_debt() {
        }
 
 
-  public function notify_no_deposit_customers($comp_id = 263)
-{
-    $this->load->model('queries');
-
-    $customers = $this->queries->get_customers_pending_payment($comp_id);
-
-    if (empty($customers)) {
-        echo "✅ Wateja wote wamefanya malipo leo.\n";
-        return;
+           public function notify_customers()
+    {
+      
+        $this->notify_no_deposit_customers(263); // replace 263 with your comp_id
     }
 
-    foreach ($customers as $customer) {
-        $phone = trim($customer->phone_no);
-        if (empty($phone)) continue;
 
-        $full_name = trim($customer->full_name ?: 'Mteja');
-        $status = strtolower($customer->loan_status);
-        $loan_amount = number_format($customer->loan_amount, 0, '.', ',');
-        $rem_debt = number_format($customer->rem_debt ?? 0, 0, '.', ',');
-        $loan_end_date = isset($customer->loan_end_date) ? date('d/m/Y', strtotime($customer->loan_end_date)) : '';
+    public function notify_no_deposit_customers($comp_id)
+    {
+         	$this->load->model('queries');
+        $customers = $this->queries->get_customers_pending_payment($comp_id);
 
-        if ($status === 'withdrawal') {
-               $massage = "Ndugu {$full_name}, unakumbushwa kufanya malipo ya mkopo wako kabla ya saa kumi na nusu jioni ili kuepuka faini za kuchelewesha ama kulaza.";
-        } elseif ($status === 'out') {
-               $massage = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulitoka nje ya mkataba tarehe {$loan_end_date}. Unakumbushwa kulipa deni lote unalodaiwa leo ili kuepuka hatua zaidi.";
-        } else {
-            $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
+        if (empty($customers)) {
+            echo "✅ Wateja wote wamefanya malipo leo.\n";
+            return;
         }
 
-          $this->sendsms($phone, $massage);
-       }
-    
+        foreach ($customers as $customer) {
+            $phone = trim($customer->phone_no);
+            if (empty($phone)) continue;
 
-    echo "📩 Jumla ya wateja waliotumiwa ujumbe: " . count($customers) . "\n";
-    return count($customers);
-}
+            $full_name = trim($customer->full_name ?: 'Mteja');
+            $status = strtolower($customer->loan_status);
 
+            $loan_amount = number_format($customer->loan_amount, 0, '.', ',');
+            $rem_debt = number_format($customer->rem_debt ?? 0, 0, '.', ',');
+            $loan_end_date = isset($customer->loan_end_date) ? date('d/m/Y', strtotime($customer->loan_end_date)) : '';
+
+            if ($status === 'withdrawal') {
+                $massage = "Ndugu {$full_name}, hujafanya malipo yako ya leo. Epuka kukosa sifa ya kukukopeshwa na kulipa faini kwa kutokulipa kwa wakati. Ahsante.";
+            } elseif ($status === 'out') {
+                $massage = "Ndugu {$full_name}, mkopo wako wa TZS {$loan_amount} ulishatoka nje ya makubaliano toka tarehe {$loan_end_date} na baki ni TZS {$rem_debt}. Tafadhali lipa mara moja ili kuepuka hatua zaidi.";
+            } else {
+                $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
+            }
+
+                // Debug: print message
+         echo "To: $phone\nMessage: $massage\n\n";
+        exit(); // Uncomment hii tu unapohitaji ku-debug
+
+            // Call your existing sendsms function
+            $this->sendsms($phone, $massage);
+        }
+    }
 
 
 //  public function notify_no_deposit_customers($comp_id = 263) // optional default comp_id
@@ -1006,29 +1013,28 @@ $sqldata="UPDATE `tbl_customer` SET `customer_status`= 'close' WHERE `customer_i
  
  
 
-	public function sendsms($phone, $massage)
-    {
-        $url = "https://sms-api.kadolab.com/api/send-sms";
-        $token = getenv('SMS_TOKEN');
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer '. $token,
-            'Content-Type: application/json',
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            "phoneNumbers" => ["+$phone"],
-            "massage" => $massage
-        ]));
-
-        $server_output = curl_exec($ch);
-        curl_close($ch);
-
-        // Optional: log server response
-        echo "SMS API Response: $server_output\n";
-    }
+  public function sendsms($phone,$massage){
+  
+    $url = "https://sms-api.kadolab.com/api/send-sms";
+    $token = getenv('SMS_TOKEN');
+  
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+      'Authorization: Bearer '. $token,
+      'Content-Type: application/json',
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+      "phoneNumbers" => ["+$phone"],
+      "message" => $massage
+    ]));
+  
+  $server_output = curl_exec($ch);
+  curl_close ($ch);
+  
+  //print_r($server_output);
+  }
 
 
 
