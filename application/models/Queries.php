@@ -1870,7 +1870,8 @@ public function get_today_disbursed_loans($comp_id)
     $this->db->join('tbl_employee e', 'e.empl_id = l.empl_id', 'left');
 
     // Optional: uncomment if you want today's loans only
-    // $this->db->where('DATE(l.disburse_day)', date('Y-m-d'));
+    $this->db->where('l.loan_status', 'disbarsed');
+	// $this->db->where('DATE(l.disburse_day)', $today);
     $this->db->where('l.comp_id', $comp_id);
 
     return $this->db->get()->result();
