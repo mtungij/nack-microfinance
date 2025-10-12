@@ -2306,19 +2306,29 @@ $comp_phone = $compdata->comp_number;
          $local_oficer = $this->queries->get_loacagovment_data($loan_id);
          $inc_history = $this->queries->get_loanIncomeHistory($loan_id);
 
-	
+	 $loan_history = $this->queries->get_loan_history($customer_id);
     	    // echo "<pre>";
-    	    // print_r(   $loan_form);
+    	    // print_r(   $loan_history);
     	    // echo "</pre>";
     	    // exit();
     	$this->load->view('admin/view_loan_customer',[   'customer_data' => $customer_data,
         'sponser_detail' => $sponser_detail,
+		'loan_history' => $loan_history,
         'loan_form' => $loan_form,
         'collateral' => $collateral,
         'local_oficer' => $local_oficer,
         'inc_history' => $inc_history,
 		]);
        
+    }
+
+
+
+    public function view_customer_statemnt($loan_id){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+
+        $this->load->view('admin/customer_loan_statement',['loan_id'=>$loan_id]);
     }
 
 	
@@ -2943,7 +2953,7 @@ public function disburse($loan_id){
                 $this->session->set_flashdata('error','Data failed!!');
             }
 
-            return redirect('admin/get_loan_aproved');
+            return redirect('admin/loan_pending');
 	}
 
 

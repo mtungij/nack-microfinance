@@ -136,6 +136,7 @@ include_once APPPATH . "views/partials/header.php";
                                         <th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Loan Duration</span></div></th>
 										<th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Collection</span></div></th>
 										<th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Customer Status</span></div></th>
+                    	<th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Disburse Date</span></div></th>
                                         <th scope="col" class="py-3 px-6 text-end --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Action</span></div></th>
                                     </tr>
                                 </thead>
@@ -184,39 +185,62 @@ include_once APPPATH . "views/partials/header.php";
 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
     <?php echo htmlspecialchars(number_format($loan_aproveds->restration), ENT_QUOTES, 'UTF-8'); ?>
 </td>
-    <?php if (!empty($customer_condition) && $customer_condition->total_loan == 0): ?>
 <td>
-		<div>
-                      <span
-                        class="py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-teal-100 text-teal-800 rounded-full dark:bg-teal-500/10 dark:text-teal-500">
-                        <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                          stroke-linejoin="round">
-                          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
-                          <path d="m9 12 2 2 4-4"></path>
-                        </svg>
-                        Mteja Mpya
-                      </span>
-                    </div>
-    <?php else: ?>
+    <?php if ($loan_aproveds->total_loan == 1): ?>
+        <!-- Mteja Mpya -->
         <div>
-                      <span
-                        class="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-cyan-600 text-red-800 rounded-full dark:bg-red-500/10 dark:border-orange-500/10 dark:text-red-500">
-                        <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                          stroke-linejoin="round">
-                          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-                          <path d="M12 9v4"></path>
-                          <path d="M12 17h.01"></path>
-                        </svg>
-                        Mteja wa zamani
-                      </span>
-                    </div>
+            <span class="inline-flex items-center gap-x-2 px-3 py-1.5 text-sm font-semibold text-white 
+                         rounded-full bg-gradient-to-r from-green-600 to-emerald-700 
+                         shadow-md ring-1 ring-green-400/30 dark:ring-green-700/50">
+                <svg class="shrink-0 w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" 
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 
+                             2 6.477 2 12s4.477 10 10 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+                Mteja Mpya
+            </span>
+        </div>
+
+    <?php elseif ($loan_aproveds->total_loan > 1): ?>
+        <!-- Mteja wa Zamani -->
+        <div>
+            <span class="inline-flex items-center gap-x-2 px-3 py-1.5 text-sm font-semibold text-white 
+                         rounded-full bg-gradient-to-r from-cyan-600 to-sky-700 
+                         shadow-md ring-1 ring-cyan-400/30 dark:ring-cyan-700/50">
+                <svg class="shrink-0 w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" 
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14
+                             A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+                Mteja wa Zamani
+            </span>
+        </div>
+
+    <?php else: ?>
+        <!-- Hakuna Taarifa -->
+        <div>
+            <span class="inline-flex items-center gap-x-2 px-3 py-1.5 text-sm font-semibold text-gray-700 
+                         bg-gray-100 rounded-full shadow-sm ring-1 ring-gray-300">
+                <svg class="shrink-0 w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" 
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                    <circle cx="12" cy="12" r="10" stroke-dasharray="4 2"/>
+                </svg>
+                Hakuna Taarifa
+            </span>
+        </div>
     <?php endif; ?>
 </td>
 
 
 
+
+
+  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200"><?php echo $loan_aproveds->disburse_day; ?></td>
 
                                             <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                                 

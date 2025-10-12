@@ -101,6 +101,12 @@ include_once APPPATH . "views/partials/header.php";
                                     <?php $no = 1; ?>
                                     <?php if (isset($loan_pending ) && is_array($loan_pending ) && !empty($loan_pending )): ?>
                                         <?php foreach ($loan_pending  as $loan_pendings): ?>
+                                                <?php
+                                   @$customer_condition = $this->queries->get_borrowe_alert($loan_pendings->customer_id);
+                                              // echo "<pre>";
+                      //                 print_r($customer_condition);
+                      //                     exit();
+                                    ?>
 										
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200"><?php echo $no++; ?>.</td>
@@ -131,10 +137,12 @@ include_once APPPATH . "views/partials/header.php";
 	<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?php echo ucfirst(htmlspecialchars($loan_pendings->session, ENT_QUOTES, 'UTF-8')); ?></td>
 	
 
-	<td>
-    <?php if (!empty($customer_condition) && $customer_condition->total_loan == 0): ?>
 
-		<div>
+
+      <td>
+                                            <?php if (@$customer_condition->total_loan == 1) {
+                                             ?>
+                                           	<div>
                       <span
                         class="py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-teal-100 text-teal-800 rounded-full dark:bg-teal-500/10 dark:text-teal-500">
                         <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -146,10 +154,12 @@ include_once APPPATH . "views/partials/header.php";
                         Mteja Mpya
                       </span>
                     </div>
-    <?php else: ?>
-        <div>
+                                            <?php }else{ ?>
+                                            <?php //echo $customer_condition->total_loan; ?>
+                                           
+                                                 <div>
                       <span
-                        class="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-cyan-600 text-red-800 rounded-full dark:bg-red-500/10 dark:border-orange-500/10 dark:text-red-500">
+                        class="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-cyan-600 rounded-full dark:bg-red-500/10 dark:border-orange-500/10 dark:text-red-500">
                         <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                           stroke-linejoin="round">
@@ -160,8 +170,13 @@ include_once APPPATH . "views/partials/header.php";
                         Mteja wa zamani
                       </span>
                     </div>
-    <?php endif; ?>
-</td>
+                                            <?php } ?>
+                                                
+                                            </td>
+
+
+
+                                            
 
 
 

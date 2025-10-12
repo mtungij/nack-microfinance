@@ -1851,23 +1851,52 @@ public function get_totalLoanout($customer_id){
 
 public function get_today_disbursed_loans($comp_id)
 {
-    $today = date('Y-m-d'); // today's date
+    // $today = date('Y-m-d'); // Optional if you want only today's loans
 
-    $this->db->select('l.*, 
-                       b.blanch_name, 
-                       c.f_name, c.m_name, c.l_name, c.phone_no, 
-                       e.empl_name');
+    $this->db->select('
+        l.*, 
+        b.blanch_name, 
+        c.f_name, c.m_name, c.l_name, c.phone_no, 
+        e.empl_name,
+        (
+            SELECT COUNT(l2.loan_id) 
+            FROM tbl_loans l2 
+            WHERE l2.customer_id = l.customer_id
+        ) AS total_loan
+    ');
     $this->db->from('tbl_loans l');
     $this->db->join('tbl_blanch b', 'b.blanch_id = l.blanch_id', 'left');
     $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
     $this->db->join('tbl_employee e', 'e.empl_id = l.empl_id', 'left');
 
-    // Filter for loans disbursed today
-    $this->db->where('DATE(l.disburse_day)', $today);
+    // Optional: uncomment if you want today's loans only
+    // $this->db->where('DATE(l.disburse_day)', date('Y-m-d'));
     $this->db->where('l.comp_id', $comp_id);
 
     return $this->db->get()->result();
 }
+
+
+
+   public function get_loan_history($customer_id){
+		$data = $this->db->query("
+			SELECT l.*, c.*, b.*, sc.*, at.*, lc.*, ot.*, d.depost_day
+			FROM tbl_loans l 
+			LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
+			LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
+			LEFT JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id 
+			LEFT JOIN tbl_account_type at ON at.account_id = sc.account_id 
+			LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
+			LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id 
+			LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id 
+			WHERE l.customer_id = '$customer_id' 
+			AND l.loan_status = 'done' 
+			AND d.depost_day = (SELECT MAX(depost_day) FROM tbl_depost WHERE loan_id = l.loan_id)
+		");
+	
+		return $data->result();
+	}
+
 
 
 

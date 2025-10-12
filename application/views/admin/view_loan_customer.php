@@ -22,7 +22,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 
 <!-- ========== MAIN CONTENT BODY ========== -->
 <div class="w-full lg:ps-64">
-    <div class="p-4 sm:p-6 space-y-6">
+    <div class="p-4 sm:p-6 space-y-8">
 
         <?php if ($das = $this->session->flashdata('massage')): ?>
         <div class="bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500" role="alert">
@@ -34,66 +34,56 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         </div>
         <?php endif; ?>
 
-        <div class="bg-gray-100">
-    <div class="w-full bg-cyan-600 text-white">
-        <div class="flex flex-col max-w-screen-xl px-4 mx-auto md:flex-row md:justify-between md:px-6 lg:px-8">
-            <div class="p-4 flex flex-row items-center justify-between">
-                <a href="#" class="text-lg font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline">
-                    Loan Application Form
-                </a>
-            </div>
-        </div>
+       <div class="bg-cyan-600 text-white p-4 rounded-lg shadow">
+      <h2 class="text-lg font-semibold uppercase tracking-widest">Loan Application Form</h2>
     </div>
-</div>
 
-<div class="flex flex-col md:flex-row gap-6 items-stretch">
+<div class="flex flex-col md:flex-row gap-8 items-stretch">
     <!-- Left: Customer Info -->
     <div class="w-full md:w-3/12">
-        <div class="bg-white shadow rounded-lg p-4 border-t-4 border-green-500 h-full">
+        <div class="bg-gradient-to-b from-green-50 to-white dark:from-gray-800 dark:to-gray-900 shadow-lg rounded-2xl p-5 border-t-4 border-green-500 dark:border-green-400 h-full transition-all hover:shadow-xl">
             <?php foreach ($customer_data as $customer_profiles): ?>
                 <div class="text-center">
-                   
-                         <?php if (!empty($customer_profiles->passport)): ?>
-  <img class="w-32 h-32 mx-auto rounded-full object-cover mb-4 border-2 border-green-400"
-       src="<?= base_url($customer_profiles->passport) ?>" alt="Customer Passport">
-<?php else: ?>
-  <img class="w-32 h-32 mx-auto rounded-full object-cover mb-4 border-2 border-green-400"
-       src="<?= base_url('assets/img/customer21.png') ?>" alt="Default Image">
-<?php endif; ?>
+                    <?php if (!empty($customer_profiles->passport)): ?>
+                        <img class="w-32 h-32 mx-auto rounded-full object-cover mb-4 border-4 border-green-400 dark:border-green-300 shadow-sm"
+                             src="<?= base_url($customer_profiles->passport) ?>" alt="Customer Passport">
+                    <?php else: ?>
+                        <img class="w-32 h-32 mx-auto rounded-full object-cover mb-4 border-4 border-green-400 dark:border-green-300 shadow-sm"
+                             src="<?= base_url('assets/img/customer21.png') ?>" alt="Default Image">
+                    <?php endif; ?>
 
-
-                    <h1 class="text-xl font-bold text-green-600 uppercase">
+                    <h1 class="text-2xl font-extrabold text-green-700 dark:text-green-300 uppercase tracking-wide">
                         <?= strtoupper($customer_profiles->f_name) . " " . strtoupper(substr($customer_profiles->m_name, 0, 1)) . " " . strtoupper($customer_profiles->l_name) ?>
                     </h1>
 
-                    <p class="text-sm text-gray-600"><?= $customer_profiles->phone_no; ?></p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1"><?= $customer_profiles->phone_no; ?></p>
                 </div>
 
-                <ul class="mt-4 text-sm text-gray-700 divide-y divide-gray-200">
-                    <li class="py-2 flex justify-between">
+                <ul class="mt-5 text-sm text-gray-700 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
+                    <li class="py-2 flex justify-between items-center">
                         <span>Status</span>
-                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">
+                        <span class="bg-green-500 dark:bg-green-600 text-white text-xs px-2.5 py-1 rounded-full shadow-sm">
                             <?= (count($customer_data) === 1) ? 'New Customer' : 'Existing Customer'; ?>
                         </span>
                     </li>
                     <li class="py-2 flex justify-between">
                         <span>Member Since</span>
-                        <span><?= date('Y-m-d', strtotime($customer_profiles->customer_day)); ?></span>
+                        <span class="font-medium text-gray-800 dark:text-gray-200"><?= date('Y-m-d', strtotime($customer_profiles->customer_day)); ?></span>
                     </li>
                 </ul>
 
                 <!-- Documents -->
-                <div class="mt-4">
-                    <h3 class="text-sm font-semibold text-gray-800 mb-2">📎 Customer Documents:</h3>
+                <div class="mt-5">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">📎 Customer Documents:</h3>
                     <div class="flex flex-col gap-2 text-sm">
                         <a href="<?= base_url('assets/documents/barua_' . $customer_profiles->customer_id . '.pdf') ?>"
                            target="_blank"
-                           class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
+                           class="text-cyan-700 dark:text-cyan-400 hover:text-cyan-900 dark:hover:text-cyan-200 font-medium transition-all">
                             📄 Barua ya Utambulisho
                         </a>
                         <a href="<?= base_url('assets/documents/kitambulisho_' . $customer_profiles->customer_id . '.pdf') ?>"
                            target="_blank"
-                           class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
+                           class="text-cyan-700 dark:text-cyan-400 hover:text-cyan-900 dark:hover:text-cyan-200 font-medium transition-all">
                             📄 Kitambulisho
                         </a>
                     </div>
@@ -102,72 +92,70 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         </div>
     </div>
 
-    <!-- Optional Middle Column -->
+    <!-- Middle: Placeholder -->
     <div class="w-full md:w-6/12">
-        <!-- You can leave this empty or insert approval form etc. -->
+        <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-inner h-full p-6 flex items-center justify-center text-gray-400 dark:text-gray-300">
+            <!-- <span class="italic">Loan approval or additional content here...</span> -->
+        </div>
     </div>
 
     <!-- Right: Sponsor Info -->
-<div class="w-full md:w-3/12">
-    
-        <div class="bg-white shadow rounded-lg p-4 border-t-4 border-orange-500 h-full">
-        <?php foreach ($sponser_detail as $sponser): ?>
-            <div class="text-center">
-                
-              <?php if (!empty($sponser->passport_path)): ?>
-  <img class="w-32 h-32 mx-auto rounded-full object-cover mb-4 border-2 border-green-400"
-       src="<?= base_url($sponser->passport_path) ?>" alt="Sponsor Passport">
-<?php else: ?>
-  <img class="w-32 h-32 mx-auto rounded-full object-cover mb-4 border-2 border-green-400"
-       src="<?= base_url('assets/img/customer21.png') ?>" alt="Default Image">
-<?php endif; ?>
-
-                <h1 class="text-xl font-bold text-indigo-600 uppercase">
-                    <?= strtoupper($sponser->sp_name . ' ' . $sponser->sp_mname . ' ' . $sponser->sp_lname); ?>
-                </h1>
-
-                <p class="text-sm text-gray-600"><?= $sponser->sp_phone_no; ?></p>
-            </div>
-
-            <ul class="mt-4 text-sm text-gray-700 divide-y divide-gray-200">
-                <li class="py-2 flex justify-between">
-                    <span>Uhusiano</span>
-                    <span class="font-medium"><?= ucfirst($sponser->sp_relation); ?></span>
-                </li>
-                <li class="py-2 flex justify-between">
-                    <span>Kazi / Biashara</span>
-                    <span><?= ucfirst($sponser->nature); ?></span>
-                </li>
-            </ul>
-
-            <!-- Sponsor Documents -->
-            <div class="mt-6">
-                <h3 class="text-sm font-semibold text-gray-800 mb-2">📎 Sponsor Documents:</h3>
-                <div class="flex flex-col gap-2 text-sm">
-                    <?php if (!empty($sponser->barua_path)): ?>
-                        <a href="<?= base_url('assets/sponser_documents/' . basename($sponser->barua_path)); ?>" 
-                           target="_blank"
-                           class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
-                            📄 Barua ya Utambulisho
-                        </a>
+    <div class="w-full md:w-3/12">
+        <div class="bg-gradient-to-b from-orange-50 to-white dark:from-gray-800 dark:to-gray-900 shadow-lg rounded-2xl p-5 border-t-4 border-orange-500 dark:border-orange-400 h-full transition-all hover:shadow-xl">
+            <?php foreach ($sponser_detail as $sponser): ?>
+                <div class="text-center">
+                    <?php if (!empty($sponser->passport_path)): ?>
+                        <img class="w-32 h-32 mx-auto rounded-full object-cover mb-4 border-4 border-orange-400 dark:border-orange-300 shadow-sm"
+                             src="<?= base_url($sponser->passport_path) ?>" alt="Sponsor Passport">
+                    <?php else: ?>
+                        <img class="w-32 h-32 mx-auto rounded-full object-cover mb-4 border-4 border-orange-400 dark:border-orange-300 shadow-sm"
+                             src="<?= base_url('assets/img/customer21.png') ?>" alt="Default Image">
                     <?php endif; ?>
 
-                    <?php if (!empty($sponser->kitambulisho_path)): ?>
-                        <a href="<?= base_url('assets/sponser_documents/' . basename($sponser->kitambulisho_path)); ?>" 
-                           target="_blank"
-                           class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
-                            📄 Kitambulisho
-                        </a>
-                    <?php endif; ?>
+                    <h1 class="text-2xl font-extrabold text-orange-700 dark:text-orange-300 uppercase tracking-wide">
+                        <?= strtoupper($sponser->sp_name . ' ' . $sponser->sp_mname . ' ' . $sponser->sp_lname); ?>
+                    </h1>
+
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1"><?= $sponser->sp_phone_no; ?></p>
                 </div>
-            </div>
-        <?php endforeach; ?>
+
+                <ul class="mt-5 text-sm text-gray-700 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
+                    <li class="py-2 flex justify-between">
+                        <span>Uhusiano</span>
+                        <span class="font-medium text-gray-800 dark:text-gray-200"><?= ucfirst($sponser->sp_relation); ?></span>
+                    </li>
+                    <li class="py-2 flex justify-between">
+                        <span>Kazi / Biashara</span>
+                        <span class="font-medium text-gray-800 dark:text-gray-200"><?= ucfirst($sponser->nature); ?></span>
+                    </li>
+                </ul>
+
+                <!-- Sponsor Documents -->
+                <div class="mt-5">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">📎 Sponsor Documents:</h3>
+                    <div class="flex flex-col gap-2 text-sm">
+                        <?php if (!empty($sponser->barua_path)): ?>
+                            <a href="<?= base_url('assets/sponser_documents/' . basename($sponser->barua_path)); ?>" 
+                               target="_blank"
+                               class="text-indigo-700 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200 font-medium transition-all">
+                                📄 Barua ya Utambulisho
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if (!empty($sponser->kitambulisho_path)): ?>
+                            <a href="<?= base_url('assets/sponser_documents/' . basename($sponser->kitambulisho_path)); ?>" 
+                               target="_blank"
+                               class="text-indigo-700 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200 font-medium transition-all">
+                                📄 Kitambulisho
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 </div>
 
-
-
-</div>
 
 
 </div>
@@ -229,7 +217,8 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
             </div>
 			
         </div> -->
-		<div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
+     
+		<div class=" bg-white border  p-4 rounded-lg shadow  border-blue-500 dark:bg-gray-800 dark:border-gray-700">
 		<div class="w-full bg-cyan-600 text-white">
         <div class="flex flex-col max-w-screen-xl px-4 mx-auto md:flex-row md:justify-between md:px-6 lg:px-8">
             <div class="p-2 flex flex-row items-center justify-between">
@@ -250,11 +239,11 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
     <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
-            <th class="py-3 px-6 text-start">S/No.</th>
-            <th class="py-3 px-6 text-start">Jina La Dhamana</th>
-            <th class="py-3 px-6 text-start">Hali ya Dhamana</th>
-            <th class="py-3 px-6 text-start">Thamani ya Dhamana</th>
-            <th class="py-3 px-6 text-start">Angalia Dhamana</th>
+            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">S/No.</th>
+            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Jina La Dhamana</th>
+            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Hali ya Dhamana</th>
+            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Thamani ya Dhamana</th>
+            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Angalia Dhamana</th>
         </tr>
     </thead>
     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -309,6 +298,165 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         </tr>
     </tfoot>
     <?php endif; ?>
+</table>
+
+<!-- Modal -->
+<div id="default-modal" tabindex="-1" aria-hidden="true"
+     class="hidden fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
+    
+    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700" style="width: 1200px; height: 500px;">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Tazama Dhamana</h3>
+            <button type="button" data-modal-hide="default-modal"
+                class="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 14 14">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7l-6 6" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body -->
+        
+
+        <div class="h-[700px] overflow-auto modal-body-content p-0 flex items-center justify-center bg-gray-100">
+            <!-- Content will be injected here -->
+        </div>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-end p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
+            <button data-modal-hide="default-modal" type="button"
+                class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg">Funga</button>
+        </div>
+    </div>
+</div>
+
+                  </div>
+                    </div>
+                </div>
+
+				
+            </div>
+			
+        </div>
+
+
+
+        	<div class="flex flex-col bg-white border shadow-sm rounded-xl pb-1.5 dark:bg-gray-800 dark:border-gray-700">
+		<div class="w-full bg-cyan-600 text-white">
+        <div class="flex flex-col max-w-screen-xl px-4 mx-auto md:flex-row md:justify-between md:px-6 lg:px-8">
+            <div class="p-2 flex flex-row items-center justify-between">
+                <a href="#" class="text-lg font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline">
+		Historia Ya Mikopo ya Nyuma
+                </a>
+            </div>
+        </div>
+    </div>
+			
+
+            <div class="p-4">
+              
+                <div class="overflow-x-auto">
+                    <div class="min-w-full inline-block align-middle">
+                        <div class="border rounded-lg overflow-hidden dark:border-gray-700">
+     
+<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+    <thead class="bg-gray-50 dark:bg-gray-700">
+        <tr>
+
+
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">S/No.</th>
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Loan Product</th>
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Principal</th>
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Principal + Interest</th>
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Duration type</th>
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Disbured Date</th>
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">End Date</th>
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Last Payment</th>
+                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Credit Score</th>
+        </tr>
+    </thead>
+   <tbody class="divide-y divide-gray-200">
+    <?php $no = 1; ?>
+    <?php if (empty($loan_history)): ?>
+        <tr>
+            <td colspan="9" class="px-4 py-3 text-center text-gray-500 italic">
+                Hana mkopo kwenye system
+            </td>
+        </tr>
+    <?php else: ?>
+        <?php foreach ($loan_history as $history): ?>
+            <tr class="transition">
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold"><?php echo $no++; ?>.</td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold">
+                    <?php echo strtoupper($history->loan_name); ?>
+                </td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold">
+                    <?php echo number_format($history->loan_aprove); ?>
+                </td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold">
+                    <?php echo number_format($history->loan_int); ?>
+                </td>
+
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold">
+                    <?php 
+                    if ($history->day == 1) {
+                        echo "Siku ({$history->session})";
+                    } elseif ($history->day == 7) {
+                        echo "Wiki ({$history->session})";
+                    } elseif (in_array($history->day, [28, 29, 30, 31])) {
+                        echo "Miezi ({$history->session})"; 
+                    }
+                    ?>
+                </td>
+
+              
+
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold"><?php echo $history->loan_stat_date; ?></td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold"><?php echo substr($history->loan_end_date, 0, 10); ?></td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold"><?= $history->depost_day ?></td>
+
+                <td class="px-4 py-2 text-sm">
+                    <?php 
+                    $loan_end_date = strtotime(substr($history->loan_end_date, 0, 10));
+                    $depost_day = strtotime($history->depost_day);
+                    $status = "Dabo";
+                    $badge_color = "bg-gray-100 text-gray-800";
+                    $btn_color = "bg-green-100 hover:bg-green-200 text-green-800";
+
+                    $url = base_url("admin/view_customer_statemnt/{$history->loan_id}");
+
+                    if ($depost_day == $loan_end_date) {
+                        $status = "Imetimia vizuri";
+                        $badge_color = "bg-green-100 text-green-800";
+                        $btn_color = "bg-green-100 hover:bg-green-200 text-green-800";
+                    } elseif ($depost_day > $loan_end_date && ($depost_day - $loan_end_date) <= (15 * 86400)) {
+                        $status = "Inaridhisha kiasi";
+                        $badge_color = "bg-yellow-100 text-yellow-800";
+                        $btn_color = "bg-yellow-100 hover:bg-yellow-200 text-yellow-800";
+                    } elseif ($depost_day > $loan_end_date && ($depost_day - $loan_end_date) > (15 * 86400)) {
+                        $status = "Umecheleweshwa";
+                        $badge_color = "bg-red-100 text-red-800";
+                        $btn_color = "bg-red-100 hover:bg-red-200 text-red-800";
+                    }
+
+                    echo "
+                    <a href='$url' class='inline-flex items-center gap-x-1 px-3 py-1.5 text-xs font-semibold rounded-full $btn_color transition'>
+                        <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">
+                            <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M15 12a3 3 0 11-6 0 3 3 0 016 0z\" />
+                            <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z\" />
+                        </svg>
+                        Loan Score
+                        <span class='ml-1 px-2 py-0.5 rounded-full text-[10px] font-medium $badge_color'>$status</span>
+                    </a>";
+                    ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</tbody>
+
 </table>
 
 <!-- Modal -->
