@@ -165,7 +165,9 @@ include_once APPPATH . "views/partials/officerheader.php";
 
 
                
-               <?php echo form_open_multipart("oficer/create_sponser/{$customer->customer_id}/{$customer->comp_id}"); ?>
+               <!-- </?php echo form_open_multipart("oficer/create_sponser/{$customer->customer_id}/{$customer->comp_id}"); ?> -->
+               <?php echo form_open_multipart("oficer/create_sponser/{$customer->customer_id}/{$comp_id}"); ?>
+
 
 <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
     <!-- First Name -->

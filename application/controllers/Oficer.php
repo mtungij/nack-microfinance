@@ -2486,6 +2486,7 @@ public function search_customer()
     // ✅ If no open loan, no pending loan, and no penalty → PROCEED NORMALLY
     return $this->load->view('officer/search_customer', [
         'customer'      => $customer,
+           'comp_id'  => $comp_id,
         'sponser'       => $this->queries->get_sponser($customer_id),
         'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
         'region'        => $this->queries->get_region(),
