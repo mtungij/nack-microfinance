@@ -7810,8 +7810,8 @@ public function get_customers_pending_payment()
     $this->db->join('tbl_loan_category cat', 'cat.category_id = l.category_id', 'left');
     $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
 
-    // Join tbl_pay to get latest rem_debt per loan
-    $this->db->join("(SELECT p1.loan_id, p1.rem_debt, p1.pay_id AS latest_pay_id
+    // Join tbl_pay to get latest rem_debt and balance
+    $this->db->join("(SELECT p1.loan_id, p1.rem_debt, p1.balance, p1.pay_id AS latest_pay_id
                       FROM tbl_pay p1
                       INNER JOIN (
                           SELECT loan_id, MAX(pay_id) AS latest_pay_id
@@ -7835,6 +7835,12 @@ public function get_customers_pending_payment()
         AND DATE(pay_day) = '{$today}'
         AND depost > 0
     )", null, false);
+
+    // Exclude loans disbursed today
+    $this->db->where("DATE(l.disburse_day) !=", $today);
+
+    // ✅ Exclude customers with prepaid balance (balance > 0)
+    $this->db->where("(p.balance IS NULL OR p.balance <= 0)");
 
     $this->db->group_by('l.customer_id');
 

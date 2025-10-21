@@ -462,6 +462,10 @@ public function insert_remain_debt() {
                 $massage = "Ndugu {$full_name}, tafadhali hakikisha unafanya malipo yako kwa wakati.";
             }
 
+            // echo "<pre>";
+            // print_r($full_name);
+            // echo "<pre>";
+            // exit();
              
         
 
