@@ -9,7 +9,7 @@ include_once APPPATH . "views/partials/officerheader.php";
 <div class="w-full lg:ps-64">
     <div class="p-4 sm:p-6 space-y-6">
 
-    <?php if ($das = $this->session->flashdata('success')): ?>
+    <?php if ($das = $this->session->flashdata('massage')): ?>
     <div class="bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500" role="alert">
         <div class="flex">
             <div class="flex-shrink-0">

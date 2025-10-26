@@ -1654,14 +1654,14 @@ public function get_DisbarsedLoanBlanch_today($blanch_id) {
          return $data->row();
         }
 
-public function get_customer_loanReport($customer_id){
+public function get_customer_loanReport($customer_id) {
     $data_report = $this->db->query("
-        SELECT cr.*, l.*, d.*, o.*, c.*, p.*
+        SELECT cr.*, l.*, d.*, o.*, p.*, c.*
         FROM tbl_customer_report cr
         JOIN tbl_loans l ON l.loan_id = cr.loan_id
         LEFT JOIN tbl_depost d ON d.loan_id = cr.loan_id
         LEFT JOIN tbl_outstand o ON o.loan_id = cr.loan_id
-        LEFT JOIN tbl_pay p ON p.loan_id = cr.loan_id
+        LEFT JOIN tbl_pay p ON p.loan_id = cr.loan_id AND p.description = 'CASH DEPOSIT'
         JOIN tbl_customer c ON c.customer_id = cr.customer_id
         WHERE cr.customer_id = ?
         ORDER BY cr.rep_id DESC
@@ -1669,6 +1669,7 @@ public function get_customer_loanReport($customer_id){
 
     return $data_report->result();
 }
+
 
 
 
@@ -1784,10 +1785,19 @@ public function get_totalLoanout($customer_id){
         	 return $data->row();
         }
 
-        public function get_customer_Loandata($customer_id){
-        $data = $this->db->query("SELECT * FROM tbl_pay p JOIN tbl_loans l ON l.loan_id = p.loan_id JOIN tbl_loan_category lc ON lc.category_id = l.category_id  WHERE p.customer_id = '$customer_id' ORDER BY pay_id DESC");
-        	 return $data->row();
-        }
+       public function get_customer_Loandata($customer_id)
+{
+    $data = $this->db->query("
+        SELECT *
+        FROM tbl_pay p
+        JOIN tbl_loans l ON l.loan_id = p.loan_id
+        JOIN tbl_loan_category lc ON lc.category_id = l.category_id
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        WHERE p.customer_id = '$customer_id'
+        ORDER BY p.pay_id DESC
+    ");
+    return $data->row();
+}
 
 
          public function get_loan_LoandataAutomatic($loan_id){

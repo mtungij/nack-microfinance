@@ -1920,12 +1920,9 @@ public function customer(){
 
 
   public function sendsms($phone,$massage){
-    //public function sendsms(){f
-    //$phone = '255628323760';
-    //$massage = 'mapenzi yanauwa';
+  
     $api_key = '';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-    //$api_key = 'qFzd89PXu1e/DuwbwxOE5uUBn6';
-    //$curl = curl_init();
+ 
     $url = "https://sms-api.kadolab.com/api/send-sms";
     $token = getenv('SMS_TOKEN');
   
@@ -1944,7 +1941,7 @@ public function customer(){
   $server_output = curl_exec($ch);
   curl_close ($ch);
   
-  //print_r($server_output);
+ 
   }
   
          public function customer_details($customer_id){
@@ -4929,17 +4926,20 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
          $prepaid = $depost - $restoration;
          @$data_depost = $this->queries->get_customer_Loandata($customer_id);
          $customer_data = $this->queries->get_customerData($customer_id);
-      //  print_r($customer_data);
-      //             exit();
+      //    echo "<pre>";
+      //  print_r( $customer_data);
+      //  echo "<pre>";
+                  // exit();
          $phone = $customer_data->phone_no;
          $first_name = $customer_data->f_name;
          $last_name = $customer_data->l_name;
          // $admin_data = $this->queries->get_admin_role($comp_id);
          $remain_balance = @$data_depost->balance;
 
+ $end_date = @$data_depost->loan_end_date;
+$branch_name=$customer_data->blanch_name;
 
-
-
+   
 
          $old_balance = $remain_balance;
          $sum_balance = $old_balance + $new_depost;
@@ -4958,6 +4958,15 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
         $out_data = $this->queries->getOutstand_loanData($loan_id);
         $total_depost_loan = $this->queries->get_total_depost($loan_id);
 
+        $total_dept =  $total_depost_loan->total_depost +  $depost;
+
+        $deni = $data_depost->loan_int - $total_dept;
+       
+
+      //  echo "<pre>";
+      //  print_r($deni);
+      //  echo "<pre>";
+      //             exit();
         
 
          @$deposit_check = $this->queries->get_today_deposit_true($loan_id);
@@ -5065,21 +5074,21 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
 
           if ($dep_id > 0) {
              $this->session->set_flashdata('massage','Deposit imefanyika');
-             $massage = 'Ndugu ' . $first_name . ' ' . $last_name . 
-             ', umelipa ' . number_format($new_balance) . 
-             ' ' . $comp_name . 
-             '. Kiasi kilichobaki kulipwa kwa changamoto, fika ofisini.';
+            $message = 'Ndugu ' . $first_name . ' ' . $last_name . 
+            ', tumepokea TZS ' . number_format($new_balance) . 
+            ' kupitia ' . $comp_name . ' - ' . $branch_name . 
+            '. Hongera! Umemaliza kulipa mkopo wako kikamilifu.';
   
-        $this->sendsms($phone, $massage);
+        $this->sendsms($phone, $message);
           }else{
             $this->session->set_flashdata('massage','malipo has made Sucessfully');
 
-            $massage = 'Ndugu ' . $first_name . ' ' . $last_name . 
+            $message = 'Ndugu ' . $first_name . ' ' . $last_name . 
            ', umelipa ' . number_format($new_balance) . 
            ' ' . $comp_name . 
            '. Kiasi kilichobaki kulipwa kwa changamoto, fika ofisini.';
 
-			    $this->sendsms($phone, $massage);
+			    $this->sendsms($phone, $message);
           }
          if ($deposit_check == TRUE) {
          $this->update_loan_lecordDataDeposit_data($comp_id,$customer_id,$loan_id,$blanch_id,$update_res,$dep_id,$group_id,$trans_id,$restoration,$loan_aproved,$deposit_date,$empl_id,$wakala);
@@ -5109,8 +5118,8 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
          $loan_int = $loan_restoration->loan_int;
          $remain_loan = $loan_int - $total_depost->remain_balance_loan;
             //sms send
-            $massage = 'Umeingiza Tsh.' .$new_balance. ' kwenye Acc Yako ' . $loan_codeID . $comp_name.' Mpokeaji '.$role . ' Kiasi kilicho baki Kulipwa ni Tsh.'.$remain_loan.' Kwa malalamiko piga '.$comp_phone;
-            $this->sendsms($phone, $massage);
+            // $message = 'Umeingiza Tsh.' .$new_balance. ' kwenye Acc Yako ' . $loan_codeID . $comp_name.' Mpokeaji '.$role . ' Kiasi kilicho baki Kulipwa ni Tsh.'.$remain_loan.' Kwa malalamiko piga '.$comp_phone;
+            // $this->sendsms($phone, $message);
 
            $loan_ID = $loan_id;
           @$out_check = $this->queries->get_outstand_total($loan_id);
@@ -5149,19 +5158,24 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
           
           if ($pay_id > 0) {
              $this->session->set_flashdata('massage','pesa has made Sucessfully');
-             $massage = 'Ndugu ' . $first_name . ' ' . $last_name . 
+             $message = 'Ndugu ' . $first_name . ' ' . $last_name . 
              ', umelipa ' . number_format($new_balance) . 
-             ' ' . $comp_name . 
+             ' ' . $comp_name .  '-' .$branch_name.
              '. Kiasi kilichobaki kulipwa kwa changamoto, fika ofisini.';
   
-              $this->sendsms($phone, $massage);
+              $this->sendsms($phone, $message);
           }else{
-            $this->session->set_flashdata('massage','Deposit has made Sucessfully');
+            $this->session->set_flashdata('massage','Malipo yamelipwa kikamilifu!');
+$massage = 'Ndugu ' . $first_name . ' ' . $last_name . 
+    ', umelipa ' . number_format($new_balance) . 
+    ' ' . $comp_name . ' - ' . $branch_name . 
+    '. Mkataba wako ulimalizika tarehe ' . date('d/m/Y', strtotime($end_date)) . 
+    '. Deni lililobaki ni ' . number_format($deni) . 
+    '. Tafadhali maliza kulipa haraka.';
 
-            $massage = 'Ndugu ' . $first_name . ' ' . $last_name . 
-            ', umelipa ' . number_format($new_balance) . 
-            ' ' . $comp_name . 
-            '. Kiasi kilichobaki kulipwa kwa changamoto, fika ofisini.';
+
+
+
  
              $this->sendsms($phone, $massage);
           }
@@ -5192,9 +5206,9 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
         //  print_r($remain_loan);
         //  exit();
             
-            $massage = 'Umeingiza Tsh.' .$new_balance. ' kwenye Acc Yako ' . $loan_codeID . $comp_name.' Mpokeaji '.$role . ' Kiasi kilicho baki Kulipwa ni Tsh.'.$remain_loan.' Kwa malalamiko piga '.$comp_phone;
+          //   $massage = 'Umeingiza Tsh.' .$new_balance. ' kwenye Acc Yako ' . $loan_codeID . $comp_name.' Mpokeaji '.$role . ' Kiasi kilicho baki Kulipwa ni Tsh.'.$remain_loan.' Kwa malalamiko piga '.$comp_phone;
         
-          $this->sendsms($phone,$massage);
+          // $this->sendsms($phone,$massage);
            $loan_ID = $loan_id;
           @$out_check = $this->queries->get_outstand_total($loan_id);
           $amount_remain = @$out_check->remain_amount;
@@ -5266,26 +5280,21 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
       $left_loan = $loan_int - $total_depost->remain_balance_loan;
       
 
-      if ($left_loan == 0) {
-     $massage = 'Ndugu ' . $first_name . ' ' . $last_name . 
-', tumethibitisha kupokea malipo yako ya TZS ' . number_format($new_balance) . 
-' yaliyofanyika tarehe ' . date("d/m/Y") . 
-' kupitia ' . $comp_name . 
-'. Malipo yako yamepokelewa na ' . $role . 
-'. Deni lililosalia kulipwa ni TZS ' . number_format($left_loan) . '.';
-
-
-    } else {
-
+  if ($left_loan == 0) {
     $massage = 'Ndugu ' . $first_name . ' ' . $last_name . 
-', tumepokea malipo yako ya TZS ' . number_format($new_balance) . 
-' yaliyofanyika tarehe ' . date("d/m/Y") . 
-' kupitia ' . $comp_name . 
-'. Malipo yako yamepokelewa na ' . $role . 
-'. Deni lililosalia kulipwa ni TZS ' . number_format($left_loan) . '.';
+        ', tunakupongeza! Tumepokea malipo yako ya TZS ' . number_format($new_balance) . 
+        ' yaliyofanyika tarehe ' . date("d/m/Y") . 
+        ' kupitia ' . $comp_name . 
+        '. Hongera, umemaliza kulipa mkopo wako kikamilifu!';
+} else {
+    $massage = 'Ndugu ' . $first_name . ' ' . $last_name . 
+        ', tumepokea malipo yako ya TZS ' . number_format($new_balance) . 
+        ' yaliyofanyika tarehe ' . date("d/m/Y") . 
+        ' kupitia ' . $comp_name . '-' .$branch_name.
+        '. Malipo yako yamepokelewa na ' . $role . 
+        '. Deni lililosalia kulipwa ni TZS ' . number_format($left_loan) . '.';
+}
 
-
-    }
     
 
 			$this->sendsms($phone,$massage);
@@ -5315,9 +5324,9 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
          $loan_int = $loan_restoration->loan_int;
          $remain_loan = $loan_int - $total_depost->remain_balance_loan;
             //sms send
-          $sms = 'Umeingiza Tsh.' .$new_balance. ' kwenye Acc Yako ' . $loan_codeID . $comp_name.' Mpokeaji '.$role . ' Kiasi kilicho baki Kulipwa ni Tsh.'.$remain_loan.' Kwa malalamiko piga '.$comp_phone;
-          $massage = $sms;
-          $phone = $phones;
+          // $sms = 'Umeingiza Tsh.' .$new_balance. ' kwenye Acc Yako ' . $loan_codeID . $comp_name.' Mpokeaji '.$role . ' Kiasi kilicho baki Kulipwa ni Tsh.'.$remain_loan.' Kwa malalamiko piga '.$comp_phone;
+          // $massage = $sms;
+          // $phone = $phones;
 
 
             //updating recovery loan
@@ -7007,9 +7016,9 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     @$sum_penart = $this->queries->get_penart_amount_total($customer_id);
     $privillage = $this->queries->get_position_empl($empl_id);
     $manager = $this->queries->get_position_manager($empl_id);
-    //    echo "<pre>";
-    // print_r($customer_report);
-    //       exit();
+       echo "<pre>";
+    print_r($customer_report);
+          exit();
     $this->load->view('officer/customer_report',['customer'=>$customer,'customer_report'=>$customer_report,'sum_recevable'=>$sum_recevable,'sum_pend'=>$sum_pend,'sum_penart'=>$sum_penart,'customer_id'=>$customer_id,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);
     }
 
