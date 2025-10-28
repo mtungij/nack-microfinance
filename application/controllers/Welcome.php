@@ -272,6 +272,62 @@ public function Employee_signin() {
 }
 
 
+
+public function Send_reminder_automatic(){
+$today = date('Y-m-d');
+
+$query = $this->db->query("
+    SELECT * 
+    FROM tbl_loans l 
+    JOIN tbl_customer c ON l.customer_id = c.customer_id 
+ 
+    AND DATE(l.date_show) = '$today' 
+    AND l.loan_status = 'withdrawal'
+");
+
+$result = $query->result();
+	
+
+
+	foreach ($result as $auto_reminders) {
+	$this->send_reminder_auto_receivable($auto_reminders->comp_id,$auto_reminders->customer_id,$auto_reminders->loan_id);
+	}
+
+}
+
+
+public function send_reminder_auto_receivable($comp_id,$customer_id,$loan_id){
+    $this->load->model('queries');
+    $data_sms = $this->queries->get_loan_reminder($customer_id);
+    $loan_restoration = $this->queries->get_restoration_loan($loan_id);
+    $compdata = $this->queries->get_companyData($comp_id);
+    $comp_name = $compdata->comp_name;
+
+	$phone = $data_sms->phone_no;
+	$first_name = $data_sms->f_name;
+	$midle_name = $data_sms->m_name;
+	$last_name = $data_sms->l_name;
+
+    $full_name = trim($first_name . ' ' . $midle_name . ' ' . $last_name);
+
+	$restoration = $loan_restoration->restration;
+	$massage = 'Mpendwa ' . $full_name . ', tunakukumbusha kulipa rejesho lako la Tsh ' . number_format($restoration) .
+' kwa ' . $comp_name . ' kabla ya saa 11:30 jioni. Tafadhali zingatia muda ili kuepuka adhabu ya kuchelewa. Asante kwa kuendelea kuwa nasi.';
+
+
+
+
+
+
+
+	//    echo "<pre>";
+	// print_r($phone);
+	//      exit();
+	$this->sendsms($phone,$massage);
+}
+
+
+
 public function update_profile() {
     $empl_id = $this->session->userdata('empl_id');
 
