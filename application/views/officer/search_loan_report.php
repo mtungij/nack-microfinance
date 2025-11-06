@@ -1,34 +1,19 @@
 
-
-
-<?php
-include_once APPPATH . "views/partials/officerheader.php";
-
-// --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
-// Controller should pass $share, an array of shareholder objects.
-// Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
-// if (!isset($share)) {
-//     $share = [
-//         (object)['share_id' => 1, 'share_name' => 'Alice Wonderland', 'share_mobile' => '0712345001', 'share_email' => 'alice@example.com', 'share_sex' => 'female', 'share_dob' => '1985-06-15'],
-//         (object)['share_id' => 2, 'share_name' => 'Bob The Builder', 'share_mobile' => '0712345002', 'share_email' => 'bob@example.com', 'share_sex' => 'male', 'share_dob' => '1978-11-02'],
-//     ];
-// }
-// --- END DUMMY DATA ---header.php
-?>
+<?php include_once APPPATH . "views/partials/officerheader.php"; ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
 <div class="w-full lg:ps-64">
     <div class="p-4 sm:p-6 space-y-6">
 
         <!-- Page Title / Subheader -->
-        <!-- <div class="mb-6">
+        <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-               Tafuta mteja kwa ajili kumlipisha/Kugawa
+               Angalia Statement ya mikopo ya mteja 
             </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <!-- <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 kumbuka kama atakuwa hajamaliza mkopo system itakataa kumuombea mkopo.
-            </p>
-        </div> -->
+            </p> -->
+        </div>
         <!-- End Page Title / Subheader -->
 
         <?php // Flash Messages ?>
@@ -48,25 +33,40 @@ include_once APPPATH . "views/partials/officerheader.php";
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
                    Search Customer
                 </h3>
-                <?php echo form_open("oficer/customer_loan_report", ['novalidate' => true]); ?>
+               
+               <?php echo form_open_multipart("oficer/loan_statementreport"); ?>
                    
                     
                         <!-- Branch Select2 Dropdown -->
-						<div class="col-span-12">
-    <label for="branchSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Search Customer:</label>
-    <select id="branchSelect" required name="customer_id"
-        class="py-3 px-4 pe-9 block w-full bg-cyan-600 border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:placeholder-gray-500 dark:focus:ring-gray-600 select2">
-        <option value="">Select customer</option>
-		<?php foreach ($customer as $customers): ?>
-    <option value="<?= $customers->customer_id ?>">
-        <?= strtoupper($customers->f_name . " " . $customers->m_name . " " . $customers->l_name); ?> /
-        <?= strtoupper($customers->customer_code); ?> /
-        <?= strtoupper($customers->blanch_name); ?>
-    </option>
-<?php endforeach; ?>
+					
 
-
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div>
+    <label for="customer" class="block text-sm font-medium mb-2 text-gray-200">
+      Mteja *:
+    </label>
+    <select id="customer" name="customer_id" required
+      class="w-full h-14 text-base font-semibold py-2 px-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white select2">
+      <option value="">Select customer</option>
+      <?php foreach ($customer as $customers): ?>
+        <option value="<?= $customers->customer_id ?>">
+          <?= strtoupper($customers->f_name . " " . $customers->m_name . " " . $customers->l_name); ?> /
+          <?= strtoupper($customers->customer_code); ?> /
+          <?= strtoupper($customers->blanch_name); ?>
+        </option>
+      <?php endforeach; ?>
     </select>
+  </div>
+
+  <div>
+    <label for="loan" class="block text-sm font-medium mb-2 text-gray-200">
+      Mkopo *:
+    </label>
+    <select id="loan" name="loan_id" required
+      class="w-full h-14 text-base font-semibold py-2 px-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white select2">
+      <option value="">Select loan</option>
+    </select>
+  </div>
 </div>
 
 
@@ -74,14 +74,21 @@ include_once APPPATH . "views/partials/officerheader.php";
 
 
                     
-                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div class="mt-8 pt-6  dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-
+                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Search</button>
                         </div>
                     </div>
                 <?php echo form_close(); ?>
             </div>
         </div>
+
+
+
+
+
+
+
     </div>
 </div>
 <!-- ========== END MAIN CONTENT BODY ========== -->
@@ -90,156 +97,77 @@ include_once APPPATH . "views/partials/officerheader.php";
 include_once APPPATH . "views/partials/footer.php";
 ?>
 
-<?php // Script for cmd+a fix for DataTables search input (if used) ?>
 
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Include Select2 CSS -->
+<!-- Select2 CSS + JS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
-<!-- Include Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    // Config ya Select2
+    const selectConfig = {
+        placeholder: "Select",
+        allowClear: true,
+        width: '100%',
+        dropdownCssClass: 'custom-select2-dropdown',
+        containerCssClass: 'custom-select2-container'
+    };
+
+    // Initialize select2
+    $('#customer').select2({...selectConfig, placeholder: "Select Customer"});
+    $('#loan').select2({...selectConfig, placeholder: "Select Loan"});
+
+    // Event: customer akichaguliwa
+    $('#customer').change(function(){
+        var customer_id = $(this).val();
+        if(customer_id != ''){
+            $.ajax({
+				url:"<?php echo base_url(); ?>oficer/fetch_data_loanActive",
+                method:"POST",
+                data:{customer_id:customer_id},
+                success:function(data){
+                    $('#loan').html(data).trigger('change'); // update loan select
+                }
+            });
+        } else {
+            $('#loan').html('<option value="">Select loan</option>').trigger('change');
+        }
+    });
+});
+</script>
+
 <style>
 .select2-container--default .select2-selection--single {
-    background-color: #1f2937;
-    border: 1px solid #374151;
+    height: 3.5rem !important; /* match h-14 */
+    line-height: 1.25rem !important;
+    background-color: #1f2937 !important; /* Tailwind bg-gray-800 */
+    border: 1px solid #374151 !important; /* Tailwind border-gray-700 */
     border-radius: 0.5rem;
-    padding: 0.75rem 2.5rem 0.75rem 1rem;
-    height: auto;
-    color: #06b6d4; 
-    font-size: 0.875rem;
-    position: relative;
 }
-.select2-selection__rendered,
-.select2-selection__clear,
-.select2-selection__arrow {
-    color: #d1d5db;
-}
-.select2-selection__arrow {
-    right: 1rem;
-    top: 0;
-    width: 1.5rem;
-    position: absolute;
-}
-.select2-selection__clear {
-    right: 2.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    position: absolute;
-}
-.custom-select2-dropdown {
-    background-color: #1f2937;
-    color: #d1d5db;
-    border: 1px solid #374151;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-}
+
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #ffffff !important; /* Force white text */
-}
-.custom-select2-dropdown .select2-results__option--highlighted {
-    background-color: #06b6d4 !important; /* Tailwind cyan-400 */
-    color: #ffffff !important;
+    line-height: 3.5rem !important;
+    color: #fff !important; /* white text */
+    font-weight: 600; /* semibold */
 }
 
-/* White text in the dropdown input if searchable */
-.select2-search__field {
-    color: #ffffff !important;
-    background-color: #1f2937 !important; /* match dark bg */
-    border: 1px solid #374151;
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 3.5rem !important;
+    color: #fff;
 }
-.custom-select2-dropdown .select2-results__option--highlighted {
-    background-color: #06b6d4;
-    color: #ffffff;
+
+.select2-container--default .select2-results__option {
+    background-color: #1f2937; /* bg-gray-800 */
+    color: #fff; /* white text */
 }
-.custom-select2-container { margin: 0; }
+
+.select2-container--default .select2-results__option--highlighted {
+    background-color: #059669 !important; /* cyan-600 */
+    color: #fff !important;
+}
+
+
+
 </style>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        HSStaticMethods.autoInit(); // This is required to initialize all hs-select dropdowns
-    });
-</script>
-<script>
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const inputs = document.querySelectorAll('input[data-hs-datatable-search]');
-    inputs.forEach((input) => {
-      input.addEventListener('keydown', function (evt) {
-        if ((evt.metaKey || evt.ctrlKey) && (evt.key === 'a' || evt.key === 'A')) {
-          this.select();
-        }
-      });
-    });
-    // HSStaticMethods.autoInit(['select']); // If Preline selects need explicit init
-  }, 500);
-});
-</script>
-
-<script>
-$(document).ready(function () {
-    const selectConfig = {
-        placeholder: "Select",
-        allowClear: true,
-        width: '100%',
-        dropdownCssClass: 'custom-select2-dropdown',
-        containerCssClass: 'custom-select2-container'
-    };
-
-    $('#branchSelect').select2({...selectConfig, placeholder: "Select Customer"});
-    
-
-    $('#branchSelect').on('change', function () {
-        const branchId = $(this).val();
-
-        $.post('fetch_employee_blanch', { blanch_id: branchId }, function (data) {
-            const employeeSelect = $('#employeeSelect');
-            employeeSelect.html(data).select2({...selectConfig, placeholder: "Select Employee"});
-
-            // If using Preline's hsSelect
-            const customSelect = $('[data-hs-select]');
-            if (customSelect.length) {
-                customSelect.html(data);
-                customSelect.hsSelect();
-            }
-        }).fail(function (xhr, status, error) {
-            console.error('AJAX error:', status, error);
-        });
-    });
-});
-
-// Age Calculation
-function getAge(dob) {
-    const age = new Date().getFullYear() - new Date(dob).getFullYear();
-    document.getElementById('age').value = isNaN(age) ? '' : age;
-}
-</script>
-
-<script>
-
-$(document).ready(function () {
-    const selectConfig = {
-        placeholder: "Select",
-        allowClear: true,
-        width: '100%',
-        dropdownCssClass: 'custom-select2-dropdown',
-        containerCssClass: 'custom-select2-container'
-    };
-
-    $('#branchSelect').select2({...selectConfig, placeholder: "Select Customer"});
-
-    // Auto-submit on change
-    $('#branchSelect').on('change', function () {
-        $(this).closest('form').submit();
-    });
-
-    // Your existing code for AJAX loading employees, etc.
-});
-
-</script>
-
-
-
-
-
-

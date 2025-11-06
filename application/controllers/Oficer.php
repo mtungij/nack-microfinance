@@ -4714,9 +4714,6 @@ public function disburse($loan_id){
     
   // }
 
-    
-
-    
 
    
    $this->load->view('officer/search_loan_customer',['customer'=>$customer,'blanch_amount_balance'=>$blanch_amount_balance,'deposts'=>$deposts,'withdraw'=>$withdraw,'acount'=>$acount,'empl_data'=>$empl_data,'customery'=>$customery,'privillage'=>$privillage]);
@@ -6978,6 +6975,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
 
       $customer = $this->queries->get_allcutomerBlanch_Data($blanch_id);
       $this->load->view('officer/search_loan_report',['customer'=>$customer,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);
+      
     }
 
      public function manager_search_customer_loan_report(){
@@ -7016,9 +7014,9 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     @$sum_penart = $this->queries->get_penart_amount_total($customer_id);
     $privillage = $this->queries->get_position_empl($empl_id);
     $manager = $this->queries->get_position_manager($empl_id);
-       echo "<pre>";
-    print_r($customer_report);
-          exit();
+    //    echo "<pre>";
+    // print_r($customer_report);
+    //       exit();
     $this->load->view('officer/customer_report',['customer'=>$customer,'customer_report'=>$customer_report,'sum_recevable'=>$sum_recevable,'sum_pend'=>$sum_pend,'sum_penart'=>$sum_penart,'customer_id'=>$customer_id,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);
     }
 
@@ -7095,6 +7093,29 @@ public function customer_report(){
     // exit();
    
     $this->load->view('officer/customer_account_report',['empl_data'=>$empl_data,'customery'=>$customery,'customer'=>$customer,'loan_id'=>$loan_id,'customer_id'=>$customer_id]);
+}
+
+
+public function loan_statementreport(){
+    $this->load->model('queries');
+    $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+    $manager_data = $this->queries->get_manager_data($empl_id);
+    $comp_id = $manager_data->comp_id;
+    $company_data = $this->queries->get_companyData($comp_id);
+    $blanch_data = $this->queries->get_blanchData($blanch_id);
+    $empl_data = $this->queries->get_employee_data($empl_id);
+    $customer_id = $this->input->post('customer_id');
+    $loan_id = $this->input->post('loan_id');
+
+    $customer = $this->queries->search_CustomerLoan($customer_id);
+     $customery = $this->queries->get_allcutomerblanchData($blanch_id);
+    //     echo"<pre>";
+    // print_r($customery);
+    // echo"<pre>";
+    // exit();
+   
+    $this->load->view('officer/loan_statementreport',['empl_data'=>$empl_data,'customery'=>$customery,'customer'=>$customer,'loan_id'=>$loan_id,'customer_id'=>$customer_id]);
 }
 
      public function manager_customer_account_statement(){

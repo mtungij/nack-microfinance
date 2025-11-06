@@ -536,7 +536,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
           </button>
           <div id="communication-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $communication_submenu_active ? '' : 'hidden'; ?>">
               <ul class="pt-2 ps-2">
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300" href="#">Via SMS</a></li> <?php // Original link was commented out ?>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300" href="<?php echo base_url("admin/send_sms"); ?>">Via SMS</a></li> <?php // Original link was commented out ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/send_email') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/send_email"); ?>">Via Email</a></li>
               </ul>
           </div>

@@ -773,11 +773,29 @@ public function get_loan_by_id($loan_id)
 
 
 
-  public function get_total_pay_description_acount_statement($loan_id){
-     $data = $this->db->query("SELECT * FROM tbl_pay p LEFT JOIN tbl_loans l ON l.loan_id = p.loan_id LEFT JOIN tbl_account_transaction at ON at.trans_id = p.p_method WHERE p.loan_id = '$loan_id' ORDER BY p.pay_id DESC");
-     return $data->result(
-     );
-     }
+public function get_total_pay_description_acount_statement($loan_id)
+{
+    $query = $this->db->query("
+        SELECT 
+            p.*, 
+            l.*, 
+            at.*, 
+            o.*, 
+            pen.*
+        FROM tbl_pay p
+        LEFT JOIN tbl_loans l ON l.loan_id = p.loan_id
+        LEFT JOIN tbl_account_transaction at ON at.trans_id = p.p_method
+        LEFT JOIN tbl_outstand o ON o.loan_id = p.loan_id
+        LEFT JOIN tbl_penat pen ON pen.comp_id = l.comp_id
+        WHERE p.loan_id = '$loan_id'
+      
+        ORDER BY p.pay_id DESC
+    ");
+    return $query->result();
+}
+
+
+
 	
 
 		public function get_allcustomerDatagroup($comp_id) {
@@ -2386,6 +2404,84 @@ public function get_account_by_transid($trans_id) {
         ]);
     }
 }
+
+
+
+public function get_branches($comp_id)
+{
+    return $this->db->get_where('tbl_blanch', ['comp_id' => $comp_id])->result();
+}
+
+public function getEmployeesBranch($comp_id, $branch_id)
+{
+    $this->db->select('*');
+    $this->db->from('tbl_employee e');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = e.blanch_id');
+    $this->db->where('e.comp_id', $comp_id);
+    $this->db->where('e.blanch_id', $branch_id);
+    $this->db->where('e.empl_status', 'open');
+    $this->db->where('e.ac_status', 'empl');
+    return $this->db->get()->result();
+}
+
+public function get_active_customers($comp_id)
+{
+    $this->db->select('tbl_customer.*');
+    $this->db->from('tbl_customer');
+    $this->db->join('tbl_loans', 'tbl_loans.customer_id = tbl_customer.customer_id');
+    $this->db->where('tbl_customer.comp_id', $comp_id);
+    $this->db->where('tbl_loans.loan_status', 'active'); // filter by loan_status
+    $this->db->group_by('tbl_customer.customer_id'); // optional, to avoid duplicates if multiple loans
+    return $this->db->get()->result();
+}
+
+
+public function get_out_guarantors($comp_id)
+{
+    $this->db->select('
+        s.sp_id,
+        s.sp_phone_no,
+        s.sp_name,
+        s.sp_mname,
+        s.sp_lname,
+        c.customer_id,
+        c.f_name AS cust_fname,
+        c.l_name AS cust_lname,
+        l.loan_id,
+        l.loan_status
+    ');
+    $this->db->from('tbl_sponser s');
+    $this->db->join('tbl_customer c', 'c.customer_id = s.customer_id');
+    $this->db->join('tbl_loans l', 'l.customer_id = c.customer_id');
+    $this->db->where('l.comp_id', $comp_id);
+    $this->db->where('l.loan_status', 'out');
+    return $this->db->get()->result();
+}
+
+
+public function get_withdrawal_guarantors($comp_id)
+{
+    $this->db->select('
+        s.sp_id,
+        s.sp_phone_no,
+        s.sp_name,
+        s.sp_mname,
+        s.sp_lname,
+        c.customer_id,
+        c.f_name AS cust_fname,
+        c.l_name AS cust_lname,
+        l.loan_id,
+        l.loan_status
+    ');
+    $this->db->from('tbl_sponser s');
+    $this->db->join('tbl_customer c', 'c.customer_id = s.customer_id');
+    $this->db->join('tbl_loans l', 'l.customer_id = c.customer_id');
+    $this->db->where('l.comp_id', $comp_id);
+    $this->db->where('l.loan_status', 'withdrawal');
+    return $this->db->get()->result();
+}
+
+
 
 
 
@@ -5513,6 +5609,20 @@ public function get_allEmployee_Block($comp_id){
 
 
 
+public function getEmployeesByBranch($comp_id, $blanch_id){
+    $empl = $this->db->query("
+        SELECT * 
+        FROM tbl_employee e
+        JOIN tbl_blanch b ON b.blanch_id = e.blanch_id
+        JOIN tbl_position p ON p.position_id = e.position_id
+        WHERE e.comp_id = '$comp_id'
+          AND e.blanch_id = '$blanch_id'
+          AND e.empl_status = 'open'
+          AND e.ac_status = 'empl'
+        ORDER BY e.empl_id DESC
+    ");
+    return $empl->result();
+}
 
 
 

@@ -3010,6 +3010,93 @@ public function disburse($loan_id){
 		$this->load->view('admin/disburse_loan',['disburse'=>$disburse,'total_loanDis'=>$total_loanDis,'total_interest_loan'=>$total_interest_loan]);
 	}
 
+
+	  public function send_sms()
+    {
+      $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+
+        $data['branches'] = $this->queries->get_branches($comp_id);
+        $data['customers'] = $this->queries->get_active_customers($comp_id);
+        $data['out_guarantors'] = $this->queries->get_out_guarantors($comp_id);
+        $data['withdrawal_guarantors'] = $this->queries->get_withdrawal_guarantors($comp_id);
+
+        $this->load->view('admin/sms_send', $data);
+    }
+        
+
+		public function send_bulk_sms()
+{
+    $comp_id = $this->session->userdata('comp_id');
+    $message = $this->input->post('message');
+      // echo "<pre>";
+      //       print_r($massage);
+      //        echo "<pre>";
+      //        exit();
+$this->load->model('queries');
+    // ===== Employees =====
+  $employee_ids = $this->input->post('employee_ids');
+if (!empty($employee_ids)) {
+    foreach ($employee_ids as $emp_id) {
+        $emp = $this->queries->get_employee_by_id($emp_id);
+        if ($emp) {
+            // Normalize phone number
+            $phone = $emp->empl_no;
+            $phone = preg_replace('/\s+/', '', $phone); // Remove spaces
+            if (preg_match('/^(0)(6|7)/', $phone)) {
+                // Replace leading 0 with 255
+                $phone = '255' . substr($phone, 1);
+            }
+
+            $massage = "Habari {$emp->empl_name} , {$message}";
+
+            // echo "<pre>";
+            // print_r( $phone);
+            //  echo "<pre>";
+            //  exit();
+
+            $this->sendsms($phone, $massage);
+        }
+    }
+}
+
+
+    // ===== Customers =====
+    $customer_ids = $this->input->post('customer_ids');
+    if(!empty($customer_ids)){
+        foreach($customer_ids as $cust_id){
+            $cust = $this->queries->get_customer_by_id($cust_id);
+            if($cust){
+                $phone = $cust->phone_no; // Customer phone
+                $msg = "Mpendwa {$cust->f_name} {$cust->l_name}, {$message}";
+                $this->sendsms($phone, $msg);
+            }
+        }
+    }
+
+    // ===== Sponsors / Guarantors =====
+    $guarantor_ids = $this->input->post('guarantor_ids');
+    if(!empty($guarantor_ids)){
+        foreach($guarantor_ids as $sp_id){
+            $sp = $this->queries->get_guarantor_by_id($sp_id);
+            if($sp){
+                $phone = $sp->sp_phone_no; // Sponsor phone
+                $msg = "Habari {$sp->sp_fname} {$sp->sp_lname}, {$message}";
+                $this->sendsms($phone, $msg);
+            }
+        }
+    }
+
+    $this->session->set_flashdata('success', 'SMS sent successfully!');
+    redirect('admin/send_sms');
+}
+
+    
+
+
+
+	
+
 	public function delete_loanDisbursed($loan_id){
 		ini_set("max_execution_time", 3600);
 		$this->load->model('queries');
