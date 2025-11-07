@@ -27,8 +27,9 @@ include_once APPPATH . "views/partials/officerheader.php";
                 <div class="w-full md:w-1/2">
                  
                 </div>
-      <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+<div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
     <a href="<?php echo base_url("oficer/print_customer_statement/{$customer_id}/{$loan_id}"); ?>" 
+       target="_blank" rel="noopener noreferrer"
        class="flex items-center justify-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
         <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path fill-rule="evenodd" d="M3 14a1 1 0 011-1h3V4a1 1 0 112 0v9h3a1 1 0 010 2H4a1 1 0 01-1-1zm7 0a1 1 0 001-1V8a1 1 0 10-2 0v5a1 1 0 001 1z" clip-rule="evenodd"/>
@@ -37,12 +38,15 @@ include_once APPPATH . "views/partials/officerheader.php";
     </a>
 </div>
 
+
  
 	
 
             </div>
             <div class="overflow-x-auto">
-        <table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      
+            <table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+
     <thead class="text-xs text-cyan-500 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-50">
         <tr>
             <th scope="col" class="px-4 py-3" >Tarehe</th>
@@ -62,15 +66,16 @@ include_once APPPATH . "views/partials/officerheader.php";
  
       
 <?php
-echo "<pre>";
-print_r($loan_desc);
-echo "<pre>";
+// echo "<pre>";
+// print_r($loan_desc);
+// echo "<pre>";
 
 ?>
     
 
             <?php foreach ($loan_desc as $payisnulls): ?>
-                        <tr class="font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700">
+                      <tr class="font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+
                           <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo $payisnulls->date_data; ?></td>
                           <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">  <?php echo $payisnulls->emply; ?>
                           <?php if ($payisnulls->emply == TRUE) {   
@@ -141,46 +146,64 @@ echo "<pre>";
 <?php
 $penalty_amount = 0;
 
-if (
-    !empty($payisnulls->penat_status) &&
-    strtoupper($payisnulls->penat_status) === 'YES' &&
-    isset($payisnulls->action_penart) &&
-    isset($payisnulls->restration) &&
-    isset($payisnulls->penart)
-) {
-    $deposit    = floatval($payisnulls->depost);
-    $withdraw   = isset($payisnulls->withdrow) ? floatval($payisnulls->withdrow) : null;
-    $restration = floatval($payisnulls->restration);
-    $penart     = floatval($payisnulls->penart);
-    $action     = strtoupper(trim($payisnulls->action_penart));
+// Track index and total for oldest 3-row condition
+static $row_index = 0;
+$total_rows = count($loan_desc);
+$row_index++;
 
-    // If Kiasi Tolewa exists and equals restration, penalty = 0
-    if ($withdraw !== null && $withdraw == $restration) {
+// Only calculate penalty if not one of the 3 oldest rows
+if ($row_index <= ($total_rows - 3)) {
+    // Skip penalty if description is "SYSTEM WITHDRAWAL" and fee_id is not null
+    if (
+        isset($payisnulls->description, $payisnulls->fee_id) &&
+        strtoupper(trim($payisnulls->description)) === 'SYSTEM WITHDRAWAL' &&
+        !empty($payisnulls->fee_id)
+    ) {
         $penalty_amount = 0;
     } else {
-        // Case: PERCENTAGE VALUE
-        if ($action === 'PERCENTAGE VALUE') {
-            if ($deposit == 0) {
-                $penalty_amount = ($penart / 100) * $restration;
-            } elseif ($deposit < $restration) {
-                $penalty_amount = $restration / 2;
-            }
-        }
-        // Case: MONEY VALUE
-        elseif ($action === 'MONEY VALUE') {
-            if ($deposit == 0) {
-                $penalty_amount = $penart;
-            } elseif ($deposit < $restration) {
-                $penalty_amount = $penart / 2;
+        if (
+            !empty($payisnulls->penat_status) &&
+            strtoupper(trim($payisnulls->penat_status)) === 'YES' &&
+            isset($payisnulls->action_penart, $payisnulls->restration, $payisnulls->penart)
+        ) {
+            $deposit    = floatval($payisnulls->depost ?? 0);
+            $withdraw   = isset($payisnulls->withdrow) ? floatval($payisnulls->withdrow) : null;
+            $restration = floatval($payisnulls->restration);
+            $penart     = floatval($payisnulls->penart);
+            $action     = strtoupper(trim($payisnulls->action_penart));
+
+            if ($withdraw !== null && $withdraw == $restration) {
+                $penalty_amount = 0;
+            } else {
+                if ($action === 'PERCENTAGE VALUE') {
+                    if ($deposit == 0) {
+                        $penalty_amount = ($penart / 100) * $restration;
+                    } elseif ($deposit < $restration) {
+                        $penalty_amount = $restration / 2;
+                    }
+                } elseif ($action === 'MONEY VALUE') {
+                    if ($deposit == 0) {
+                        $penalty_amount = $penart;
+                    } elseif ($deposit < $restration) {
+                        $penalty_amount = $penart / 2;
+                    }
+                }
             }
         }
     }
+} else {
+    // Skip for the 3 oldest rows
+    $penalty_amount = 0;
 }
 
 // Output
-echo ($penalty_amount > 0) ? '<span class="text-red-500 font-bold">' . number_format($penalty_amount, 2) . '</span>' : '-';
+echo ($penalty_amount > 0)
+    ? '<span class="text-red-500 font-bold">' . number_format($penalty_amount, 2) . '</span>'
+    : '-';
 ?>
+
 </td>
+
 
 
                       

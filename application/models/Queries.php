@@ -3063,10 +3063,27 @@ public function get_sum_totalloanInterstBlanch($blanch_id){
      }
 
 
-      public function get_paycustomerNotfee_Statement($customer_id){
-        	$customer_pay = $this->db->query("SELECT * FROM tbl_pay p  JOIN tbl_loans l ON l.loan_id = p.loan_id LEFT JOIN tbl_account_transaction at ON at.trans_id = p.p_method  WHERE p.customer_id = '$customer_id' ORDER BY p.pay_id DESC");
-        	  return $customer_pay->result();
-        }
+	    public function get_loan_account_statement($loan_id){
+     	$data = $this->db->query("SELECT l.loan_id,l.loan_int,l.restration,l.customer_id,ot.loan_stat_date,ot.loan_end_date,l.loan_status,l.day FROM tbl_loans l LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id  WHERE l.loan_id = '$loan_id' LIMIT 1");
+     	return $data->row();
+     }
+
+	
+
+public function get_paycustomerNotfee_Statement($customer_id)
+{
+    $this->db->select('p.*, l.*, at.*, pen.*');
+    $this->db->from('tbl_pay p');
+    $this->db->join('tbl_loans l', 'l.loan_id = p.loan_id');
+    $this->db->join('tbl_account_transaction at', 'at.trans_id = p.p_method', 'left');
+    $this->db->join('tbl_penat pen', 'pen.comp_id = p.comp_id', 'left'); // join by comp_id
+    $this->db->where('p.customer_id', $customer_id);
+    $this->db->order_by('p.pay_id', 'DESC');
+    
+    $query = $this->db->get();
+    return $query->result();
+}
+
 
 
         public function get_customer_datareport($customer_id){
@@ -6408,7 +6425,11 @@ public function get_principal_repayment_account($blanch_id){
 	return $data->result();
 }
 
-
+  public function get_loan_schedule_customer($loan_id){
+   	$loan = $this->db->query("SELECT * FROM tbl_loans l LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id LEFT JOIN tbl_account_transaction at ON at.trans_id = l.method  WHERE l.loan_id = '$loan_id' ");
+       return $loan->row();
+   }
+   
 public function get_interest_summary($blanch_id){
 	$data = $this->db->query("SELECT * FROM tbl_blanch_capital_interest ic JOIN tbl_account_transaction at ON at.trans_id = ic.trans_id WHERE ic.blanch_id = '$blanch_id'");
 	return $data->result();
