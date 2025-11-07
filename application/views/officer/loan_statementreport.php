@@ -7,7 +7,7 @@ include_once APPPATH . "views/partials/officerheader.php";
     <div class="p-4 sm:p-6 space-y-6">
 
 
-	<section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
+	<section class="bg-gray-50 dark:bg-gray-900 w-full">
     <div class="w-full">
 
 
@@ -45,7 +45,7 @@ include_once APPPATH . "views/partials/officerheader.php";
             </div>
             <div class="overflow-x-auto">
       
-            <table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+            <table id="shareholder_table" class="w-full overflow-x-auto text-sm text-left text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
 
     <thead class="text-xs text-cyan-500 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-50">
         <tr>
