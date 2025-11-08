@@ -173,6 +173,16 @@
       background-color: #e9f4ff;
     }
 
+    /* ===== HIGHLIGHT ROW FOR SPECIFIC DATES ===== */
+    .highlight-red {
+      background-color: #f8d7da; /* light red */
+    }
+
+    .highlight-red td {
+      color: #721c24; /* dark red text */
+      font-weight: bold;
+    }
+
     /* ===== TOTAL PENALTY ===== */
     .total-penalty {
       margin-top: 20px;
@@ -208,15 +218,7 @@
   <div id="container">
 
     <!-- HEADER -->
-    <!-- <div class="header">
-      <div class="header-left">
-        <img src="<?php echo base_url().'assets/img/'.$compdata->comp_logo ?>" alt="Logo">
-        <div class="company-info">
-          <b><?php echo $compdata->comp_name; ?></b><br>
-          <?php echo $compdata->adress; ?><br>
-          <small><b>TAARIFA YA MALIPO YA MTEJA</b></small>
-        </div>
-      </div> -->
+    <div class="header">
       <div class="header-right">
         <span>Imetumwa Tarehe:</span> <?php echo date("d-m-Y H:i"); ?><br>
         <span>Imetumwa Na:</span> <?php echo $empl_data->empl_name; ?>
@@ -224,54 +226,52 @@
     </div>
 
     <!-- CUSTOMER INFO -->
-<!-- CUSTOMER INFO -->
-<div class="section-title">Taarifa za Mteja</div>
+    <div class="section-title">Taarifa za Mteja</div>
 
-<table class="customer-table">
-  <tr>
-    <th>Jina</th>
-    <td><?php echo "$statement->f_name $statement->m_name $statement->l_name"; ?></td>
-  </tr>
-  <tr>
-    <th>Kiasi cha Mkopo</th>
-    <td><?php echo number_format($customer_loan_data->loan_int); ?></td>
-  </tr>
-  <tr>
-    <th>Namba ya Simu</th>
-    <td><?php echo $statement->phone_no; ?></td>
-  </tr>
-  <tr>
-    <th>Aina ya Marejesho</th>
-    <td>
-      <?php
-        $day = $customer_loan_data->day;
-        $session = $customer_loan_data->session;
-        if ($day == 1) $repayment_type = "Marejesho ya siku";
-        elseif ($day == 7) $repayment_type = "Marejesho ya wiki";
-        elseif (in_array($day, [28,29,30,31])) $repayment_type = "Marejesho ya mwezi";
-        else $repayment_type = "Marejesho maalum";
-        echo "$repayment_type ($session)";
-      ?>
-    </td>
-  </tr>
-  <tr>
-    <th>Tawi</th>
-    <td><?php echo $statement->blanch_name; ?></td>
-  </tr>
-  <tr>
-    <th>Code ya Tawi</th>
-    <td><?php echo $statement->branch_code; ?></td>
-  </tr>
-  <tr>
-    <th>Jumla ya Malipo</th>
-    <td><?php echo number_format($total_depost->total_Deposit); ?></td>
-  </tr>
-  <tr>
-    <th>Deni</th>
-    <td class="text-red"><?php echo number_format(($customer_loan_data->loan_int) - ($total_depost->total_Deposit)); ?></td>
-  </tr>
-</table>
-
+    <table class="customer-table">
+      <tr>
+        <th>Jina</th>
+        <td><?php echo "$statement->f_name $statement->m_name $statement->l_name"; ?></td>
+      </tr>
+      <tr>
+        <th>Kiasi cha Mkopo</th>
+        <td><?php echo number_format($customer_loan_data->loan_int); ?></td>
+      </tr>
+      <tr>
+        <th>Namba ya Simu</th>
+        <td><?php echo $statement->phone_no; ?></td>
+      </tr>
+      <tr>
+        <th>Aina ya Marejesho</th>
+        <td>
+          <?php
+            $day = $customer_loan_data->day;
+            $session = $customer_loan_data->session;
+            if ($day == 1) $repayment_type = "Marejesho ya siku";
+            elseif ($day == 7) $repayment_type = "Marejesho ya wiki";
+            elseif (in_array($day, [28,29,30,31])) $repayment_type = "Marejesho ya mwezi";
+            else $repayment_type = "Marejesho maalum";
+            echo "$repayment_type ($session)";
+          ?>
+        </td>
+      </tr>
+      <tr>
+        <th>Tawi</th>
+        <td><?php echo $statement->blanch_name; ?></td>
+      </tr>
+      <tr>
+        <th>Code ya Tawi</th>
+        <td><?php echo $statement->branch_code; ?></td>
+      </tr>
+      <tr>
+        <th>Jumla ya Malipo</th>
+        <td><?php echo number_format($total_depost->total_Deposit); ?></td>
+      </tr>
+      <tr>
+        <th>Deni</th>
+        <td class="text-red"><?php echo number_format(($customer_loan_data->loan_int) - ($total_depost->total_Deposit)); ?></td>
+      </tr>
+    </table>
 
     <!-- TRANSACTION TABLE -->
     <div class="section-title">Statement ya Malipo</div>
@@ -284,7 +284,6 @@
           <th>Kiasi Lipwa</th>
           <th>Kiasi Tolewa</th>
           <th>Salio</th>
-          <!-- <th>Baki</th> -->
           <th>Penalt</th>
         </tr>
       </thead>
@@ -298,39 +297,53 @@
           $row_index++;
           $penalty_amount = 0;
 
+          // PENALTY CALCULATION
           if ($row_index <= ($total_rows - 3)) {
-            if (
-              isset($payisnulls->description, $payisnulls->fee_id) &&
-              strtoupper(trim($payisnulls->description)) === 'SYSTEM WITHDRAWAL' &&
-              !empty($payisnulls->fee_id)
-            ) {
-              $penalty_amount = 0;
+    
+    $description_upper = strtoupper(trim($payisnulls->description));
+    $withdraw = isset($payisnulls->withdrow) ? floatval($payisnulls->withdrow) : 0;
+
+    // Condition for SYSTEM / LAZO LA NYUMA with withdrow not 0
+    if ( $withdraw != 0) {
+        $penalty_amount = 0; // show as '-'
+    }
+    // Original SYSTEM WITHDRAWAL logic
+    elseif (isset($payisnulls->fee_id) && $description_upper === 'SYSTEM WITHDRAWAL' && !empty($payisnulls->fee_id)) {
+        $penalty_amount = 0;
+    } 
+    // Original penalty calculation logic
+    else {
+        if (!empty($payisnulls->penat_status) &&
+            strtoupper(trim($payisnulls->penat_status)) === 'YES' &&
+            isset($payisnulls->action_penart, $payisnulls->restration, $payisnulls->penart)) {
+
+            $deposit = floatval($payisnulls->depost ?? 0);
+            $restration = floatval($payisnulls->restration);
+            $penart = floatval($payisnulls->penart);
+            $action = strtoupper(trim($payisnulls->action_penart));
+
+            if ($withdraw !== null && $withdraw == $restration) {
+                $penalty_amount = 0;
             } else {
-              if (!empty($payisnulls->penat_status) &&
-                  strtoupper(trim($payisnulls->penat_status)) === 'YES' &&
-                  isset($payisnulls->action_penart, $payisnulls->restration, $payisnulls->penart)) {
-
-                  $deposit = floatval($payisnulls->depost ?? 0);
-                  $withdraw = isset($payisnulls->withdrow) ? floatval($payisnulls->withdrow) : null;
-                  $restration = floatval($payisnulls->restration);
-                  $penart = floatval($payisnulls->penart);
-                  $action = strtoupper(trim($payisnulls->action_penart));
-
-                  if ($withdraw !== null && $withdraw == $restration) {
-                      $penalty_amount = 0;
-                  } else {
-                      if ($action === 'PERCENTAGE VALUE') {
-                          $penalty_amount = ($deposit == 0) ? ($penart / 100) * $restration : (($deposit < $restration) ? $restration / 2 : 0);
-                      } elseif ($action === 'MONEY VALUE') {
-                          $penalty_amount = ($deposit == 0) ? $penart : (($deposit < $restration) ? $penart / 2 : 0);
-                      }
-                  }
-              }
+                if ($action === 'PERCENTAGE VALUE') {
+                    $penalty_amount = ($deposit == 0) ? ($penart / 100) * $restration : (($deposit < $restration) ? $restration / 2 : 0);
+                } elseif ($action === 'MONEY VALUE') {
+                    $penalty_amount = ($deposit == 0) ? $penart : (($deposit < $restration) ? $penart / 2 : 0);
+                }
             }
-          }
+        }
+    }
+}
+
           $total_penalty += $penalty_amount;
+
+          // HIGHLIGHT ROW IF DATE BETWEEN 29 OCT 2025 AND 05 NOV 2025
+          $row_date = strtotime($payisnulls->date_data);
+          $start_date = strtotime('2025-10-29');
+          $end_date   = strtotime('2025-11-05');
+          $row_class = ($row_date >= $start_date && $row_date <= $end_date) ? 'highlight-red' : '';
         ?>
-        <tr>
+        <tr class="<?php echo $row_class; ?>">
           <td><?php echo $payisnulls->date_data; ?></td>
           <td>
             <?php 
@@ -343,7 +356,6 @@
           <td><?php echo number_format($payisnulls->depost ?? 0); ?></td>
           <td><?php echo number_format($payisnulls->withdrow ?? 0); ?></td>
           <td><?php echo number_format($payisnulls->balance ?? 0); ?></td>
-          <!-- <td><?php echo ($payisnulls->rem_debt || $payisnulls->rem_debt == '0') ? $payisnulls->rem_debt : '-'; ?></td> -->
           <td><?php echo ($penalty_amount > 0) ? '<span class="text-red">'.number_format($penalty_amount).'</span>' : '-'; ?></td>
         </tr>
         <?php endforeach; ?>
