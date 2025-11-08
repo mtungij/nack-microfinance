@@ -7194,7 +7194,7 @@ $total_depost=$this->queries->get_total_amount_paid_loan($loan_id);
 
   
     $pay_customer = $this->queries->get_paycustomer($customer_id);
-    $payisnull = $this->queries->get_paycustomerNotfee_Statement($customer_id);
+    $payisnull = $this->queries->get_paycustomerNotfee_Statement($customer_id,$loan_id);
 
 //     echo "<pre>";
 // print_r( $empl_data);

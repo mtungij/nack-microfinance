@@ -284,7 +284,7 @@
           <th>Kiasi Lipwa</th>
           <th>Kiasi Tolewa</th>
           <th>Salio</th>
-          <th>Baki</th>
+          <!-- <th>Baki</th> -->
           <th>Penalt</th>
         </tr>
       </thead>
@@ -343,7 +343,7 @@
           <td><?php echo number_format($payisnulls->depost ?? 0); ?></td>
           <td><?php echo number_format($payisnulls->withdrow ?? 0); ?></td>
           <td><?php echo number_format($payisnulls->balance ?? 0); ?></td>
-          <td><?php echo ($payisnulls->rem_debt || $payisnulls->rem_debt == '0') ? $payisnulls->rem_debt : '-'; ?></td>
+          <!-- <td><?php echo ($payisnulls->rem_debt || $payisnulls->rem_debt == '0') ? $payisnulls->rem_debt : '-'; ?></td> -->
           <td><?php echo ($penalty_amount > 0) ? '<span class="text-red">'.number_format($penalty_amount).'</span>' : '-'; ?></td>
         </tr>
         <?php endforeach; ?>

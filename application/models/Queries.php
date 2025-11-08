@@ -3070,19 +3070,32 @@ public function get_sum_totalloanInterstBlanch($blanch_id){
 
 	
 
-public function get_paycustomerNotfee_Statement($customer_id)
+public function get_paycustomerNotfee_Statement($customer_id, $loan_id)
 {
     $this->db->select('p.*, l.*, at.*, pen.*');
     $this->db->from('tbl_pay p');
     $this->db->join('tbl_loans l', 'l.loan_id = p.loan_id');
     $this->db->join('tbl_account_transaction at', 'at.trans_id = p.p_method', 'left');
-    $this->db->join('tbl_penat pen', 'pen.comp_id = p.comp_id', 'left'); // join by comp_id
+    $this->db->join('tbl_penat pen', 'pen.comp_id = p.comp_id', 'left');
+
     $this->db->where('p.customer_id', $customer_id);
+    $this->db->where('p.loan_id', $loan_id);
+
+    // 🔹 Skip penalty display for these descriptions
+    $this->db->where_not_in('p.description', [
+        'CASH WITHDRAWALS',
+        'SYSTEM WITHDRAWAL',
+		'AUTO CRON REMAIN DEBT',
+        'CASH DEPOST'
+    ]);
+
+    $this->db->group_by(['p.loan_id', 'p.pay_day', 'p.description', 'p.depost', 'p.pay_id']);
     $this->db->order_by('p.pay_id', 'DESC');
-    
+
     $query = $this->db->get();
     return $query->result();
 }
+
 
 
 
