@@ -284,82 +284,116 @@
           <th>Kiasi Lipwa</th>
           <th>Kiasi Tolewa</th>
           <th>Salio</th>
+          <th>Deni</th>
           <th>Penalt</th>
         </tr>
       </thead>
-      <tbody>
-        <?php 
-        $total_penalty = 0;
-        $total_rows = count($payisnull);
-        $row_index = 0;
+     <tbody>
 
-        foreach ($payisnull as $payisnulls): 
-          $row_index++;
-          $penalty_amount = 0;
+  <?php 
+$total_penalty = 0;
+$total_rows = count($payisnull);
+$row_index = 0;
 
-          // PENALTY CALCULATION
-          if ($row_index <= ($total_rows - 3)) {
-    
-    $description_upper = strtoupper(trim($payisnulls->description));
-    $withdraw = isset($payisnulls->withdrow) ? floatval($payisnulls->withdrow) : 0;
+// --- Step 1: Prepare remaining debts from bottom to top ---
+$payisnull_reversed = array_reverse($payisnull);
+$debts = [];
+$remaining_debt = $customer_loan_data->loan_int;
 
-    // Condition for SYSTEM / LAZO LA NYUMA with withdrow not 0
-    if ( $withdraw != 0) {
-        $penalty_amount = 0; // show as '-'
-    }
-    // Original SYSTEM WITHDRAWAL logic
-    elseif (isset($payisnulls->fee_id) && $description_upper === 'SYSTEM WITHDRAWAL' && !empty($payisnulls->fee_id)) {
+foreach ($payisnull_reversed as $payisnulls) {
+    $deposit = floatval($payisnulls->depost ?? 0);
+    $remaining_debt -= $deposit;
+    $debts[$payisnulls->pay_id] = $remaining_debt >= 0 ? $remaining_debt : 0;
+}
+
+// --- Step 2: Loop original payments to display table ---
+foreach ($payisnull as $payisnulls): 
+    $row_index++;
+    $penalty_amount = 0;
+
+    $row_date = strtotime($payisnulls->date_data);
+    $start_date = strtotime('2025-10-29');
+    $end_date   = strtotime('2025-11-05');
+
+    // --- HIGHLIGHT ROW IF DATE BETWEEN 29 OCT 2025 AND 05 NOV 2025 ---
+    $row_class = ($row_date >= $start_date && $row_date <= $end_date) ? 'highlight-red' : '';
+
+    // --- NEW CONDITION: No penalty for this date range ---
+    if ($row_date >= $start_date && $row_date <= $end_date) {
         $penalty_amount = 0;
-    } 
-    // Original penalty calculation logic
-    else {
-        if (!empty($payisnulls->penat_status) &&
-            strtoupper(trim($payisnulls->penat_status)) === 'YES' &&
-            isset($payisnulls->action_penart, $payisnulls->restration, $payisnulls->penart)) {
+    } else {
+        // --- Existing penalty logic ---
+        if ($row_index <= ($total_rows - 3)) {
+            $description_upper = strtoupper(trim($payisnulls->description));
+            $withdraw = isset($payisnulls->withdrow) ? floatval($payisnulls->withdrow) : 0;
+            $deposit_val = isset($payisnulls->depost) ? floatval($payisnulls->depost) : 0;
 
-            $deposit = floatval($payisnulls->depost ?? 0);
-            $restration = floatval($payisnulls->restration);
-            $penart = floatval($payisnulls->penart);
-            $action = strtoupper(trim($payisnulls->action_penart));
-
-            if ($withdraw !== null && $withdraw == $restration) {
+            // --- Multiple deposits on same day (>0) → penalty = 0 ---
+            $same_day_deposits = array_filter($payisnull, function($p) use ($payisnulls) {
+                return $p->date_data === $payisnulls->date_data && floatval($p->depost) > 0;
+            });
+            $count_same_day = count($same_day_deposits);
+            if ($count_same_day > 1) {
                 $penalty_amount = 0;
             } else {
-                if ($action === 'PERCENTAGE VALUE') {
-                    $penalty_amount = ($deposit == 0) ? ($penart / 100) * $restration : (($deposit < $restration) ? $restration / 2 : 0);
-                } elseif ($action === 'MONEY VALUE') {
-                    $penalty_amount = ($deposit == 0) ? $penart : (($deposit < $restration) ? $penart / 2 : 0);
+                // --- SYSTEM WITHDRAWAL or other conditions ---
+                if ($withdraw != 0) {
+                    $penalty_amount = 0;
+                } elseif (isset($payisnulls->fee_id) && $description_upper === 'SYSTEM WITHDRAWAL' && !empty($payisnulls->fee_id)) {
+                    $penalty_amount = 0;
+                } else {
+                    if (!empty($payisnulls->penat_status) &&
+                        strtoupper(trim($payisnulls->penat_status)) === 'YES' &&
+                        isset($payisnulls->action_penart, $payisnulls->restration, $payisnulls->penart)) {
+
+                        $restration = floatval($payisnulls->restration);
+                        $penart = floatval($payisnulls->penart);
+                        $action = strtoupper(trim($payisnulls->action_penart));
+
+                        if ($withdraw !== null && $withdraw == $restration) {
+                            $penalty_amount = 0;
+                        } else {
+                            if ($action === 'PERCENTAGE VALUE') {
+                                $penalty_amount = ($deposit_val == 0)
+                                    ? ($penart / 100) * $restration
+                                    : (($deposit_val < $restration) ? $restration / 2 : 0);
+                            } elseif ($action === 'MONEY VALUE') {
+                                $penalty_amount = ($deposit_val == 0)
+                                    ? $penart
+                                    : (($deposit_val < $restration) ? $penart / 2 : 0);
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-}
 
-          $total_penalty += $penalty_amount;
+    $total_penalty += $penalty_amount;
 
-          // HIGHLIGHT ROW IF DATE BETWEEN 29 OCT 2025 AND 05 NOV 2025
-          $row_date = strtotime($payisnulls->date_data);
-          $start_date = strtotime('2025-10-29');
-          $end_date   = strtotime('2025-11-05');
-          $row_class = ($row_date >= $start_date && $row_date <= $end_date) ? 'highlight-red' : '';
-        ?>
-        <tr class="<?php echo $row_class; ?>">
-          <td><?php echo $payisnulls->date_data; ?></td>
-          <td>
-            <?php 
-              echo $payisnulls->emply . " / " . $payisnulls->description;
-              if (!empty($payisnulls->account_name)) {
-                echo " / " . $payisnulls->account_name;
-              }
-            ?>
-          </td>
-          <td><?php echo number_format($payisnulls->depost ?? 0); ?></td>
-          <td><?php echo number_format($payisnulls->withdrow ?? 0); ?></td>
-          <td><?php echo number_format($payisnulls->balance ?? 0); ?></td>
-          <td><?php echo ($penalty_amount > 0) ? '<span class="text-red">'.number_format($penalty_amount).'</span>' : '-'; ?></td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
+    // --- Get remaining debt for this row ---
+    $debt_for_row = $debts[$payisnulls->pay_id] ?? 0;
+?>
+<tr class="<?php echo $row_class; ?>">
+  <td><?php echo $payisnulls->date_data; ?></td>
+  <td>
+    <?php 
+      echo $payisnulls->emply ?? "SYSTEM" . " / " . $payisnulls->restration;
+      if (!empty($payisnulls->account_name)) {
+        echo " / " . $payisnulls->account_name;
+      }
+    ?>
+  </td>
+  <td><?php echo number_format($payisnulls->depost ?? 0); ?></td>
+  <td><?php echo number_format($payisnulls->withdrow ?? 0); ?></td>
+  <td><?php echo number_format($payisnulls->balance ?? 0); ?></td>
+  <td class="text-red"><?php echo number_format($debt_for_row); ?></td>
+  <td><?php echo ($penalty_amount > 0) ? '<span class="text-red">'.number_format($penalty_amount).'</span>' : 0; ?></td>
+</tr>
+<?php endforeach; ?>
+
+</tbody>
+
     </table>
 
     <!-- TOTAL PENALTY -->
