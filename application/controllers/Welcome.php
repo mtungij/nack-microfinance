@@ -6,42 +6,49 @@ class Welcome extends CI_Controller {
 		$this->load->view('welcome');
 	}
 
-	public function create_company(){
-		$this->form_validation->set_rules('region_id','region','required');
-		$this->form_validation->set_rules('comp_name','company name','required');
-		$this->form_validation->set_rules('comp_phone','company phone number','required');
-		$this->form_validation->set_rules('adress','adress','required');
-		$this->form_validation->set_rules('comp_number','Registration number','required');
-		$this->form_validation->set_rules('comp_email','company Email','required');
-		$this->form_validation->set_rules('sms_status','sms','required');
-		
-		$this->form_validation->set_error_delimiters('<div class="text-danger">','</div>');
-		if ($this->form_validation->run() ) {
-		     $data = $this->input->post();
-		     $data['password'] = password_hash('123456', PASSWORD_BCRYPT); // hashed password
-		      //   echo "<pre>";
-		      // print_r($data);
-		      // echo "</pre>";
-		      //      exit();
-		     $this->load->model('queries');
-			  $comp_id = $this->queries->insert_company_data($data);
-		      if ($comp_id) {
+public function create_company() {
+    $this->form_validation->set_rules('region_id', 'region', 'required');
+    $this->form_validation->set_rules('comp_name', 'company name', 'required');
+    $this->form_validation->set_rules('comp_phone', 'company phone number', 'required');
+    $this->form_validation->set_rules('adress', 'adress', 'required');
+    $this->form_validation->set_rules('comp_number', 'Registration number', 'required');
+    $this->form_validation->set_rules('comp_email', 'company Email', 'required');
+    $this->form_validation->set_rules('sms_status', 'sms', 'required');
+    $this->form_validation->set_error_delimiters('<div class="text-danger">', '</div>');
 
-			// 	     echo "<pre>";
-		    //   print_r($comp_id);
-		    //   echo "</pre>";
-		    //        exit();
-              $this->session->set_userdata('comp_id', $comp_id);
-    $this->session->set_flashdata('massage','Your Company Registration Successfully ');
-          redirect('welcome/blanch');
-			  }
-		      else{
-		      	 $this->session->set_flashdata('error','Data Failed');
-		      }
-		      return redirect('welcome/register');
-		}
-		$this->register();
-	}
+    if ($this->form_validation->run()) {
+        $data = $this->input->post();
+        $data['password'] = password_hash('123456', PASSWORD_BCRYPT);
+
+        $this->load->model('queries');
+        $comp_id = $this->queries->insert_company_data($data);
+
+        if ($comp_id) {
+            $this->session->set_userdata('comp_id', $comp_id);
+
+            // ✅ Prepare SMS details
+            $recipients = ['255629364847', '255748470181', '255747384847'];
+            $massage = "Kuna kampuni imesajiliwa loan-pocket.com\n".
+                       "Jina la kampuni: {$data['comp_name']}\n".
+                       "Namba ya simu: {$data['comp_phone']}\n".
+                       "Anuani: {$data['adress']}";
+
+            // ✅ Send SMS (Beem Africa Example)
+            foreach ($recipients as $phone) {
+                $this->sendsms($phone, $massage);
+            }
+
+            $this->session->set_flashdata('massage', 'Your Company Registration Successfully');
+            redirect('welcome/blanch');
+        } else {
+            $this->session->set_flashdata('error', 'Data Failed');
+            return redirect('welcome/register');
+        }
+    }
+
+    $this->register();
+}
+
 
 	public function blanch(){
 		$this->load->model('queries');
