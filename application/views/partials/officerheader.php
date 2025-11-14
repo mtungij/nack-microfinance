@@ -9,6 +9,7 @@
 
   <title>Loan-Pocket</title>
 
+<link rel="manifest" href="/nack/assets/manifest.json">
 
   <link rel="shortcut icon" href="../../favicon.ico">
  
