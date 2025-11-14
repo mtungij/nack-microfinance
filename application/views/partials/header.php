@@ -12,7 +12,11 @@
 
   <link rel="shortcut icon" href="../../favicon.ico">
  
- 
+ <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
+  }
+</script>
 
 
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
