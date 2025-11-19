@@ -9,15 +9,18 @@
 
   <title>Loan-Pocket</title>
 
-<link rel="manifest" href="/nack/assets/manifest.json">
-  <link rel="shortcut icon" href="../../favicon.ico">
- 
- <script>
+<link rel="manifest" href="/manifest.json">
+
+
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+<script>
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js");
+    navigator.serviceWorker.register("/sw.js")
+      .then(() => console.log("Service Worker Registered"))
+      .catch(err => console.log("SW Error: ", err));
   }
 </script>
-
 
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
