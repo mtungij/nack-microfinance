@@ -6,18 +6,19 @@
   <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="Comprehensive overview with charts, tables, and a streamlined dashboard layout for easy data visualization and analysis.">
-
+<meta name="theme-color" content="#0d6efd">
   <title>Loan-Pocket</title>
 
-<link rel="manifest" href="/nack/assets/manifest.json">
+<link rel="manifest" href="/manifest.json">
 
-  <link rel="shortcut icon" href="../../favicon.ico">
- 
- 
+
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
 
 <script>
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js");
+    navigator.serviceWorker.register("/sw.js")
+      .then(() => console.log("Service Worker Registered"))
+      .catch(err => console.log("SW Error: ", err));
   }
 </script>
 
