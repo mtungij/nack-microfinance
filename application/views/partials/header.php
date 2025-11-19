@@ -10,11 +10,9 @@
   <title>Loan-Pocket</title>
 
 
-<link rel="manifest" href="/nack/manifest.json">
-
-
-
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="manifest" href="/evamo/manifest.json">
+<meta name="theme-color" content="#0d6efd">
+<link rel="apple-touch-icon" href="/evamo/assets/images/icon.png">
 
 <script>
   if ("serviceWorker" in navigator) {
