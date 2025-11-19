@@ -13,7 +13,7 @@
 
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0d6efd">
-<link rel="apple-touch-icon" href="/assets/images/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/images/icon.png">
 
 <script>
 if ('serviceWorker' in navigator) {
