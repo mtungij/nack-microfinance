@@ -9,13 +9,15 @@
 
   <title>Loan-Pocket</title>
 
-<link rel="manifest" href="/evamo/manifest.json">
+
+
+<link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0d6efd">
-<link rel="apple-touch-icon" href="/evamo/assets/images/icon.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-192.png">
 
 <script>
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/evamo/sw.js')
+    navigator.serviceWorker.register('/sw.js')
         .then(() => console.log('Service Worker Registered'))
         .catch(err => console.log('SW Error: ', err));
 }
