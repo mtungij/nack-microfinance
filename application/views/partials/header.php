@@ -9,7 +9,9 @@
 
   <title>Loan-Pocket</title>
 
-<link rel="manifest" href="/manifest.json">
+
+<link rel="manifest" href="/nack/manifest.json">
+
 
 
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
