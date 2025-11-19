@@ -88,6 +88,10 @@ include_once APPPATH . "views/partials/guest_header.php";
           </div>
           <?php endif; ?>
 
+          <button id="install-btn" onclick="promptInstall()" style="display:none;">
+  Install App
+</button>
+
           <!-- Form -->
           <?php echo form_open("welcome/Employee_signin", ['class' => 'mt-5 grid gap-y-4']); // Form action updated ?>
             <!-- Form Group for Employee Phone Number -->

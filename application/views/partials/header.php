@@ -9,18 +9,36 @@
 
   <title>Loan-Pocket</title>
 
-
 <link rel="manifest" href="/evamo/manifest.json">
 <meta name="theme-color" content="#0d6efd">
 <link rel="apple-touch-icon" href="/evamo/assets/images/icon.png">
 
 <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js")
-      .then(() => console.log("Service Worker Registered"))
-      .catch(err => console.log("SW Error: ", err));
-  }
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/evamo/sw.js')
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.log('SW Error: ', err));
+}
+
+// Optional: Listen for beforeinstallprompt to trigger install manually
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Example: show a button to install
+    // document.getElementById('install-btn').style.display = 'block';
+});
+
+function promptInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choice => {
+            deferredPrompt = null;
+        });
+    }
+}
 </script>
+
 
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
