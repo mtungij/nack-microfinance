@@ -2085,6 +2085,8 @@ public function validate_pdf_upload($str, $field_name)
     }
 
 
+
+
     public function viw_ID_sig($customer_id){
         $this->load->model('queries');
         $blanch_id = $this->session->userdata('blanch_id');
@@ -2415,19 +2417,29 @@ public function search_customer()
     $empl_id   = $this->session->userdata('empl_id');
     $manager_data = $this->queries->get_manager_data($empl_id);
     $comp_id   = $manager_data->comp_id;
-    $company_data = $this->queries->get_companyData($comp_id);
-    $blanch_data  = $this->queries->get_blanchData($blanch_id);
-    $empl_data    = $this->queries->get_employee_data($empl_id);
+    $empl_data = $this->queries->get_employee_data($empl_id);
 
-    $customer_id = $this->input->post('customer_id');
+    // ✅ Pata customer_id kutoka POST au SESSION
+    $customer_id = $this->input->post('customer_id') ?? $this->session->userdata('customer_id');
+
+    if (!$customer_id) {
+        $this->session->set_flashdata('error', 'Tafadhali chagua mteja.');
+        redirect('oficer/loan_application');
+        return;
+    }
+
+    // Ondoa customer_id baada ya kuchukua
+    $this->session->unset_userdata('customer_id');
+
     $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
-    
+
     if (!$customer) {
         $this->session->set_flashdata('error', 'Mteja hakupatikana.');
         redirect('oficer/loan_application');
+        return;
     }
 
-    // ✅ Check if customer has an open loan
+    // ✅ Check if customer has open loan
     $open_loan = $this->db
         ->where('customer_id', $customer_id)
         ->where('loan_status', 'open')
@@ -2446,7 +2458,7 @@ public function search_customer()
         ]);
     }
 
-    // ⚠️ Check if pending loan exists
+    // ⚠️ Check pending loans
     if ($this->queries->has_pending_loans($customer_id)) {
         return $this->load->view('officer/toast_message_view', [
             'message' => "Mteja <span class='font-bold'>{$customer->f_name} {$customer->m_name} {$customer->l_name}</span> bado hajamaliza mkopo wake. Tafadhali maliza mkopo kabla ya kuomba tena.",
@@ -2454,21 +2466,13 @@ public function search_customer()
         ]);
     }
 
-    // ✅ Check penalties for latest done loan
-    $latestLoan = $this->db->select('*')
-        ->from('tbl_loans')
-        ->where('customer_id', $customer_id)
-        ->where('loan_status', 'done')
-        ->order_by('loan_id', 'DESC')
-        ->limit(1)
-        ->get()
-        ->row();
+    // ✅ Check penalties
+    $latestLoan = $this->queries->get_latest_done_loan($customer_id);
 
     if ($latestLoan) {
         $total_penart = @$this->queries->get_total_penart_loan($latestLoan->loan_id)->total_penart ?: 0;
         $paid         = @$this->queries->get_total_penart_paid_loan($latestLoan->loan_id)->total_PaidPenart ?: 0;
 
-        // ✅ Check if penalty has been waived
         $msamaha = $this->queries->get_penart_check($latestLoan->loan_id);
         $waived  = ($msamaha && isset($msamaha->status) && $msamaha->status === 'checked');
 
@@ -2480,18 +2484,79 @@ public function search_customer()
         }
     }
 
-    // ✅ If no open loan, no pending loan, and no penalty → PROCEED NORMALLY
+    // ✅ Prepare sponsor info
+    $sponser = $this->queries->get_sponser($customer_id);
+    $askReplace = false;
+    if ($latestLoan && $sponser) {
+        $askReplace = true;
+    }
+
+    // ✅ Load view
     return $this->load->view('officer/search_customer', [
         'customer'      => $customer,
-           'comp_id'  => $comp_id,
+        'comp_id'       => $comp_id,
+        'sponser'       => $sponser,
+        'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
+        'region'        => $this->queries->get_region(),
+        'empl_data'     => $empl_data,
+        'privillage'    => $this->queries->get_position_empl($empl_id),
+        'manager'       => $this->queries->get_position_manager($empl_id),
+        'askReplace'    => $askReplace,
+        'latestLoan'    => $latestLoan
+    ]);
+}
+
+
+/**
+ * Handle sponser confirmation (persistent)
+ */
+public function handle_sponser_confirmation()
+{
+    $customer_id = $this->input->post('customer_id');
+
+    if (!$customer_id) {
+        $this->session->set_flashdata('error', 'Hakuna mteja aliyechaguliwa.');
+        redirect('oficer/loan_application');
+        return;
+    }
+
+    if ($this->input->post('replace')) {
+        // Futa mdhamini wa zamani
+        $this->db->where('customer_id', $customer_id)->delete('tbl_sponser');
+        $this->session->set_flashdata('massage', 'Mdhamini wa zamani amefutwa. Tafadhali ongeza mdhamini mpya.');
+    } else if ($this->input->post('keep')) {
+        $this->session->set_flashdata('massage', 'Mdhamini wa sasa bado anabaki.');
+    }
+
+    // Reload search_customer view, lakini **modal haionekani tena**
+    $this->load->model('queries');
+    $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id   = $this->session->userdata('empl_id');
+    $manager_data = $this->queries->get_manager_data($empl_id);
+    $comp_id   = $manager_data->comp_id;
+    $empl_data = $this->queries->get_employee_data($empl_id);
+
+    $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
+
+    // Load view without askReplace
+    return $this->load->view('officer/search_customer', [
+        'customer'      => $customer,
+        'comp_id'       => $comp_id,
         'sponser'       => $this->queries->get_sponser($customer_id),
         'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
         'region'        => $this->queries->get_region(),
         'empl_data'     => $empl_data,
         'privillage'    => $this->queries->get_position_empl($empl_id),
-        'manager'       => $this->queries->get_position_manager($empl_id)
+        'manager'       => $this->queries->get_position_manager($empl_id),
+        'askReplace'    => false // ⚠️ modal haionekani tena
     ]);
 }
+
+ 
+
+
+
+
 
 
 
@@ -2610,10 +2675,15 @@ public function search_customer()
 //     }
 
 
+
 public function create_sponser($customer_id, $comp_id)
 {
     $this->load->model('queries');
     $this->load->library('form_validation');
+
+    if (!$comp_id) {
+        $comp_id = $this->session->userdata('comp_id'); // or get it some other way
+    }
 
     $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
     $customerdata = $customer->customer_id;
@@ -2633,7 +2703,7 @@ public function create_sponser($customer_id, $comp_id)
         'Phone Number',
         'required|numeric|exact_length[10]',
         [
-            'required' => 'Please enter the %s.',
+          'required' => 'Please enter the %s.',
             'numeric' => 'The %s must contain only numbers.',
             'exact_length' => 'The %s must be exactly 10 digits.',
         ]
@@ -2673,7 +2743,7 @@ public function create_sponser($customer_id, $comp_id)
         $passportData = $this->input->post('passport_cropped');
         $passportPath = '';
 
-        if (!empty($passportData)) {
+         if (!empty($passportData)) {
             $passportBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $passportData);
             $passportDecoded = base64_decode($passportBase64);
 
@@ -2698,7 +2768,7 @@ public function create_sponser($customer_id, $comp_id)
     // Otherwise, keep it as is
     $phone = $input_phone;
 }
-  //  echo "<pre>";
+//  echo "<pre>";
   //           print_r(    $phone);
   //           echo "</pre>";
   //               exit();
@@ -2726,7 +2796,7 @@ if ($exists) {
     // Sponsor exists, update
     $this->db->where('customer_id', $customerdata);
     $this->db->where('comp_id', $comp_id);
-    $this->db->update('tbl_sponser', $data);
+     $this->db->update('tbl_sponser', $data);
 } else {
     // Sponsor does not exist, insert new
     $this->db->insert('tbl_sponser', $data);
@@ -2736,27 +2806,32 @@ if ($exists) {
         $this->session->set_flashdata('massage', 'Taarifa za mdhamini zimepokelewa');
 
         // Prepare SMS message
-        $compdata = $this->queries->get_companyData($comp_id);
-        $comp_name = $compdata->comp_name;
+//         $compdata = $this->queries->get_companyData($comp_id);
+//         $comp_name = $compdata->comp_name;
 
-        $sp_fullname = $data['sp_name'] . ' ' . $data['sp_mname'] . ' ' . $data['sp_lname'];
-        $customer_name = $customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name;
-$massage = "Habari Bw. $sp_fullname, "
-    . "$comp_name inakutambua kama mdhamini wa $customer_name. "
-    . "Iwapo huhusiki, tafadhali wasiliana nasi mapema kupitia $comp_phone. "
-    . "Asante kwa ushirikiano wako.";
+//         $sp_fullname = $data['sp_name'] . ' ' . $data['sp_mname'] . ' ' . $data['sp_lname'];
+//         $customer_name = $customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name;
+// $massage = "Habari Bw. $sp_fullname, "
+//     . "$comp_name inakutambua kama mdhamini wa $customer_name. "
+//     . "Iwapo huhusiki, tafadhali wasiliana nasi mapema kupitia $comp_phone. "
+//     . "Asante kwa ushirikiano wako.";
     
 
-        // Send SMS only if phone is valid and normalized
+//         // Send SMS only if phone is valid and normalized
 
         
       
-            $this->sendsms($phone, $massage);
-        
+//             $this->sendsms($phone, $massage);
 
-        redirect("oficer/loan_applicationForm/" . $customerdata);
+                    redirect("oficer/loan_applicationForm/" . $customerdata);
     }
 }
+
+
+
+
+
+
 
 // public function view_aggrement($customer_id)
 // {
@@ -3134,24 +3209,72 @@ $admins_numbers = $this->queries->get_admin_numbers();
 }
 
 
- public function collelateral_session($loan_id){
-            $this->load->model('queries');
-            $blanch_id = $this->session->userdata('blanch_id');
-            $empl_id = $this->session->userdata('empl_id');
-            $manager_data = $this->queries->get_manager_data($empl_id);
-            $comp_id = $manager_data->comp_id;
-            $company_data = $this->queries->get_companyData($comp_id);
-            $blanch_data = $this->queries->get_blanchData($blanch_id);
-            $empl_data = $this->queries->get_employee_data($empl_id);
-            $loan_attach = $this->queries->get_loanAttach($loan_id);
-            $privillage = $this->queries->get_position_empl($empl_id);
-            $collateral = $this->queries->get_colateral_data($loan_id);
-            $manager = $this->queries->get_position_manager($empl_id);
-              //   echo "<pre>";
-              // print_r($loan_attach);
-              //      exit();
-            $this->load->view('officer/collelateral',['loan_attach'=>$loan_attach,'privillage'=>$privillage,'collateral'=>$collateral,'manager'=>$manager]);
-        }
+
+
+
+        public function collelateral_session($loan_id){
+    $this->load->model('queries');
+    $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+    $manager_data = $this->queries->get_manager_data($empl_id);
+    $comp_id = $manager_data->comp_id;
+
+    $company_data = $this->queries->get_companyData($comp_id);
+    $blanch_data = $this->queries->get_blanchData($blanch_id);
+    $empl_data = $this->queries->get_employee_data($empl_id);
+    $loan_attach = $this->queries->get_loanAttach($loan_id);
+    $privillage = $this->queries->get_position_empl($empl_id);
+    $collateral = $this->queries->get_colateral_data($loan_id);
+    $manager = $this->queries->get_position_manager($empl_id);
+
+
+       
+        // echo "<pre>";
+        //     print_r(  $loan_attach);
+        //     echo "</pre>";
+        //          exit();
+
+    // ===========================
+    //  SAFISHA NAMBA HAPA NDANI
+    // ===========================
+    $phone = preg_replace('/\D/', '', $loan_attach->sp_phone_no); 
+
+    if (substr($phone, 0, 1) === '0') { 
+        $phone = substr($phone, 1); 
+    }
+
+    $phone = "255" . $phone;
+    // ===========================
+
+    // Majina
+    $sponsor_fname = $loan_attach->sp_name;
+    $sponsor_lname = $loan_attach->sp_lname;
+
+    $customer_fname = $loan_attach->f_name;
+    $customer_lname = $loan_attach->l_name;
+
+    $loan = number_format($loan_attach->how_loan);
+
+    // Kampuni na tawi
+    $comp_name   = $company_data->comp_name;
+    $blanch_name = $blanch_data->blanch_name;
+
+    // MESSAGE MPYA
+$message = "Ndugu $sponsor_fname, $customer_fname $customer_lname ni mkopaji kwenye $comp_name ($blanch_name) kwa Tsh $loan. Jukumu lako kama mdhamini ni kulipa ikiwa mkopaji hatalipa. Ikiwa hujapanga kudhamini, toa taarifa kwa 0629364847.";
+
+
+
+
+    $this->sendsms($phone, $message);
+
+    $this->load->view('officer/collelateral',[
+        'loan_attach'=>$loan_attach,
+        'privillage'=>$privillage,
+        'collateral'=>$collateral,
+        'manager'=>$manager
+    ]);
+}
+
 
        public function create_colateral($loan_id)
 {
@@ -5683,9 +5806,35 @@ public function create_withdrow_balance($customer_id){
           $role = $empl_data->username;
           $end_date = $day * $session;
 
-          // echo "<pre>";
-          // print_r( $code );
-          //  echo "<br>";
+        $customer_name = $day_loan->f_name . ' ' . $day_loan->m_name . ' ' . $day_loan->l_name;
+$sponsor_name = $day_loan->sp_name . ' ' . $day_loan->sp_mname . ' ' . $day_loan->sp_lname;
+$phone_sp = $day_loan->sp_phone_no;
+$loan_amount = number_format($day_loan->loan_int);
+$loan_end = date('d.m.Y', strtotime($day_loan->loan_end_date));
+
+
+
+if (substr($phone_sp, 0, 1) === '0') {
+    $phone = '255' . substr($phone_sp, 1);
+} else {
+    $phone = $phone_sp;
+}
+
+
+
+
+
+// Ujumbe unaotumia comp_name
+
+
+    // print_r($phone);
+    //       echo "</pre>";
+    //             exit();
+
+
+
+
+        
 
         //company loan fee setting
          $comp_fee = $this->queries->get_loanfee_categoryData($comp_id);
@@ -5816,10 +5965,23 @@ public function create_withdrow_balance($customer_id){
                 }elseif($company_data->sms_status == 'NO'){
                   //echo "HAKUNA SMS HAPA";
                 }
+        
+
                $this->session->set_flashdata('massage','withdrow Has made Sucessfully');
               }else{
              $this->session->set_flashdata('error','You don`t have Enough balance');
               }
+          //               echo "<pre>";
+          // print_r( $day_loan );
+          //  echo "<br>";
+
+          //  exit();
+
+ 
+$massage = " $company_name inakujulisha, mkopaji $customer_name ambaye ulikubali kumdhamini awali tayari amepokea mkopo wa sh. $loan_amount. Utapaswa kufuatilia malipo yake yote hadi mkopo uwe umemalizika";
+
+		$this->sendsms($phone,$massage);
+
          return redirect('oficer/data_with_depost/'.$customer_id);
     }
    $this->data_with_depost($customer_id);

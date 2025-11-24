@@ -322,6 +322,104 @@ include_once APPPATH . "views/partials/officerheader.php";
 
   </div>
 </div>
+<?php if (isset($askReplace) && $askReplace): ?>
+<!-- Overlay with blur and semi-transparent -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-white/20 dark:bg-gray-900/40 backdrop-blur-lg animate-fadeIn p-4">
+
+    <!-- Modal -->
+    <div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-6 rounded-lg shadow-lg w-full max-w-md animate-scaleIn relative">
+
+        <!-- Close Button -->
+       
+
+        <!-- Title -->
+     <h3 class="text-lg sm:text-xl font-bold mb-4 text-center uppercase">
+    Mdhamini wa Mteja
+</h3>
+
+
+        <!-- Body -->
+        <p class="mb-3 text-sm sm:text-base leading-relaxed">
+            <span class="font-medium">Mteja:</span> 
+            <strong class="text-gray-800 dark:text-gray-100 uppercase"><?= $customer->f_name . ' ' . $customer->l_name ?></strong>
+        </p>
+
+        <p class="mb-3 text-sm sm:text-base leading-relaxed">
+            <span class="font-medium">Mdhamini wa awali:</span> 
+            <strong class="text-gray-800 dark:text-gray-100 uppercase"><?= $sponser->sp_name . ' ' . $sponser->sp_lname ?></strong>
+        </p>
+
+       <b>
+
+       <p class="mb-6 text-sm sm:text-base leading-relaxed">
+            Je bado anabaki kuwa mdhamini au anabadilisha kumweka mdhamini mpya?
+        </p>
+       </b> 
+
+        <!-- Buttons -->
+        <form method="post" action="<?= base_url('oficer/handle_sponser_confirmation') ?>">
+            <input type="hidden" name="customer_id" value="<?= $customer->customer_id ?>">
+            <div class="flex flex-col sm:flex-row justify-between mt-4 gap-3">
+                <button type="submit" name="keep" value="1" class="px-4 py-2 bg-green-600 text-white rounded w-full sm:w-auto hover:bg-green-700 dark:hover:bg-green-500 transition">
+                    Mdhamini, ni yule yule
+                </button>
+                <button type="submit" name="replace" value="1" class="px-4 py-2 bg-red-600 text-white rounded w-full sm:w-auto hover:bg-red-700 dark:hover:bg-red-500 transition">
+                    Mdhamini, anabadilika
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Animations -->
+<style>
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.animate-fadeIn {
+    animation: fadeIn .3s ease-out;
+}
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+.animate-scaleIn {
+    animation: scaleIn .25s ease-out;
+}
+</style>
+<?php endif; ?>
+
+
+
+
+<!-- Passport Upload Modal -->
+<div id="passportModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+        <h3 class="text-lg font-semibold mb-4">Upload Passport Photo</h3>
+        <form id="passportForm" enctype="multipart/form-data">
+            <input type="hidden" name="customer_id" value="<?= $customer->customer_id ?>">
+            <input type="hidden" name="comp_id" value="<?= $_SESSION['comp_id'] ?? '' ?>">
+
+            <input type="file" id="passportInput" name="passport_photo" accept="image/*" capture="environment" class="block w-full mb-4">
+            <img id="previewImage" src="<?= base_url('assets/img/customer21.png') ?>" class="rounded w-32 h-32 mb-4 object-cover">
+
+            <div class="flex justify-end gap-2">
+                <button type="button" id="closeModal" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+</div>
+
+
+
+
+
 
 
 </div>
@@ -331,6 +429,107 @@ include_once APPPATH . "views/partials/officerheader.php";
 <?php
 include_once APPPATH . "views/partials/footer.php";
 ?>
+
+<script>
+
+    // 1️⃣ Fungua modal moja kwa moja kama flashdata ime-set
+<?php if($this->session->flashdata('show_passport_modal')): ?>
+document.getElementById('passportModal').classList.remove('hidden');
+<?php endif; ?>
+
+// 2️⃣ Close modal
+document.getElementById('closeModal').addEventListener('click', function(){
+    document.getElementById('passportModal').classList.add('hidden');
+});
+
+// 3️⃣ Live preview ya image
+document.getElementById('passportInput').addEventListener('change', function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+        document.getElementById('previewImage').src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+// 4️⃣ AJAX upload bila ku-refresh
+document.getElementById('passportForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch("<?= base_url('oficer/upload_passport') ?>", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success'){
+            alert('Passport photo uploaded successfully!');
+            document.getElementById('passportModal').classList.add('hidden');
+        } else {
+            alert(data.message || 'Upload failed');
+        }
+    })
+    .catch(err => console.error(err));
+});
+
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('sponserForm');
+    if(!form) return;
+
+    const modal = document.getElementById('replaceSponserModal');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default submit
+
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.message){
+                // Show toast
+                toastMessage.textContent = data.message;
+                toast.classList.remove('hidden');
+                toast.classList.add('opacity-100');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000); // hide after 3 sec
+            }
+
+            // Fade out and remove modal
+            if(modal){
+                modal.classList.add('opacity-0', 'transition', 'duration-500');
+                setTimeout(() => modal.remove(), 500);
+            }
+        })
+        .catch(err => console.error(err));
+    });
+});
+</script>
+
+<style>
+/* Simple fade-in animation */
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: scale(0.95);}
+    to {opacity: 1; transform: scale(1);}
+}
+</style>
+ 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const phoneInput = document.getElementById('sp_phone_no');

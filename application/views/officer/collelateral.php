@@ -1,17 +1,6 @@
 
 <?php
 include_once APPPATH . "views/partials/officerheader.php";
-
-// --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
-// Controller should pass $share, an array of shareholder objects.
-// Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
-// if (!isset($share)) {
-//     $share = [
-//         (object)['share_id' => 1, 'share_name' => 'Alice Wonderland', 'share_mobile' => '0712345001', 'share_email' => 'alice@example.com', 'share_sex' => 'female', 'share_dob' => '1985-06-15'],
-//         (object)['share_id' => 2, 'share_name' => 'Bob The Builder', 'share_mobile' => '0712345002', 'share_email' => 'bob@example.com', 'share_sex' => 'male', 'share_dob' => '1978-11-02'],
-//     ];
-// }
-// --- END DUMMY DATA ---
 ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
@@ -126,14 +115,22 @@ include_once APPPATH . "views/partials/officerheader.php";
 <input type="hidden" name="loan_id" value="<?php echo $loan_attach->loan_id; ?>">
 
 <!-- Submit Button -->
-<div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-    <div class="flex justify-center gap-x-2">
-        <button type="submit"
-            class="py-2 px-4 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg">Save</button>
+
+
+<div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700"></div>
+<div class="flex justify-center gap-x-2">
+    <button type="submit"
+        class="py-2 px-4 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg">Save</button>
+
+    <?php if (!empty($collateral)): ?>
         <a href="<?php echo base_url("oficer/loan_pending"); ?>"
-            class="py-2 px-4 btn-secondary-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Skip</a>
-    </div>
+            class="py-2 px-4 btn-secondary-sm bg-green-600 text-white rounded-lg hover:bg-red-700">
+            Complete application
+        </a>
+    <?php endif; ?>
 </div>
+</div>
+
 
 <?php echo form_close(); ?>
 

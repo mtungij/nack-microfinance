@@ -4,14 +4,14 @@
   <div class="p-4 sm:p-6 space-y-6">
 
     <!-- Skip Button -->
-    <div class="text-right mb-4">
+    <!-- <div class="text-right mb-4">
       <a href="<?= base_url('oficer/loan_application') ?>" class="inline-flex items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 sm:px-5 sm:py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
         <svg class="w-5 h-5 mr-2 -ms-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
         </svg>
         Skip
       </a>
-    </div>
+    </div> -->
 
     <!-- Upload Area -->
     <div class="max-w-xl mx-auto">
@@ -26,7 +26,7 @@
                    8m2-2 2 2" />
             </svg>
             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              <span class="font-semibold">Click to upload</span> 
+              <span class="font-semibold">bonyeza hapa kuweka picha ya mkopaji</span> 
             </p>
           </div>
          <input id="dropzone-file" 

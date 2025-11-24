@@ -965,10 +965,23 @@ public function get_total_pay_description_acount_statement($loan_id)
        	 return $this->db->insert_id();
        }
 
-       public function get_loanAttach($loan_id){
-       	$attach = $this->db->query("SELECT * FROM tbl_loans WHERE loan_id = '$loan_id'");
-       	 return $attach->row();
-       }
+       public function get_loanAttach($loan_id)
+{
+    $this->db->select('
+        tbl_loans.*,
+        tbl_customer.*,
+        tbl_sponser.*,
+    ');
+
+    $this->db->from('tbl_loans');
+    $this->db->join('tbl_customer', 'tbl_customer.customer_id = tbl_loans.customer_id', 'left');
+    $this->db->join('tbl_sponser', 'tbl_sponser.customer_id = tbl_loans.customer_id', 'left');
+    $this->db->where('tbl_loans.loan_id', $loan_id);
+
+    $query = $this->db->get();
+    return $query->row();
+}
+
 
  
 	   public function get_loanPending($comp_id){
@@ -2850,10 +2863,23 @@ public function update_account($account_id,$data){
        }
 
 
-public function get_loan_day($loan_id){
-	$data = $this->db->query("SELECT * FROM tbl_loans WHERE loan_id = '$loan_id'");
-	   return $data->row();
+public function get_loan_day($loan_id) {
+    $this->db->select('
+        l.*, 
+        c.*, 
+        s.*, 
+        o.*
+    ');
+    $this->db->from('tbl_loans l');
+    $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
+    $this->db->join('tbl_sponser s', 's.customer_id = l.customer_id', 'left');
+    $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
+    $this->db->where('l.loan_id', $loan_id);
+
+    $query = $this->db->get();
+    return $query->row();
 }
+
 
 
 public function get_upBalance_Data($customer_id){
@@ -3067,6 +3093,22 @@ public function get_sum_totalloanInterstBlanch($blanch_id){
      	$data = $this->db->query("SELECT l.loan_id,l.loan_int,l.restration,l.customer_id,ot.loan_stat_date,ot.loan_end_date,l.loan_status,l.day FROM tbl_loans l LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id  WHERE l.loan_id = '$loan_id' LIMIT 1");
      	return $data->row();
      }
+
+
+
+	 public function get_latest_done_loan($customer_id)
+{
+    return $this->db
+        ->select('*')
+        ->from('tbl_loans')
+        ->where('customer_id', $customer_id)
+        ->where('loan_status', 'done')
+        ->order_by('loan_id', 'DESC')
+        ->limit(1)
+        ->get()
+        ->row();
+}
+
 
 	
 
