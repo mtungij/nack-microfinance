@@ -13,8 +13,9 @@
 
 
 <link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/assets/images/icon-192.png">
 <meta name="theme-color" content="#0d6efd">
-<link rel="apple-touch-icon" href="/assets/images/icon.png">
+
 
 
 <button id="install-btn" onclick="promptInstall()" style="display:none; position:fixed; bottom:20px; right:20px; padding:10px 20px; background:#0d6efd; color:white; border:none; border-radius:5px;">
