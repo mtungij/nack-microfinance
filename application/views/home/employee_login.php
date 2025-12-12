@@ -159,10 +159,11 @@ include_once APPPATH . "views/partials/guest_header.php";
 
           <!-- Support Section Above Sign Up -->
 <!-- Support Section Above Sign Up -->
+<!-- Support Section Above Sign Up -->
 <div class="mt-8 text-center">
     <div class="flex items-center justify-center gap-3 mb-4 animate-pulse">
         <span class="text-base font-medium text-gray-700 dark:text-gray-300">Need help or support?</span>
-        <a href="https://wa.me/255629364847" target="_blank"
+        <a href="https://wa.me/255629364847?text=<?php echo urlencode('Nahitaji kufahamu zaidi kuhusu software hii ya mikopo ya Loan-Pocket'); ?>" target="_blank"
            class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-200 shadow-lg">
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20.52 3.48A11.94 11.94 0 0 0 12 0C5.37 0 0 5.37 0 12a11.95 11.95 0 0 0 1.63 6.06L0 24l6.34-1.65A11.95 11.95 0 0 0 12 24c6.63 0 12-5.37 12-12a11.94 11.94 0 0 0-3.48-8.52zM12 22a9.93 9.93 0 0 1-5.12-1.4l-.37-.23-3.76.98.99-3.66-.24-.38A9.94 9.94 0 1 1 12 22zm5.37-7.58c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15s-.77.97-.95 1.17-.35.22-.65.07a8.05 8.05 0 0 1-2.37-1.46 8.88 8.88 0 0 1-1.63-2.03c-.17-.3 0-.46.13-.62.13-.14.3-.35.45-.53.15-.18.2-.3.3-.5.1-.2.05-.38 0-.53-.05-.15-.65-1.56-.9-2.12-.24-.57-.48-.5-.67-.5H7.6c-.2 0-.52.07-.8.38s-1.05 1.03-1.05 2.5c0 1.46 1.07 2.87 1.23 3.07.15.2 2.1 3.22 5.07 4.51.7.3 1.26.48 1.69.61.71.23 1.36.2 1.87.13.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"/>
@@ -180,6 +181,7 @@ include_once APPPATH . "views/partials/guest_header.php";
         </a>
     </p>
 </div>
+
 
 
 
