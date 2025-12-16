@@ -3,6 +3,12 @@
 include_once APPPATH . "views/partials/officerheader.php";
 ?>
 
+
+<?php
+$comp_id = $comp_id ?? null;
+?>
+
+
 <!-- ========== MAIN CONTENT BODY ========== -->
 <div class="w-full lg:ps-64">
     <div class="p-4 sm:p-6 space-y-6">
@@ -261,7 +267,7 @@ include_once APPPATH . "views/partials/officerheader.php";
     <!-- Passport Size Photo -->
     <div class="sm:col-span-4">
         <label class="block text-sm font-medium mb-2 dark:text-gray-300">* Passport Size Photo:</label>
-        <input type="file" id="passportInput" accept="image/*" 
+        <input type="file" id="passportInput" accept="image/*"   required
        capture="environment"
                class="block w-full text-sm text-gray-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-md 
                       file:border-0 file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 
@@ -278,7 +284,8 @@ include_once APPPATH . "views/partials/officerheader.php";
 </div>
 
 <!-- Hidden Inputs -->
-<input type="hidden" name="comp_id" value="<?= htmlspecialchars($_SESSION['comp_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+<input type="hidden" name="comp_id" value="<?= htmlspecialchars($comp_id, ENT_QUOTES, 'UTF-8'); ?>">
+
 <input type="hidden" name="customer_id" value="<?= htmlspecialchars($customer->customer_id ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 
 <!-- Action Buttons -->
@@ -399,7 +406,8 @@ include_once APPPATH . "views/partials/officerheader.php";
         <h3 class="text-lg font-semibold mb-4">Upload Passport Photo</h3>
         <form id="passportForm" enctype="multipart/form-data">
             <input type="hidden" name="customer_id" value="<?= $customer->customer_id ?>">
-            <input type="hidden" name="comp_id" value="<?= $_SESSION['comp_id'] ?? '' ?>">
+           <input type="hidden" name="comp_id" value="<?= htmlspecialchars($comp_id, ENT_QUOTES, 'UTF-8'); ?>">
+
 
             <input type="file" id="passportInput" name="passport_photo" accept="image/*" capture="environment" class="block w-full mb-4">
             <img id="previewImage" src="<?= base_url('assets/img/customer21.png') ?>" class="rounded w-32 h-32 mb-4 object-cover">

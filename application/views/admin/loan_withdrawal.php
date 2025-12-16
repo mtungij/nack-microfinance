@@ -1,17 +1,6 @@
 
 <?php
 include_once APPPATH . "views/partials/header.php";
-
-// --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
-// Controller should pass $share, an array of shareholder objects.
-// Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
-// if (!isset($share)) {
-//     $share = [
-//         (object)['share_id' => 1, 'share_name' => 'Alice Wonderland', 'share_mobile' => '0712345001', 'share_email' => 'alice@example.com', 'share_sex' => 'female', 'share_dob' => '1985-06-15'],
-//         (object)['share_id' => 2, 'share_name' => 'Bob The Builder', 'share_mobile' => '0712345002', 'share_email' => 'bob@example.com', 'share_sex' => 'male', 'share_dob' => '1978-11-02'],
-//     ];
-// }
-// --- END DUMMY DATA ---header.php
 ?>
 
 

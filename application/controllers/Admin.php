@@ -1048,12 +1048,6 @@ public function store_link()
 		redirect('admin/create_sms');
 	}
 
-  
-
-
-	
-	
-
 
 	public function modify_employee($empl_id){
 		$this->form_validation->set_rules('blanch_id','blanch','required');
@@ -1639,17 +1633,44 @@ public function create_customer()
    return true;
 }
 
-public function all_customer(){
-	$this->load->model('queries');
-	$comp_id = $this->session->userdata('comp_id');
-	$customer = $this->queries->get_allcutomer($comp_id);
-	$blanch = $this->queries->get_blanch($comp_id);
-	   //  echo"<pre>";
-	   // print_r($customer);
-	   // echo"</pre>";
-	   //      exit();
-	$this->load->view('admin/all_customer',['customer'=>$customer,'blanch'=>$blanch]);
+public function all_customer()
+{
+    $this->load->model('queries');
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Get all customers (as an array)
+    $customers = $this->queries->get_allcutomer($comp_id);
+    $blanch    = $this->queries->get_blanch($comp_id);
+
+    if (!empty($customers)) {
+        foreach ($customers as $customer) {
+            // Skip if phone is empty
+            if (empty($customer->phone_no)) {
+                continue;
+            }
+
+            // $phone      = $customers->phone_no;
+
+
+            // $first_name = $customers->f_name;
+            // $last_name  = $customers->m_name;
+
+          //   	     echo "<pre>";
+				  //  print_r($phone);
+				  //  echo "</pre>";
+				  //              exit();
+
+            // $massage = "Ndugu mteja {$first_name} {$last_name}, unatahadharishwa vikali kutochukua mkopo kwa niaba ya mtu mwingine. Endapo mkopo huo utaleta changamoto yoyote, kampuni ya NACK CREDIT haitahusika wala haitapokea maelezo au malalamiko yoyote yanayohusiana na mkopo huo.";
+
+            // // Send SMS
+            // $this->sendsms($phone, $massage);
+        }
+    }
+
+    // Load the view with all customers and blanch
+    $this->load->view('admin/all_customer', ['customer' => $customers, 'blanch' => $blanch]);
 }
+
 
 
 public function filter_customer_status(){
@@ -3167,30 +3188,49 @@ if (!empty($employee_ids)) {
 		return $this->db->delete('tbl_outstand',['loan_id'=>$loan_id]);
 	}
 
-	public function loan_withdrawal(){
-		$this->load->model('queries');
-		$comp_id = $this->session->userdata('comp_id');
-		$disburse = $this->queries->get_withdrawal_Loan($comp_id);
-		  
-		$total_loanDis = $this->queries->get_sum_loanwithdrawal_data($comp_id);
-		$total_interest_loan = $this->queries->get_sum_loanwithdrawal_interest($comp_id);
-		$blanch = $this->queries->get_blanch($comp_id);
-		$formular = $this->queries->get_interestFormular($comp_id);
-    	$loan_fee_category = $this->queries->get_loanfee_categoryData($comp_id);
-    	$loan_category = $this->queries->get_loancategory($comp_id);
-	
-    // Example using CURL to POST to SMS provider API
-    // Insert your SMS gateway code here
+public function loan_withdrawal()
+{
+    $this->load->model('queries');
 
-    
+    $comp_id = $this->session->userdata('comp_id');
+    if (!$comp_id) {
+        redirect('login');
+    }
 
-		
-		    // echo "<pre>";
-		    // print_r($disburse );
-		    // echo "</pre>";
-		    //     exit();
-		$this->load->view('admin/loan_withdrawal',['disburse'=>$disburse,'total_loanDis'=>$total_loanDis,'total_interest_loan'=>$total_interest_loan,'blanch'=>$blanch,'formular'=>$formular,'loan_fee_category'=>$loan_fee_category,'loan_category'=>$loan_category]);
-	}
+    // Collect filters safely
+    $filters = [
+        'blanch_id' => $this->input->post('blanch_id', true),
+        'from'      => $this->input->post('from', true),
+        'to'        => $this->input->post('to', true),
+        'loan_name' => $this->input->post('loan_name', true),
+    ];
+
+    // Fetch filtered data
+    $disburse = $this->queries->get_withdrawal_Loan($comp_id, $filters);
+
+    // Fetch totals using SAME filters (important)
+    $total_loanDis = $this->queries->get_sum_loanwithdrawal_data($comp_id, $filters);
+    $total_interest_loan = $this->queries->get_sum_loanwithdrawal_interest($comp_id, $filters);
+
+    // Other required data
+    $blanch = $this->queries->get_blanch($comp_id);
+    $formular = $this->queries->get_interestFormular($comp_id);
+    $loan_fee_category = $this->queries->get_loanfee_categoryData($comp_id);
+    $loan_category = $this->queries->get_loancategory($comp_id);
+
+    // Load view
+    $this->load->view('admin/loan_withdrawal', [
+        'disburse'             => $disburse,
+        'total_loanDis'        => $total_loanDis,
+        'total_interest_loan'  => $total_interest_loan,
+        'blanch'               => $blanch,
+        'formular'             => $formular,
+        'loan_fee_category'    => $loan_fee_category,
+        'loan_category'        => $loan_category,
+        'filters'              => $filters // useful to keep selected values
+    ]);
+}
+
 
 	public function notification(){
             $this->load->model('queries');
@@ -6342,17 +6382,37 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
     $comp_id = $this->input->post('comp_id');
     $customerData = $this->queries->get_allcustomerData($comp_id);
     $customer = $this->queries->search_CustomerLoan($customer_id,$comp_id);
+
     @$customer_id = $customer->customer_id;
     @$statement = $this->queries->get_customer_datareport($customer_id);
+
+
+      //    echo "<pre>";
+      // print_r($statement);
+      //       exit();
+     $loan_id = $this->input->post('loan_id');
     @$pay_customer = $this->queries->get_paycustomer($customer_id);
-    @$payisnull = $this->queries->get_paycustomerNotfee_Statement($customer_id);
+    @$payisnull = $this->queries->get_paycustomerNotfee_Statement($customer_id,$loan_id);
     @$sum_depost = $this->queries->get_sumDepost_loan($customer_id);
 
-    //     echo "<pre>";
-    //   print_r($customer);
-    //         exit();
+   
     $this->load->view('admin/search_account',['pay_customer'=>$pay_customer,'payisnull'=>$payisnull,'customer'=>$customer,'statement'=>$statement,'customerData'=>$customerData]);
     }
+
+
+    //    public function search_acount_statement(){
+    // $this->load->model('queries');
+    // $comp_id = $this->session->userdata('comp_id');
+    // $customery = $this->queries->get_allcustomerData($comp_id);
+    // $customer_id = $this->input->post('customer_id');
+    // $loan_id = $this->input->post('loan_id');
+    // $customer = $this->queries->search_CustomerLoan($customer_id);
+
+    //   //   echo "<pre>";
+    //   // print_r( $customery);
+    //   //       exit();
+    // $this->load->view('admin/search_account',['customer'=>$customer,'customery'=>$customery,'customer_id'=>$customer_id,'loan_id'=>$loan_id]);
+    // }
 
     public function search_customer_loan_report(){
     	$this->load->model('queries');

@@ -1314,10 +1314,11 @@ public function get_total_pay_description_acount_statement($loan_id)
 
 
 
-     public function get_withdrawal_Loan($comp_id, $filters = [])
+    public function get_withdrawal_Loan($comp_id, $filters = [])
 {
     $this->db->select('*');
     $this->db->from('tbl_loans l');
+
     $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
     $this->db->join('tbl_loan_category lt', 'lt.category_id = l.category_id', 'left');
     $this->db->join('tbl_blanch b', 'b.blanch_id = l.blanch_id', 'left');
@@ -1328,24 +1329,20 @@ public function get_total_pay_description_acount_statement($loan_id)
     $this->db->where('l.comp_id', $comp_id);
     $this->db->where('l.loan_status', 'withdrawal');
 
-    // ✅ If no filters provided, show only today's data
-    if (empty($filters['from']) && empty($filters['to'])) {
-        $today = date("Y-m-d");
-        $this->db->where('DATE(ot.loan_stat_date)', $today);
-    }
-
-    // ✅ If user passes date range
+    // Date logic
     if (!empty($filters['from']) && !empty($filters['to'])) {
-        $this->db->where('ot.loan_stat_date >=', $filters['from']);
-        $this->db->where('ot.loan_stat_date <=', $filters['to']);
+        $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
+        $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
+    } else {
+        $today = date('Y-m-d');
+        $this->db->where('ot.loan_stat_date >=', $today . ' 00:00:00');
+        $this->db->where('ot.loan_stat_date <=', $today . ' 23:59:59');
     }
 
-    // ✅ If branch filter
     if (!empty($filters['blanch_id'])) {
         $this->db->where('l.blanch_id', $filters['blanch_id']);
     }
 
-    // ✅ If loan name filter
     if (!empty($filters['loan_name'])) {
         $this->db->like('l.loan_name', $filters['loan_name']);
     }
@@ -1353,6 +1350,76 @@ public function get_total_pay_description_acount_statement($loan_id)
     $this->db->order_by('l.loan_id', 'DESC');
     return $this->db->get()->result();
 }
+
+
+
+
+
+public function check_phone_existence_with_loans($phone, $comp_id)
+{
+    $results = [];
+
+    // ========== CUSTOMER ==========
+    $this->db->select("
+        'Customer' AS source,
+        c.customer_id AS ref_id,
+        CONCAT(c.f_name,' ',c.l_name) AS full_name,
+        b.blanch_name AS branch_name,
+        l.loan_id,
+        l.loan_status,
+        o.loan_stat_date,
+        o.loan_end_date
+    ", FALSE);
+    $this->db->from('tbl_customer c');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = c.blanch_id', 'left');
+    $this->db->join('tbl_loans l', 'l.customer_id = c.customer_id', 'left');
+    $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
+    $this->db->where('c.phone_no', $phone);
+    $this->db->where('c.comp_id', $comp_id);
+    $results = array_merge($results, $this->db->get()->result());
+
+    // ========== SPONSER ==========
+    $this->db->select("
+        'Sponsor' AS source,
+        s.sp_id AS ref_id,
+        CONCAT(s.sp_name,' ',s.sp_lname) AS full_name,
+        b.blanch_name AS branch_name,
+        l.loan_id,
+        l.loan_status,
+		c.*,
+		l.*,
+        o.loan_stat_date,
+        o.loan_end_date
+    ", FALSE);
+    $this->db->from('tbl_sponser s');
+    $this->db->join('tbl_customer c', 'c.customer_id = s.customer_id', 'left');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = c.blanch_id', 'left');
+    $this->db->join('tbl_loans l', 'l.customer_id = s.customer_id', 'left');
+    $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
+    $this->db->where('s.sp_phone_no', $phone);
+    $this->db->where('s.comp_id', $comp_id);
+    $results = array_merge($results, $this->db->get()->result());
+
+    // ========== EMPLOYEE ==========
+    $this->db->select("
+        'Employee' AS source,
+        e.empl_id AS ref_id,
+        e.empl_name AS full_name,
+        b.blanch_name AS branch_name,
+        NULL AS loan_id,
+        NULL AS loan_status,
+        NULL AS loan_stat_date,
+        NULL AS loan_end_date
+    ", FALSE);
+    $this->db->from('tbl_employee e');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = e.blanch_id', 'left');
+    $this->db->where('empl_no', $phone);
+    $this->db->where('e.comp_id', $comp_id);
+    $results = array_merge($results, $this->db->get()->result());
+
+    return $results;
+}
+
 
 public function get_sum_loanwithdrawal_data_filtered($comp_id, $filters = [])
 {
@@ -2398,10 +2465,18 @@ public function get_account_by_transid($trans_id) {
 		 return $blanch->row();
 	}
 
-	public function get_employee_data($empl_id){
-		$empl = $this->db->query("SELECT * FROM tbl_employee WHERE empl_id = '$empl_id'");
-	   return $empl->row();
-	}
+	public function get_employee_data($empl_id)
+{
+    $query = $this->db->query("
+        SELECT e.*, b.*
+        FROM tbl_employee e
+        JOIN tbl_blanch b ON b.blanch_id = e.blanch_id
+        WHERE e.empl_id = ?
+    ", array($empl_id));
+
+    return $query->row();
+}
+
 
 	public function update_employee_permissions($employee_id, $new_permissions)
 {
@@ -3124,12 +3199,12 @@ public function get_paycustomerNotfee_Statement($customer_id, $loan_id)
     $this->db->where('p.loan_id', $loan_id);
 
     // 🔹 Skip penalty display for these descriptions
-    $this->db->where_not_in('p.description', [
-        'CASH WITHDRAWALS',
-        'SYSTEM WITHDRAWAL',
-		'AUTO CRON REMAIN DEBT',
-        'CASH DEPOST'
-    ]);
+    // $this->db->where_not_in('p.description', [
+    //     'CASH WITHDRAWALS',
+    //     'SYSTEM WITHDRAWAL',
+	// 	'AUTO CRON REMAIN DEBT',
+    //     'CASH DEPOST'
+    // ]);
 
     $this->db->group_by(['p.loan_id', 'p.pay_day', 'p.description', 'p.depost', 'p.pay_id']);
     $this->db->order_by('p.pay_id', 'DESC');
