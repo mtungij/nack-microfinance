@@ -281,6 +281,9 @@ include_once APPPATH . "views/partials/officerheader.php";
 
                                 <?php @$loan_desc = $this->queries->get_total_pay_description($customer_loan->loan_id);
                                       @$remain_balance = $this->queries->get_total_remain_with($customer_loan->loan_id);
+
+                                      // print_r($remain_balance);
+                                      // exit();
                                       @$total_recovery = $this->queries->get_total_loan_pend($customer_loan->loan_id);
                                       @$total_penart =   $this->queries->get_total_penart_loan($customer_loan->loan_id);
                                       @$total_deposit_penart =  $this->queries->get_total_paypenart($customer_loan->loan_id);
@@ -358,7 +361,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         * Kiasi cha Kugawa:
       </label>
       <input type="text" id="withdrow_<?php echo $customer->customer_id; ?>" name="withdrow"
-  value="<?= htmlspecialchars(!empty($remain_balance->balance) ? $remain_balance->balance : 0, ENT_QUOTES, 'UTF-8'); ?>"
+  value="<?= htmlspecialchars(!empty($remain_balance->withdrow) ? $remain_balance->withdrow : 0, ENT_QUOTES, 'UTF-8'); ?>"
   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
   required>
 
@@ -394,7 +397,7 @@ include_once APPPATH . "views/partials/officerheader.php";
       <label for="code_</?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">
         * Code Number:
       </label>
-      <input type="number" placeholder="andika code ya Mteja" id="code_<?php echo $customer->customer_id; ?>" name="code"
+      <input type="number" placeholder="andika code ya Mteja" id="code_<?php echo $customer->customer_id; ?>" name="code" required
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
         >
     </div>    

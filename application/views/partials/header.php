@@ -14,6 +14,7 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0d6efd">
 <link rel="apple-touch-icon" href="/assets/images/icon.png">
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 <script>
 if ('serviceWorker' in navigator) {

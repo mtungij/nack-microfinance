@@ -395,7 +395,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         * Kiasi cha Kugawa:
       </label>
       <input type="text" id="withdrow_<?php echo $customer->customer_id; ?>" name="withdrow"
-  value="<?= htmlspecialchars(!empty($remain_balance->balance) ? $remain_balance->balance : 0, ENT_QUOTES, 'UTF-8'); ?>"
+  value="<?= htmlspecialchars(!empty($remain_balance->withdrow) ? $remain_balance->withdrow : 0, ENT_QUOTES, 'UTF-8'); ?>"
   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
   required>
 

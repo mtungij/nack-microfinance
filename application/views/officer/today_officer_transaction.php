@@ -2,49 +2,34 @@
 <?php
 include_once APPPATH . "views/partials/officerheader.php";
 
-// --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
-// Controller should pass $share, an array of shareholder objects.
-// Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
-// if (!isset($share)) {
-//     $share = [
-//         (object)['share_id' => 1, 'share_name' => 'Alice Wonderland', 'share_mobile' => '0712345001', 'share_email' => 'alice@example.com', 'share_sex' => 'female', 'share_dob' => '1985-06-15'],
-//         (object)['share_id' => 2, 'share_name' => 'Bob The Builder', 'share_mobile' => '0712345002', 'share_email' => 'bob@example.com', 'share_sex' => 'male', 'share_dob' => '1978-11-02'],
-//     ];
-// }
-// --- END DUMMY DATA ---
 ?>
 
-<!-- ========== MAIN CONTENT BODY ========== -->
+
 <div class="w-full lg:ps-64">
     <div class="p-4 sm:p-6 space-y-6">
 
-      
-        <!-- End Page Title / Subheader -->
+    
 
     
         <section class="bg-gray-50 dark:bg-gray-900 py-3 sm:py-5">
   <div class="w-full ">
       <div class="relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
-      <div class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-start lg:space-y-0 lg:space-x-4">
-  <div class="flex items-center flex-1 space-x-4">
-      <!-- <h5>
-          <span class="text-gray-500">All Products:</span>
-          <span class="dark:text-white">123456</span>
-      </h5> -->
-      <!-- <h5>
-          <span class="text-gray-500">Total sales:</span>
-          <span class="dark:text-white">$88.4k</span>
-      </h5> -->
-  </div>
-  
-</div>
+      <!-- <div class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-start lg:space-y-0 lg:space-x-4">
+
+  <a href="<?php echo base_url("oficer/print_officer_todaycash_transaction") ?>" target="_blank" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900">
+    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+    </svg>
+    Print PDF
+  </a>
+</div> -->
 
 
           
-  <!-- Search Input (Left) -->
+
   <div class="overflow-x-auto">
   <div class="flex flex-wrap items-center gap-2 mb-4">
-    <!-- Search Input -->
+  
     <div class="relative w-full sm:w-auto">
       <label for="shareholder-table-search" class="sr-only">Search</label>
       <input
@@ -52,7 +37,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         name="shareholder-table-search"
         id="shareholder-table-search"
         class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
-        placeholder="Search share holders..."
+        placeholder=""
         data-hs-datatable-search="#shareholder_table"
         aria-label="Search share holders"
       />
@@ -65,136 +50,323 @@ include_once APPPATH . "views/partials/officerheader.php";
       </div>
     </div>
 
-    <!-- Optional Spacer for Layout (hidden on small screens) -->
-    <div class="hidden md:block flex-grow"></div>
 
-    <!-- Buttons -->
-    <div
-      class="flex flex-col w-full sm:w-auto space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-3">
-      
-      <!-- Export Button -->
-      <!-- <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-basic-modal"> -->
-  <!-- Filter Icon SVG -->
-  <!-- <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-3.586L3.293 6.707A1 1 0 013 6V4z"></path>
-  </svg>
-  Filter Data
-</button> -->
-
-
-<?php 
-//$position = strtoupper($this->session->userdata('position_name'));
-
-// if ($position === 'LOAN OFFICER'): ?>
-  <!-- <a  
-    href="</?php echo base_url('#'); ?>"
-    class="w-full md:w-auto flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg focus:outline-none focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800"
-    target="_blank"
-  >
-    <span class="bg-green-200 p-1 rounded mr-2">
-      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path
-          d="M14 2H6a2 2 0 00-2 2v16c0 1.104.896 2 2 2h12a2 2 0 002-2V8l-6-6zM13 3.5L18.5 9H13V3.5zM10 14h1v4h-1v-4zm-2.5 0H9v1.5H8v.5h1v1H7.5V14zm7 0H15a1 1 0 110 2h-.5v2H13v-4z" />
-      </svg>
-    </span>
-    Print Officer PDF 
-  </a> -->
-
-<!-- <?php// elseif ($position === 'BRANCH MANAGER'): ?> -->
-  <a
-    href="<?php echo base_url('oficer/print_manager_todaycash_transaction'); ?>"
-    class="w-full md:w-auto flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 rounded-lg focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:focus:ring-cyan-800"
-    target="_blank"
-  >
-    <span class="bg-cyan-200 p-1 rounded mr-2">
-      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path
-          d="M14 2H6a2 2 0 00-2 2v16c0 1.104.896 2 2 2h12a2 2 0 002-2V8l-6-6zM13 3.5L18.5 9H13V3.5zM10 14h1v4h-1v-4zm-2.5 0H9v1.5H8v.5h1v1H7.5V14zm7 0H15a1 1 0 110 2h-.5v2H13v-4z" />
-      </svg>
-    </span>
-     Print Report PDF
-  </a>
-<!-- <?php //endif; ?> -->
-
-    </div>
-  </div>
-
-
-  <?php
-    // Initialize totals BEFORE the condition
-    $sno = 1;
-    $total_restration = 0;
-    $total_depost = 0;
-    $total_laza = 0;
-    $total_zidi = 0;
-?>
-
-  <!-- Spacer to push buttons right on large screens -->
   
 
 
+<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
 
+      
+   
 
-<table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+  
+  <table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
     <thead class="text-xs text-cyan-500 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-50">
-        <tr>
-            <th scope="col" class="px-4 py-3" >S/No.</th>
-            <th scope="col" class="px-4 py-3">JINA LA MTEJA</th>
-            <th scope="col" class="px-4 py-3">REJESHO</th>
-            <th scope="col" class="px-4 py-3">LIPWA</th>
-            <th scope="col" class="px-4 py-3">LAZA</th>
-            <th scope="col" class="px-4 py-3">ZIDI</th>
-            <th scope="col" class="px-4 py-3">TAREHE</th>
+        <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <th class="px-4 py-3">S/no</th>
+            <th class="px-4 py-3">Afisa</th>
+            <th class="px-4 py-3">Jina La Mteja</th>
+            <th class="px-4 py-3">Namba Ya Simu</th>
+            <th class="px-4 py-3">lipwa</th>
+            <th class="px-4 py-3">Account ya kulipisha</th>
+            <th class="px-4 py-3">Gawa</th>
+            <th class="px-4 py-3">Account Gawa</th>
+            <th class="px-4 py-3">Tarehe</th>
         </tr>
     </thead>
     <tbody>
         <?php 
-        $no = 1;
-        $total_rejesho = 0;
-        $total_lipwa = 0;
-        $total_laza = 0;
-        $total_zidi = 0;
-
-        foreach ($cash as $cashs): 
-            if (empty($cashs->depost) || empty($cashs->customer_id)) {
-                continue;
-            }
-
-            $rejesho = $cashs->restrations;
-            $lipwa = $cashs->depost;
-            $laza = ($lipwa < $rejesho) ? ($rejesho - $lipwa) : 0;
-            $zidi = ($lipwa > $rejesho) ? ($lipwa - $rejesho) : 0;
-
-            $total_rejesho += $rejesho;
-            $total_lipwa += $lipwa;
-            $total_laza += $laza;
-            $total_zidi += $zidi;
+            $sno = 1; 
+           
         ?>
-        <tr class="font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700">
-            <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo $no++; ?></td>
-            <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo $cashs->f_name . ' ' . $cashs->m_name . ' ' . $cashs->l_name; ?></td>
-            <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo number_format($rejesho); ?></td>
-            <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo number_format($lipwa); ?></td>
-            <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo $laza > 0 ? number_format($laza) : '-'; ?></td>
-            <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo $zidi > 0 ? number_format($zidi) : '-'; ?></td>
-            <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo date('d-m-Y', strtotime($cashs->lecod_day)); ?></td>
-        </tr>
+
+                 <?php $no = 1; ?>
+                                <?php foreach ($cash_transaction as $cashs): ?>
+         
+          
+               
+            
+
+           <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+             <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                   <?= $sno++; ?>
+                </td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><?php echo $cashs->empl_name; ?></td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                       <?php echo $cashs->f_name; ?> <?php echo $cashs->m_name; ?> <?php echo $cashs->l_name; ?>
+                    </td>
+
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><?php echo $cashs->phone_no; ?></td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                        <?php if ($cashs->depost == TRUE) {
+                                         ?>
+                                        <?php echo number_format($cashs->depost); ?>
+                                    <?php }elseif ($cashs->depost == FALSE) {
+                                     ?>
+                                     -
+                                     <?php } ?>
+                    </td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                       <?php if ($cashs->deposit_account == TRUE) {
+                                         ?>
+                                        <?php echo $cashs->deposit_account; ?>
+                                    <?php }else{ ?>
+                                        -
+                                        <?php } ?>
+                    </td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                         <?php if ($cashs->withdraw == TRUE) {
+                                         ?>
+                                        <?php echo number_format($cashs->loan_aprov); ?>
+                                    <?php }elseif ($cashs->withdraw == FALSE) {
+                                     ?>
+                                     -
+                                     <?php } ?>
+                    </td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                       <?php if ($cashs->withdrawal_account == TRUE) {
+                                         ?>
+                                        <?php echo $cashs->withdrawal_account; ?>
+                                    <?php }else{ ?>
+                                        -
+                                        <?php } ?>
+                    </td>
+
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                      <?php echo $cashs->time_rec; ?>
+                    </td>
+
+                    
+                </tr>
+           
+
+
+            
+            </tr>
         <?php endforeach; ?>
     </tbody>
-    <tfoot class="font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700">
-        <tr>
-            <th>JUMLA</th>
-            <th  class="px-4 py-3"></th>
-            <th  class="px-4 py-3"><?php echo number_format($total_rejesho); ?></th>
-            <th  class="px-4 py-3"><?php echo number_format($total_lipwa); ?></th>
-            <th  class="px-4 py-3"><?php echo number_format($total_laza); ?></th>
-            <th  class="px-4 py-3"><?php echo number_format($total_zidi); ?></th>
-            <th  class="px-4 py-3"></th>
-        </tr>
-    </tfoot>
+  
+                                   
+                                    </tbody>
+                                     <tr>
+                                    
+                                        <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"></td>
+                                        <td></td>
+                                        <td><b></b></td>
+                                        <td></td>
+                                        <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($sum_cashTransaction->total_deposit); ?></b></b></td>
+                                        <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b></td>
+                                        <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><?php echo number_format($sum_cashTransaction->total_aprove); ?></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    
+                                    </tr>
+
+                                    <tr>
+                                       <td></td> 
+                                       <td></td> 
+                                       <td></td> 
+                                       <td></td> 
+                                       <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">MUHTASALI WA KULIPISHA</td> 
+                                       <td></td> 
+                                       <td></td> 
+                                       <td></td> 
+                                       <td></td> 
+                                       <td></td>  
+                                    </tr>
+                                    <?php foreach ($account_deposit as $account_deposits): ?>
+                                    <tr>
+                                       <td></td> 
+                                       <td></td> 
+                                       <td></td> 
+                                       <td></td> 
+                                       <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo $account_deposits->account_name; ?></b></td> 
+                                       <td></td> 
+                                       <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($account_deposits->total_deposit_acc); ?></b></td> 
+                                       <td></td> 
+                                       <td></td> 
+                                       <td></td>  
+                                    </tr>
+                                     <?php endforeach; ?>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b>MADENI SUGU</b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+
+                                          <?php $no = 1; ?>
+                                     <?php foreach ($default_list as $default_lists): ?>
+                                       <tr>
+                                         <td></td>
+                                         <td> </td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><?php echo $default_lists->f_name; ?> <?php echo $default_lists->m_name; ?> <?php echo $default_lists->l_name; ?></td>
+                                          
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><?php echo number_format($default_lists->depost); ?></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><?php echo $default_lists->account_name; ?></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                      <?php endforeach ?>
+                                      <tr>
+                                         <td></td>
+                                         <td> </td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b>JUMLA MADENI SUGU</b></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($toyal_default->total_default); ?></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                        <!-- <tr>
+                                         <td></td>
+                                         <td> </td>
+                                         <td></td>
+                                         <td></td>
+                                         <td><b>MIAMALA HEWA</b></td>
+                                         <td></td>
+                                         <td><b></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                   
+
+                                     <?php foreach ($miamala as $miamalas): ?>
+                                          <tr>
+                                         <td></td> 
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td><?php echo $miamalas->agent; ?></td>
+                                         <td><?php echo $miamalas->account_name; ?></td>
+                                         <td><?php echo number_format($miamalas->amount); ?></td>
+                                         <td><?php echo $miamalas->blanch_name; ?></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                     <?php endforeach; ?> -->
+                                     
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">MUHTASALI WA GAWA</td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                     <?php foreach ($withdrawal_account as $withdrawal_accounts): ?>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo $withdrawal_accounts->account_name; ?></b></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($withdrawal_accounts->total_with_acc); ?></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                     <?php endforeach; ?>
+                                      <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b>Code No</b></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($total_code_no->total_interest); ?></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b>JUMLA YA FOMU</b></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($deducted_fee->total_deducted); ?></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b>JUMLA YA FAINI</b></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($penart_paid->total_penart); ?></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                           <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b>JUMLA YA WATEJA WALIO LIPA HAI</b></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($hai_wateja->total_hai); ?></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+                                      <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b>JUMLA YA WATEJA WALIO LIPA SUGU</b></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($sugu_wateja->total_sugu); ?></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
+
+
+                                      <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b>JUMLA YA MAUZO</b></td>
+                                         <td></td>
+                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($sum_cashTransaction->total_deposit + $total_miamala->total_miamala); ?></b></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                         <td></td>
+                                     </tr>
 </table>
+
 
           </div>
        
@@ -230,57 +402,31 @@ include_once APPPATH . "views/partials/officerheader.php";
 
       <!-- Modal Body -->
     
-      <?php echo form_open("admin/prev_cashtransaction"); ?>
+      <?php echo form_open("oficer/print_manager_withdrawal_pdf", ['method' => 'get']); ?>
+
       <div class="p-4 overflow-y-auto">
         <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
           
-          <!-- Total Withdraw -->
-    
-
-          <!-- Payment Method -->
-          <div class="sm:col-span-6">
-            <label for="method" class="block text-sm font-medium mb-2 dark:text-gray-300">
-              * Chagua Tawi:
-            </label>
-            <select id="blanch" name="blanch_id"
-              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
-                 <?php foreach ($blanch as $blanchs): ?>
-                                <option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?> </option>
-                                    <?php endforeach; ?>
-            </select>
-          </div>
-
-
-          <div class="sm:col-span-6">
-            <label for="method" class="block text-sm font-medium mb-2 dark:text-gray-300">
-              * Chagua Staff:
-            </label>
-            <select name="empl_id" id="empl"
-              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
-              <option value="">Select Employee</option>
-              <option value="all">ALL</option>
-            </select>
-          </div>
 
           <!-- Date -->
           <?php $date = date("Y-m-d"); ?>
           <input type="hidden" name="comp_id" value="<?php echo $_SESSION['comp_id']; ?>">  
 
           <div class="sm:col-span-6">
-            <label for="with_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
+            <label for="from_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
               *DATE FROM:
             </label>
-            <input type="date" id="with_date" name="from" 
+            <input type="date" id="from_date" name="from_date" 
             value="<?php echo $date; ?>" 
               class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
               required>
           </div>
 
           <div class="sm:col-span-6">
-            <label for="with_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
+            <label for="to_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
               * DATE TO:
             </label>
-            <input type="date" id="with_date" name="to"
+            <input type="date" id="to_date" name="to_date"
             value="<?php echo $date; ?>" 
               class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
               required>
@@ -300,7 +446,7 @@ include_once APPPATH . "views/partials/officerheader.php";
 
         <!-- Submit Button -->
         <button type="submit" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-          Save changes
+         Filter
         </button>
       </div>
       <?php echo form_close(); ?>
@@ -365,3 +511,7 @@ $('#empl').html('<option value="">Select Employee</option>');
 
 });
 </script>
+
+
+
+		

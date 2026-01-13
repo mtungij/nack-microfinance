@@ -20,6 +20,7 @@ class Admin extends CI_Controller {
     $today_penart = $this->queries->get_total_penartToday($comp_id);
     $prepaid_today = $this->queries->prepaid_pay($comp_id);
 	$manager_data = $this->queries->get_compan_data($comp_id);
+  	$total_penalt = $this->queries->get_sum_income($comp_id);
 	
 
      $total_received = $this->queries->get_sumReceived_amount($comp_id);
@@ -133,6 +134,7 @@ class Admin extends CI_Controller {
 	' compdata'=> $compdata,
 	'total_loanDis'=>$total_loanDis,
 	'disbursed_loans'=>$disbursed_loans,
+  'total_penalt'=>$total_penalt,
 	'total_active_paid'=> $total_active_paid,
 	'today_endactive_paid'=> $today_endactive_paid,
 	'total_default_paid'=> $total_default_paid,
@@ -7433,10 +7435,10 @@ $data_exp_category = $this->queries->get_expenses_category_total($comp_id);
    
         
     // echo "<pre>";
-    //   print_r(  $income_branchwise);
+    //   print_r(  $total_receved);
     //         exit();
 		//  echo "<pre>";
-		//    print_r($income);
+		
 		//          exit();
 		$this->load->view('admin/income_dashboard',['income'=>$income,'detail_income'=>$detail_income,'total_receved'=>$total_receved,'customer'=>$customer,'blanch'=>$blanch]);
 	}
