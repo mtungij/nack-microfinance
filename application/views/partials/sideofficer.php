@@ -328,11 +328,11 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
           
               
                 
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/loan_pending_time') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/loan_pending_time"); ?>">Loan pending</a></li> 
+                  <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/loan_pending_time') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/loan_pending_time"); ?>">Loan pending</a></li> 
                
                  
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/repaymant_data') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/repaymant_data"); ?>">Loan Repayments</a></li> 
-                 
+                  -->
                 
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/get_outstand_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/get_outstand_loan"); ?>">Outstanding Loan</a></li> 
             
@@ -348,7 +348,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
                
                   <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg </?php echo is_active_link('admin/today_receved_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="</?php echo base_url("admin/today_receved_loan"); ?>">Today Received</a></li>  -->
                 
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link(' oficer/teller_oficer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url(" oficer/teller_oficer"); ?>">Officer Transactions</a></li> 
+                  <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link(' oficer/teller_oficer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url(" oficer/teller_oficer"); ?>">Officer Transactions</a></li>  -->
     
       </ul>
     </nav>

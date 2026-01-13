@@ -25,6 +25,8 @@ application/session/
 
 # Optional: Ignore uploaded files
 assets/uploads/
+assets/sponser_passport/
+
 
 # IDE Files
 #-------------------------
