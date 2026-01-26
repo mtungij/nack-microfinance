@@ -27,6 +27,27 @@ class Queries extends CI_Model {
     return $this->db->insert_id(); // ✅ This returns the correct auto-incremented comp_id
 }
 
+public function get_company_info()
+{
+    return $this->db->limit(1)->get('tbl_company')->row();
+}
+
+public function get_company_by_id($comp_id)
+{
+    return $this->db
+        ->where('comp_id', $comp_id)
+        ->limit(1)
+        ->get('tbl_company')
+        ->row();
+}
+
+public function get_employee_by_phone($phone)
+{
+    return $this->db->where('empl_no', $phone)->get('tbl_employee')->row();
+}
+
+
+
 
 public function check_region_code($code){
     return $this->db->get_where('tbl_region', ['region_code' => $code])->row();
@@ -1147,7 +1168,8 @@ public function get_total_pay_description_acount_statement($loan_id)
 				cb.empl_name AS creator_name,
 				cb.empl_email AS creator_email,
 				cb.empl_no AS creator_no,
-				cb.empl_sex AS creator_sex
+				cb.empl_sex AS creator_sex,
+				cb.passport AS creator_passport
 			FROM tbl_loans l
 			JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
 			JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 

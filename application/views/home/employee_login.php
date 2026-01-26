@@ -33,7 +33,21 @@ include_once APPPATH . "views/partials/guest_header.php";
       <div class="bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-gray-900 dark:border-gray-700">
         <div class="p-4 sm:p-7">
           <div class="text-center">
-            <h1 class="block text-2xl font-bold text-gray-800 dark:text-white">Login to Your Account</h1>
+     
+
+            <div class="flex justify-center my-6">
+              <div id="logoContainer" class="h-24 w-24 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg transition-all duration-300">
+                <svg class="h-16 w-16 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z" />
+                </svg>
+              </div>
+            </div>
+     <p id="companyName" 
+   class="text-center text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 min-h-[24px] uppercase">
+   Loan Management System
+</p>
+
+
 
             <?php // Admin/Employee toggle links from your old panel-heading ?>
             <div class="mt-3 mb-4 text-center">
@@ -196,6 +210,84 @@ include_once APPPATH . "views/partials/guest_header.php";
     </div>
 
   </div> <?php // End centering div ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emplNoInput = document.getElementById('empl_no');
+    const logoContainer = document.getElementById('logoContainer');
+    const companyName = document.getElementById('companyName');
+    let debounceTimer;
+
+    emplNoInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const phoneNumber = this.value.trim();
+
+        // Reset to default if empty
+        if (phoneNumber.length < 10) {
+            resetToDefault();
+            return;
+        }
+
+        // Debounce to avoid too many requests
+        debounceTimer = setTimeout(() => {
+            fetchCompanyInfo(phoneNumber);
+        }, 500);
+    });
+
+    function fetchCompanyInfo(phoneNumber) {
+        fetch('<?php echo base_url("welcome/get_employee_company"); ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'empl_no=' + encodeURIComponent(phoneNumber)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.company) {
+                displayCompanyLogo(data.company);
+            } else {
+                resetToDefault();
+            }
+        })
+        .catch(() => resetToDefault());
+    }
+
+ function displayCompanyLogo(company) {
+    companyName.textContent = company.comp_name || '';
+
+    // Responsive sizes using Tailwind: sm, md, lg, xl
+    const logoSizeClasses = 'h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32';
+
+    if (company.comp_logo) {
+        const logoUrl = '<?php echo base_url("assets/images/company_logo/"); ?>' + company.comp_logo;
+        logoContainer.className = `${logoSizeClasses} rounded-full bg-white flex items-center justify-center shadow-lg border-2 border-cyan-500 transition-all duration-300 p-2`;
+        logoContainer.innerHTML = `
+            <img src="${logoUrl}" 
+                 alt="${company.comp_name}" 
+                 class="h-full w-full object-cover rounded-full"
+                 onerror="this.parentElement.innerHTML = getDefaultIcon(); this.parentElement.className = '${logoSizeClasses} rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg transition-all duration-300';">
+        `;
+    } else {
+        logoContainer.className = `${logoSizeClasses} rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg transition-all duration-300`;
+        logoContainer.innerHTML = getDefaultIcon();
+    }
+}
+
+
+    function resetToDefault() {
+        companyName.textContent = 'Loan Management System';
+        logoContainer.className = 'h-24 w-24 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg transition-all duration-300';
+        logoContainer.innerHTML = getDefaultIcon();
+    }
+
+    function getDefaultIcon() {
+        return `<svg class="h-16 w-16 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z" />
+                </svg>`;
+    }
+});
+</script>
 
 <?php
 include_once APPPATH . "views/partials/footer.php";

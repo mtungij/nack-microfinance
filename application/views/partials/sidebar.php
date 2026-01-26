@@ -64,11 +64,25 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
   overflow-y-auto max-h-screen">
 
   <div class="px-6 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-    <!-- Logo -->
-    <a class="flex-none text-xl font-semibold dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-600" href="<?php echo base_url("admin/index"); ?>" aria-label="Brand">
-      <!-- <img class="h-10 sm:h-12 mx-auto" src="</?php echo base_url('assets/img/logo.png'); // Adjust path and style as needed ?>" alt="Logo"> -->
+    <!-- Logo and Company Name -->
+    <a class="flex flex-col items-center gap-2 focus:outline-none focus:ring-1 focus:ring-gray-600" href="<?php echo base_url("admin/index"); ?>" aria-label="Brand">
+      <?php if (!empty($this->session->userdata('company_logo'))): ?>
+        <img class="h-12 w-12 sm:h-16 sm:w-16 rounded-lg object-cover shadow-md" 
+             src="<?php echo base_url('assets/images/company_logo/' . $this->session->userdata('company_logo')); ?>" 
+             alt="Company Logo">
+      <?php else: ?>
+        <div class="h-12 w-12 sm:h-16 sm:w-16 rounded-lg bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center">
+          <svg class="h-8 w-8 text-cyan-600 dark:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z" />
+          </svg>
+        </div>
+      <?php endif; ?>
+      
+      <span class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white text-center leading-tight">
+        <?php echo !empty($this->session->userdata('comp_name')) ? htmlspecialchars($this->session->userdata('comp_name')) : 'Loan Management System'; ?>
+      </span>
     </a>
-    <!-- End Logo -->
+    <!-- End Logo and Company Name -->
   </div>
 
 

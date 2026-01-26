@@ -13,9 +13,9 @@ include_once APPPATH . "views/partials/header.php";
                     Admin Dashboard
                 </h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                <?php echo htmlspecialchars($compdata ->comp_name ?? 'Your Company', ENT_QUOTES, 'UTF-8'); ?>
+           
 
-          
+               <?php echo !empty($this->session->userdata('comp_name')) ? htmlspecialchars($this->session->userdata('comp_name')) : 'Loan Management System'; ?>
 
                 </p>
             </div>

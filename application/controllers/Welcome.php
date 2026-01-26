@@ -6,48 +6,101 @@ class Welcome extends CI_Controller {
 		$this->load->view('welcome');
 	}
 
-public function create_company() {
-    $this->form_validation->set_rules('region_id', 'region', 'required');
-    $this->form_validation->set_rules('comp_name', 'company name', 'required');
-    $this->form_validation->set_rules('comp_phone', 'company phone number', 'required');
-    $this->form_validation->set_rules('adress', 'adress', 'required');
-    $this->form_validation->set_rules('comp_number', 'Registration number', 'required');
-    $this->form_validation->set_rules('comp_email', 'company Email', 'required');
-    $this->form_validation->set_rules('sms_status', 'sms', 'required');
+public function create_company()
+{
+    // 1️⃣ Form validation
+    $this->form_validation->set_rules('region_id', 'Region', 'required');
+    $this->form_validation->set_rules('comp_name', 'Company Name', 'required');
+    $this->form_validation->set_rules('comp_phone', 'Company Phone Number', 'required');
+    $this->form_validation->set_rules('adress', 'Address', 'required');
+    $this->form_validation->set_rules('comp_number', 'Registration Number', 'required');
+    $this->form_validation->set_rules('comp_email', 'Company Email', 'required|valid_email');
+    $this->form_validation->set_rules('sms_status', 'SMS', 'required');
     $this->form_validation->set_error_delimiters('<div class="text-danger">', '</div>');
 
-    if ($this->form_validation->run()) {
-        $data = $this->input->post();
-        $data['password'] = password_hash('123456', PASSWORD_BCRYPT);
-
-        $this->load->model('queries');
-        $comp_id = $this->queries->insert_company_data($data);
-
-        if ($comp_id) {
-            $this->session->set_userdata('comp_id', $comp_id);
-
-            // ✅ Prepare SMS details
-            $recipients = ['255629364847', '255748470181', '255747384847'];
-            $massage = "Kuna kampuni imesajiliwa loan-pocket.com\n".
-                       "Jina la kampuni: {$data['comp_name']}\n".
-                       "Namba ya simu: {$data['comp_phone']}\n".
-                       "Anuani: {$data['adress']}";
-
-            // ✅ Send SMS (Beem Africa Example)
-            foreach ($recipients as $phone) {
-                $this->sendsms($phone, $massage);
-            }
-
-            $this->session->set_flashdata('massage', 'Your Company Registration Successfully');
-            redirect('welcome/blanch');
-        } else {
-            $this->session->set_flashdata('error', 'Data Failed');
-            return redirect('welcome/register');
-        }
+    if ($this->form_validation->run() === FALSE) {
+        return $this->register();
     }
 
-    $this->register();
+    // 2️⃣ Collect data
+    $data = $this->input->post();
+    $data['password'] = password_hash('123456', PASSWORD_BCRYPT);
+
+    // 3️⃣ Handle company logo upload + resize
+    if (!empty($_FILES['comp_logo']['name'])) {
+
+        $upload_path = FCPATH . 'assets/images/company_logo/';
+
+        // Ensure folder exists
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0755, true);
+        }
+
+        $config = [
+            'upload_path'   => $upload_path,
+            'allowed_types' => 'jpg|jpeg|png|gif',
+            'max_size'      => 10240, // 10MB (KB)
+            'encrypt_name'  => true
+        ];
+
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('comp_logo')) {
+            $this->session->set_flashdata('error', $this->upload->display_errors());
+            return redirect('welcome/register');
+        }
+
+        // Upload success
+        $upload_data = $this->upload->data();
+        $data['comp_logo'] = $upload_data['file_name'];
+
+        // 🔁 Resize to 200x200
+        $resize_config = [
+            'image_library'  => 'gd2',
+            'source_image'   => $upload_data['full_path'],
+            'maintain_ratio' => true,
+            'width'          => 200,
+            'height'         => 200
+        ];
+
+        $this->load->library('image_lib');
+        $this->image_lib->initialize($resize_config);
+
+        if (!$this->image_lib->resize()) {
+            $this->session->set_flashdata('error', $this->image_lib->display_errors());
+            return redirect('welcome/register');
+        }
+
+        $this->image_lib->clear();
+    }
+
+    // 4️⃣ Insert company data
+    $this->load->model('queries');
+    $comp_id = $this->queries->insert_company_data($data);
+
+    if (!$comp_id) {
+        $this->session->set_flashdata('error', 'Data insertion failed');
+        return redirect('welcome/register');
+    }
+
+    // 5️⃣ Success + SMS
+    $this->session->set_userdata('comp_id', $comp_id);
+
+    $recipients = ['255629364847', '255748470181', '255747384847'];
+    $message = "Kuna kampuni imesajiliwa loan-pocket.com\n" .
+               "Jina la kampuni: {$data['comp_name']}\n" .
+               "Namba ya simu: {$data['comp_phone']}\n" .
+               "Anuani: {$data['adress']}";
+
+    foreach ($recipients as $phone) {
+        $this->sendsms($phone, $message);
+    }
+
+    $this->session->set_flashdata('message', 'Your Company Registration was Successful');
+    redirect('welcome/blanch');
 }
+
 
 
 	public function blanch(){
@@ -181,17 +234,22 @@ public function create_blanch()
 			$this->login();	
 		}
 	}
-	public function employee_login(){
-		$this->load->view('home/employee_login');
-	}
+	public function employee_login()
+{
+    // On login page, show default logo since user hasn't identified their company yet
+    $data['company_logo'] = base_url('assets/img/logo.png'); // Default system logo
+    
+    $this->load->view('home/employee_login', $data);
+}
 
 
+
 	
 	
 	
-	
-public function Employee_signin() {
-    // Validation rules
+public function Employee_signin()
+{
+    // ================= VALIDATION =================
     $this->form_validation->set_rules('empl_no', 'Employee Phone number', 'required');
     $this->form_validation->set_rules('password', 'Password', 'required');
     $this->form_validation->set_error_delimiters('<div class="text-danger">','</div>');
@@ -200,83 +258,112 @@ public function Employee_signin() {
         return $this->employee_login();
     }
 
-    $empl_no = $this->input->post('empl_no');
-    $password_input = $this->input->post('password');
+    $empl_no        = $this->input->post('empl_no', TRUE);
+    $password_input = $this->input->post('password', TRUE);
 
     $this->load->model('queries');
     $user = $this->queries->employee_user_data($empl_no);
 
+    // ================= USER EXISTS =================
     if (!$user) {
-        $this->session->set_flashdata('mass', "Your Phone number or password is invalid, please try again");
+        $this->session->set_flashdata('mass', "Your phone number or password is invalid, please try again");
         return redirect("welcome/employee_login");
     }
 
+    // ================= PASSWORD CHECK =================
     $stored_password = $user->password;
-    $login_success = false;
+    $login_success   = false;
 
-    // Check if password is old SHA1
+    // OLD SHA1 PASSWORD
     if (strlen($stored_password) === 40 && sha1($password_input) === $stored_password) {
         $login_success = true;
 
-        // Re-hash password with bcrypt and update DB
+        // Upgrade to bcrypt
         $new_hash = password_hash($password_input, PASSWORD_BCRYPT);
-        $this->db->update('tbl_employee`', ['password' => $new_hash], ['empl_id' => $user->empl_id]);
-    } 
-    // Check bcrypt password
+
+        // ❗ FIXED TABLE NAME (removed backtick bug)
+        $this->db->where('empl_id', $user->empl_id)
+                 ->update('tbl_employee', ['password' => $new_hash]);
+    }
+    // BCRYPT PASSWORD
     elseif (password_verify($password_input, $stored_password)) {
         $login_success = true;
     }
 
     if (!$login_success) {
-        $this->session->set_flashdata('mass', "Your Phone number or password is invalid, please try again");
+        $this->session->set_flashdata('mass', "Your phone number or password is invalid, please try again");
         return redirect("welcome/employee_login");
     }
 
-    // Prepare session data
-    $sessionData = [
-        'empl_id'       => $user->empl_id,
-        'blanch_id'     => $user->blanch_id,
-        'username'      => $user->username,
-        'empl_name'     => $user->empl_name,
-        'comp_id'       => $user->comp_id ?? null,
-        'position_id'   => $user->position_id,
-        'position_name' => $user->position,
-        'user_id'       => $user->empl_id,
-        'must_update'   => $user->must_update ?? 0,
-    ];
-
-    // Load management permissions if applicable
-    if ($user->position_id == 22) {
-        $allowed_links = $this->queries->get_employee_links($user->empl_id);
-        $sessionData['permissions'] = $allowed_links;
-    }
-
-    $this->session->set_userdata($sessionData);
-
-    // Check account status
+    // ================= ACCOUNT STATUS =================
     if ($user->empl_status !== 'open') {
         $this->session->set_flashdata('mass', $this->lang->line("blocked_menu"));
         return redirect("welcome/employee_login");
     }
 
-    // Force profile update for management if required
+    // ================= PREPARE SESSION =================
+    $sessionData = [
+        'empl_id'       => $user->empl_id,
+        'user_id'       => $user->empl_id,
+        'empl_name'     => $user->empl_name,
+        'username'      => $user->username,
+        'blanch_id'     => $user->blanch_id,
+        'comp_id'       => $user->comp_id ?? null,
+        'position_id'   => $user->position_id,
+        'position_name' => $user->position,
+        'must_update'   => $user->must_update ?? 0,
+    ];
+
+    // ================= FETCH COMPANY LOGO (AFTER VERIFIED) =================
+    $company_logo = null;
+    $company_name = null;
+
+    if (!empty($user->comp_id)) {
+        $company = $this->queries->get_company_by_id($user->comp_id);
+        if ($company) {
+            $company_logo = $company->comp_logo ?? null; // filename only
+            $company_name = $company->comp_name ?? null;
+        }
+    }
+
+    $sessionData['company_logo'] = $company_logo;
+    $sessionData['comp_name'] = $company_name;
+
+    // ================= PERMISSIONS (MANAGEMENT) =================
+    if ($user->position_id == 22) {
+        $allowed_links = $this->queries->get_employee_links($user->empl_id);
+        $sessionData['permissions'] = $allowed_links;
+    }
+
+    // ================= SAVE SESSION =================
+    $this->session->set_userdata($sessionData);
+
+    // ================= FORCE PROFILE UPDATE =================
     if ($user->position_id == 22 && $user->must_update == 1) {
         return redirect('welcome/update_profile');
     }
 
-    // Redirect based on position
+    // ================= FORCE PROFILE PHOTO UPLOAD =================
+    if (empty($user->passport)) {
+        return redirect('welcome/upload_passport');
+    }
+
+    // ================= REDIRECT =================
     switch ($user->position_id) {
         case '1':
         case '2':
         case '6':
         case '17':
             return redirect('oficer/index');
+
         case '22':
             return redirect('admin/index');
+
         default:
             return redirect('oficer/index');
     }
 }
+
 
 
 
@@ -299,7 +386,42 @@ $result = $query->result();
 	foreach ($result as $auto_reminders) {
 	$this->send_reminder_auto_receivable($auto_reminders->comp_id,$auto_reminders->customer_id,$auto_reminders->loan_id);
 	}
+}
 
+
+public function get_employee_company()
+{
+    $this->load->model('queries');
+    
+    $empl_no = $this->input->post('empl_no');
+    
+    if (empty($empl_no)) {
+        echo json_encode(['success' => false]);
+        return;
+    }
+    
+    // Get employee by phone number
+    $employee = $this->queries->get_employee_by_phone($empl_no);
+    
+    if (!$employee) {
+        echo json_encode(['success' => false]);
+        return;
+    }
+    
+    // Get company info
+    $company = $this->queries->get_company_by_id($employee->comp_id);
+    
+    if ($company) {
+        echo json_encode([
+            'success' => true,
+            'company' => [
+                'comp_name' => $company->comp_name,
+                'comp_logo' => $company->comp_logo
+            ]
+        ]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
 }
 
 
@@ -395,6 +517,91 @@ public function save_updated_profile() {
     $data['employee'] = $this->queries->get_employee_by_id($empl_id);
 
     $this->load->view('welcome/update_profile', $data);
+}
+
+public function upload_passport() {
+    $empl_id = $this->session->userdata('empl_id');
+    
+    if (!$empl_id) {
+        return redirect('welcome/employee_login');
+    }
+
+    $this->load->model('queries');
+    $data['employee'] = $this->queries->get_employee_data($empl_id);
+    
+    $this->load->view('home/upload_passport', $data);
+}
+
+public function save_passport() {
+    $empl_id = $this->session->userdata('empl_id');
+    
+    if (!$empl_id) {
+        return redirect('welcome/employee_login');
+    }
+    
+    if (empty($_FILES['passport']['name'])) {
+        $this->session->set_flashdata('error', 'Please select a photo to upload');
+        return redirect('welcome/upload_passport');
+    }
+    
+    $upload_path = FCPATH . 'assets/images/passport/';
+    
+    // Ensure folder exists
+    if (!is_dir($upload_path)) {
+        mkdir($upload_path, 0755, true);
+    }
+    
+    $config = [
+        'upload_path'   => $upload_path,
+        'allowed_types' => 'jpg|jpeg|png|gif',
+        'max_size'      => 5120, // 5MB
+        'encrypt_name'  => true
+    ];
+    
+    $this->load->library('upload');
+    $this->upload->initialize($config);
+    
+    if (!$this->upload->do_upload('passport')) {
+        $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+        return redirect('welcome/upload_passport');
+    }
+    
+    $upload_data = $this->upload->data();
+    
+    // Resize to 300x300
+    $this->load->library('image_lib');
+    $resize_config = [
+        'image_library'  => 'gd2',
+        'source_image'   => $upload_data['full_path'],
+        'maintain_ratio' => true,
+        'width'          => 300,
+        'height'         => 300
+    ];
+    
+    $this->image_lib->initialize($resize_config);
+    $this->image_lib->resize();
+    
+    $passport = $upload_data['file_name'];
+    
+    // Update database
+    $this->load->model('queries');
+    $data = ['passport' => $passport];
+    $result = $this->queries->update_employee($empl_id, $data);
+    
+    if ($result) {
+        $this->session->set_flashdata('massage', 'Profile picture uploaded successfully');
+        
+        // Redirect based on position
+        $position_id = $this->session->userdata('position_id');
+        if ($position_id == 22) {
+            return redirect('admin/index');
+        } else {
+            return redirect('oficer/index');
+        }
+    } else {
+        $this->session->set_flashdata('error', 'Failed to upload profile picture');
+        return redirect('welcome/upload_passport');
+    }
 }
 
 

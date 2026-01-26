@@ -222,6 +222,115 @@ class Admin extends CI_Controller {
 		$this->load->view('admin/company_profile',['comp_data'=>$comp_data,'region'=>$region]);
 	}
 
+    public function company_settings(){
+    	$this->load->model('queries');
+            $comp_id = $this->session->userdata('comp_id');
+            $company = $this->queries->get_companyDataProfile($comp_id);
+            $this->load->view('admin/company_settings',['company'=>$company]);
+    }
+
+    public function update_company_settings(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        
+        // Form validation
+        $this->form_validation->set_rules('comp_name', 'Company Name', 'required|trim');
+        $this->form_validation->set_rules('comp_phone', 'Company Phone', 'required|trim');
+        $this->form_validation->set_rules('comp_email', 'Company Email', 'required|valid_email|trim');
+        $this->form_validation->set_rules('adress', 'Address', 'required|trim');
+        
+        if ($this->form_validation->run() == FALSE) {
+            $company = $this->queries->get_companyDataProfile($comp_id);
+            $this->load->view('admin/company_settings', ['company' => $company]);
+            return;
+        }
+        
+        $comp_logo = null;
+        
+        // Handle logo upload if file is selected
+        if (!empty($_FILES['comp_logo']['name'])) {
+            $upload_path = FCPATH . 'assets/images/company_logo/';
+            
+            // Ensure folder exists
+            if (!is_dir($upload_path)) {
+                mkdir($upload_path, 0755, true);
+            }
+            
+            $config = [
+                'upload_path'   => $upload_path,
+                'allowed_types' => 'jpg|jpeg|png|gif',
+                'max_size'      => 10240, // 10MB
+                'encrypt_name'  => true
+            ];
+            
+            $this->load->library('upload');
+            $this->upload->initialize($config);
+            
+            if ($this->upload->do_upload('comp_logo')) {
+                $uploadData = $this->upload->data();
+                
+                // Resize the image to 200x200
+                $this->load->library('image_lib');
+                $config_resize['image_library'] = 'gd2';
+                $config_resize['source_image'] = $uploadData['full_path'];
+                $config_resize['maintain_ratio'] = TRUE;
+                $config_resize['width'] = 200;
+                $config_resize['height'] = 200;
+                
+                $this->image_lib->initialize($config_resize);
+                $this->image_lib->resize();
+                
+                $comp_logo = $uploadData['file_name'];
+                
+                // Delete old logo if exists
+                $current_company = $this->queries->get_companyDataProfile($comp_id);
+                if (!empty($current_company->comp_logo)) {
+                    $old_logo_path = FCPATH . 'assets/images/company_logo/' . $current_company->comp_logo;
+                    if (file_exists($old_logo_path)) {
+                        unlink($old_logo_path);
+                    }
+                }
+            } else {
+                $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+                redirect('admin/company_settings');
+                return;
+            }
+        }
+        
+        // Prepare data array
+        $data = array(
+            'comp_name' => $this->input->post('comp_name'),
+            'comp_phone' => $this->input->post('comp_phone'),
+            'comp_email' => $this->input->post('comp_email'),
+            'adress' => $this->input->post('adress'),
+            'comp_number' => $this->input->post('comp_number'),
+        );
+        
+        // Add logo to data array if uploaded
+        if ($comp_logo !== null) {
+            $data['comp_logo'] = $comp_logo;
+        }
+        
+        // Update company data
+        $result = $this->queries->update_company_Data($data, $comp_id);
+        
+        if ($result) {
+            // Update session data
+            $updated_company = $this->queries->get_companyDataProfile($comp_id);
+            $this->session->set_userdata('comp_name', $updated_company->comp_name);
+            if (!empty($updated_company->comp_logo)) {
+                $this->session->set_userdata('company_logo', $updated_company->comp_logo);
+            }
+            
+            $this->session->set_flashdata('massage', 'Company settings updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update company settings');
+        }
+        
+        redirect('admin/company_settings');
+    }
+
+
 
 	public function update_company_profile($comp_id){
 		if(!empty($_FILES['comp_logo']['name'])){
@@ -269,6 +378,134 @@ class Admin extends CI_Controller {
             return redirect('admin/company_profile/');
 
 	}
+
+
+    public function my_profile(){
+    	$this->load->model('queries');
+           $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+          $employee = $this->queries->get_employee_data($empl_id);
+            //    echo "<pre>";
+            // print_r($employee);
+            //  echo "</pre>";
+            //   exit();
+
+           $this->load->view('admin/my_profile',['employee'=>$employee]);
+    }
+
+    public function update_my_password(){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        
+        // Form validation
+        $this->form_validation->set_rules('current_password', 'Current Password', 'required');
+        $this->form_validation->set_rules('new_password', 'New Password', 'required|min_length[6]');
+        $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'required|matches[new_password]');
+        
+        if ($this->form_validation->run() == FALSE) {
+            $employee = $this->queries->get_employee_data($empl_id);
+            $this->load->view('admin/my_profile', ['employee' => $employee]);
+            return;
+        }
+        
+        $employee = $this->queries->get_employee_data($empl_id);
+        $current_password = $this->input->post('current_password');
+        $new_password = $this->input->post('new_password');
+        
+        // Verify current password
+        if (!password_verify($current_password, $employee->password)) {
+            $this->session->set_flashdata('error', 'Current password is incorrect');
+            redirect('admin/my_profile');
+            return;
+        }
+        
+        // Hash new password
+        $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+        
+        // Update password
+        $data = ['password' => $hashed_password];
+        $result = $this->queries->update_employee($empl_id, $data);
+        
+        if ($result) {
+            $this->session->set_flashdata('massage', 'Password updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update password');
+        }
+        
+        redirect('admin/my_profile');
+    }
+
+    public function update_profile_picture(){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        
+        if (empty($_FILES['passport']['name'])) {
+            $this->session->set_flashdata('error', 'Please select a photo to upload');
+            redirect('admin/my_profile');
+            return;
+        }
+        
+        $upload_path = FCPATH . 'assets/images/passport/';
+        
+        // Ensure folder exists
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0755, true);
+        }
+        
+        $config = [
+            'upload_path'   => $upload_path,
+            'allowed_types' => 'jpg|jpeg|png|gif',
+            'max_size'      => 5120, // 5MB
+            'encrypt_name'  => true
+        ];
+        
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+        
+        if (!$this->upload->do_upload('passport')) {
+            $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+            redirect('admin/my_profile');
+            return;
+        }
+        
+        $upload_data = $this->upload->data();
+        
+        // Resize to 300x300
+        $this->load->library('image_lib');
+        $resize_config = [
+            'image_library'  => 'gd2',
+            'source_image'   => $upload_data['full_path'],
+            'maintain_ratio' => true,
+            'width'          => 300,
+            'height'         => 300
+        ];
+        
+        $this->image_lib->initialize($resize_config);
+        $this->image_lib->resize();
+        
+        $passport = $upload_data['file_name'];
+        
+        // Delete old passport if exists
+        $current_employee = $this->queries->get_employee_data($empl_id);
+        if (!empty($current_employee->passport)) {
+            $old_passport_path = FCPATH . 'assets/images/passport/' . $current_employee->passport;
+            if (file_exists($old_passport_path)) {
+                unlink($old_passport_path);
+            }
+        }
+        
+        // Update database
+        $data = ['passport' => $passport];
+        $result = $this->queries->update_employee($empl_id, $data);
+        
+        if ($result) {
+            $this->session->set_flashdata('massage', 'Profile picture updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update profile picture');
+        }
+        
+        redirect('admin/my_profile');
+    }
 
 	//chnage password 
 
@@ -2323,6 +2560,411 @@ $comp_phone = $compdata->comp_number;
     }
 
 
+
+    public function download_loan_application($loan_id){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        
+        // Get loan form data
+        $loan_data = $this->db->query("
+            SELECT 
+                l.*,
+                lc.*, 
+                c.*, 
+                b.*, 
+                e.*, 
+                cb.empl_name AS creator_name,
+                cb.passport AS creator_passport,
+                comp.comp_name,
+                comp.comp_logo
+            FROM tbl_loans l
+            JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
+            JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
+            JOIN tbl_customer c ON c.customer_id = l.customer_id 
+            JOIN tbl_employee e ON e.empl_id = l.empl_id
+            JOIN tbl_employee cb ON cb.empl_id = l.created_by
+            JOIN tbl_company comp ON comp.comp_id = l.comp_id
+            WHERE l.loan_id = '$loan_id' 
+            AND l.comp_id = '$comp_id'
+        ")->row();
+        
+        // Get sponsor details
+    $sponser = $this->db->query("
+    SELECT * FROM tbl_sponser 
+    WHERE customer_id = '{$loan_data->customer_id}'
+")->result();
+
+
+        // Get collateral
+        $collateral = $this->db->query("SELECT * FROM tbl_collelateral WHERE loan_id = '$loan_id'")->result();
+        
+        // Load mPDF library
+        require_once APPPATH . '../vendor/autoload.php';
+        
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+        ]);
+        
+        // Build HTML content
+        $html = '
+        <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { color: #0891b2; text-align: center; }
+            h2 { color: #0e7490; border-bottom: 2px solid #0891b2; padding-bottom: 5px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+            th { background-color: #0891b2; color: white; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .section { margin-bottom: 25px; }
+        </style>
+        
+        <div class="header">';
+        
+        if (!empty($loan_data->comp_logo)) {
+            $logo_path = FCPATH . 'assets/images/company_logo/' . basename($loan_data->comp_logo);
+            if (file_exists($logo_path)) {
+                $html .= '<img src="' . $logo_path . '" style="height: 60px; margin-bottom: 10px;">';
+            }
+        }
+        
+        $html .= '
+            <h1>' . strtoupper($loan_data->comp_name) . '</h1>
+            <h2>MAOMBI YA MKOPO</h2>
+            <p><strong>Tarehe:</strong> ' . date('d/m/Y') . '</p>
+        </div>
+        
+        <div class="section">
+            <h2>1. TAARIFA ZA MTEJA</h2>
+            <table>
+                <tr>
+                    <th width="30%">Jina Kamili</th>
+                    <td>' . strtoupper($loan_data->f_name . ' ' . $loan_data->m_name . ' ' . $loan_data->l_name) . '</td>
+                </tr>
+                <tr>
+                    <th>Namba ya Simu</th>
+                    <td>' . $loan_data->phone_no . '</td>
+                </tr>
+              
+                <tr>
+                    <th>Tarehe ya Kujiunga</th>
+                    <td>' . date('d/m/Y', strtotime($loan_data->customer_day)) . '</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>2. MAELEZO YA MKOPO</h2>
+            <table>
+                <tr>
+                    <th width="30%">Aina ya Mkopo</th>
+                    <td>' . strtoupper($loan_data->loan_name) . '</td>
+                </tr>
+                <tr>
+                    <th>Kiasi Kilichoombwa</th>
+                    <td>TZS ' . number_format($loan_data->how_loan) . '</td>
+                </tr>
+                <tr>
+                    <th>Muda wa Mkopo</th>
+                    <td>' . ($loan_data->day == 1 ? 'Siku' : ($loan_data->day == 7 ? 'Wiki' : 'Mwezi')) . '</td>
+                </tr>
+                <tr>
+                    <th>Idadi ya Malipo</th>
+                    <td>' . $loan_data->session . ' sessions</td>
+                </tr>
+                <tr>
+                    <th>Fomula ya Riba</th>
+                    <td>' . $loan_data->rate . '</td>
+                </tr>
+                <tr>
+                    <th>Biashara/Kazi ya Mkopaji</th>
+                    <td>' . $loan_data->reason . '</td>
+                </tr>
+                <tr>
+                    <th>Tarehe ya Maombi</th>
+                    <td>' . date('d/m/Y', strtotime($loan_data->loan_day)) . '</td>
+                </tr>
+            </table>
+        </div>';
+        
+        // Sponsor information
+        if (!empty($sponser)) {
+            $html .= '
+            <div class="section">
+                <h2>3. TAARIFA ZA MDHAMINI</h2>
+                <table>
+                    <tr>
+                        <th width="5%">S/No</th>
+                        <th>Jina la Mdhamini</th>
+                        <th>Namba ya Simu</th>
+                        <th>Uhusiano</th>
+                        <th>Kazi/Biashara</th>
+                    </tr>';
+            
+            $no = 1;
+            foreach ($sponser as $sp) {
+                $html .= '
+                    <tr>
+                        <td>' . $no++ . '</td>
+                        <td>' . $sp->sp_name . ' ' . $sp->sp_mname . ' ' . $sp->sp_lname . '</td>
+                        <td>' . $sp->sp_phone_no . '</td>
+                        <td>' . $sp->sp_relation . '</td>
+                        <td>' . $sp->nature . '</td>
+                    </tr>';
+            }
+            
+            $html .= '
+                </table>
+            </div>';
+        }
+        
+        // Collateral information
+        if (!empty($collateral)) {
+            $total_value = 0;
+            $html .= '
+            <div class="section">
+                <h2>4. TAARIFA ZA DHAMANA</h2>
+                <table>
+                    <tr>
+                        <th width="5%">S/No</th>
+                        <th>Jina la Dhamana</th>
+                        <th>Hali ya Dhamana</th>
+                        <th>Thamani</th>
+                    </tr>';
+            
+            $no = 1;
+            foreach ($collateral as $col) {
+                $total_value += $col->value;
+                $html .= '
+                    <tr>
+                        <td>' . $no++ . '</td>
+                        <td>' . $col->description . '</td>
+                        <td>' . $col->co_condition . '</td>
+                        <td>TZS ' . number_format($col->value, 2) . '</td>
+                    </tr>';
+            }
+            
+            $html .= '
+                    <tr>
+                        <th colspan="3" style="text-align: right;">JUMLA:</th>
+                        <th>TZS ' . number_format($total_value, 2) . '</th>
+                    </tr>
+                </table>
+            </div>';
+        }
+        
+        // Officer information
+        $html .= '
+        <div class="section">
+            <h2>5. AFISA ALIYEOMBA MKOPO</h2>
+            <table>
+                <tr>
+                    <th width="30%">Jina la Afisa</th>
+                    <td>' . $loan_data->creator_name . '</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div style="margin-top: 50px;">
+            <table style="border: none;">
+                <tr>
+                    <td style="border: none; width: 50%;">
+                        <p>Sahihi ya Mkopaji: _____________________</p>
+                        <p>Tarehe: _____________________</p>
+                    </td>
+                    <td style="border: none; width: 50%;">
+                        <p>Sahihi ya Afisa: _____________________</p>
+                        <p>Tarehe: _____________________</p>
+                    </td>
+                </tr>
+            </table>
+        </div>';
+        
+        $mpdf->WriteHTML($html);
+        
+        // Output PDF
+        $filename = 'Maombi_ya_Mkopo_' . $loan_data->f_name . '_' . $loan_data->l_name . '_' . date('Y-m-d') . '.pdf';
+        $mpdf->Output($filename, 'D');
+    }
+
+    public function download_loan_history($customer_id){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        
+        // Get customer data
+        $customer = $this->db->query("
+            SELECT c.*, sc.passport 
+            FROM tbl_customer c
+            LEFT JOIN tbl_sub_customer sc ON c.customer_id = sc.customer_id
+            WHERE c.customer_id = '$customer_id' 
+            AND c.comp_id = '$comp_id'
+        ")->row();
+        
+        // Get loan history
+         $loan_history = $this->queries->get_loan_history($customer_id);
+        
+        // Get company info
+        $company = $this->db->query("SELECT * FROM tbl_company WHERE comp_id = '$comp_id'")->row();
+        
+        // Load mPDF library
+        require_once APPPATH . '../vendor/autoload.php';
+        
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+        ]);
+        
+        // Build HTML content
+        $html = '
+        <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { color: #0891b2; text-align: center; }
+            h2 { color: #0e7490; border-bottom: 2px solid #0891b2; padding-bottom: 5px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { padding: 8px; text-align: left; border: 1px solid #ddd; font-size: 11px; }
+            th { background-color: #0891b2; color: white; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .customer-info { margin-bottom: 20px; }
+            .badge-success { background-color: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; }
+            .badge-warning { background-color: #f59e0b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; }
+            .badge-danger { background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; }
+        </style>
+        
+        <div class="header">';
+        
+        if (!empty($company->comp_logo)) {
+            $logo_path = FCPATH . 'assets/images/company_logo/' . basename($company->comp_logo);
+            if (file_exists($logo_path)) {
+                $html .= '<img src="' . $logo_path . '" style="height: 60px; margin-bottom: 10px;">';
+            }
+        }
+        
+        $html .= '
+            <h1>' . strtoupper($company->comp_name) . '</h1>
+            <h2>HISTORIA YA MIKOPO YA NYUMA</h2>
+            <p><strong>Tarehe:</strong> ' . date('d/m/Y') . '</p>
+        </div>
+        
+        <div class="customer-info">
+            <h2>TAARIFA ZA MTEJA</h2>';
+        
+        if (!empty($customer->passport)) {
+            $customer_passport_path = FCPATH . $customer->passport;
+            if (file_exists($customer_passport_path)) {
+                $html .= '<div style="text-align: center; margin: 10px 0;">
+                    <img src="' . $customer_passport_path . '" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #0891b2;">
+                </div>';
+            }
+        }
+        
+        $html .= '
+            <table>
+                <tr>
+                    <th width="30%">Jina Kamili</th>
+                    <td>' . strtoupper($customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name) . '</td>
+                </tr>
+                <tr>
+                    <th>Namba ya Simu</th>
+                    <td>' . $customer->phone_no . '</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h2>HISTORIA YA MIKOPO</h2>';
+        
+        if (!empty($loan_history)) {
+            $html .= '
+            <table>
+                <tr>
+                    <th width="5%">S/No</th>
+                    <th>Aina ya Mkopo</th>
+                    <th>Mkopo Uliopitishwa</th>
+                    <th>Jumla + Riba</th>
+                    <th>Aina ya Muda</th>
+                    <th>Tarehe ya Kutoa</th>
+                    <th>Tarehe ya Mwisho</th>
+                    <th>Malipo ya Mwisho</th>
+                    <th>Hali</th>
+                </tr>';
+            
+            $no = 1;
+            $total_loans = 0;
+            $total_with_interest = 0;
+            
+            foreach ($loan_history as $history) {
+                $total_loans += $history->loan_aprove;
+                $total_with_interest += $history->loan_int;
+                
+                // Determine duration type
+                $duration_type = '';
+                if ($history->day == 1) {
+                    $duration_type = "Siku ({$history->session})";
+                } elseif ($history->day == 7) {
+                    $duration_type = "Wiki ({$history->session})";
+                } elseif (in_array($history->day, [28, 29, 30, 31])) {
+                    $duration_type = "Miezi ({$history->session})";
+                }
+                
+                // Calculate credit score badge
+                $credit_score = '';
+                if (!empty($history->last_payment) && !empty($history->end_date)) {
+                    $last_payment_date = new DateTime($history->last_payment);
+                    $end_date = new DateTime($history->end_date);
+                    
+                    if ($last_payment_date <= $end_date) {
+                        $credit_score = 'Vizuri';
+                    } elseif ($last_payment_date > $end_date) {
+                        $diff = $last_payment_date->diff($end_date)->days;
+                        if ($diff <= 30) {
+                            $credit_score = 'Wastani';
+                        } else {
+                            $credit_score = 'Mbaya';
+                        }
+                    }
+                } else {
+                    $credit_score = 'N/A';
+                }
+                
+                $html .= '
+                <tr>
+                    <td>' . $no++ . '</td>
+                    <td>' . strtoupper($history->loan_name) . '</td>
+                    <td>TZS ' . number_format($history->loan_aprove) . '</td>
+                    <td>TZS ' . number_format($history->loan_int) . '</td>
+                    <td>' . $duration_type . '</td>
+                    <td>' . date('d/m/Y', strtotime($history->disbursed_date)) . '</td>
+                    <td>' . date('d/m/Y', strtotime($history->end_date)) . '</td>
+                    <td>' . (!empty($history->last_payment) ? date('d/m/Y', strtotime($history->last_payment)) : '-') . '</td>
+                    <td>' . $credit_score . '</td>
+                </tr>';
+            }
+            
+            $html .= '
+                <tr>
+                    <th colspan="2" style="text-align: right;">JUMLA:</th>
+                    <th>TZS ' . number_format($total_loans) . '</th>
+                    <th>TZS ' . number_format($total_with_interest) . '</th>
+                    <th colspan="5"></th>
+                </tr>
+            </table>';
+        } else {
+            $html .= '<p style="text-align: center; font-style: italic; color: #666;">Hana mkopo kwenye system</p>';
+        }
+        
+        $mpdf->WriteHTML($html);
+        
+        // Output PDF
+        $filename = 'Historia_ya_Mikopo_' . $customer->f_name . '_' . $customer->l_name . '_' . date('Y-m-d') . '.pdf';
+        $mpdf->Output($filename, 'D');
+    }
 
     public function view_customer_statemnt($loan_id){
         $this->load->model('queries');

@@ -6,24 +6,18 @@ include_once APPPATH . "views/partials/officerheader.php";
 <div class="w-full lg:ps-64">
     <div class="p-4 sm:p-6 space-y-6">
 
-        <!-- Section 1: Page Title / Subheader -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-            <h1 class="text-xl font-semibold text-gray-800 dark:text-white">
-  Welcome <span class="font-bold text-blue-600">- <?= $empl_data->empl_name ?></span> / 
-  <span class="font-bold text-green-600"><?= $manager_data->blanch_name; ?></span>
-</h1>
 
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					</b> <?php //echo $_SESSION['empl_name']; ?>                </h3>
-                </p>
-            </div>
-            <div>
-                <?php // Optional action button, e.g., for the "Branches" dropdown
-                // We will integrate the "Branches" dropdown within the "Quick Stats & Actions" card as per your old layout.
-                ?>
-            </div>
-        </div>
+<!-- Debug: Check session data -->
+<?php 
+echo "<!-- Session company_logo: " . ($this->session->userdata('company_logo') ?? 'NULL') . " -->";
+echo "<!-- Session comp_id: " . ($this->session->userdata('comp_id') ?? 'NULL') . " -->";
+echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NULL') . " -->";
+?>
+
+
+
+        <!-- Section 1: Page Title / Subheader -->
+     
         <!-- End Page Title / Subheader -->
 
 

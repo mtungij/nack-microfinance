@@ -144,6 +144,8 @@ input[type="checkbox"]:not(:checked)::after {
         <li class="text-sm font-semibold text-gray-800 truncate dark:text-gray-400" aria-current="page">
           Dashboard
         </li>
+
+        
       </ol>
 
     </div>

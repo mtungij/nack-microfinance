@@ -185,7 +185,7 @@ echo form_open($form_action, ['novalidate' => true]);
 
                 <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex justify-center gap-x-2">
-                        <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Next</button>
+                        <button type="button" onclick="showConfirmationModal()" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Next</button>
                     </div>
                 </div>
 
@@ -196,6 +196,93 @@ echo form_open($form_action, ['novalidate' => true]);
     </div>
 </div>
 <!-- ========== END MAIN CONTENT BODY ========== -->
+
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none" role="dialog" tabindex="-1" aria-labelledby="confirmationModalLabel">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-2xl sm:w-full m-3 sm:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 id="confirmationModalLabel" class="font-bold text-gray-800 dark:text-white">
+                    Thibitisha Maelezo ya Ombi la Mkopo
+                </h3>
+                <button type="button" onclick="closeConfirmationModal()" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600">
+                    <span class="sr-only">Close</span>
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-4 overflow-y-auto">
+                <p class="text-sm text-gray-600 dark:text-neutral-400 mb-4">
+                    Tafadhali kagua taarifa hizi kabla ya kuwasilisha ombi la mkopo:
+                </p>
+                
+                <div class="space-y-3">
+                    <!-- Customer Info -->
+                    <div class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-3">
+                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2">Taarifa za Mteja</h4>
+                        <div class="text-sm text-gray-600 dark:text-neutral-400">
+                            <span class="font-medium">Jina:</span> <span id="confirm_customer_name"><?= isset($customer) ? $customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name : ''; ?></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Loan Details -->
+                    <div class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-3">
+                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2">Maelezo ya Mkopo</h4>
+                        <div class="grid grid-cols-1 gap-2 text-sm">
+                            <div class="text-gray-600 dark:text-neutral-400">
+                                <span class="font-medium">Aina ya Mkopo:</span> <span id="confirm_loan_product"></span>
+                            </div>
+                            <div class="text-gray-600 dark:text-neutral-400">
+                                <span class="font-medium">Kiasi cha Mkopo:</span> <span id="confirm_loan_amount"></span>
+                            </div>
+                            <div class="text-gray-600 dark:text-neutral-400">
+                                <span class="font-medium">Muda wa Mkopo:</span> <span id="confirm_loan_duration"></span>
+                            </div>
+                            <div class="text-gray-600 dark:text-neutral-400">
+                                <span class="font-medium">Idadi ya Malipo:</span> <span id="confirm_repayment_sessions"></span>
+                            </div>
+                            <div class="text-gray-600 dark:text-neutral-400">
+                                <span class="font-medium">Fomula ya Riba:</span> <span id="confirm_interest_formula"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Business/Work Info -->
+                    <div class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-3">
+                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2">Taarifa za Biashara/Kazi</h4>
+                        <div class="text-sm text-gray-600 dark:text-neutral-400">
+                            <span class="font-medium">Biashara/Kazi:</span> <span id="confirm_business"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Officer Info -->
+                    <div class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-3">
+                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2">Afisa Kusimamia</h4>
+                        <div class="text-sm text-gray-600 dark:text-neutral-400">
+                            <span class="font-medium">Afisa:</span> <span id="confirm_officer"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t dark:border-neutral-700">
+                <button type="button" onclick="closeConfirmationModal()" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:bg-gray-50 dark:bg-transparent dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
+                    Ghairi
+                </button>
+                <button type="button" onclick="submitForm()" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-cyan-800 text-white hover:bg-cyan-700 focus:outline-none focus:bg-cyan-700 disabled:opacity-50 disabled:pointer-events-none">
+                    Thibitisha na Wasilisha
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Confirmation Modal -->
 
 <?php
 include_once APPPATH . "views/partials/footer.php";
@@ -235,4 +322,71 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize hidden input with unformatted value on page load
     hiddenInput.value = unformatNumber(formattedInput.value);
 });
+
+// Confirmation Modal Functions
+function showConfirmationModal() {
+    // Validate required fields
+    const loanProduct = document.getElementById('branchSelect');
+    const officer = document.getElementById('StaffSelect');
+    const loanAmount = document.getElementById('how_loan');
+    const duration = document.getElementById('durationselect');
+    const sessions = document.getElementById('session');
+    const business = document.getElementById('reason');
+    const interestFormula = document.querySelector('select[name="rate"]');
+    
+    // Check if required fields are filled
+    if (!loanProduct.value || !officer.value || !loanAmount.value || !duration.value || !sessions.value || !business.value || !interestFormula.value) {
+        alert('Tafadhali jaza sehemu zote zinazohitajika kabla ya kuendelea.');
+        return;
+    }
+    
+    // Populate confirmation modal with form data
+    document.getElementById('confirm_loan_product').textContent = loanProduct.options[loanProduct.selectedIndex].text;
+    document.getElementById('confirm_loan_amount').textContent = 'TZS ' + document.getElementById('how_loan_formatted').value;
+    
+    let durationText = '';
+    if (duration.value == '1') durationText = 'Siku (Daily)';
+    else if (duration.value == '7') durationText = 'Wiki (Weekly)';
+    else if (duration.value == '30') durationText = 'Mwezi (Monthly)';
+    document.getElementById('confirm_loan_duration').textContent = durationText;
+    
+    document.getElementById('confirm_repayment_sessions').textContent = sessions.value + ' sessions';
+    
+    let formulaText = interestFormula.options[interestFormula.selectedIndex].text;
+    document.getElementById('confirm_interest_formula').textContent = formulaText;
+    
+    document.getElementById('confirm_business').textContent = business.value;
+    document.getElementById('confirm_officer').textContent = officer.options[officer.selectedIndex].text;
+    
+    // Show modal
+    const modal = document.getElementById('confirmationModal');
+    const modalContent = modal.querySelector('.hs-overlay-open\\:mt-7');
+    
+    modal.classList.remove('hidden');
+    modal.style.pointerEvents = 'auto';
+    
+    // Trigger animation
+    setTimeout(() => {
+        modalContent.style.marginTop = '1.75rem';
+        modalContent.style.opacity = '1';
+    }, 10);
+}
+
+function closeConfirmationModal() {
+    const modal = document.getElementById('confirmationModal');
+    const modalContent = modal.querySelector('.hs-overlay-open\\:mt-7');
+    
+    modalContent.style.marginTop = '0';
+    modalContent.style.opacity = '0';
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.style.pointerEvents = 'none';
+    }, 300);
+}
+
+function submitForm() {
+    // Submit the form
+    document.querySelector('form').submit();
+}
 </script>

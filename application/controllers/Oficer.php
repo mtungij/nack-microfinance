@@ -136,7 +136,7 @@ class Oficer extends CI_Controller{
 
   // }
     
-    
+      
 
 
       //    echo "<pre>";
@@ -188,6 +188,20 @@ class Oficer extends CI_Controller{
     'loan_feeCloseData'=>$loan_feeCloseData,'deducted'=>$deducted,'non_deducted'=>$non_deducted,'blanch_amount_balance'=>$blanch_amount_balance]);
     }
 
+      public function my_profile(){
+    	$this->load->model('queries');
+           $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+          $employee = $this->queries->get_employee_data($empl_id);
+            //    echo "<pre>";
+            // print_r($employee);
+            //  echo "</pre>";
+            //   exit();
+
+           $this->load->view('officer/my_profile',['employee'=>$employee]);
+    }
+
+   
 public function mycustomer ()
 
 {
@@ -293,6 +307,129 @@ public function mycustomer ()
 
         $this->group();
     }
+
+
+
+  
+
+
+
+         public function update_profile_picture(){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        
+        if (empty($_FILES['passport']['name'])) {
+            $this->session->set_flashdata('error', 'Please select a photo to upload');
+            redirect('oficer/my_profile');
+            return;
+        }
+        
+        $upload_path = FCPATH . 'assets/images/passport/';
+        
+        // Ensure folder exists
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0755, true);
+        }
+        
+        $config = [
+            'upload_path'   => $upload_path,
+            'allowed_types' => 'jpg|jpeg|png|gif',
+            'max_size'      => 5120, // 5MB
+            'encrypt_name'  => true
+        ];
+        
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+        
+        if (!$this->upload->do_upload('passport')) {
+            $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+            redirect('oficer/my_profile');
+            return;
+        }
+        
+        $upload_data = $this->upload->data();
+        
+        // Resize to 300x300
+        $this->load->library('image_lib');
+        $resize_config = [
+            'image_library'  => 'gd2',
+            'source_image'   => $upload_data['full_path'],
+            'maintain_ratio' => true,
+            'width'          => 300,
+            'height'         => 300
+        ];
+        
+        $this->image_lib->initialize($resize_config);
+        $this->image_lib->resize();
+        
+        $passport = $upload_data['file_name'];
+        
+        // Delete old passport if exists
+        $current_employee = $this->queries->get_employee_data($empl_id);
+        if (!empty($current_employee->passport)) {
+            $old_passport_path = FCPATH . 'assets/images/passport/' . $current_employee->passport;
+            if (file_exists($old_passport_path)) {
+                unlink($old_passport_path);
+            }
+        }
+        
+        // Update database
+        $data = ['passport' => $passport];
+        $result = $this->queries->update_employee($empl_id, $data);
+        
+        if ($result) {
+            $this->session->set_flashdata('massage', 'Profile picture updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update profile picture');
+        }
+        
+        redirect('oficer/my_profile');
+    }
+
+
+
+        public function update_my_password(){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        
+        // Form validation
+        $this->form_validation->set_rules('current_password', 'Current Password', 'required');
+        $this->form_validation->set_rules('new_password', 'New Password', 'required|min_length[6]');
+        $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'required|matches[new_password]');
+        
+        if ($this->form_validation->run() == FALSE) {
+            $employee = $this->queries->get_employee_data($empl_id);
+            $this->load->view('officer/my_profile', ['employee' => $employee]);
+            return;
+        }
+        
+        $employee = $this->queries->get_employee_data($empl_id);
+        $current_password = $this->input->post('current_password');
+        $new_password = $this->input->post('new_password');
+        
+        // Verify current password
+        if (!password_verify($current_password, $employee->password)) {
+            $this->session->set_flashdata('error', 'Current password is incorrect');
+            redirect('oficer/my_profile');
+            return;
+        }
+        
+        // Hash new password
+        $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+        
+        // Update password
+        $data = ['password' => $hashed_password];
+        $result = $this->queries->update_employee($empl_id, $data);
+        
+        if ($result) {
+            $this->session->set_flashdata('massage', 'Password updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update password');
+        }
+        
+        redirect('oficer/my_profile');
+    }
+
 
 
      public function modify_group($group_id){

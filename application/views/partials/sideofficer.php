@@ -56,12 +56,53 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
   border-e border-gray-200
   bg-white dark:bg-gray-800 dark:border-gray-700">
 
-  <div class="px-6 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-    <!-- Logo -->
-    <a class="flex-none text-xl font-semibold dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-600" href="<?php echo base_url("oficer/index"); ?>" aria-label="Brand">
-      <!-- <img class="h-10 sm:h-12 mx-auto" src="</?php echo base_url('assets/img/logo.png'); // Adjust path and style as needed ?>" alt="Logo"> -->
-    </a>
-    <!-- End Logo -->
+  <div class="px-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+    <!-- Company Info Section -->
+    <div class="flex items-center gap-3 mb-4">
+      <!-- Company Logo -->
+      <div class="shrink-0">
+        <?php 
+        $company_logo = $this->session->userdata('company_logo');
+        if (!empty($company_logo) && file_exists(FCPATH . 'assets/images/company_logo/' . $company_logo)): 
+        ?>
+          <img src="<?php echo base_url('assets/images/company_logo/' . $company_logo); ?>" 
+               alt="Company Logo" 
+               class="h-10 w-10 rounded-lg shadow-md object-contain bg-white dark:bg-gray-700 p-1">
+        <?php else: ?>
+          <div class="h-10 w-10 rounded-lg shadow-md bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+            <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z" />
+            </svg>
+          </div>
+        <?php endif; ?>
+      </div>
+      
+      <!-- Company & Branch Info -->
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-gray-800 dark:text-white truncate">
+          <?php echo $this->session->userdata('comp_name') ?: 'Loan Management System'; ?>
+        </p>
+        <?php 
+        $blanch_id = $this->session->userdata('blanch_id');
+        if ($blanch_id):
+          $this->load->model('queries');
+          $branch = $this->queries->get_blanchData($blanch_id);
+          if ($branch):
+        ?>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            <svg class="inline-block w-3 h-3 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h2.5A2.75 2.75 0 0 1 14 3.75v.443c.572.055 1.14.122 1.706.2C17.053 4.582 18 5.75 18 7.07v3.469c0 1.126-.694 2.191-1.83 2.54-1.952.599-4.024.921-6.17.921s-4.219-.322-6.17-.921C2.694 12.73 2 11.665 2 10.539V7.07c0-1.321.947-2.489 2.294-2.676A41.047 41.047 0 0 1 6 4.193V3.75Zm6.5 0v.325a41.622 41.622 0 0 0-5 0V3.75c0-.69.56-1.25 1.25-1.25h2.5c.69 0 1.25.56 1.25 1.25ZM10 10a1 1 0 0 0-1 1v.01a1 1 0 0 0 1 1h.01a1 1 0 0 0 1-1V11a1 1 0 0 0-1-1H10Z" clip-rule="evenodd" />
+              <path d="M3 15.055v-.684c.126.053.255.1.39.142 2.092.642 4.313.987 6.61.987 2.297 0 4.518-.345 6.61-.987.135-.041.264-.089.39-.142v.684c0 1.347-.985 2.53-2.363 2.686a41.454 41.454 0 0 1-9.274 0C3.985 17.585 3 16.402 3 15.055Z" />
+            </svg>
+            <?php echo $branch->blanch_name; ?>
+          </p>
+        <?php 
+          endif;
+        endif; 
+        ?>
+      </div>
+    </div>
+    <!-- End Company Info -->
   </div>
 
 
@@ -330,3 +371,8 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
 </div>
 </div>
 <!-- ========== END SIDEBAR ========== -->
+
+
+
+
+
