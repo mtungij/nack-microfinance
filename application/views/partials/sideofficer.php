@@ -47,14 +47,16 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
 
 ?>
 <!-- ========== SIDEBAR ========== -->
-<div id="hs-application-sidebar" class="hs-overlay [--auto-close:lg]
-  hs-overlay-open:translate-x-0
-  -translate-x-full transition-all duration-300
-  transform w-64 hidden
-  fixed inset-y-0 start-0 z-40
-  lg:block lg:translate-x-0 lg:end-auto lg:bottom-0
-  border-e border-gray-200
-  bg-white dark:bg-gray-800 dark:border-gray-700">
+<div id="hs-application-sidebar"
+     x-data="{ tab: '<?php echo $report_submenu_active ? 'reports' : 'menu'; ?>' }"
+     class="hs-overlay [--auto-close:lg]
+       hs-overlay-open:translate-x-0
+       -translate-x-full transition-all duration-300
+       transform w-64 hidden
+       fixed inset-y-0 start-0 z-40
+       lg:block lg:translate-x-0 lg:end-auto lg:bottom-0
+       border-e border-gray-200
+       bg-white dark:bg-gray-800 dark:border-gray-700">
 
   <div class="px-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700">
     <!-- Company Info Section -->
@@ -109,16 +111,56 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
   <!-- <pre></?php print_r($this->session->userdata('permissions')); ?></pre> -->
 
 
+<div class="px-6 pt-3 pb-4 border-b border-gray-200 dark:border-gray-700">
+  <div class="flex bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden">
+
+    <!-- MENU TAB -->
+    <button
+      @click="tab = 'menu'"
+      :class="tab === 'menu'
+        ? 'bg-cyan-600 text-white shadow'
+        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'"
+      class="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold transition">
+
+      <!-- Home / Menu Icon -->
+      <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h5V14h4v7h5a1 1 0 001-1V10" />
+      </svg>
+
+      Menu
+    </button>
+
+    <!-- REPORTS TAB -->
+    <button
+      @click="tab = 'reports'"
+      :class="tab === 'reports'
+        ? 'bg-cyan-600 text-white shadow'
+        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'"
+      class="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold transition">
+
+      <!-- Chart / Reports Icon -->
+      <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M11 3v18M5 9v12M17 15v6" />
+      </svg>
+
+      Reports
+    </button>
+
+  </div>
+</div>
 
 
 
 
-
-
+<div x-show="tab === 'menu'" x-transition>
   <div class="flex flex-col h-full overflow-y-auto">
-  <nav class="hs-accordion-group p-6 w-full flex flex-col flex-wrap" data-hs-accordion-always-open>
-    <ul class="space-y-1.5">
-      <li>
+    <nav class="hs-accordion-group p-6 w-full flex flex-col" data-hs-accordion-always-open>
+      <ul class="space-y-1.5">
+   <li>
       
         <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg
                   <?php echo $dashboard_active ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
@@ -280,6 +322,87 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
               </ul>
           </div>
       </li>
+
+      </ul>
+    </nav>
+  </div>
+</div>
+
+
+
+<div x-show="tab === 'reports'" x-transition>
+  <div class="flex flex-col h-full overflow-y-auto">
+    <nav class="hs-accordion-group p-6 w-full flex flex-col" data-hs-accordion-always-open>
+      <ul class="space-y-1.5">
+
+       <li class="hs-accordion <?php echo $loan_submenu_active ? 'active' : ''; ?>" id="loan-accordion">
+          <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $loan_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
+              <!-- SVG: CurrencyDollarIcon -->
+              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.085 7.412c-.021.022-.042.045-.062.069a5.022 5.022 0 0 1 .001-1.415 4.844 4.844 0 0 1 .304-.903.75.75 0 0 1 1.426.461 3.344 3.344 0 0 0-.209.622c-.015.05-.03.098-.044.147A3.522 3.522 0 0 0 9.5 8.5h1A3.5 3.5 0 0 0 14 5a.75.75 0 0 1 1.5 0 5.001 5.001 0 0 1-7.516 3.716l-.001-.002Zm-2.44 1.377a4.844 4.844 0 0 1-.304.903.75.75 0 1 1-1.427-.461 3.344 3.344 0 0 0 .21-.622c.014-.05.029-.098.043-.147a3.522 3.522 0 0 0 .251-1.073H6.5a3.5 3.5 0 0 0-3.5 3.5.75.75 0 0 1-1.5 0A5 5 0 0 1 9.017 6.284l.001.002c.02-.022.042-.045.061-.069a5.022 5.022 0 0 1-.001 1.415Z" clip-rule="evenodd" /></svg>
+              Payments Report
+              <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div id="loan-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $loan_submenu_active ? '' : 'hidden'; ?>">
+              <ul class="pt-2 ps-2">
+               <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/today_receved_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/today_officer_transaction"); ?>">Today Payment</a></li> 
+      <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/cash_transaction') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/cash_transaction"); ?>">Cash Transaction</a></li>
+          <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/withdraw_transactions') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/withdraw_transactions"); ?>">Gawa Leo</a></li>
+            <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/withdraw_transactions') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/penalt_today"); ?>">Penalt Payments</a></li>
+            <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/withdraw_transactions') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/withdraw_transactions"); ?>">Wateja wasiolipa</a></li>
+                
+             
+
+              </ul>
+          </div>
+      </li>
+
+                      
+
+
+              
+
+                  <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/today_officer_transaction') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/today_officer_transaction"); ?>">Today Transaction</a></li> -->
+
+              
+                  
+          
+              
+                
+                  <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/loan_pending_time') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/loan_pending_time"); ?>">Loan pending</a></li> 
+               
+                 
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/repaymant_data') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/repaymant_data"); ?>">Loan Repayments</a></li> 
+                  -->
+                
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/get_outstand_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/get_outstand_loan"); ?>">Outstanding Loan</a></li> 
+            
+        
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/search_customer_loan_report') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/search_customer_loan_report"); ?>">Customer Loan Report</a></li> 
+                 
+                 
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/customer_account_statement') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/customer_account_statement"); ?>">Customer Account Statement</a></li> 
+              
+                
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/today_recevable_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/today_recevable_loan"); ?>">Today Receivable</a></li> 
+               
+               
+                  <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg </?php echo is_active_link('admin/today_receved_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="</?php echo base_url("admin/today_receved_loan"); ?>">Today Received</a></li>  -->
+                
+                  <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link(' oficer/teller_oficer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url(" oficer/teller_oficer"); ?>">Officer Transactions</a></li>  -->
+    
+      </ul>
+    </nav>
+  </div>
+</div>
+
+
+
+
+
+  <div class="flex flex-col h-full overflow-y-auto">
+  <nav class="hs-accordion-group p-6 w-full flex flex-col flex-wrap" data-hs-accordion-always-open>
+    <ul class="space-y-1.5">
+   
       <!-- End Loan Accordion -->
 
       <!-- Group Loan Accordion -->
@@ -301,50 +424,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
       <!-- End Group Loan Accordion -->
   
       <!-- Report Accordion -->
-      <li class="hs-accordion <?php echo $report_submenu_active ? 'active' : ''; ?>" id="report-accordion">
-          <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $report_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
-             <!-- SVG: DocumentChartBarIcon -->
-              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a.75.75 0 0 1 .75.75v14.5a.75.75 0 0 1-1.5 0V2.75A.75.75 0 0 1 10 2Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.75 10a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M7 6.75A.75.75 0 0 1 7.75 6h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 6.75Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M7 13.25a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M2.5 2A1.5 1.5 0 0 0 1 3.5v13A1.5 1.5 0 0 0 2.5 18h15A1.5 1.5 0 0 0 19 16.5v-13A1.5 1.5 0 0 0 17.5 2h-15Zm0 1h15a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 .5-.5Z" clip-rule="evenodd" /></svg>
-              Reports
-              <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-          </button>
-          <div id="report-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $report_submenu_active ? '' : 'hidden'; ?>">
-              <ul class="pt-2 ps-2">
-             
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/cash_transaction') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/cash_transaction"); ?>">Cash Transaction</a></li>
-
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/today_officer_transaction') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/today_officer_transaction"); ?>">Today Transaction</a></li>
-
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/withdraw_transactions') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/withdraw_transactions"); ?>">Mikopo Report</a></li>
-                  
-                   
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/today_receved_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/today_receved_loan"); ?>">Collection Report</a></li> 
-              
-                
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/loan_pending_time') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/loan_pending_time"); ?>">Loan pending</a></li> 
-               
-                 
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/repaymant_data') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/repaymant_data"); ?>">Loan Repayments</a></li> 
-                 
-                
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/get_outstand_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/get_outstand_loan"); ?>">Outstanding Loan</a></li> 
-            
-        
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/search_customer_loan_report') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/search_customer_loan_report"); ?>">Customer Loan Report</a></li> 
-                 
-                 
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/customer_account_statement') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/customer_account_statement"); ?>">Customer Account Statement</a></li> 
-              
-                
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/today_recevable_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/today_recevable_loan"); ?>">Today Receivable</a></li> 
-               
-               
-                  <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg </?php echo is_active_link('admin/today_receved_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="</?php echo base_url("admin/today_receved_loan"); ?>">Today Received</a></li>  -->
-                
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link(' oficer/teller_oficer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url(" oficer/teller_oficer"); ?>">Officer Transactions</a></li> 
-                 
-                 
-           
+     
                   <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg </?php echo is_active_link('admin/daily_report') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="</?php echo base_url("admin/daily_report"); ?>">Daily Report</a></li>  -->
            
 
@@ -371,8 +451,3 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
 </div>
 </div>
 <!-- ========== END SIDEBAR ========== -->
-
-
-
-
-
