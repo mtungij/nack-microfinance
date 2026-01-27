@@ -311,8 +311,25 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
                   <div class="p-4 sm:p-6 overflow-y-auto">
                     <?php echo form_open("admin/modify_employee/{$employees->empl_id}"); ?>
 
-
-
+                    <!-- Employee Profile Image Section -->
+                    <div class="mb-6 flex justify-center">
+                      <div class="flex flex-col items-center gap-3">
+                        <div class="h-32 w-32 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600 overflow-hidden">
+                          <?php if (!empty($employees->passport)): ?>
+                            <img src="<?php echo base_url('assets/images/passport/' . $employees->passport); ?>" 
+                                 alt="Employee Photo" 
+                                 class="h-full w-full object-cover">
+                          <?php else: ?>
+                            <svg class="h-16 w-16 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
+                            </svg>
+                          <?php endif; ?>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          <?php echo htmlspecialchars($employees->empl_name, ENT_QUOTES, 'UTF-8'); ?>
+                        </span>
+                      </div>
+                    </div>
 
                     <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                       <div class="sm:col-span-4">
