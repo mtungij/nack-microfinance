@@ -266,6 +266,111 @@
                 </div>
             </div>
 
+            <!-- Loan Progress Tracker -->
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-6">Maendeleo ya Mkopo</h3>
+                
+                <div class="relative">
+                    <!-- Progress Line -->
+                    <div class="absolute top-5 left-0 w-full h-1 bg-gray-200" style="z-index: 0;">
+                        <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500" 
+                             style="width: <?= $active_loan->loan_status == 'open' ? '33%' : ($active_loan->loan_status == 'disburse' ? '66%' : '100%'); ?>"></div>
+                    </div>
+                    
+                    <!-- Steps -->
+                    <div class="relative grid grid-cols-3 gap-2" style="z-index: 1;">
+                        <!-- Step 1: Open -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center mb-2 <?= $active_loan->loan_status == 'open' || $active_loan->loan_status == 'disburse' || $active_loan->loan_status == 'withdrawal' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'bg-gray-200 text-gray-500'; ?>">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-xs sm:text-sm font-semibold <?= $active_loan->loan_status == 'open' ? 'text-cyan-600' : 'text-gray-600'; ?>">
+                                    Maombi
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">Yametumwa</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Disbursed -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center mb-2 <?= $active_loan->loan_status == 'disburse' || $active_loan->loan_status == 'withdrawal' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'bg-gray-200 text-gray-500'; ?>">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-xs sm:text-sm font-semibold <?= $active_loan->loan_status == 'disburse' ? 'text-cyan-600' : 'text-gray-600'; ?>">
+                                    Imeidhinishwa
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">Mkopo Umepitishwa</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Withdrawal -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center mb-2 <?= $active_loan->loan_status == 'withdrawal' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'bg-gray-200 text-gray-500'; ?>">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-xs sm:text-sm font-semibold <?= $active_loan->loan_status == 'withdrawal' ? 'text-cyan-600' : 'text-gray-600'; ?>">
+                                    Umetolewa
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">Mkopo Umepewa</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Current Status Message -->
+                <div class="mt-6 p-4 rounded-lg <?= $active_loan->loan_status == 'open' ? 'bg-yellow-50 border-l-4 border-yellow-400' : ($active_loan->loan_status == 'disburse' ? 'bg-blue-50 border-l-4 border-blue-400' : 'bg-green-50 border-l-4 border-green-400'); ?>">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-0.5">
+                            <?php if ($active_loan->loan_status == 'open'): ?>
+                                <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                            <?php elseif ($active_loan->loan_status == 'disburse'): ?>
+                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            <?php else: ?>
+                                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            <?php endif; ?>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-sm sm:text-base <?= $active_loan->loan_status == 'open' ? 'text-yellow-900' : ($active_loan->loan_status == 'disburse' ? 'text-blue-900' : 'text-green-900'); ?>">
+                                <?php if ($active_loan->loan_status == 'open'): ?>
+                                    Maombi ya Mkopo Yametumwa
+                                <?php elseif ($active_loan->loan_status == 'disburse'): ?>
+                                    Hongera! Mkopo Wako Umeidhinishwa
+                                <?php else: ?>
+                                    Mkopo Umetolewa - Anza Malipo
+                                <?php endif; ?>
+                            </h4>
+                            <p class="text-xs sm:text-sm mt-1 <?= $active_loan->loan_status == 'open' ? 'text-yellow-700' : ($active_loan->loan_status == 'disburse' ? 'text-blue-700' : 'text-green-700'); ?>">
+                                <?php if ($active_loan->loan_status == 'open'): ?>
+                                    Maombi yako ya mkopo wa TZS <?= number_format($loan_amount); ?> yamepokewa na yanakagua. Tafadhali subiri majibu kutoka ofisi.
+                                <?php elseif ($active_loan->loan_status == 'disburse'): ?>
+                                    Mkopo wako wa TZS <?= number_format($loan_amount); ?> umeidhinishwa! Subiri kwa muda mfupi kwa utaratibu wa kutoa fedha.
+                                <?php else: ?>
+                                    Mkopo wako wa TZS <?= number_format($loan_amount); ?> umetolewa. Angalia historia ya malipo hapa chini.
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <?php if ($active_loan->loan_status == 'withdrawal'): ?>
             <!-- Today's Payment Status Card -->
             <?php 
                 $today = date('Y-m-d');
@@ -317,7 +422,7 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Payment History -->
+            <!-- Payment History (Only show when loan is withdrawn) -->
             <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden border border-gray-200">
                 <div class="p-4 sm:p-6 bg-gradient-to-r from-cyan-50 via-blue-50 to-cyan-50 border-b-2 border-cyan-200">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -455,6 +560,7 @@
                     </table>
                 </div>
             </div>
+            <?php endif; ?>
         <?php else: ?>
             <!-- No Active Loan -->
             <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-12 text-center">
