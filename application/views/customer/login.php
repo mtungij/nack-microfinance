@@ -20,7 +20,7 @@
                 </svg>
             </div>
             <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">Customer Portal</h1>
-            <p class="text-cyan-100 text-sm sm:text-base">View your loan payments & history</p>
+            <p class="text-cyan-100 text-sm sm:text-base">Angalia malipo yako ya mkopo na historia yake</p>
         </div>
 
         <!-- Login Card -->

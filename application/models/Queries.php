@@ -8043,8 +8043,10 @@ public function get_remain_amount($loan_id) {
  
 
 
- public function get_total_pay_description($loan_id){
-     $data = $this->db->query("SELECT * FROM tbl_depost p LEFT JOIN tbl_loans l ON l.loan_id = p.loan_id LEFT JOIN tbl_account_transaction at ON at.trans_id = p.depost_method WHERE p.loan_id = '$loan_id' ORDER BY p.pay_id DESC LIMIT 5");
+
+
+	  public function get_total_pay_description($loan_id){
+     $data = $this->db->query("SELECT * FROM tbl_pay p LEFT JOIN tbl_loans l ON l.loan_id = p.loan_id LEFT JOIN tbl_account_transaction at ON at.trans_id = p.p_method WHERE p.loan_id = '$loan_id' ORDER BY p.pay_id DESC LIMIT 5");
      return $data->result();
      }
 
