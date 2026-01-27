@@ -4439,6 +4439,7 @@ public function send_payment($customer_id)
         return;
     }
 
+
     $loan_id = $customer_loan->loan_id;
 
     // Jumla na latest deposit
@@ -4486,6 +4487,37 @@ $latest_paid_day = isset($total_deposit_loan->latest_deposit_day)
     }
 
    return redirect('admin/data_with_depost/'.$customer_id);
+}
+
+public function update_customer_info()
+{
+    $this->load->model('queries');
+    
+    $customer_id = $this->input->post('customer_id');
+    $comp_id = $this->input->post('comp_id');
+    
+    $data = array(
+        'f_name' => $this->input->post('f_name'),
+        'm_name' => $this->input->post('m_name'),
+        'l_name' => $this->input->post('l_name'),
+        'date_birth' => $this->input->post('date_birth'),
+        'gender' => $this->input->post('gender'),
+        'phone_no' => $this->input->post('phone_no'),
+        'district' => $this->input->post('district'),
+        'ward' => $this->input->post('ward'),
+        'street' => $this->input->post('street'),
+
+    );
+    
+    $update = $this->queries->update_customer($customer_id, $data);
+    
+    if ($update) {
+        $this->session->set_flashdata('massage', 'Customer information updated successfully');
+    } else {
+        $this->session->set_flashdata('error', 'Failed to update customer information');
+    }
+    
+    redirect('admin/data_with_depost/' . $customer_id);
 }
 
 
@@ -7029,18 +7061,19 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
 
     @$customer_id = $customer->customer_id;
     @$statement = $this->queries->get_customer_datareport($customer_id);
+    @$customer_loan = $this->queries->get_loan_customer($customer_id);
+ $loan_history = $this->queries->get_loan_history($customer_id);
 
-
-      //    echo "<pre>";
-      // print_r($statement);
-      //       exit();
+    //      echo "<pre>";
+    //   print_r($customer_loan);
+    //         exit();
      $loan_id = $this->input->post('loan_id');
     @$pay_customer = $this->queries->get_paycustomer($customer_id);
     @$payisnull = $this->queries->get_paycustomerNotfee_Statement($customer_id,$loan_id);
     @$sum_depost = $this->queries->get_sumDepost_loan($customer_id);
 
-   
-    $this->load->view('admin/search_account',['pay_customer'=>$pay_customer,'payisnull'=>$payisnull,'customer'=>$customer,'statement'=>$statement,'customerData'=>$customerData]);
+
+    $this->load->view('admin/search_account',['pay_customer'=>$pay_customer,'payisnull'=>$payisnull,'customer'=>$customer,'statement'=>$statement,'customerData'=>$customerData,'customer_loan'=>$customer_loan,'loan_history'=>$loan_history]);
     }
 
 
@@ -7118,7 +7151,34 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
      $mpdf->WriteHTML($html);
      $mpdf->Output();
     }
-       
+    
+    public function get_customer_loans_ajax(){
+        $this->load->model('queries');
+        $customer_id = $this->input->post('customer_id');
+        
+        if ($customer_id) {
+            $loans = $this->queries->get_loan_customer($customer_id);
+            
+            if ($loans) {
+                echo json_encode([
+                    'success' => true,
+                    'loans' => $loans
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'loans' => [],
+                    'message' => 'No loans found for this customer'
+                ]);
+            }
+        } else {
+            echo json_encode([
+                'success' => false,
+                'loans' => [],
+                'message' => 'Customer ID is required'
+            ]);
+        }
+    }
 
 
     	public function collelateral_session($loan_id){
@@ -9106,12 +9166,13 @@ public function get_outstand_loan() {
     $empl_id   = $this->input->post('empl_id');
     $from      = $this->input->post('from_date');
     $to        = $this->input->post('to_date');
+    $overdue_days = $this->input->post('overdue_days');
 
     // Fetch outstanding loans with filters
-    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to);
+    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
 
     // Totals
-    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to);
+    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
 
     // Employees and branches for filters
     $employee = $this->queries->get_Allemployee($comp_id);
@@ -9142,6 +9203,39 @@ public function filter_default_blanch(){
      // print_r($blanch);
      //            exit();
 	$this->load->view('admin/filter_default_blanch',['default_loan'=>$default_loan,'default_blanch_total'=>$default_blanch_total,'blanch'=>$blanch,'blanch_data'=>$blanch_data,'blanch_id'=>$blanch_id]);
+}
+
+public function download_defaulters_pdf(){
+	$this->load->model('queries');
+	$comp_id = $this->session->userdata('comp_id');
+	
+	// Get filter parameters from GET
+	$blanch_id = $this->input->get('blanch_id');
+	$empl_id = $this->input->get('empl_id');
+	$from = $this->input->get('from_date');
+	$to = $this->input->get('to_date');
+	$overdue_days = $this->input->get('overdue_days');
+	
+	// Fetch outstanding loans with filters
+	$outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
+	$total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
+	$compdata = $this->queries->get_companyData($comp_id);
+	
+	// Get branch and employee data if filtered
+	$blanch_data = null;
+	$empl_data = null;
+	if ($blanch_id) {
+		$blanch_data = $this->queries->get_blanch_data($blanch_id);
+	}
+	if ($empl_id) {
+		$empl_data = $this->queries->get_employee_data($empl_id);
+	}
+	
+	$mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+	$html = $this->load->view('admin/defaulters_report',['outstand'=>$outstand,'compdata'=>$compdata,'total_remain'=>$total_remain,'blanch_data'=>$blanch_data,'empl_data'=>$empl_data,'from'=>$from,'to'=>$to,'overdue_days'=>$overdue_days],true);
+	$mpdf->SetFooter('Generated By Brainsoft Technology');
+	$mpdf->WriteHTML($html);
+	$mpdf->Output('Defaulters_Report_' . date('Y-m-d') . '.pdf', 'D');
 }
 
 public function print_default_loan($blanch_id){
@@ -11008,6 +11102,73 @@ public function update_customer_details($customer_id){
   //print_r($server_output);
   }
   
+
+    // Customer Notifications Management
+    public function customer_notifications(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $data['compdata'] = $this->queries->get_companyData($comp_id);
+        $data['notifications'] = $this->queries->get_all_notifications($comp_id);
+        $this->load->view('admin/customer_notifications', $data);
+    }
+
+    public function create_customer_notification(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $admin_id = $this->session->userdata('empl_id');
+        
+        $data = [
+            'comp_id' => $comp_id,
+            'title' => $this->input->post('title'),
+            'message' => $this->input->post('message'),
+            'notification_type' => $this->input->post('notification_type'),
+            'target_audience' => $this->input->post('target_audience'),
+            'start_date' => $this->input->post('start_date'),
+            'end_date' => $this->input->post('end_date'),
+            'is_active' => 1,
+            'created_by' => $admin_id
+        ];
+        
+        $this->queries->create_notification($data);
+        $this->session->set_flashdata('massage', 'Notification created successfully');
+        redirect('admin/customer_notifications');
+    }
+
+    public function edit_customer_notification(){
+        $this->load->model('queries');
+        $notification_id = $this->input->post('notification_id');
+        
+        $data = [
+            'title' => $this->input->post('title'),
+            'message' => $this->input->post('message'),
+            'notification_type' => $this->input->post('notification_type'),
+            'target_audience' => $this->input->post('target_audience'),
+            'start_date' => $this->input->post('start_date'),
+            'end_date' => $this->input->post('end_date'),
+            'is_active' => $this->input->post('is_active')
+        ];
+        
+        $this->queries->update_notification($notification_id, $data);
+        $this->session->set_flashdata('massage', 'Notification updated successfully');
+        redirect('admin/customer_notifications');
+    }
+
+    public function delete_customer_notification($notification_id){
+        $this->load->model('queries');
+        $this->queries->delete_notification($notification_id);
+        $this->session->set_flashdata('massage', 'Notification deleted successfully');
+        redirect('admin/customer_notifications');
+    }
+
+    public function toggle_notification_status($notification_id){
+        $this->load->model('queries');
+        $notification = $this->queries->get_notification_by_id($notification_id);
+        
+        $new_status = ($notification->is_active == 1) ? 0 : 1;
+        $this->queries->update_notification($notification_id, ['is_active' => $new_status]);
+        
+        echo json_encode(['success' => true, 'new_status' => $new_status]);
+    }
 
 
 

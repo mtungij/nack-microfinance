@@ -9,10 +9,10 @@ include_once APPPATH . "views/partials/header.php";
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-                    Manage Branches
+                    Employee Branches
                 </h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Add, edit, and view company branches.
+                   View Employee branches.
                 </p>
             </div>
         </div>

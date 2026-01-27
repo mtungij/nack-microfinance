@@ -1,17 +1,6 @@
 
 <?php
 include_once APPPATH . "views/partials/header.php";
-
-// --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
-// Controller should pass $share, an array of shareholder objects.
-// Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
-// if (!isset($share)) {
-//     $share = [
-//         (object)['share_id' => 1, 'share_name' => 'Alice Wonderland', 'share_mobile' => '0712345001', 'share_email' => 'alice@example.com', 'share_sex' => 'female', 'share_dob' => '1985-06-15'],
-//         (object)['share_id' => 2, 'share_name' => 'Bob The Builder', 'share_mobile' => '0712345002', 'share_email' => 'bob@example.com', 'share_sex' => 'male', 'share_dob' => '1978-11-02'],
-//     ];
-// }
-// --- END DUMMY DATA ---header.php
 ?>
 
 
@@ -40,6 +29,16 @@ include_once APPPATH . "views/partials/header.php";
                     </form>
                 </div>
                 <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+				
+				<!-- Download PDF Button -->
+				<button type="button" onclick="downloadDefaultersPDF()" class="flex items-center justify-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
+    <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.046.752.097 1.126.153A2.212 2.212 0 0118 8.653v4.097A2.25 2.25 0 0115.75 15h-.241l.305 1.984A1.75 1.75 0 0114.084 19H5.915a1.75 1.75 0 01-1.73-2.016L4.492 15H4.25A2.25 2.25 0 012 12.75V8.653c0-1.082.775-2.034 1.874-2.198.374-.056.75-.107 1.127-.153L5 6.25v-3.5zm8.5 3.397a41.533 41.533 0 00-7 0V2.75a.25.25 0 01.25-.25h6.5a.25.25 0 01.25.25v3.397zM6.608 12.5a.25.25 0 00-.247.212l-.693 4.5a.25.25 0 00.247.288h8.17a.25.25 0 00.246-.288l-.692-4.5a.25.25 0 00-.247-.212H6.608z" clip-rule="evenodd" />
+    </svg>
+    Download PDF
+</button>
+				
+				<!-- Filter Button -->
 				<button type="button" class="flex items-center justify-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-basic-modal">
     <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
@@ -124,7 +123,7 @@ include_once APPPATH . "views/partials/header.php";
     <div class="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
       <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
         <h3 id="hs-basic-modal-label" class="font-bold text-gray-800 dark:text-white">
-          Filter Branch
+          Filter Defaulters (Branch, Employee, Dates & Overdue Days)
         </h3>
         <button type="button" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600" aria-label="Close" data-hs-overlay="#hs-basic-modal">
           <span class="sr-only">Close</span>
@@ -135,7 +134,7 @@ include_once APPPATH . "views/partials/header.php";
         </button>
       </div>
 	 
-	   <?php echo form_open("admin/filter_default_blanch"); ?>
+	   <?php echo form_open("admin/get_outstand_loan"); ?>
   <div class="p-4 overflow-y-auto space-y-4">
 
    <div class="p-4 space-y-4">
@@ -164,6 +163,12 @@ include_once APPPATH . "views/partials/header.php";
     <div>
         <label for="to_date">To (End Date)</label>
         <input type="date" id="to_date" name="to_date" class="form-control">
+    </div>
+
+    <div>
+        <label for="overdue_days">Overdue Days (Minimum)</label>
+        <input type="number" id="overdue_days" name="overdue_days" class="form-control" placeholder="e.g., 30" min="0">
+        <small class="text-gray-600 dark:text-gray-400">Filter loans overdue by at least this many days</small>
     </div>
 </div>
 
@@ -362,7 +367,7 @@ $(document).ready(function () {
     $('#branchSelect').on('change', function () {
         const branchId = $(this).val();
 
-        $.post('fetch_employee_blanch', { blanch_id: branchId }, function (data) {
+        $.post('<?= base_url("admin/fetch_employee_blanch_deposit") ?>', { blanch_id: branchId }, function (data) {
             const employeeSelect = $('#employeeSelect');
             employeeSelect.html(data).select2({...selectConfig, placeholder: "Select Employee"});
 
@@ -382,6 +387,31 @@ $(document).ready(function () {
 function getAge(dob) {
     const age = new Date().getFullYear() - new Date(dob).getFullYear();
     document.getElementById('age').value = isNaN(age) ? '' : age;
+}
+
+// Download PDF with current filters
+function downloadDefaultersPDF() {
+    const blanch_id = $('#branchSelect').val() || '';
+    const empl_id = $('#employeeSelect').val() || '';
+    const from_date = $('#from_date').val() || '';
+    const to_date = $('#to_date').val() || '';
+    const overdue_days = $('#overdue_days').val() || '';
+    
+    // Build URL with parameters
+    let url = '<?= base_url("admin/download_defaulters_pdf") ?>';
+    const params = [];
+    if (blanch_id) params.push('blanch_id=' + blanch_id);
+    if (empl_id) params.push('empl_id=' + empl_id);
+    if (from_date) params.push('from_date=' + from_date);
+    if (to_date) params.push('to_date=' + to_date);
+    if (overdue_days) params.push('overdue_days=' + overdue_days);
+    
+    if (params.length > 0) {
+        url += '?' + params.join('&');
+    }
+    
+    // Open in new window
+    window.open(url, '_blank');
 }
 </script>
 
