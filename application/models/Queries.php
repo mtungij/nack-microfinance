@@ -8957,15 +8957,18 @@ public function get_today_offficerexpected_collections($blanch_id, $empl_id)
 	/**
 	 * Get all loans for a specific customer
 	 */
-	public function get_customer_all_loans($customer_id) {
-		$query = $this->db->select('l.*, lc.loan_name, l.session')
-							->from('tbl_loans l')
-							->join('tbl_loan_category lc', 'l.category_id = lc.category_id', 'left')
-							->where('l.customer_id', $customer_id)
-							->order_by('l.loan_id', 'DESC')
-							->get();
-		return $query->result();
-	}
+public function get_customer_all_loans($customer_id) {
+    $query = $this->db->select('l.*, lc.loan_name, l.session, o.*')
+                      ->from('tbl_loans l')
+                      ->join('tbl_loan_category lc', 'l.category_id = lc.category_id', 'left')
+                      ->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left')
+                      ->where('l.customer_id', $customer_id)
+                      ->order_by('l.loan_id', 'DESC')
+                      ->get();
+
+    return $query->result();
+}
+
 
 	/**
 	 * Get customer payment history for a specific loan
