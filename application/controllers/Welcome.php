@@ -24,6 +24,8 @@ public function create_company()
 
     // 2️⃣ Collect data
     $data = $this->input->post();
+
+    
     $data['password'] = password_hash('123456', PASSWORD_BCRYPT);
 
     // 3️⃣ Handle company logo upload + resize

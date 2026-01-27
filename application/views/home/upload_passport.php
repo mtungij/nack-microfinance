@@ -25,7 +25,7 @@
                    Tafadhali pakia picha yako ya profaili ili kuendelea.
                 </p>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                    Karibu, <?php echo htmlspecialchars($employee->empl_name, ENT_QUOTES, 'UTF-8'); ?>
+                    Karibu, <?php echo htmlspecialchars($employee->empl_name ?? 'Admin', ENT_QUOTES, 'UTF-8'); ?>
                 </p>
             </div>
 
