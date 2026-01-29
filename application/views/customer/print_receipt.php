@@ -224,6 +224,12 @@
         .missed-row td:first-child {
             border-left: 4px solid #ef4444;
         }
+        .outside-contract-row {
+            background: #faf5ff !important;
+        }
+        .outside-contract-row td:first-child {
+            border-left: 4px solid #9333ea;
+        }
         .badge {
             display: inline-block;
             padding: 4px 10px;
@@ -339,13 +345,47 @@
                         $counter = 1;
                         foreach ($payments as $payment): 
                             $is_missed = isset($payment->is_missed) && $payment->is_missed;
-                            $row_class = $is_missed ? 'missed-row' : ($payment->depost > 0 ? 'paid-row' : '');
+                            $is_outside_contract = isset($payment->is_outside_contract) && $payment->is_outside_contract;
+                            $row_class = $is_outside_contract ? 'outside-contract-row' : ($is_missed ? 'missed-row' : ($payment->depost > 0 ? 'paid-row' : ''));
                     ?>
                         <tr class="<?= $row_class; ?>">
                             <td><?= $counter++; ?></td>
-                            <td><?= date('d/m/Y', strtotime($payment->depost_day)); ?></td>
                             <td>
-                                <?php if ($is_missed): ?>
+                                <?= date('d/m/Y', strtotime($payment->depost_day)); ?>
+                                <?php if ($is_outside_contract): ?>
+                                    <br><small style="color: #9333ea; font-weight: bold;">⏰ Nje ya Mkataba</small>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($is_outside_contract): ?>
+                                    <span style="color: #9333ea; font-weight: bold;">Malipo Nje ya Mkataba</span>
+                                    <br><small style="color: #64748b;">(Baada ya Tarehe ya Mwisho)</small>
+                                <?php elseif ($is_missed): ?>
+                                    Malipo Hayajalipwa
+                                <?php else: ?>
+                                    <span style="color: #22c55e; font-weight: bold;">Ndani ya Mkataba</span>
+                                    <br>
+                                    <small style="color: #64748b;">
+                                        <?php if (!empty($payment->account_name)): ?>
+                                            <?= $payment->account_name; ?>
+                                        <?php else: ?>
+                                            <?php 
+                                                $desc = $payment->description ?? 'MALIPO';
+                                                echo ($desc == 'Malipo' || $desc == 'MALIPO') ? 'CASH' : strtoupper($desc);
+                                            ?>
+                                        <?php endif; ?>
+                                    </small>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-right">
+                                <strong style="color: <?= $is_outside_contract ? '#9333ea' : ($payment->depost > 0 ? '#22c55e' : '#ef4444'); ?>; font-size: 13px;">
+                                    <?= number_format($payment->depost, 2); ?>
+                                </strong>
+                            </td>
+                            <td class="text-center">
+                                <?php if ($is_outside_contract): ?>
+                                    <span class="badge" style="background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%); color: white;">⏰ KUCHELEWA</span>
+                                <?php elseif ($is_missed): ?>
                                     Malipo Hayajalipwa
                                 <?php else: ?>
                                     <?php if (!empty($payment->account_name)): ?>

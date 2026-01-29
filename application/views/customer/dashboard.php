@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -370,59 +371,8 @@
                 </div>
             </div>
 
-            <?php if ($active_loan->loan_status == 'withdrawal'): ?>
-            <!-- Today's Payment Status Card -->
-            <?php 
-                $today = date('Y-m-d');
-                $paid_today = false;
-                $today_amount = 0;
-                if (!empty($loan_details)) {
-                    foreach ($loan_details as $payment) {
-                        if (date('Y-m-d', strtotime($payment->depost_day)) == $today && $payment->depost > 0) {
-                            $paid_today = true;
-                            $today_amount = $payment->depost;
-                            break;
-                        }
-                    }
-                }
-            ?>
-            <div class="mb-4 sm:mb-6">
-                <?php if ($paid_today): ?>
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg p-4 sm:p-6 shadow-md">
-                        <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0">
-                                <svg class="w-10 h-10 sm:w-12 sm:h-12 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div class="flex-grow">
-                                <h3 class="text-lg sm:text-xl font-bold text-green-900 mb-1">Leo Imelipwa ✓</h3>
-                                <p class="text-sm sm:text-base text-green-700">
-                                    Umefaulu kulipa <span class="font-bold">TZS <?= number_format($today_amount, 2); ?></span> leo
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <div class="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 rounded-lg p-4 sm:p-6 shadow-md">
-                        <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0">
-                                <svg class="w-10 h-10 sm:w-12 sm:h-12 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div class="flex-grow">
-                                <h3 class="text-lg sm:text-xl font-bold text-orange-900 mb-1">Leo Haijalipwa</h3>
-                                <p class="text-sm sm:text-base text-orange-700">
-                                    Bado haujafanya malipo ya leo. Wasiliana na ofisi kwa msaada.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Payment History (Only show when loan is withdrawn) -->
+            <?php if (in_array($active_loan->loan_status, ['withdrawal', 'done', 'out'], true) && !empty($loan_details)): ?>
+            <!-- Payment History (Show for active/closed loans) -->
             <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden border border-gray-200">
                 <div class="p-4 sm:p-6 bg-gradient-to-r from-cyan-50 via-blue-50 to-cyan-50 border-b-2 border-cyan-200">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -435,14 +385,73 @@
                             </div>
                             <h3 class="text-lg sm:text-xl font-bold text-gray-800">Historia ya Malipo</h3>
                         </div>
-                        <a href="<?= base_url('customer/print_receipt/' . $active_loan->loan_id); ?>"
-                           class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            Pakua Risiti
-                        </a>
+                        <div class="w-full sm:w-auto flex flex-col sm:items-end gap-1">
+                            <a href="<?= base_url('customer/print_receipt/' . $active_loan->loan_id); ?>"
+                               class="inline-flex w-full sm:w-auto justify-center items-center px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Pakua Risiti (PDF)
+                            </a>
+                            <p class="text-[11px] sm:text-xs text-gray-500">Risiti ya malipo yote ya mkopo huu.</p>
+                        </div>
                     </div>
+                    <p class="mt-3 text-xs sm:text-sm text-gray-600">
+                        Rangi: <span class="text-green-700 font-semibold">Kijani</span> = Malipo ndani ya ratiba, 
+                        <span class="text-purple-700 font-semibold">Zambarau</span> = Malipo nje ya mkataba, 
+                        <span class="text-red-700 font-semibold">Nyekundu</span> = Haijalipwa
+                    </p>
+                </div>
+
+                <!-- Today's Payment Status Card -->
+                <?php 
+                    $today = date('Y-m-d');
+                    $paid_today = false;
+                    $today_amount = 0;
+                    if (!empty($loan_details)) {
+                        foreach ($loan_details as $payment) {
+                            if (date('Y-m-d', strtotime($payment->depost_day)) == $today && $payment->depost > 0) {
+                                $paid_today = true;
+                                $today_amount = $payment->depost;
+                                break;
+                            }
+                        }
+                    }
+                ?>
+                <div class="px-4 sm:px-6 py-4 border-b border-gray-100">
+                    <?php if ($paid_today): ?>
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg p-4 sm:p-5 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0">
+                                    <svg class="w-8 h-8 sm:w-9 sm:h-9 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-grow">
+                                    <h3 class="text-base sm:text-lg font-bold text-green-900 mb-1">Malipo ya leo yamelipwa</h3>
+                                    <p class="text-sm sm:text-base text-green-700">
+                                        Kiasi kilicholipwa leo: <span class="font-bold">TZS <?= number_format($today_amount, 2); ?></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 rounded-lg p-4 sm:p-5 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0">
+                                    <svg class="w-8 h-8 sm:w-9 sm:h-9 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-grow">
+                                    <h3 class="text-base sm:text-lg font-bold text-orange-900 mb-1">Malipo ya leo hayajapokelewa</h3>
+                                    <p class="text-sm sm:text-base text-orange-700">
+                                        Bado hakuna malipo yaliyoingizwa kwa leo.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -486,13 +495,25 @@
                                     <?php 
                                         $row_number++;
                                         $is_missed = isset($payment->is_missed) && $payment->is_missed;
-                                        $row_bg = $row_number % 2 == 0 ? 'bg-gray-50' : 'bg-white';
-                                        $row_class = $is_missed ? 'bg-red-50 hover:bg-red-100 border-l-4 border-red-400' : $row_bg . ' hover:bg-cyan-50 border-l-4 border-transparent hover:border-cyan-300';
-                                    ?>
+                                    $is_outside_contract = isset($payment->is_outside_contract) && $payment->is_outside_contract;
+                                    $row_bg = $row_number % 2 == 0 ? 'bg-gray-50' : 'bg-white';
+                                    
+                                    if ($is_outside_contract) {
+                                        $row_class = 'bg-purple-50 hover:bg-purple-100 border-l-4 border-purple-400';
+                                    } elseif ($is_missed) {
+                                        $row_class = 'bg-red-50 hover:bg-red-100 border-l-4 border-red-400';
+                                    } else {
+                                        $row_class = $row_bg . ' hover:bg-cyan-50 border-l-4 border-transparent hover:border-cyan-300';
+                                    }
+                                ?>
                                     <tr class="<?= $row_class; ?> transition-all duration-200">
-                                        <td class="px-3 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm <?= $is_missed ? 'text-red-700 font-semibold' : 'text-gray-900 font-medium'; ?>">
+                                        <td class="px-3 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm <?= $is_outside_contract ? 'text-purple-700 font-semibold' : ($is_missed ? 'text-red-700 font-semibold' : 'text-gray-900 font-medium'); ?>">
                                             <div class="flex items-center gap-2">
-                                                <?php if ($is_missed): ?>
+                                                <?php if ($is_outside_contract): ?>
+                                                    <svg class="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                <?php elseif ($is_missed): ?>
                                                     <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                                                     </svg>
@@ -505,15 +526,28 @@
                                             </div>
                                         </td>
                                         <td class="px-3 py-3 sm:px-6 sm:py-4 text-xs sm:text-sm hidden sm:table-cell">
-                                            <div class="max-w-xs lg:max-w-md <?= $is_missed ? 'text-red-700 font-semibold' : 'text-gray-700'; ?>">
-                                                <?php if ($is_missed): ?>
+                                            <div class="max-w-xs lg:max-w-md <?= $is_outside_contract ? 'text-purple-700 font-semibold' : ($is_missed ? 'text-red-700 font-semibold' : 'text-gray-700'); ?>">
+                                                <?php if ($is_outside_contract): ?>
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-purple-100 text-purple-800 text-xs font-medium">
+                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                        Malipo Nje ya Mkataba
+                                                    </span>
+                                                <?php elseif ($is_missed): ?>
                                                     <span class="inline-flex items-center px-2 py-1 rounded-md bg-red-100 text-red-800 text-xs font-medium">
                                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                                         </svg>
-                                                        Malipo Hayajalipwa
+                                                        Haijalipwa (Imechelewa)
                                                     </span>
                                                 <?php else: ?>
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-green-100 text-green-800 text-xs font-medium mr-2">
+                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                        Ndani ya Ratiba
+                                                    </span>
                                                     <?php if (!empty($payment->account_name)): ?>
                                                         <?= $payment->account_name; ?>
                                                     <?php else: ?>
@@ -528,9 +562,9 @@
                                         <td class="px-3 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm">
                                             <?php if ($payment->depost > 0): ?>
                                                 <div class="inline-flex items-center gap-2">
-                                                    <span class="font-bold text-green-600 text-base">TZS <?= number_format($payment->depost, 2); ?></span>
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Imelipwa
+                                                    <span class="font-bold <?= $is_outside_contract ? 'text-purple-600 text-base' : 'text-green-600 text-base'; ?>">TZS <?= number_format($payment->depost, 2); ?></span>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <?= $is_outside_contract ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'; ?>">
+                                                        <?= $is_outside_contract ? 'Nje ya Mkataba' : 'Imelipwa'; ?>
                                                     </span>
                                                 </div>
                                             <?php else: ?>
@@ -579,6 +613,13 @@
                 <div class="space-y-3">
                     <?php foreach ($all_loans as $loan): ?>
                         <?php if ($loan->loan_id != $active_loan->loan_id): ?>
+                            <?php 
+                                $loan_status_hist = strtolower(trim($loan->loan_status ?? ''));
+                                $return_date = !empty($loan->return_date) ? date('Y-m-d', strtotime($loan->return_date)) : null;
+                                $end_date = !empty($loan->loan_end_date) ? date('Y-m-d', strtotime($loan->loan_end_date)) : null;
+                                $completed_within = ($loan_status_hist == 'done' && $return_date && $end_date && $return_date <= $end_date);
+                                $completed_outside = ($loan_status_hist == 'done' && $return_date && $end_date && $return_date > $end_date);
+                            ?>
                             <div class="border border-gray-200 rounded-lg p-3 sm:p-4 hover:border-cyan-300 hover:shadow-md transition-all">
                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                                     <div>
@@ -588,8 +629,17 @@
                                     <div class="text-left sm:text-right">
                                         <p class="text-xs text-gray-500"><?= $loan->loan_stat_date; ?></p>
                                         <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded-full <?= $loan->loan_status == 'done' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'; ?>">
-                                            <?= ucfirst($loan->loan_status); ?>
+                                            <!-- <?= ucfirst($loan->loan_status); ?> -->
                                         </span>
+                                        <?php if ($completed_within): ?>
+                                            <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                Imekamilika Ndani ya Mkataba
+                                            </span>
+                                        <?php elseif ($completed_outside): ?>
+                                            <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                                                Imekamilika Nje ya Mkataba
+                                            </span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

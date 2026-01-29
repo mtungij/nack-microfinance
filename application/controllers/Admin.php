@@ -6727,13 +6727,13 @@ public function print_cash(){
     //        exit();
        if ($empl_id == 'all') {
        
-    $data = $this->queries->search_prev_cashtransaction($from,$to,$comp_id,$blanch_id);
-    $total_cashDepost = $this->queries->get_sumCashtransDepostPrvious($from,$to,$comp_id,$blanch_id);
-    $total_withdrawal = $this->queries->get_sumCashtransWithdrowPrevious($from,$to,$comp_id,$blanch_id);
+    $cash = $this->queries->search_prev_cashtransaction($from,$to,$comp_id,$blanch_id);
+    $sum_depost = $this->queries->get_sumCashtransDepostPrvious($from,$to,$comp_id,$blanch_id);
+    $sum_withdrawls = $this->queries->get_sumCashtransWithdrowPrevious($from,$to,$comp_id,$blanch_id);
      }else{
-    $data = $this->queries->search_prev_cashtransaction_empl($from,$to,$comp_id,$blanch_id,$empl_id);
-    $total_cashDepost = $this->queries->get_sumCashtransDepostPrvious_empl($from,$to,$comp_id,$blanch_id,$empl_id);
-    $total_withdrawal = $this->queries->get_sumCashtransWithdrowPrevious_empl($from,$to,$comp_id,$blanch_id,$empl_id);
+    $cash = $this->queries->search_prev_cashtransaction_empl($from,$to,$comp_id,$blanch_id,$empl_id);
+    $sum_depost = $this->queries->get_sumCashtransDepostPrvious_empl($from,$to,$comp_id,$blanch_id,$empl_id);
+    $sum_withdrawls = $this->queries->get_sumCashtransWithdrowPrevious_empl($from,$to,$comp_id,$blanch_id,$empl_id);
 
      }
     
@@ -6743,7 +6743,18 @@ public function print_cash(){
     //    print_r($data);
     //           exit();
 
-    $this->load->view('admin/previous_cash',['data'=>$data,'from'=>$from,'to'=>$to,'total_cashDepost'=>$total_cashDepost,'total_withdrawal'=>$total_withdrawal,'comp_id'=>$comp_id,'blanch'=>$blanch,'blanch_data'=>$blanch_data,'blanch_id'=>$blanch_id,'empl_data'=>$empl_data,'empl_id'=>$empl_id]);
+    $this->load->view('admin/today_transaction',[
+        'cash'=>$cash,
+        'sum_depost'=>$sum_depost,
+        'sum_withdrawls'=>$sum_withdrawls,
+        'blanch'=>$blanch,
+        'from'=>$from,
+        'to'=>$to,
+        'blanch_data'=>$blanch_data,
+        'blanch_id'=>$blanch_id,
+        'empl_data'=>$empl_data,
+        'empl_id'=>$empl_id
+    ]);
     }
 
 
@@ -6824,24 +6835,41 @@ public function print_cash(){
 
 
 
-	public function loan_pending_time(){
-		$this->load->model('queries');
-		$comp_id = $this->session->userdata('comp_id');
-		$blanch = $this->queries->get_blanch($comp_id);
-	
-		$new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
-		$total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
-	
-		$old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
-		$pend = $this->queries->get_sun_loanPendingcompany($comp_id);
-	
-	
-		//    echo "<pre>";
-		//   print_r($new_pending);
-		//       exit();
+    public function loan_pending_time(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $blanch = $this->queries->get_blanch($comp_id);
+
+        $from = $this->input->post('from');
+        $to = $this->input->post('to');
+        $blanch_id = $this->input->post('blanch_id');
+
+        if (!empty($from) && !empty($to)) {
+            $new_pending = $this->queries->get_total_loan_pendingComp_by_date($comp_id, $from, $to, $blanch_id);
+            $total_pending_new = $this->queries->get_total_pend_loan_company_by_date($comp_id, $from, $to, $blanch_id);
+        } else {
+            $new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
+            $total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
+        }
+
+        $old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
+        $pend = $this->queries->get_sun_loanPendingcompany($comp_id);
+
+        //    echo "<pre>";
+        //   print_r($new_pending);
+        //       exit();
 		
-		$this->load->view('admin/loan_pending_time',['blanch'=>$blanch,'new_pending'=>$new_pending,'total_pending_new'=>$total_pending_new,'old_newpend'=>$old_newpend,'pend'=>$pend]);
-		}
+        $this->load->view('admin/loan_pending_time',[
+            'blanch'=>$blanch,
+            'new_pending'=>$new_pending,
+            'total_pending_new'=>$total_pending_new,
+            'old_newpend'=>$old_newpend,
+            'pend'=>$pend,
+            'from'=>$from,
+            'to'=>$to,
+            'blanch_id'=>$blanch_id
+        ]);
+        }
 
 		public function print_pending_loan()
 		{
@@ -6879,12 +6907,13 @@ public function print_cash(){
 			$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
 		$blanch = $this->queries->get_blanch($comp_id);
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
 	
-		$new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
-		$total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
+        $new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
+        $total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
 	
-		$old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
-		$pend = $this->queries->get_sun_loanPendingcompany($comp_id);
+        $old_newpend = $this->queries->get_pending_reportLoancompany_by_date($comp_id, $yesterday);
+        $pend = $this->queries->get_sun_loanPendingcompany_by_date($comp_id, $yesterday);
 		$lazo = $this->queries->get_today_expected_collections($comp_id);
 	
 	
@@ -6892,7 +6921,7 @@ public function print_cash(){
 		//   print_r($lazo);
 		//       exit();
 		
-		$this->load->view('admin/loan_pending_yesterday',['blanch'=>$blanch,'new_pending'=>$new_pending,'total_pending_new'=>$total_pending_new,'old_newpend'=>$old_newpend,'pend'=>$pend]);
+        $this->load->view('admin/loan_pending_yesterday',['blanch'=>$blanch,'new_pending'=>$new_pending,'total_pending_new'=>$total_pending_new,'old_newpend'=>$old_newpend,'pend'=>$pend,'yesterday'=>$yesterday]);
 		}
 
 		public function print_pending_yesterday()
@@ -6900,24 +6929,25 @@ public function print_cash(){
 			$this->load->model('queries');
 			$comp_id = $this->session->userdata('comp_id');
 			$compdata = $this->queries->get_companyData($comp_id);
+            $yesterday = date('Y-m-d', strtotime('-1 day'));
 
 		// 		  echo "<pre>";
     	// print_r($compdata);
     	//     exit();
 			$blanch = $this->queries->get_blanch($comp_id);
 		
-			$new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
-			$total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
+            $new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
+            $total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
 		
-			$old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
-			$pend = $this->queries->get_sun_loanPendingcompany($comp_id);
+            $old_newpend = $this->queries->get_pending_reportLoancompany_by_date($comp_id, $yesterday);
+            $pend = $this->queries->get_sun_loanPendingcompany_by_date($comp_id, $yesterday);
 
 		// 				  echo "<pre>";
     	// print_r($new_pending);
     	//     exit();
 
 			$mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
-			$html = $this->load->view('admin/pending_yesterday',['compdata'=>$compdata,'pend'=>$pend,'new_pending'=>$new_pending,'blanch'=>$blanch],true);
+            $html = $this->load->view('admin/pending_yesterday',['compdata'=>$compdata,'pend'=>$pend,'new_pending'=>$new_pending,'blanch'=>$blanch,'old_newpend'=>$old_newpend,'yesterday'=>$yesterday],true);
 			$mpdf->SetFooter('Generated By Brainsoft Technology');
 			$mpdf->WriteHTML($html);
 			$mpdf->Output();

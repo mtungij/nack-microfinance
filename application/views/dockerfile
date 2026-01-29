@@ -1,14 +1,14 @@
 docker run -it -d \
-  --label traefik.http.routers.amaliriel.rule=Host\(\`amaliriel.com\`\) \
-  --label traefik.http.routers.amaliriel.tls.certresolver=lets-encrypt \
-  --label traefik.http.routers.amaliriel.tls=true \
-  --label traefik.http.routers.amaliriel.service=amaliriel-credit-http \
-  --label traefik.http.services.amaliriel-credit-http.loadbalancer.server.port=80 \
-  --name amaliriel \
+  --label traefik.http.routers.bagarapharmacy.rule=Host\(\`bagarapharmacy.phamasoft.com\`\) \
+  --label traefik.http.routers.bagarapharmacy.tls.certresolver=lets-encrypt \
+  --label traefik.http.routers.bagarapharmacy.tls=true \
+  --label traefik.http.routers.bagarapharmacy.service=bagarapharmacy-credit-http \
+  --label traefik.http.services.bagarapharmacy-credit-http.loadbalancer.server.port=80 \
+  --name bagarapharmacy \
   --network web \
   --restart always \
   --expose 80 \
- mikoposoft/nackcredit:12dec2025
+mikoposoft/pharmacyci3:old
 
 
 

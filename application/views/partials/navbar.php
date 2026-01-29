@@ -46,11 +46,9 @@
               // This logic is already in your new partials/header.php's <script> section.
               // We just need a button to toggle it.
         ?>
-        <button type="button" id="hs-theme-switcher" class="hs-dark-mode-active:hidden block hs-dark-mode group p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-300 dark:hover:bg-gray-700" data-hs-theme-click-value="dark">
-          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-        </button>
-        <button type="button" id="hs-theme-switcher-light" class="hs-dark-mode-active:block hidden hs-dark-mode group p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-300 dark:hover:bg-gray-700" data-hs-theme-click-value="light">
-          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <button id="theme-toggle" type="button" class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-gray-50 p-2 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+          <svg id="theme-toggle-dark-icon" class="hidden size-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 116.707 2.707a8.001 8.001 0 0010.586 10.586z"></path></svg>
+          <svg id="theme-toggle-light-icon" class="hidden size-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.464 4.05a1 1 0 00-1.414 1.414l.707.707A1 1 0 006.171 4.757l-.707-.707zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
         </button>
 
 
@@ -127,3 +125,33 @@
   </nav>
 </header>
 <!-- ========== END HEADER ========== -->
+<script>
+  (function () {
+    var themeToggleBtn = document.getElementById('theme-toggle');
+    var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+    var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+    if (!themeToggleBtn || !themeToggleDarkIcon || !themeToggleLightIcon) return;
+
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      themeToggleLightIcon.classList.remove('hidden');
+    } else {
+      document.documentElement.classList.remove('dark');
+      themeToggleDarkIcon.classList.remove('hidden');
+    }
+
+    themeToggleBtn.addEventListener('click', function () {
+      themeToggleDarkIcon.classList.toggle('hidden');
+      themeToggleLightIcon.classList.toggle('hidden');
+
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('color-theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('color-theme', 'dark');
+      }
+    });
+  })();
+</script>

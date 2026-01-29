@@ -178,12 +178,13 @@ include_once APPPATH . "views/partials/header.php";
                           <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo date('d-m-Y', strtotime($cashs->lecod_day)); ?></td>
                           <td>
 
-<?php if ($cashs->depost == TRUE) {
- ?>
-<a  href="<?php echo base_url("admin/delete_depost_data/{$cashs->pay_id}") ?>"  class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-yellow-500 dark:bg-red-500 text-white hover:bg-yellow-600 focus:outline-hidden focus:bg-yellow-600 disabled:opacity-50 disabled:pointer-events-none">
+<?php if (!empty($cashs->pay_id)) { ?>
+<a href="<?php echo base_url("admin/delete_depost_data/{$cashs->pay_id}") ?>" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-hidden focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0h8m-8 0a1 1 0 01-1-1V5a1 1 0 011-1h6a1 1 0 011 1v1"/>
+  </svg>
   Delete
 </a>
-<?php }else{ ?>
 <?php } ?>
 
 
@@ -282,7 +283,10 @@ include_once APPPATH . "views/partials/header.php";
       <!-- Modal Body -->
     
       <?php echo form_open("admin/prev_cashtransaction"); ?>
-      <div class="p-4 overflow-y-auto">
+      <div class="p-4 sm:p-6 bg-gray-50/60 dark:bg-neutral-900/40 overflow-y-auto">
+        <div class="mb-4">
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Chagua vigezo vya kuchuja taarifa za malipo kwa tawi, staff na tarehe.</p>
+        </div>
         <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
           
           <!-- Total Withdraw -->
@@ -290,11 +294,11 @@ include_once APPPATH . "views/partials/header.php";
 
           <!-- Payment Method -->
           <div class="sm:col-span-6">
-            <label for="method" class="block text-sm font-medium mb-2 dark:text-gray-300">
-              * Chagua Tawi:
+            <label for="method" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              Tawi
             </label>
             <select id="blanch" name="blanch_id"
-              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
+              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm bg-white focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
                  <?php foreach ($blanch as $blanchs): ?>
                                 <option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?> </option>
                                     <?php endforeach; ?>
@@ -303,11 +307,11 @@ include_once APPPATH . "views/partials/header.php";
 
 
           <div class="sm:col-span-6">
-            <label for="method" class="block text-sm font-medium mb-2 dark:text-gray-300">
-              * Chagua Staff:
+            <label for="method" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              Staff
             </label>
             <select name="empl_id" id="empl"
-              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
+              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm bg-white focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
               <option value="">Select Employee</option>
               <option value="all">ALL</option>
             </select>
@@ -318,22 +322,22 @@ include_once APPPATH . "views/partials/header.php";
           <input type="hidden" name="comp_id" value="<?php echo $_SESSION['comp_id']; ?>">  
 
           <div class="sm:col-span-6">
-            <label for="with_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
-              *DATE FROM:
+            <label for="with_date" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              Tarehe kuanzia
             </label>
             <input type="date" id="with_date" name="from" 
             value="<?php echo $date; ?>" 
-              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
+              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm bg-white focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
               required>
           </div>
 
           <div class="sm:col-span-6">
-            <label for="with_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
-              * DATE TO:
+            <label for="with_date" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              Tarehe hadi
             </label>
             <input type="date" id="with_date" name="to"
             value="<?php echo $date; ?>" 
-              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
+              class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm bg-white focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
               required>
           </div>
 
@@ -344,14 +348,17 @@ include_once APPPATH . "views/partials/header.php";
       </div>
 
       <!-- Modal Footer -->
-      <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
+        <a href="<?php echo base_url('admin/today_transaction'); ?>" class="py-2 px-3 inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
+          Reset
+        </a>
         <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700" data-hs-overlay="#hs-basic-modal">
           Close
         </button>
 
         <!-- Submit Button -->
-        <button type="submit" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-          Save changes
+        <button type="submit" class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700 focus:outline-hidden focus:bg-cyan-700 disabled:opacity-50 disabled:pointer-events-none">
+          Chuja Taarifa
         </button>
       </div>
       <?php echo form_close(); ?>

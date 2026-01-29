@@ -4520,6 +4520,11 @@ public function get_sun_loanPendingcompany($comp_id){
 
 }
 
+public function get_sun_loanPendingcompany_by_date($comp_id, $date){
+	$pending = $this->db->query("SELECT SUM(return_total) AS total_pending FROM tbl_loan_pending WHERE comp_id = ? AND action_date = ?", [$comp_id, $date]);
+	return $pending->row();
+}
+
 
 
 public function get_pending_reportLoancompany($comp_id){
@@ -4542,6 +4547,26 @@ public function get_pending_reportLoancompany($comp_id){
     ");
 
     return $data->result();
+}
+
+public function get_pending_reportLoancompany_by_date($comp_id, $date){
+	$data = $this->db->query("
+		SELECT 
+			lp.*, 
+			c.*, 
+			b.*, 
+			l.*, 
+			lt.loan_name 
+		FROM tbl_loan_pending lp 
+		LEFT JOIN tbl_customer c ON c.customer_id = lp.customer_id 
+		LEFT JOIN tbl_blanch b ON b.blanch_id = lp.blanch_id 
+		LEFT JOIN tbl_loans l ON l.loan_id = lp.loan_id 
+		LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id
+		WHERE lp.comp_id = ? 
+		AND lp.action_date = ?
+	", [$comp_id, $date]);
+
+	return $data->result();
 }
 
 
@@ -7356,10 +7381,48 @@ public function get_total_loan_pendingComp($comp_id){
     return $query->result();
 }
 
+public function get_total_loan_pendingComp_by_date($comp_id, $from, $to, $blanch_id = null){
+	$sql = "
+		SELECT * 
+		FROM tbl_pending_total pt
+		JOIN tbl_loans l ON l.loan_id = pt.loan_id
+		JOIN tbl_blanch b ON b.blanch_id = pt.blanch_id
+		JOIN tbl_customer c ON c.customer_id = pt.customer_id
+		JOIN tbl_loan_category lc ON lc.category_id = l.category_id
+		WHERE pt.comp_id = ?
+		AND pt.date BETWEEN ? AND ?
+		AND total_pend IS NOT FALSE
+	";
+
+	$params = [$comp_id, $from, $to];
+
+	if (!empty($blanch_id)) {
+		$sql .= " AND pt.blanch_id = ?";
+		$params[] = $blanch_id;
+	}
+
+	$query = $this->db->query($sql, $params);
+
+	return $query->result();
+}
+
 
 
 public function get_total_pend_loan_company($comp_id){
 	$data = $this->db->query("SELECT SUM(total_pend) AS total_pending FROM tbl_pending_total WHERE comp_id = '$comp_id'");
+	return $data->row();
+}
+
+public function get_total_pend_loan_company_by_date($comp_id, $from, $to, $blanch_id = null){
+	$sql = "SELECT SUM(total_pend) AS total_pending FROM tbl_pending_total WHERE comp_id = ? AND date BETWEEN ? AND ?";
+	$params = [$comp_id, $from, $to];
+
+	if (!empty($blanch_id)) {
+		$sql .= " AND blanch_id = ?";
+		$params[] = $blanch_id;
+	}
+
+	$data = $this->db->query($sql, $params);
 	return $data->row();
 }
 
@@ -8191,35 +8254,35 @@ public function get_employee_by_id($empl_id) {
 //     return $query->result();
 // }
 
-// public function get_today_expected_collections($comp_id)
-// {
-//     $today = date('Y-m-d');
+public function get_today_expected_collections($comp_id)
+{
+	$today = date('Y-m-d');
 
-//     $this->db->select("
-//         l.loan_id,
-//         l.customer_id,
-//         l.how_loan AS loan_amount,
-//         l.restration,
-//         l.date_show AS expected_date,
-//         COALESCE(p.description, 0) AS amount_paid,
-//         COALESCE(p.depost, 0) AS depost,
-//         COALESCE(p.date_data, NULL) AS payment_date
-//     ");
+	$this->db->select(
+		"l.loan_id,
+		l.customer_id,
+		l.how_loan AS loan_amount,
+		l.restration,
+		l.date_show AS expected_date,
+		COALESCE(p.description, 0) AS amount_paid,
+		COALESCE(p.depost, 0) AS depost,
+		COALESCE(p.date_data, NULL) AS payment_date"
+	);
 
-//     $this->db->from('tbl_loans l');
+	$this->db->from('tbl_loans l');
 
-//     // LEFT JOIN so that loans still appear even if no payment has been made
-//     $this->db->join('tbl_pay p', 'l.loan_id = p.loan_id AND p.date_data = l.date_show', 'left');
+	// LEFT JOIN so that loans still appear even if no payment has been made
+	$this->db->join('tbl_pay p', 'l.loan_id = p.loan_id AND p.date_data = l.date_show', 'left');
 
-//     // Filter by today's expected collection date
-//     $this->db->where('l.date_show', $today);
+	// Filter by today's expected collection date
+	$this->db->where('l.date_show', $today);
 
-//     // Filter by company
-//    
+	// Filter by company
+	$this->db->where('l.comp_id', $comp_id);
 
-//     $query = $this->db->get();
-//     return $query->result();
-// }
+	$query = $this->db->get();
+	return $query->result();
+}
 
 
 public function get_customers_pending_payment()
@@ -9126,6 +9189,11 @@ public function get_customer_all_loans($customer_id) {
 		if (!$loan) {
 			return [];
 		}
+		
+		// DEBUG: Log loan details
+		error_log("DEBUG Loan ID: $loan_id");
+		error_log("DEBUG loan_stat_date: " . ($loan->loan_stat_date ?? 'NULL'));
+		error_log("DEBUG loan_end_date: " . ($loan->loan_end_date ?? 'NULL'));
 
 // Get actual payments grouped by date
 	$actual_payments = $this->db->query("SELECT DATE(p.depost_day) as payment_date, 
@@ -9134,6 +9202,12 @@ public function get_customer_all_loans($customer_id) {
 										 WHERE p.loan_id = '$loan_id' 
 										 GROUP BY DATE(p.depost_day) 
 										 ORDER BY p.depost_day ASC")->result();
+	
+	// DEBUG: Log actual payments
+	error_log("DEBUG Total actual payments found: " . count($actual_payments));
+	foreach ($actual_payments as $payment) {
+		error_log("DEBUG Payment date: {$payment->payment_date}, Amount: {$payment->total_paid}");
+	}
 	
 	// Create array of payment dates for easy lookup
 	$payment_dates = [];
@@ -9185,8 +9259,12 @@ public function get_customer_all_loans($customer_id) {
 	// Collect all dates (expected + actual)
 	$all_dates = [];
 	
+	// Set loan end date for comparison
+	$loan_end = !empty($loan->loan_end_date) ? new DateTime($loan->loan_end_date) : null;
+	
 	// Generate expected payment dates
 	$payment_index = 0;
+	
 	for ($i = 0; $i < $expected_payments_count; $i++) {
 		$expected_date = $current_date->format('Y-m-d');
 		
@@ -9217,6 +9295,13 @@ public function get_customer_all_loans($customer_id) {
 	// Sort all dates
 	sort($all_dates);
 	
+	// Get loan end date for comparison
+	$loan_end_date_str = !empty($loan->loan_end_date) ? date('Y-m-d', strtotime($loan->loan_end_date)) : null;
+	
+	// DEBUG: Log comparison setup
+	error_log("DEBUG loan_end_date_str for comparison: " . ($loan_end_date_str ?? 'NULL'));
+	error_log("DEBUG Total dates to process: " . count($all_dates));
+	
 	// Generate schedule with all dates (expected and actual)
 	foreach ($all_dates as $date_key) {
 		// Check if payment was made on this date
@@ -9228,6 +9313,15 @@ public function get_customer_all_loans($customer_id) {
 			$consolidated_payment->description = 'Malipo';
 			$consolidated_payment->balance = null;
 			$consolidated_payment->is_missed = false;
+			
+			// Check if this actual payment (depost_day) is after loan end date
+			if ($loan_end_date_str && $date_key > $loan_end_date_str) {
+				$consolidated_payment->is_outside_contract = true;
+				error_log("DEBUG OUTSIDE CONTRACT: Payment date $date_key > loan_end_date $loan_end_date_str");
+			} else {
+				$consolidated_payment->is_outside_contract = false;
+				error_log("DEBUG INSIDE CONTRACT: Payment date $date_key <= loan_end_date " . ($loan_end_date_str ?? 'NULL'));
+			}
 			
 			// Get account name from first payment on this date
 			foreach ($detailed_payments as $payment) {
@@ -9250,6 +9344,7 @@ public function get_customer_all_loans($customer_id) {
 			$missed_payment->account_name = '';
 			$missed_payment->p_method = '';
 			$missed_payment->is_missed = true;
+			$missed_payment->is_outside_contract = false;
 			$schedule[] = $missed_payment;
 		}
 	}
