@@ -1,9 +1,9 @@
-const CACHE_NAME = 'loan-pocket-v1';
+const CACHE_NAME = 'loan-pocket-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
-  '/assets/images/icon.png',
-  '/assets/images/icon.png',
+  '/assets/img/logo-192.png',
+  '/assets/img/logo-512.png',
   '/public/css/output.css',
   // Add other assets you want cached here
 ];
