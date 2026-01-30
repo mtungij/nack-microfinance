@@ -119,6 +119,38 @@
   </nav>
 </header>
 <!-- ========== END HEADER ========== -->
+
+<script>
+  (function () {
+    var installBtn = document.getElementById('pwa-install-btn');
+    if (!installBtn) return;
+
+    var deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.remove('hidden');
+      installBtn.classList.add('inline-flex');
+    });
+
+    installBtn.addEventListener('click', function () {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.finally(function () {
+        deferredPrompt = null;
+        installBtn.classList.add('hidden');
+        installBtn.classList.remove('inline-flex');
+      });
+    });
+
+    window.addEventListener('appinstalled', function () {
+      installBtn.classList.add('hidden');
+      installBtn.classList.remove('inline-flex');
+    });
+  })();
+</script>
+
 <script>
   (function () {
     var themeToggleBtn = document.getElementById('theme-toggle');
