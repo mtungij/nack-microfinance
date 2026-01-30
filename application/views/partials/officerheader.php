@@ -13,7 +13,7 @@
 
 
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/assets/images/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/img/logo-192.png">
 <meta name="theme-color" content="#0d6efd">
 
 

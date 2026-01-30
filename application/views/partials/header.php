@@ -13,7 +13,7 @@
 
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0d6efd">
-<link rel="apple-touch-icon" href="/assets/images/icon.png">
+<link rel="apple-touch-icon" href="/assets/img/logo-192.png">
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 <script>
