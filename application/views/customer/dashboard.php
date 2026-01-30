@@ -5,9 +5,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashibodi ya Mteja - Mikopo Yangu</title>
+        <link rel="manifest" href="/manifest.json?v=2">
+        <meta name="theme-color" content="#0d6efd">
+        <link rel="apple-touch-icon" href="/assets/img/logo-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(function () {});
+            }
+        </script>
 </head>
 <body class="bg-gray-50">
 
@@ -23,6 +31,7 @@
                     <span class="ml-2 text-lg sm:text-xl font-bold text-gray-800 hidden sm:block">Portal Ya Wateja</span>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-4">
+                    <button id="pwa-install-btn" type="button" class="hidden items-center justify-center rounded-lg border border-cyan-200 bg-cyan-50 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-cyan-700 hover:bg-cyan-100">Install App</button>
                     <span class="text-xs sm:text-sm text-gray-600 truncate max-w-32 sm:max-w-none">
                         <?= $this->session->userdata('customer_name'); ?>
                     </span>
@@ -251,6 +260,36 @@
                             <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                         </svg>
                         <div>
+
+                        <script>
+                            (function () {
+                                var installBtn = document.getElementById('pwa-install-btn');
+                                if (!installBtn) return;
+                                var deferredPrompt = null;
+
+                                window.addEventListener('beforeinstallprompt', function (e) {
+                                    e.preventDefault();
+                                    deferredPrompt = e;
+                                    installBtn.classList.remove('hidden');
+                                    installBtn.classList.add('inline-flex');
+                                });
+
+                                installBtn.addEventListener('click', function () {
+                                    if (!deferredPrompt) return;
+                                    deferredPrompt.prompt();
+                                    deferredPrompt.userChoice.finally(function () {
+                                        deferredPrompt = null;
+                                        installBtn.classList.add('hidden');
+                                        installBtn.classList.remove('inline-flex');
+                                    });
+                                });
+
+                                window.addEventListener('appinstalled', function () {
+                                    installBtn.classList.add('hidden');
+                                    installBtn.classList.remove('inline-flex');
+                                });
+                            })();
+                        </script>
                             <p class="text-gray-500 text-xs">Tarehe ya Kuchukua</p>
                             <p class="font-semibold text-gray-800"><?= $active_loan->loan_stat_date ?? 'BADO HUJAPEWA MKOPO'; ?></p>
                         </div>
