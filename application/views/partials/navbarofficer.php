@@ -51,6 +51,10 @@
           <svg id="theme-toggle-light-icon" class="hidden size-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.464 4.05a1 1 0 00-1.414 1.414l.707.707A1 1 0 006.171 4.757l-.707-.707zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
         </button>
 
+        <button id="pwa-install-btn" type="button" class="hidden items-center justify-center rounded-full border border-cyan-200 bg-cyan-50 p-2 text-cyan-700 hover:bg-cyan-100 dark:border-cyan-700 dark:bg-cyan-800/30 dark:text-cyan-200 dark:hover:bg-cyan-700/40" aria-label="Install app">
+          <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16a1 1 0 0 1-.707-.293l-4-4a1 1 0 0 1 1.414-1.414L11 12.586V4a1 1 0 1 1 2 0v8.586l2.293-2.293a1 1 0 0 1 1.414 1.414l-4 4A1 1 0 0 1 12 16z"/><path d="M5 18a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1z"/></svg>
+        </button>
+
 
         <!-- Profile Dropdown -->
         <div class="hs-dropdown [--placement:bottom-right] relative inline-flex">
