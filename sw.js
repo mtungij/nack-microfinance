@@ -1,7 +1,6 @@
-const CACHE_NAME = 'loan-pocket-v2';
+const CACHE_NAME = 'loan-pocket-v3';
 const ASSETS_TO_CACHE = [
   '/',
-  '/manifest.json',
   '/assets/img/logo-192.png',
   '/assets/img/logo-512.png',
   '/public/css/output.css',
