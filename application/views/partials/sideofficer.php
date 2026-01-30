@@ -40,7 +40,7 @@ $customer_submenu_active = is_submenu_active(['customer', 'all_customer']);
 $loan_submenu_active = is_submenu_active(['loan_application', 'loan_pending', 'get_loan_aproved', 'disburse_loan', 'loan_withdrawal', 'all_loan_lejected', 'loanpending_groups', 'parsonal_pending_loan']);
 $group_loan_submenu_active = is_submenu_active(['loanpending_groups', 'general_operation', 'group_list']); // Note: 'loanpending_groups' is repeated, which is fine if intended
 $teller_dashboard_active = is_active_link('oficer/teller_dashboard');
-$report_submenu_active = is_submenu_active(['cash_transaction', 'blanchiwise_report', 'loan_pending_time', 'repaymant_data', 'get_outstand_loan', 'loan_collection', 'search_customer_loan_report', 'customer_account_statement', 'today_recevable_loan', 'today_receved_loan', 'teller_oficer', 'teller_trasior', 'daily_report', 'loan_oficer_expectation', 'next_expectation']);
+$report_submenu_active = is_submenu_active(['cash_transaction', 'blanchiwise_report', 'loan_pending_time', 'repaymant_data', 'get_outstand_loan', 'clonic_customers', 'loan_collection', 'search_customer_loan_report', 'customer_account_statement', 'today_recevable_loan', 'today_receved_loan', 'teller_oficer', 'teller_trasior', 'daily_report', 'loan_oficer_expectation', 'next_expectation']);
 $accounting_report_submenu_active = is_submenu_active(['loss_profit', 'cash_flow', 'saving_deposit']);
 $cash_book_active = is_active_link('oficer/get_cashInHand_Data');
 $communication_submenu_active = is_submenu_active(['send_email']); // Assuming SMS link might be external or different
@@ -375,6 +375,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
                   -->
                 
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/get_outstand_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/get_outstand_loan"); ?>">Outstanding Loan</a></li> 
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/clonic_customers') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/clonic_customers"); ?>">Clonic Customers</a></li>
             
         
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/search_customer_loan_report') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/search_customer_loan_report"); ?>">Customer Loan Report</a></li> 

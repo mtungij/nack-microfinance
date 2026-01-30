@@ -8206,6 +8206,22 @@ public function oficer_profile(){
         $empl_data = $this->queries->get_employee_data($empl_id);
         $privillage = $this->queries->get_position_empl($empl_id);
         $outstand = $this->queries->defaulters_customer($blanch_id);
+        $filtered = [];
+        foreach ($outstand as $item) {
+          $endDateStr = substr($item->loan_end_date ?? '', 0, 10);
+          $endDate = DateTime::createFromFormat('Y-m-d', $endDateStr);
+          if (!$endDate) {
+            continue;
+          }
+          $today = new DateTime();
+          $diff = $endDate->diff($today);
+          $pendingDays = $diff->invert ? 0 : $diff->days;
+          if ($pendingDays > 50) {
+            $item->pending_days = $pendingDays;
+            $filtered[] = $item;
+          }
+        }
+        $outstand = $filtered;
 
         // echo "<pre>";
         // print_r($outstand);
@@ -8227,11 +8243,56 @@ public function oficer_profile(){
         $privillage = $this->queries->get_position_empl($empl_id);
         $outstand = $this->queries->outstand_loanBlanch($blanch_id);
         $total_remain = $this->queries->total_outstand_loanBlanch($blanch_id);
+
+        $start_date = $this->input->get('start_date');
+        $end_date = $this->input->get('end_date');
+        if (!empty($start_date) || !empty($end_date)) {
+          $filtered = [];
+          foreach ($outstand as $item) {
+            $dateStr = substr($item->loan_stat_date ?? '', 0, 10);
+            if (!$dateStr) {
+              continue;
+            }
+            $date = DateTime::createFromFormat('Y-m-d', $dateStr);
+            if (!$date) {
+              continue;
+            }
+            $include = true;
+            if (!empty($start_date)) {
+              $start = DateTime::createFromFormat('Y-m-d', $start_date);
+              if ($start && $date < $start) {
+                $include = false;
+              }
+            }
+            if (!empty($end_date)) {
+              $end = DateTime::createFromFormat('Y-m-d', $end_date);
+              if ($end && $date > $end) {
+                $include = false;
+              }
+            }
+            if ($include) {
+              $filtered[] = $item;
+            }
+          }
+          $outstand = $filtered;
+          $totalOut = 0;
+          foreach ($outstand as $item) {
+            $totalOut += (float)($item->remain_amount ?? 0);
+          }
+          $total_remain = (object)['total_out' => $totalOut];
+        }
         $manager = $this->queries->get_position_manager($empl_id);
     //    echo "<pre>";
     //  print_r($outstand);
     //         exit();
-    $this->load->view('officer/out_stand_loan',['outstand'=>$outstand,'privillage'=>$privillage,'total_remain'=>$total_remain,'manager'=>$manager]);
+    $this->load->view('officer/out_stand_loan',[
+      'outstand'=>$outstand,
+      'privillage'=>$privillage,
+      'total_remain'=>$total_remain,
+      'manager'=>$manager,
+      'start_date'=>$start_date ?? '',
+      'end_date'=>$end_date ?? ''
+    ]);
 }
 
    public function manager_get_outstand_loan(){
@@ -8253,6 +8314,81 @@ public function oficer_profile(){
      //        exit();
     $this->load->view('officer/out_stand_loan',['outstand'=>$outstand,'privillage'=>$privillage,'total_remain'=>$total_remain,'manager'=>$manager]);
 }
+
+      public function download_outstand_loan(){
+      $this->load->model('queries');
+      $blanch_id = $this->session->userdata('blanch_id');
+      $empl_id = $this->session->userdata('empl_id');
+      $manager_data = $this->queries->get_manager_data($empl_id);
+      $comp_id = $manager_data->comp_id;
+      $company_data = $this->queries->get_companyData($comp_id);
+      $blanch_data = $this->queries->get_blanchData($blanch_id);
+
+      $outstand = $this->queries->outstand_loanBlanch($blanch_id);
+      $total_remain = $this->queries->total_outstand_loanBlanch($blanch_id);
+
+      $start_date = $this->input->get('start_date');
+      $end_date = $this->input->get('end_date');
+      if (!empty($start_date) || !empty($end_date)) {
+        $filtered = [];
+        foreach ($outstand as $item) {
+          $dateStr = substr($item->loan_stat_date ?? '', 0, 10);
+          if (!$dateStr) {
+            continue;
+          }
+          $date = DateTime::createFromFormat('Y-m-d', $dateStr);
+          if (!$date) {
+            continue;
+          }
+          $include = true;
+          if (!empty($start_date)) {
+            $start = DateTime::createFromFormat('Y-m-d', $start_date);
+            if ($start && $date < $start) {
+              $include = false;
+            }
+          }
+          if (!empty($end_date)) {
+            $end = DateTime::createFromFormat('Y-m-d', $end_date);
+            if ($end && $date > $end) {
+              $include = false;
+            }
+          }
+          if ($include) {
+            $filtered[] = $item;
+          }
+        }
+        $outstand = $filtered;
+        $totalOut = 0;
+        foreach ($outstand as $item) {
+          $totalOut += (float)($item->remain_amount ?? 0);
+        }
+        $total_remain = (object)['total_out' => $totalOut];
+      }
+
+      $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L',
+        'orientation' => 'L'
+      ]);
+
+      $html = $this->load->view('officer/print_outstand_loan_pdf', [
+        'company_data' => $company_data,
+        'blanch_data' => $blanch_data,
+        'outstand' => $outstand,
+        'total_remain' => $total_remain,
+        'start_date' => $start_date,
+        'end_date' => $end_date,
+      ], true);
+
+      $mpdf->SetFooter('Generated By Brainsoft Technology | {PAGENO} of {nbpg}');
+      $mpdf->WriteHTML($html);
+
+      if (ob_get_length()) {
+        ob_end_clean();
+      }
+
+      $filename = 'outstand_loans_' . date('Ymd_His') . '.pdf';
+      $mpdf->Output($filename, 'I');
+      }
 
 
 public function print_allCustomer(){

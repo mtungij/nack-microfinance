@@ -7,7 +7,8 @@ include_once APPPATH . "views/partials/officerheader.php";
 
 
 <div class="w-full lg:ps-64">
-    <div class="p-4 sm:p-6 space-y-6">
+<div class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+
 
       
    
@@ -16,54 +17,24 @@ include_once APPPATH . "views/partials/officerheader.php";
         <section class="bg-gray-50 dark:bg-gray-900 py-3 sm:py-5">
   <div class="w-full ">
       <div class="relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
-      <div class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-start lg:space-y-0 lg:space-x-4">
-  <div class="flex items-center flex-1 space-x-4">
-    <h5 class="text-lg font-semibold dark:text-white">Orodha ya Wateja wenye Deni za Mikopo</h5>
-  </div>
-  
-</div>
+      <div class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <h5 class="text-lg font-semibold dark:text-white">Orodha ya Wateja Wasumbufu</h5>
+      </div>
 
 
           
 
-  <div class="overflow-x-auto">
-  <div class="flex flex-wrap items-center gap-2 mb-4">
+ <div class="relative w-full overflow-x-auto">
+
+  <div class="flex w-full flex-col gap-3 px-4 pb-3 sm:flex-row sm:items-center sm:justify-between">
  
-    <div class="relative w-full sm:w-auto">
-      <label for="shareholder-table-search" class="sr-only">Search</label>
-      <input
-        type="search"
-        name="shareholder-table-search"
-        id="shareholder-table-search"
-        class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
-        placeholder="Search share holders..."
-        data-hs-datatable-search="#shareholder_table"
-        aria-label="Search share holders"
-      />
-      <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3">
-        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="M21 21l-4.3-4.3"></path>
-        </svg>
-      </div>
-    </div>
-
- 
-    <div class="hidden md:block flex-grow"></div>
-
-
-    <div
-      class="flex flex-col w-full sm:w-auto space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-3">
-      
-   
-
-
-
-
-
   
-  <table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+
+<table
+  id="shareholder_table"
+  class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+>
+
     <thead class="text-xs text-cyan-500 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-50">
         <tr>
             <th scope="col" class="px-4 py-3">S/No</th>
@@ -76,6 +47,7 @@ include_once APPPATH . "views/partials/officerheader.php";
             <th scope="col" class="px-4 py-3">DENI</th>
             <th scope="col" class="px-4 py-3">TAREHE YA MWISHO KULIPA</th>
             <th scope="col" class="px-4 py-3">KIASI KILICHOLIPWA</th>
+             <th scope="col" class="px-4 py-3">IDADI YA SIKU</th>
         </tr>
     </thead>
     <tbody>
