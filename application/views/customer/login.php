@@ -4,17 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Login - Payment Portal</title>
-        <link rel="manifest" href="/customer/manifest.json?v=1">
-        <meta name="theme-color" content="#0d6efd">
-        <link rel="apple-touch-icon" href="/assets/img/logo-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        <script>
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js').catch(function () {});
-            }
-        </script>
 </head>
 <body class="bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
     
@@ -121,41 +113,8 @@
         <!-- Footer -->
         <div class="text-center mt-6 text-white text-xs sm:text-sm">
             <p>&copy; <?= date('Y'); ?> Loan Management System. All rights reserved.</p>
-                        <div class="mt-3">
-                                <button id="pwa-install-btn" type="button" class="hidden mx-auto items-center justify-center rounded-lg border border-white/40 bg-white/10 px-3 py-1.5 text-xs sm:text-sm text-white hover:bg-white/20">Install App</button>
-                        </div>
         </div>
     </div>
-
-        <script>
-            (function () {
-                var installBtn = document.getElementById('pwa-install-btn');
-                if (!installBtn) return;
-                var deferredPrompt = null;
-
-                window.addEventListener('beforeinstallprompt', function (e) {
-                    e.preventDefault();
-                    deferredPrompt = e;
-                    installBtn.classList.remove('hidden');
-                    installBtn.classList.add('inline-flex');
-                });
-
-                installBtn.addEventListener('click', function () {
-                    if (!deferredPrompt) return;
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.finally(function () {
-                        deferredPrompt = null;
-                        installBtn.classList.add('hidden');
-                        installBtn.classList.remove('inline-flex');
-                    });
-                });
-
-                window.addEventListener('appinstalled', function () {
-                    installBtn.classList.add('hidden');
-                    installBtn.classList.remove('inline-flex');
-                });
-            })();
-        </script>
 
 </body>
 </html>
