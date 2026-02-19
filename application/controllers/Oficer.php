@@ -2871,6 +2871,12 @@ public function create_sponser($customer_id = null, $comp_id = null)
     }
 
     $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
+
+      // echo "<pre>";
+      //       print_r(    $customer );
+      //       echo "</pre>";
+      //           exit();
+
     if (!$customer) {
         show_error('Customer not found');
     }

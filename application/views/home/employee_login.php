@@ -180,7 +180,7 @@ include_once APPPATH . "views/partials/guest_header.php";
     <!-- Customer Login Button -->
 <a href="<?php echo base_url('customer'); ?>"
    class="w-full py-2.5 sm:py-3 px-4 flex justify-center items-center gap-2 text-sm sm:text-base font-medium 
-          rounded-lg border border-green-600 text-green-600 bg-white 
+           border-green-600 text-green-600 bg-white 
           hover:bg-green-600 hover:text-white 
           transition-all duration-200 
           focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 

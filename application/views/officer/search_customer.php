@@ -93,11 +93,11 @@ $comp_id = $comp_id ?? null;
             <div class="w-full md:w-3/12 md:mx-2">
                 <div class="bg-white p-3 border-t-4 border-green-400">
                     <div class="image overflow-hidden">
-                    <?php if (!empty($customer->passport)): ?>
+                    <!-- <?php if (!empty($customer->passport)): ?>
     <img class="h-auto w-full mx-auto rounded-full" src="<?= base_url($customer->passport) ?>" alt="Customer Passport">
 <?php else: ?>
     <img class="h-auto w-full mx-auto rounded-full" src="<?= base_url('assets/img/customer21.png') ?>" alt="Customer Image">
-<?php endif; ?>
+<?php endif; ?> -->
 
 
                     </div>
