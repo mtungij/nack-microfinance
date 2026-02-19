@@ -1,14 +1,14 @@
 docker run -it -d \
-  --label traefik.http.routers.bagarapharmacy.rule=Host\(\`bagarapharmacy.phamasoft.com\`\) \
-  --label traefik.http.routers.bagarapharmacy.tls.certresolver=lets-encrypt \
-  --label traefik.http.routers.bagarapharmacy.tls=true \
-  --label traefik.http.routers.bagarapharmacy.service=bagarapharmacy-credit-http \
-  --label traefik.http.services.bagarapharmacy-credit-http.loadbalancer.server.port=80 \
-  --name bagarapharmacy \
+  --label traefik.http.routers.helcommicrofinance.rule=Host\(\`helcommicrofinance.com\`\) \
+  --label traefik.http.routers.helcommicrofinance.tls.certresolver=lets-encrypt \
+  --label traefik.http.routers.helcommicrofinance.tls=true \
+  --label traefik.http.routers.helcommicrofinance.service=helcommicrofinance-credit-http \
+  --label traefik.http.services.helcommicrofinance-credit-http.loadbalancer.server.port=80 \
+  --name helcommicrofinance \
   --network web \
   --restart always \
   --expose 80 \
-mikoposoft/pharmacyci3:old
+mikoposoft/nackcredit:12dec2025
 
 
 

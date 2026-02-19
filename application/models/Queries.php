@@ -4768,10 +4768,31 @@ public function get_totalLoanDoneGroup($group_id){
     	return $this->db->where('comp_id',$comp_id)->update('tbl_company',$data);
     }
 
-    public function get_outstand_loan($loan_id){
-     $out = $this->db->query("SELECT * FROM tbl_loans l JOIN tbl_outstand o ON o.loan_id = l.loan_id WHERE l.loan_id = '$loan_id'");
-      return $out->row();
-    }
+public function get_outstand_loan_yesterday($comp_id){
+    $yesterday = date('d/m/Y', strtotime('-1 day'));
+
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE DATE_FORMAT(o.loan_end_date, '%d/%m/%Y') = ?
+        AND l.comp_id = ?
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$yesterday, $comp_id])->result();
+}
+
+
+
+
+
 
     public function get_blanchIncome($blanch_id,$receve_day){
     	  $this->db->select('r.receved_id,r.comp_id,r.inc_id,r.blanch_id,r.customer_id,r.empl,r.receve_amount,r.receve_day,c.customer_id,c.f_name,c.m_name,c.l_name,i.inc_id,i.comp_id,i.inc_name,b.blanch_id,b.blanch_name');

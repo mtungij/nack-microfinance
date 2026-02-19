@@ -8,37 +8,55 @@
 
 <div id="container">
   <style>
-    .display{
-      display: flex;
-    }
-    .c {
-      text-transform: uppercase;
-    }
-    table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      width: 100%;
-    }
-    td, th {
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 5px;
-    }
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-    .total-row {
-      background-color: #4CAF50;
-      color: white;
-      font-weight: bold;
-    }
-  </style>
+    	
+		body {
+			font-family: Arial, sans-serif;
+			font-size: 12px;
+			color: #333;
+		}
+		.header {
+			text-align: center;
+			margin-bottom: 10px;
+		}
+		.header img {
+			max-height: 80px;
+			margin-bottom: 8px;
+		}
+		table {
+			border-collapse: collapse;
+			width: 100%;
+			margin-top: 10px;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 6px 8px;
+			text-align: left;
+		}
+		th {
+			background: #00bcd4;
+			color: #fff;
+		}
+		.total-row {
+			background: #f2f2f2;
+			font-weight: bold;
+		}
+		.section-title {
+			margin-top: 16px;
+			font-weight: bold;
+			text-align: left;
+		}
+	</style>
+  
 
   <table style="border: none">
     <tr style="border: none">
       <td style="border: none">
         <div style="width: 20%;">
-          <img src="<?php echo base_url().'assets/img/'.$compdata->comp_logo ?>" style="width: 100px;height: 80px;">
+          <?php if (!empty($compdata->comp_logo) && file_exists(FCPATH . 'assets/images/company_logo/' . $compdata->comp_logo)): ?>
+            <img src="<?php echo base_url('assets/images/company_logo/' . $compdata->comp_logo); ?>" alt="Company Logo" style="max-height: 80px;">
+          <?php elseif (!empty($compdata->comp_logo) && file_exists(FCPATH . 'assets/img/' . $compdata->comp_logo)): ?>
+            <img src="<?php echo base_url('assets/img/' . $compdata->comp_logo); ?>" alt="Company Logo" style="max-height: 80px;">
+          <?php endif; ?>
         </div> 
       </td>
       <td style="border: none">
@@ -48,7 +66,7 @@
             <b><?php echo $compdata->adress; ?></b> <br>
           </p>
           <p style="font-size:12px;text-align:center;" class="c">
-            DEFAULTERS/OUTSTANDING LOANS REPORT<br>
+           YESTERDAY DEFAULTERS/OUTSTANDING LOANS REPORT<br>
             Date: <?php echo date("d-m-Y"); ?>
           </p>
           
@@ -83,37 +101,55 @@
   <div id="body">
     <hr>
 
-    <table>
-      <thead>
-        <tr>
-          <th style="font-size:12px;">S/No.</th>
-          <th style="font-size:12px;">Branch Name</th>
-          <th style="font-size:12px;">Customer Name</th>
-          <th style="font-size:12px;">Phone Number</th>
-          <th style="font-size:12px;">Loan Amount</th>
-          <th style="font-size:12px;">Restoration</th>
-          <th style="font-size:12px;">Duration</th>
-          <th style="font-size:12px;">Paid Amount</th>
-          <th style="font-size:12px;">Remain Amount</th>
-          <th style="font-size:12px;">Overdue Days</th>
-          <th style="font-size:12px;">Start Date</th>
-          <th style="font-size:12px;">End Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php $no = 1; ?>
-        <?php if (!empty($outstand)): ?>
-          <?php foreach ($outstand as $outstands): ?>
+    <?php
+    // Group $outstand by branch
+    $branches = [];
+    if (!empty($outstand)) {
+      foreach ($outstand as $row) {
+        $branches[$row->blanch_name][] = $row;
+      }
+    }
+    ?>
+
+    <?php if (!empty($branches)): ?>
+      <?php $grand_loan = $grand_restoration = $grand_paid = $grand_remain = 0; $branch_no = 1; ?>
+      <?php foreach ($branches as $branch_name => $branch_rows): ?>
+        <h3 style="background:#e0f7fa;color:#006064;padding:8px 12px;border-radius:6px;margin-top:24px;">
+          <?= $branch_no++ ?>. Branch: <b><?= htmlspecialchars($branch_name) ?></b>
+        </h3>
+        <table style="margin-bottom:10px;">
+          <thead>
             <tr>
-              <td style="font-size:11px;" class="c"><?php echo $no++; ?>.</td>
-              <td style="font-size:11px;" class="c"><?php echo $outstands->blanch_name; ?></td>
-              <td style="font-size:11px;" class="c">
-                <?php echo $outstands->f_name . ' ' . $outstands->m_name . ' ' . $outstands->l_name; ?>
-              </td>
-              <td style="font-size:11px;"><?php echo $outstands->phone_no; ?></td>
-              <td style="font-size:11px;"><?php echo number_format($outstands->loan_int); ?></td>
-              <td style="font-size:11px;"><?php echo number_format($outstands->restration); ?></td>
-              <td style="font-size:11px;">
+              <th style="font-size:12px;">S/No.</th>
+              <th style="font-size:12px;">Customer Name</th>
+              <th style="font-size:12px;">Phone Number</th>
+              <th style="font-size:12px;">Loan Amount</th>
+              <th style="font-size:12px;">Restoration</th>
+              <th style="font-size:12px;">Duration</th>
+              <th style="font-size:12px;">Paid Amount</th>
+              <th style="font-size:12px;">Remain Amount</th>
+              <th style="font-size:12px;">Overdue Days</th>
+              <th style="font-size:12px;">Start Date</th>
+              <th style="font-size:12px;">End Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            $b_loan = $b_restoration = $b_paid = $b_remain = 0;
+            $no = 1;
+            foreach ($branch_rows as $outstands):
+              $b_loan += $outstands->loan_int;
+              $b_restoration += $outstands->restration;
+              $b_paid += $outstands->total_deposit;
+              $b_remain += ($outstands->loan_int - $outstands->total_deposit);
+            ?>
+            <tr>
+              <td><?php echo $no++; ?>.</td>
+              <td><?php echo $outstands->f_name . ' ' . $outstands->m_name . ' ' . $outstands->l_name; ?></td>
+              <td><?php echo $outstands->phone_no; ?></td>
+              <td><?php echo number_format($outstands->loan_int); ?></td>
+              <td><?php echo number_format($outstands->restration); ?></td>
+              <td>
                 <?php 
                   if ($outstands->day == 1) $duration = "Daily";
                   elseif ($outstands->day == 7) $duration = "Weekly";
@@ -122,39 +158,56 @@
                   echo $duration . ' (' . number_format($outstands->session) . ')';
                 ?>
               </td>
-              <td style="font-size:11px;"><?php echo number_format($outstands->total_deposit); ?></td>
-              <td style="font-size:11px;"><?php echo number_format($outstands->loan_int - $outstands->total_deposit); ?></td>
-              <td style="font-size:11px;"><b><?php echo $outstands->overdue_days; ?></b></td>
-              <td style="font-size:11px;"><?php echo substr($outstands->loan_stat_date, 0, 10); ?></td>
-              <td style="font-size:11px;"><?php echo substr($outstands->loan_end_date, 0, 10); ?></td>
+              <td><?php echo number_format($outstands->total_deposit); ?></td>
+              <td><?php echo number_format($outstands->loan_int - $outstands->total_deposit); ?></td>
+              <td><b><?php echo $outstands->overdue_days; ?></b></td>
+              <td><?php echo substr($outstands->loan_stat_date, 0, 10); ?></td>
+              <td><?php echo substr($outstands->loan_end_date, 0, 10); ?></td>
             </tr>
-          <?php endforeach; ?>
-          
-          <!-- Total Row -->
-          <tr class="total-row">
-            <td colspan="8" style="font-size:12px;text-align:right;"><b>TOTAL OUTSTANDING:</b></td>
-            <td colspan="4" style="font-size:12px;"><b><?php echo number_format($total_remain->total_remain ?? 0); ?></b></td>
-          </tr>
-        <?php else: ?>
-          <tr>
-            <td colspan="12" style="text-align:center;padding:20px;">No defaulters found for the selected criteria.</td>
-          </tr>
-        <?php endif; ?>
-      </tbody>
-    </table>
+            <?php endforeach; ?>
+            <!-- Branch Subtotals -->
+            <tr style="background:#b2ebf2;color:#006064;font-weight:bold;">
+              <td colspan="3" style="text-align:right;"><b>Branch Total:</b></td>
+              <td><b><?php echo number_format($b_loan); ?></b></td>
+              <td><b><?php echo number_format($b_restoration); ?></b></td>
+              <td></td>
+              <td><b><?php echo number_format($b_paid); ?></b></td>
+              <td><b><?php echo number_format($b_remain); ?></b></td>
+              <td colspan="3"></td>
+            </tr>
+          </tbody>
+        </table>
+        <?php
+          $grand_loan += $b_loan;
+          $grand_restoration += $b_restoration;
+          $grand_paid += $b_paid;
+          $grand_remain += $b_remain;
+        ?>
+      <?php endforeach; ?>
+      <!-- Grand Totals -->
+      <div style="margin-top:24px; max-width:600px; margin-left:auto; margin-right:auto; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.08); overflow:hidden;">
+        <div style="background:#00bcd4; color:#fff; padding:12px 20px; font-size:18px; font-weight:bold; text-align:center; letter-spacing:1px;">
+          Grand Totals
+        </div>
+        <div style="background:#e0f7fa; color:#006064; display:flex; flex-wrap:wrap; justify-content:space-between; padding:18px 20px; font-size:16px;">
+          <div style="flex:1 1 45%; margin-bottom:10px; min-width:200px;">
+            <span style="font-weight:600;">Total Loan Amount:</span> <span style="float:right;"><?php echo number_format($grand_loan); ?></span>
+          </div>
+          <div style="flex:1 1 45%; margin-bottom:10px; min-width:200px;">
+            <span style="font-weight:600;">Total Restoration:</span> <span style="float:right;"><?php echo number_format($grand_restoration); ?></span>
+          </div>
+          <div style="flex:1 1 45%; margin-bottom:10px; min-width:200px;">
+            <span style="font-weight:600;">Total Paid:</span> <span style="float:right;"><?php echo number_format($grand_paid); ?></span>
+          </div>
+          <div style="flex:1 1 45%; margin-bottom:10px; min-width:200px;">
+            <span style="font-weight:600;">Total Remain:</span> <span style="float:right;"><?php echo number_format($grand_remain); ?></span>
+          </div>
+        </div>
+      </div>
+    <?php else: ?>
+      <div style="text-align:center;padding:20px;">No defaulters found for the selected criteria.</div>
+    <?php endif; ?>
 
-    <br><br>
-    <p><b>Authorised Name: .......................................</b> &nbsp;&nbsp;&nbsp;&nbsp; 
-       <b>Position: .......................................</b> &nbsp;&nbsp;&nbsp;&nbsp; 
-       <b>Signature: .......................................</b>
-    </p>
-    <p><b>Authorised Name: .......................................</b> &nbsp;&nbsp;&nbsp;&nbsp; 
-       <b>Position: .......................................</b> &nbsp;&nbsp;&nbsp;&nbsp; 
-       <b>Signature: .......................................</b>
-    </p>
-  </div>
 
-</div>
 
-</body>
-</html>
+

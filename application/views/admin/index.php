@@ -211,7 +211,7 @@ include_once APPPATH . "views/partials/header.php";
 
 </div>
 
-<div class="grid grid-cols-2 gap-4">
+<!-- <div class="grid grid-cols-2 gap-4"> -->
     <!-- 3️⃣ Paid Expiring Today -->
 <a href="<?= base_url('admin/income_dashboard') ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
@@ -242,12 +242,12 @@ include_once APPPATH . "views/partials/header.php";
 
   <!-- 3️⃣ Paid Expiring Today -->
 <a href="<?= base_url('admin/loan_withdrawal') ?>" class="block">
-  <div class="flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-green-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
+  <!-- <div class="flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-green-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     
     <div class="flex items-center justify-between">
       <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 Today Processing fee Paid</p>
       
-      <!-- Tooltip -->
+      
       <div class="relative group cursor-pointer">
         <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10" />
@@ -265,8 +265,8 @@ include_once APPPATH . "views/partials/header.php";
       <span class="flex items-center gap-1 text-yellow-700 font-medium text-sm">✅</span>
     </div>
   </div>
-</a>
-</div>
+</a> -->
+<!-- </div> -->
 
 
 
