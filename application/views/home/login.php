@@ -167,12 +167,41 @@
           <?php echo form_close(); ?>
           <!-- End Form -->
 
-          <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          <!-- <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account yet?
             <a class="text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="<?php echo base_url("welcome/register"); ?>">
               Sign up here
-            </a>
-          </p>
+            </a> -->
+          <!-- </p> -->
+
+
+    <!-- Divider -->
+    <div class="flex items-center my-6">
+      <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+      <span class="mx-3 text-xs text-gray-500 uppercase tracking-wider">Or</span>
+      <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+    </div>
+
+    <!-- Customer Login Button -->
+<a href="<?php echo base_url('customer'); ?>"
+   class="w-full py-2.5 sm:py-3 px-4 flex justify-center items-center gap-2 text-sm sm:text-base font-medium 
+          rounded-lg border border-green-600 text-green-600 bg-white 
+          hover:bg-green-600 hover:text-white 
+          transition-all duration-200 
+          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+          dark:bg-gray-900 dark:text-green-400 dark:border-green-500 dark:hover:bg-green-600 dark:hover:text-white">
+
+  <!-- Customer Icon with hover pulse -->
+  <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 transform transition-transform duration-300 hover:scale-110 hover:animate-pulse" 
+       xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M4.5 20.25a7.5 7.5 0 0115 0" />
+  </svg>
+
+  <span class="truncate">Ingia Kama Mteja</span>
+</a>
 
         </div>
       </div>

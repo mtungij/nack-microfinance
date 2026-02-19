@@ -105,7 +105,7 @@
             <!-- Help Text -->
             <div class="mt-6 pt-6 border-t border-gray-200">
                 <p class="text-center text-xs sm:text-sm text-gray-600">
-                    Ikiwa una shida kuingia, tafadhali wasiliana na tawi ulilochukua mkopo.
+                    Ikiwa una shida kuingia, tafadhali wasiliana na tawi ulilochukua.
                 </p>
             </div>
         </div>
