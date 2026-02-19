@@ -25,7 +25,7 @@
 
         <!-- Login Card -->
         <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
-            <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">Welcome Back</h2>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">Karibu Tena</h2>
 
             <?php if ($this->session->flashdata('error')): ?>
                 <div class="mb-4 p-3 sm:p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded">
@@ -54,7 +54,7 @@
                 <!-- Phone Number -->
                 <div>
                     <label for="phone_no" class="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number <span class="text-red-500">*</span>
+                        Nambari ya Simu <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -65,7 +65,7 @@
                         <input type="text" 
                                id="phone_no" 
                                name="phone_no" 
-                               placeholder="0712345678"
+                               placeholder="weka nambari yako ya simu unayotumia kwenye mkopo"
                                required
                                class="pl-10 py-2.5 sm:py-3 px-4 block w-full border-gray-300 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500">
                     </div>
@@ -74,7 +74,7 @@
                 <!-- Customer Code -->
                 <div>
                     <label for="customer_code" class="block text-sm font-medium text-gray-700 mb-2">
-                        Customer Code <span class="text-red-500">*</span>
+                        Neno la Siri <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -85,11 +85,11 @@
                         <input type="text" 
                                id="customer_code" 
                                name="customer_code" 
-                               placeholder="Enter your customer code"
+                               placeholder="Weka neno lako la siri"
                                required
                                class="pl-10 py-2.5 sm:py-3 px-4 block w-full border-gray-300 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500">
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">You can find your customer code on your loan agreement</p>
+                    <p class="mt-1 text-xs text-gray-500">Unaweza kupata neno lako la siri kwenye mkataba wako wa mkopo</p>
                 </div>
 
                 <!-- Submit Button -->
@@ -98,21 +98,21 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                     </svg>
-                    Sign In
+                    Ingia
                 </button>
             <?= form_close(); ?>
 
             <!-- Help Text -->
             <div class="mt-6 pt-6 border-t border-gray-200">
                 <p class="text-center text-xs sm:text-sm text-gray-600">
-                    Need help? Contact your branch officer
+                    Ikiwa una shida kuingia, tafadhali wasiliana na tawi ulilochukua mkopo.
                 </p>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="text-center mt-6 text-white text-xs sm:text-sm">
-            <p>&copy; <?= date('Y'); ?> Loan Management System. All rights reserved.</p>
+            <p>&copy; <?= date('Y'); ?> Loan Management System. Haki zote zimehifadhiwa.</p>
         </div>
     </div>
 
