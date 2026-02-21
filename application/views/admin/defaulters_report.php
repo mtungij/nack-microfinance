@@ -65,10 +65,11 @@
             <b><?php echo $compdata->comp_name; ?></b><br>
             <b><?php echo $compdata->adress; ?></b> <br>
           </p>
-          <p style="font-size:12px;text-align:center;" class="c">
-           YESTERDAY DEFAULTERS/OUTSTANDING LOANS REPORT<br>
-            Date: <?php echo date("d-m-Y"); ?>
-          </p>
+       <p style="font-size:12px;text-align:center;" class="c">
+    <strong>Customers who completed their loan yesterday</strong>
+    <br>
+    Date: <?php echo date("d-m-Y"); ?>
+</p>
           
           <?php if ($blanch_data): ?>
             <p style="font-size:11px;text-align:center;">
@@ -145,7 +146,16 @@
             ?>
             <tr>
               <td><?php echo $no++; ?>.</td>
-              <td><?php echo $outstands->f_name . ' ' . $outstands->m_name . ' ' . $outstands->l_name; ?></td>
+            <td>
+    <?php 
+        echo mb_strtoupper(
+            $outstands->f_name . ' ' . 
+            $outstands->m_name . ' ' . 
+            $outstands->l_name,
+            'UTF-8'
+        ); 
+    ?>
+</td>
               <td><?php echo $outstands->phone_no; ?></td>
               <td><?php echo number_format($outstands->loan_int); ?></td>
               <td><?php echo number_format($outstands->restration); ?></td>
@@ -160,7 +170,15 @@
               </td>
               <td><?php echo number_format($outstands->total_deposit); ?></td>
               <td><?php echo number_format($outstands->loan_int - $outstands->total_deposit); ?></td>
-              <td><b><?php echo $outstands->overdue_days; ?></b></td>
+              <td><b><?php 
+              if ($outstands->loan_int == $outstands->total_deposit) {
+                  echo 0; // Not default
+              } else {
+                  echo $outstands->pending_day;
+              }
+              
+              
+              ?></b></td>
               <td><?php echo substr($outstands->loan_stat_date, 0, 10); ?></td>
               <td><?php echo substr($outstands->loan_end_date, 0, 10); ?></td>
             </tr>

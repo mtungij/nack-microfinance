@@ -9241,6 +9241,178 @@ public function filter_default_blanch(){
 
 
 
+public function defaulters_3_30_days_pdf()
+{
+    // Load model
+    $this->load->model('queries');
+
+    // Get company ID
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Get branch data (optional, if needed in the view)
+    $blanch_data = $this->queries->get_blanch($comp_id);
+
+    // Get defaulters 3–30 days
+    $outstand = $this->queries->get_defaulters_3_30_days($comp_id);
+     $compdata = $this->queries->get_companyData($comp_id);
+
+    // Prepare data array for view
+    $data = [
+        'compdata'   => $compdata, // make sure you have this function
+        'blanch_data'=> $blanch_data,
+        'outstand'   => $outstand,
+        'title'      => "Defaulters Report (3–30 Days Past Due)"
+    ];
+
+    // Load mPDF library
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L',      // Landscape
+        'margin_left' => 10,
+        'margin_right'=> 10,
+        'margin_top'  => 15,
+        'margin_bottom'=> 15,
+        'margin_header'=> 5,
+        'margin_footer'=> 5
+    ]);
+
+    // Load HTML view as string
+    $html = $this->load->view('admin/defaulters_3_30_days_pdf', $data, true);
+
+    // Write HTML to PDF
+    $mpdf->WriteHTML($html);
+
+    // Output PDF inline to browser
+    $mpdf->Output("Defaulters_3_30_Days_Report.pdf", "I"); // I = inline, D = download
+}
+
+
+public function defaulters_31_60_days_pdf()
+{
+    // Load model
+    $this->load->model('queries');
+
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Get branch info (optional)
+    $blanch_data = $this->queries->get_blanch($comp_id);
+
+    // Get defaulters 31–60 days
+    $outstand = $this->queries->get_defaulters_31_60_days($comp_id);
+       $compdata = $this->queries->get_companyData($comp_id);
+
+    // Prepare data for view
+    $data = [
+        'compdata'    => $compdata, // make sure you have this function
+        'blanch_data' => $blanch_data,
+        'outstand'    => $outstand,
+        'title'       => "Defaulters Report (31–60 Days Past Due)"
+    ];
+
+    // Load mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L', 
+        'margin_left' => 10,
+        'margin_right'=> 10,
+        'margin_top'  => 15,
+        'margin_bottom'=> 15,
+        'margin_header'=> 5,
+        'margin_footer'=> 5
+    ]);
+
+    // Load view HTML
+    $html = $this->load->view('admin/defaulters_31_60_days_pdf', $data, true);
+
+    // Generate PDF
+    $mpdf->WriteHTML($html);
+    $mpdf->Output("Defaulters_31_60_Days_Report.pdf", "I"); // I = inline
+}
+
+
+public function defaulters_61_90_days_pdf()
+{
+    // Load model
+    $this->load->model('queries');
+
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Branch info (optional, for view)
+    $blanch_data = $this->queries->get_blanch($comp_id);
+
+    // Get defaulters 61–90 days
+    $outstand = $this->queries->get_defaulters_61_90_days($comp_id);
+     $compdata = $this->queries->get_companyData($comp_id);
+
+    // Prepare data for view
+    $data = [
+        'compdata'    => $compdata, // make sure this exists
+        'blanch_data' => $blanch_data,
+        'outstand'    => $outstand,
+        'title'       => "Defaulters Report (61–90 Days Past Due)"
+    ];
+
+    // Load mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L', 
+        'margin_left' => 10,
+        'margin_right'=> 10,
+        'margin_top'  => 15,
+        'margin_bottom'=> 15,
+        'margin_header'=> 5,
+        'margin_footer'=> 5
+    ]);
+
+    // Load view HTML
+    $html = $this->load->view('admin/defaulters_61_90_days_pdf', $data, true);
+
+    // Generate PDF
+    $mpdf->WriteHTML($html);
+    $mpdf->Output("Defaulters_61_90_Days_Report.pdf", "I"); // I = inline in browser
+}
+
+
+
+public function defaulters_91_plus_days_pdf()
+{
+    // Load the Queries model
+    $this->load->model('queries');
+
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Optional: branch info for header
+    $blanch_data = $this->queries->get_blanch($comp_id);
+
+    // Get defaulters 91+ days
+    $outstand = $this->queries->get_defaulters_91_plus_days($comp_id);
+
+    // Prepare data for view
+    $data = [
+        'compdata'    => $this->queries->get_companyData($comp_id), // ensure this method exists
+        'blanch_data' => $blanch_data,
+        'outstand'    => $outstand,
+        'title'       => "Defaulters Report (91+ Days Past Due)"
+    ];
+
+    // Load mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L', 
+        'margin_left' => 10,
+        'margin_right'=> 10,
+        'margin_top'  => 15,
+        'margin_bottom'=> 15
+    ]);
+
+    // Load view HTML
+    $html = $this->load->view('admin/defaulters_91_plus_days_pdf', $data, true);
+
+    // Generate PDF
+    $mpdf->WriteHTML($html);
+    $mpdf->Output("Defaulters_91_plus_Days_Report.pdf", "I"); // I = inline view
+}
+
+
+
+
+
 public  function yesterday_defaulters_pdf ()
 {
     $this->load->model('queries');

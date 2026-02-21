@@ -564,23 +564,23 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     </a>
 
                     <!-- Stat Card: Approved Loans -->
-                    <a href="<?php echo base_url("oficer/get_loan_aproved"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <!-- <a href="<?php echo base_url("oficer/get_loan_aproved"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                         <?php
 							$ap = $this->db->query("SELECT * FROM tbl_loans WHERE comp_id = '$comp_id' AND loan_status = 'aproved'");
 							 ?>
-                            <!-- <img src="</?php echo base_url('assets/img/aproved.png'); ?>" class="size-10" alt="Approved Loans"> -->
+                         
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Approved Loans</h2>
                         </div>
                         <p class="text-2xl font-bold text-green-600 dark:text-green-400"> <?= count($approved_customer) ?></p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Loans awaiting disbursement</p>
-                    </a>
+                    </a> -->
 
 					<a href="<?php echo base_url("oficer/disburse_loan"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                        
                             <!-- <img src="</?php echo base_url('assets/img/aproved.png'); ?>" class="size-10" alt="Approved Loans"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Disbursed Loans</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Approved Loans</h2>
                         </div>
                         <p class="text-2xl font-bold text-green-600 dark:text-green-400"> <?= $disbursed_customer ?></p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Loans awaiting disbursement</p>

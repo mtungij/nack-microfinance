@@ -57,6 +57,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
        -translate-x-full transition-all duration-300
        transform w-64 hidden
        fixed inset-y-0 start-0 z-40
+       h-screen overflow-y-auto
        lg:block lg:translate-x-0 lg:end-auto lg:bottom-0
        border-e border-gray-200
        bg-white dark:bg-gray-800 dark:border-gray-700">

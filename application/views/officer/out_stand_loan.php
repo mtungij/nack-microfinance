@@ -21,25 +21,68 @@ include_once APPPATH . "views/partials/officerheader.php";
 		  ]);
 		?>
 		<div class="mb-4 flex w-full flex-col items-center gap-4 lg:flex-row lg:justify-center">
-			<form method="get" action="<?php echo base_url('oficer/get_outstand_loan'); ?>" class="flex w-full flex-col items-end gap-3 sm:flex-row sm:items-end sm:justify-center">
-				<div class="w-full sm:w-auto">
-					<label class="block text-xs font-medium text-gray-600 mb-1">Start date</label>
-					<input type="date" name="start_date" value="<?php echo htmlspecialchars($start_date_value, ENT_QUOTES, 'UTF-8'); ?>" class="h-9 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500" />
-				</div>
-				<div class="w-full sm:w-auto">
-					<label class="block text-xs font-medium text-gray-600 mb-1">End date</label>
-					<input type="date" name="end_date" value="<?php echo htmlspecialchars($end_date_value, ENT_QUOTES, 'UTF-8'); ?>" class="h-9 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500" />
-				</div>
-				<button type="submit" class="h-9 w-full rounded-lg bg-cyan-600 px-4 text-sm font-medium text-white hover:bg-cyan-700 sm:w-auto">Filter</button>
-			</form>
+	<a href="<?= base_url('oficer/download_yesterday_defaulters_pdf') ?>" target="_blank"
+   class="flex items-center justify-center text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
 
-			<div class="flex w-full flex-col items-end gap-3 sm:flex-row sm:items-end sm:justify-center">
-				<div class="w-full sm:w-auto">
-					<label class="block text-xs font-medium text-gray-600 mb-1">Search</label>
-					<input type="text" id="outstand-search" placeholder="Search..." class="h-9 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-700 focus:border-cyan-500 focus:ring-cyan-500" />
-				</div>
-				<a href="<?php echo base_url('oficer/download_outstand_loan') . ($download_query ? '?' . $download_query : ''); ?>" class="h-9 w-full inline-flex items-center justify-center rounded-lg border border-cyan-200 bg-cyan-50 px-4 text-sm font-medium text-cyan-700 hover:bg-cyan-100 sm:w-auto">Export PDF</a>
-			</div>
+    <!-- PDF / Document Icon -->
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill-rule="evenodd" 
+              d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.046.752.097 1.126.153A2.212 2.212 0 0118 8.653v4.097A2.25 2.25 0 0115.75 15h-.241l.305 1.984A1.75 1.75 0 0114.084 19H5.915a1.75 1.75 0 01-1.73-2.016L4.492 15H4.25A2.25 2.25 0 012 12.75V8.653c0-1.082.775-2.034 1.874-2.198.374-.056.75-.107 1.127-.153L5 6.25v-3.5zm8.5 3.397a41.533 41.533 0 00-7 0V2.75a.25.25 0 01.25-.25h6.5a.25.25 0 01.25.25v3.397zM6.608 12.5a.25.25 0 00-.247.212l-.693 4.5a.25.25 0 00.247.288h8.17a.25.25 0 00.246-.288l-.692-4.5a.25.25 0 00-.247-.212H6.608z" 
+              clip-rule="evenodd" />
+    </svg>
+
+    Walipaswa kumaliza mikopo Jana PDF
+</a>
+
+
+	<a href="<?php echo base_url(); ?>oficer/defaulters_3_30_days_pdf"
+   target="_blank"
+   class="flex items-center justify-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
+
+   <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+              d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z"
+              clip-rule="evenodd"/>
+    </svg>
+
+   Mikopo ya Siku 3–30 Zilizochelewa
+</a>
+
+	<button type="button" 
+        onclick="window.open('<?= base_url('oficer/defaulters_31_60_days_pdf'); ?>', '_blank')" 
+        class="flex items-center justify-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
+
+    <!-- PDF / Document Icon -->
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
+    </svg>
+
+     Mikopo ya Siku 31–60 Zilizochelewa
+</button>
+
+<button type="button" 
+        onclick="window.open('<?= base_url('oficer/defaulters_61_90_days_pdf'); ?>', '_blank')" 
+        class="flex items-center justify-center text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-4 py-2">
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
+    </svg>
+
+   Mikopo ya Siku 61–90 Zilizochelewa
+</button>
+
+
+<button type="button" 
+        onclick="window.open('<?= base_url('oficer/defaulters_91_plus_days_pdf'); ?>', '_blank')" 
+        class="flex items-center justify-center text-white bg-red-900 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-900 dark:hover:bg-red-800 focus:outline-none dark:focus:ring-red-800">
+
+    <!-- PDF / Document Icon -->
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
+    </svg>
+
+    91+ Days Past Due
+</button>
+
 		</div>
 		<!--begin: Datatable -->
 		<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
@@ -51,13 +94,13 @@ include_once APPPATH . "views/partials/officerheader.php";
 										<th class="px-4 py-3 text-left font-semibold">Customer Name</th>
 										<th class="px-4 py-3 text-left font-semibold">Phone Number</th>
 										<th class="px-4 py-3 text-left font-semibold">Loan Amount</th>
-										<th class="px-4 py-3 text-left font-semibold">Restoration</th>
-										<th class="px-4 py-3 text-left font-semibold">Duration Type</th>
+										<th class="px-4 py-3 text-left font-semibold">Rejesho</th>
 										<th class="px-4 py-3 text-left font-semibold">Number of Repayment</th>
-										<th class="px-4 py-3 text-left font-semibold">Remain Amount</th>
+										<th class="px-4 py-3 text-left font-semibold">Amelipa</th>
+										<th class="px-4 py-3 text-left font-semibold">Deni</th>
 										<th class="px-4 py-3 text-left font-semibold">pending Day</th>
-										<th class="px-4 py-3 text-left font-semibold">Satart date</th>
-										<th class="px-4 py-3 text-left font-semibold">End date</th>
+										<th class="px-4 py-3 text-left font-semibold">Gawa Tarehe</th>
+										<th class="px-4 py-3 text-left font-semibold">Mwisho Tarehe</th>
 								           </tr>
 			                  </thead>
 			
@@ -76,22 +119,21 @@ include_once APPPATH . "views/partials/officerheader.php";
 							  			<td class="px-4 py-2 text-gray-700 dark:text-gray-300"><?php echo number_format($outstands->loan_int); ?></td> 
 							  			<td class="px-4 py-2 text-gray-700 dark:text-gray-300"><?php echo number_format($outstands->restration); ?></td> 
 							  			<td class="px-4 py-2 text-gray-700 dark:text-gray-300">
-				  						
-				  						<?php if($outstands->day == '1'){ ?>
-				  							<?php echo "Daily"; ?>
-				  						
-				  						<?php }elseif ($outstands->day == '7'){
-				  							echo "Weekly";
-				  						 ?>
-				  						 <?php }elseif ($outstands->day == '30') {
-				  						 	echo "Monthly";
-				  						  ?>
-				  						  <?php } ?>	
-						  				</td> 
-				  			 
-			
-					<td class="px-4 py-2 text-gray-700 dark:text-gray-300"><?php echo $outstands->session; ?></td> 
-					<td class="px-4 py-2 text-gray-700 dark:text-gray-300"><?php echo number_format($outstands->remain_amount); ?></td> 
+    <?php 
+        if ($outstands->day == '1') {
+            echo "Daily";
+        } elseif ($outstands->day == '7') {
+            echo "Weekly";
+        } elseif ($outstands->day == '30') {
+            echo "Monthly";
+        }
+
+        echo " (" . $outstands->session . ")";
+		
+    ?>
+</td>
+					<td class="px-4 py-2 text-gray-700 dark:text-gray-300"> <?php echo number_format($outstands->total_deposit); ?></td>
+					 <td><?= number_format($outstands->loan_int - $outstands->total_deposit) ?></td>
 					<td class="px-4 py-2 text-red-600 dark:text-red-400">
 					  <?php
 					    $endDateStr = substr($outstands->loan_end_date, 0, 10);
@@ -124,7 +166,7 @@ include_once APPPATH . "views/partials/officerheader.php";
 					<th class="px-4 py-3"></th>
 					<th class="px-4 py-3"><?php //echo number_format($pend->total_pending); ?></th>
 					<th class="px-4 py-3"><?php //echo number_format($pend->total_pending); ?></th>
-					<th class="px-4 py-3 font-semibold"><?php echo number_format($total_remain->total_out); ?></th>
+				
 					<th class="px-4 py-3"><?php //echo number_format($pend->total_pending); ?></th>
 					<th class="px-4 py-3"><?php //echo number_format($pend->total_pending); ?></th>
 					<th class="px-4 py-3"><?php //echo number_format($pend->total_pending); ?></th>

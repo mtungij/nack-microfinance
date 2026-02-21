@@ -4794,6 +4794,163 @@ public function get_outstand_loan_yesterday($comp_id){
 
 
 
+public function get_defaulters_3_30_days($comp_id)
+{
+    $sql = "
+        SELECT 
+            l.*, 
+            o.*, 
+            c.*, 
+            e.*, 
+            b.*,
+            COALESCE(SUM(d.depost), 0) AS total_deposit,
+
+            -- Outstanding balance
+            (l.loan_int - COALESCE(SUM(d.depost), 0)) AS balance,
+
+            -- Overdue days (0 if fully paid)
+            CASE 
+                WHEN COALESCE(SUM(d.depost), 0) >= l.loan_int THEN 0
+                ELSE GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0)
+            END AS overdue_days
+
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+
+        WHERE l.comp_id = ?
+
+        GROUP BY l.loan_id
+
+        HAVING 
+            overdue_days BETWEEN 3 AND 30
+            AND balance > 0
+    ";
+
+    return $this->db->query($sql, [$comp_id])->result();
+}
+
+
+
+public function get_defaulters_31_60_days($comp_id)
+{
+    // Calculate overdue range: 31 to 60 days
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.comp_id = ?
+          AND (GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) BETWEEN 31 AND 60)
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$comp_id])->result();
+}
+
+
+public function get_defaulters_61_90_days($comp_id)
+{
+    // Select loans where overdue_days between 61 and 90
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.comp_id = ?
+          AND (GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) BETWEEN 61 AND 90)
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$comp_id])->result();
+}
+
+
+
+public function get_defaulters_91_plus_days($comp_id)
+{
+    // Select loans where overdue_days are greater than 90
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.comp_id = ?
+          AND (GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) > 90)
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$comp_id])->result();
+}
+
+
+
+public function get_outstand_loan_yesterday_by_branch($blanch_id)
+{
+    $yesterday = date('d/m/Y', strtotime('-1 day'));
+
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE DATE_FORMAT(o.loan_end_date, '%d/%m/%Y') = ?
+        AND l.blanch_id = ?
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$yesterday, $blanch_id])->result();
+}
+
+
+
+// Total outstanding loans for yesterday by branch
+
+public function get_defaulters_3_30_days_by_branch($blanch_id)
+{
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.blanch_id = ?
+          AND (GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) BETWEEN 3 AND 30)
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$blanch_id])->result();
+}
+
+
+
     public function get_blanchIncome($blanch_id,$receve_day){
     	  $this->db->select('r.receved_id,r.comp_id,r.inc_id,r.blanch_id,r.customer_id,r.empl,r.receve_amount,r.receve_day,c.customer_id,c.f_name,c.m_name,c.l_name,i.inc_id,i.comp_id,i.inc_name,b.blanch_id,b.blanch_name');
       $this->db->like('r.blanch_id',$blanch_id);

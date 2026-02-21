@@ -8247,8 +8247,8 @@ public function oficer_profile(){
         $blanch_data = $this->queries->get_blanchData($blanch_id);
         $empl_data = $this->queries->get_employee_data($empl_id);
         $privillage = $this->queries->get_position_empl($empl_id);
-        $outstand = $this->queries->outstand_loanBlanch($blanch_id);
-        $total_remain = $this->queries->total_outstand_loanBlanch($blanch_id);
+        $outstand = $this->queries->get_outstand_loan_yesterday_by_branch($blanch_id);
+       
 
         $start_date = $this->input->get('start_date');
         $end_date = $this->input->get('end_date');
@@ -8294,7 +8294,7 @@ public function oficer_profile(){
     $this->load->view('officer/out_stand_loan',[
       'outstand'=>$outstand,
       'privillage'=>$privillage,
-      'total_remain'=>$total_remain,
+     
       'manager'=>$manager,
       'start_date'=>$start_date ?? '',
       'end_date'=>$end_date ?? ''
@@ -8421,6 +8421,88 @@ public function print_allCustomer(){
     $mpdf->Output(); 
 
 }
+
+
+
+public function download_yesterday_defaulters_pdf()
+{
+    $this->load->model('queries');
+
+    // Get branch ID from session
+    $blanch_id = $this->session->userdata('blanch_id');
+
+    // Get branch and company info
+    $blanch_data = $this->queries->get_blanchData($blanch_id);
+    $compdata = $this->queries->get_companyData($blanch_data->comp_id);
+
+    // Get loans ending yesterday for this branch
+    $outstand = $this->queries->get_outstand_loan_yesterday_by_branch($blanch_id);
+
+    // Data for view
+    $data = [
+        'compdata'    => $compdata,
+        'blanch_data' => $blanch_data,
+        'outstand'    => $outstand,
+        'title'       => "Yesterday's Defaulters Report"
+    ];
+
+    // Clear any previous output
+    if (ob_get_length()) ob_end_clean();
+
+    // Load mPDF
+    $mpdf = new \Mpdf\Mpdf(['format' => 'A4-L']); // Landscape
+    $html = $this->load->view('officer/yesterday_defaulters_pdf', $data, true);
+    $mpdf->WriteHTML($html);
+
+    // Force download
+    $filename = "Yesterday_Defaulters_{$blanch_data->blanch_name}_" . date('d-m-Y') . ".pdf";
+    $mpdf->Output($filename, 'D'); // 'D' = Download
+
+    exit; // Stop any further output
+}
+
+
+   public function defaulters_3_30_days_pdf()
+    {
+        $this->load->model('queries');
+
+        // Get company ID and branch ID from session
+        $comp_id = $this->session->userdata('comp_id');
+        $blanch_id = $this->session->userdata('blanch_id');
+
+        // Get company & branch info
+        $compdata = $this->queries->get_companyData($comp_id);
+        $blanch_data = $this->queries->get_blanchData($blanch_id);
+
+        // Get all loans overdue 3–30 days for this company
+        $outstand = $this->queries->get_defaulters_3_30_days_by_branch($blanch_id);
+
+echo "<pre>";
+
+echo "🚧 Ipo kwenye matengenezo, tafadhali subiri...";
+exit();
+
+        // Data for PDF view
+        $data = [
+            'compdata'    => $compdata,
+            'blanch_data' => $blanch_data,
+            'outstand'    => $outstand,
+            'title'       => "Defaulters Report (3–30 Days Past Due)"
+        ];
+
+        // Clear previous output
+        if (ob_get_length()) ob_end_clean();
+
+        // Load mPDF and render PDF
+        $mpdf = new \Mpdf\Mpdf(['format' => 'A4-L']); // Landscape
+        $html = $this->load->view('officer/defaulters_3_30_days_pdf', $data, true);
+        $mpdf->WriteHTML($html);
+
+        // Force download
+        $filename = "Defaulters_3_30_Days_" . date('d-m-Y') . ".pdf";
+        $mpdf->Output($filename, 'D');
+        exit;
+    }
 
 
 

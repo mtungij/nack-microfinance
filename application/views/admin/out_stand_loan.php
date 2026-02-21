@@ -39,46 +39,63 @@ include_once APPPATH . "views/partials/header.php";
 </a>
 
 
-		<button type="button" onclick="downloadDefaultersPDF()" class="flex items-center justify-center text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-yellow-800">
-   <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+	<a href="<?php echo base_url(); ?>admin/defaulters_3_30_days_pdf"
+   target="_blank"
+   class="flex items-center justify-center text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-yellow-800">
+
+   <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+              d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z"
+              clip-rule="evenodd"/>
+    </svg>
+
+   3–30 Days Past Due
+</a>
+
+	<button type="button" 
+        onclick="window.open('<?= base_url('admin/defaulters_31_60_days_pdf'); ?>', '_blank')" 
+        class="flex items-center justify-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
+
+    <!-- PDF / Document Icon -->
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
     </svg>
-   1–30 Days Past Due
+
+    31–60 Days Past Due
+</button>
+
+<button type="button" 
+        onclick="window.open('<?= base_url('admin/defaulters_61_90_days_pdf'); ?>', '_blank')" 
+        class="flex items-center justify-center text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-4 py-2">
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
+    </svg>
+    61–90 Days Past Due
 </button>
 
 
-	<button type="button" onclick="downloadDefaultersPDF()" class="flex items-center justify-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
-    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<button type="button" 
+        onclick="window.open('<?= base_url('admin/defaulters_91_plus_days_pdf'); ?>', '_blank')" 
+        class="flex items-center justify-center text-white bg-red-900 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-900 dark:hover:bg-red-800 focus:outline-none dark:focus:ring-red-800">
+
+    <!-- PDF / Document Icon -->
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
     </svg>
-   31–60 Days Past Due
-</button>
 
-<button type="button" onclick="downloadDefaultersPDF()" class="flex items-center justify-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
-   <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
-    </svg>
-   61–90 Days Past Due
-</button>
-
-
-<button type="button" onclick="downloadDefaultersPDF()" class="flex items-center justify-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
-   <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
-    </svg>
-   91+ Days Past Due
+    91+ Days Past Due
 </button>
 
 
 
 				
 				<!-- Filter Button -->
-				<button type="button" class="flex items-center justify-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-basic-modal">
+				<!-- <button type="button" class="flex items-center justify-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-basic-modal">
     <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
     </svg>
     Filter Data
-</button>
+</button> -->
 
                   
                 </div>
@@ -135,7 +152,15 @@ include_once APPPATH . "views/partials/header.php";
 
             <td class="px-4 py-3 dark:text-white"><?= number_format($outstands->total_deposit); ?></td>
             <td class="px-4 py-3 dark:text-white"><?= number_format($outstands->loan_int - $outstands->total_deposit) ; ?></td>
-            <td class="px-4 py-3 dark:text-white"><?= $outstands->overdue_days; ?></td>
+           <td class="px-4 py-3 dark:text-white">
+    <?php
+        if ($outstands->loan_int == $outstands->total_deposit) {
+            echo 0; // Not default
+        } else {
+            echo $outstands->overdue_days;
+        }
+    ?>
+</td>
 			<td class="px-4 py-3 dark:text-white"><?= $outstands->loan_stat_date; ?></td>
             <td class="px-4 py-3 dark:text-white"><?= $outstands->loan_end_date; ?></td>
 			
