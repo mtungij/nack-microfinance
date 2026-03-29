@@ -129,6 +129,25 @@ include_once APPPATH . "views/partials/officerheader.php";
 
                             <?php echo form_error("phone_no", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
+
+                        <div class="sm:col-span-4">
+                            <label for="gender" class="block text-sm font-medium mb-2 dark:text-gray-300">* Gender:</label>
+                            <select id="gender" name="gender"
+                                class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600">
+                                <option value="">Select gender</option>
+                                <option value="Male" <?php echo set_select('gender', 'Male'); ?>>Male</option>
+                                <option value="Female" <?php echo set_select('gender', 'Female'); ?>>Female</option>
+                            </select>
+                            <?php echo form_error("gender", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
+                        </div>
+
+                        <div class="sm:col-span-4">
+                            <label for="date_birth" class="block text-sm font-medium mb-2 dark:text-gray-300">* Date of Birth:</label>
+                            <input type="date" id="date_birth" name="date_birth" autocomplete="off"
+                                class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
+                                value="<?php echo set_value('date_birth'); ?>">
+                            <?php echo form_error("date_birth", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
+                        </div>
                         
 
 						<input type="hidden" name="comp_id" value="<?php echo $empl_data->comp_id; ?>">

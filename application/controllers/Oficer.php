@@ -2001,6 +2001,8 @@ public function customer(){
     $this->form_validation->set_rules('m_name', 'Middle name', 'required');
     $this->form_validation->set_rules('l_name', 'Last name', 'required');
     $this->form_validation->set_rules('phone_no', 'phone number', 'required');
+    $this->form_validation->set_rules('gender', 'gender', 'required');
+    $this->form_validation->set_rules('date_birth', 'date of birth', 'required');
     $this->form_validation->set_error_delimiters('<div class="text-danger">', '</div>');
 
     if ($this->form_validation->run()) {
@@ -2022,6 +2024,7 @@ public function customer(){
         $f_name = $data['f_name'];
         $m_name = $data['m_name'];
         $l_name = $data['l_name'];
+        $data['gender'] = trim($data['gender']);
         $blanch_id = $data['blanch_id'];
         $comp_id = $data['comp_id'];
 
@@ -2052,7 +2055,7 @@ public function customer(){
         }
     }
 
-    $this->customer_details();
+    $this->customer();
 }
 
 
