@@ -56,9 +56,17 @@ include_once APPPATH . "views/partials/header.php";
         <h2 class="text-sm text-green-500 text-center font-semibold">(<?= $customer->famous_area; ?>)</h2>
         <p class="text-center mt-2 text-gray-800 font-medium"><?= $customer->phone_no; ?></p>
 
-               <div class="mt-4 text-center">
+               <div class="mt-4 flex flex-col gap-2">
+  <!-- View Customer Button -->
+  <button type="button" 
+          data-hs-overlay="#view-customer-modal-<?= $customer->customer_id; ?>"
+          class="inline-flex items-center justify-center px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+     👤 Badilisha Namba Ya Simu
+  </button>
+  
+  <!-- Send SMS Button -->
   <a href="<?= base_url('Admin/send_payment/' . $customer->customer_id); ?>" 
-     class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+     class="inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
      📩 Tuma SMS ya Malipo
   </a>
 </div>
@@ -889,7 +897,86 @@ function getAge(dob) {
 
 </script>
 
+<!-- View/Edit Customer Modal -->
+<div id="view-customer-modal-<?= $customer->customer_id; ?>" class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none">
+  <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all w-full max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl m-2 sm:m-3 sm:mx-auto">
+    <div class="flex flex-col bg-white border shadow-sm rounded-lg sm:rounded-xl dark:bg-gray-800 dark:border-gray-700 dark:shadow-slate-700/[.7] pointer-events-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center py-2 px-3 sm:py-3 sm:px-4 border-b dark:border-gray-700 bg-cyan-600 text-white rounded-t-lg sm:rounded-t-xl">
+        <h3 class="font-bold text-sm sm:text-base md:text-lg flex items-center">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+          </svg>
+          <span class="truncate">Customer Information</span>
+        </h3>
+        <button type="button" class="size-7 sm:size-8 inline-flex justify-center items-center rounded-full border border-transparent bg-white/20 hover:bg-white/30 text-white flex-shrink-0" data-hs-overlay="#view-customer-modal-<?= $customer->customer_id; ?>">
+          <span class="sr-only">Close</span>
+          <svg class="size-3 sm:size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
 
+      <!-- Modal Body -->
+      <div class="p-3 sm:p-4 md:p-6 overflow-y-auto max-h-[60vh] sm:max-h-[70vh]">
+        <?= form_open("admin/update_customer_info"); ?>
+        <input type="hidden" name="customer_id" value="<?= $customer->customer_id; ?>">
+        <input type="hidden" name="comp_id" value="<?= $customer->comp_id; ?>">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+          
+          <!-- Personal Information Section -->
+          <div class="col-span-1 sm:col-span-2">
+            <h4 class="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 sm:mb-3 border-b pb-2">Personal Information</h4>
+          </div>
+          
+          <div class="col-span-1 sm:col-span-2 md:col-span-1">
+            <label class="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 dark:text-white">First Name <span class="text-red-500">*</span></label>
+            <input type="text" name="f_name" value="<?= $customer->f_name; ?>" required
+                   class="py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 block w-full border-gray-200 rounded-lg text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
+          </div>
 
+          <div class="col-span-1 sm:col-span-2 md:col-span-1">
+            <label class="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 dark:text-white">Middle Name</label>
+            <input type="text" name="m_name" value="<?= $customer->m_name; ?>"
+                   class="py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 block w-full border-gray-200 rounded-lg text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
+          </div>
 
+          <div class="col-span-1 sm:col-span-2 md:col-span-1">
+            <label class="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 dark:text-white">Last Name <span class="text-red-500">*</span></label>
+            <input type="text" name="l_name" value="<?= $customer->l_name; ?>" required
+                   class="py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 block w-full border-gray-200 rounded-lg text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
+          </div>
 
+         
+
+          <div class="col-span-1 sm:col-span-2 md:col-span-1">
+            <label class="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 dark:text-white">Phone Number <span class="text-red-500">*</span></label>
+            <input type="text" name="phone_no" value="<?= $customer->phone_no; ?>" required
+                   class="py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 block w-full border-gray-200 rounded-lg text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
+          </div>
+
+       
+
+         
+
+        </div>
+        
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 py-2 px-3 sm:py-3 sm:px-4 border-t dark:border-gray-700">
+        <button type="button" class="w-full sm:w-auto py-2 px-3 inline-flex justify-center items-center gap-x-2 text-xs sm:text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800" data-hs-overlay="#view-customer-modal-<?= $customer->customer_id; ?>">
+          Close
+        </button>
+        <button type="submit" class="w-full sm:w-auto py-2 px-3 inline-flex justify-center items-center gap-x-2 text-xs sm:text-sm font-semibold rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700">
+          <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z"/>
+          </svg>
+          Update Information
+        </button>
+      </div>
+      
+      <?= form_close(); ?>
+    </div>
+  </div>
+</div>

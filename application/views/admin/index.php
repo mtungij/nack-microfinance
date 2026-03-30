@@ -13,9 +13,9 @@ include_once APPPATH . "views/partials/header.php";
                     Admin Dashboard
                 </h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                <?php echo htmlspecialchars($compdata ->comp_name ?? 'Your Company', ENT_QUOTES, 'UTF-8'); ?>
+           
 
-          
+               <?php echo !empty($this->session->userdata('comp_name')) ? htmlspecialchars($this->session->userdata('comp_name')) : 'Loan Management System'; ?>
 
                 </p>
             </div>
@@ -209,11 +209,64 @@ include_once APPPATH . "views/partials/header.php";
   </div>
 </a>
 
-
-
-
-
 </div>
+
+<!-- <div class="grid grid-cols-2 gap-4"> -->
+    <!-- 3️⃣ Paid Expiring Today -->
+<a href="<?= base_url('admin/income_dashboard') ?>" class="block">
+  <div class="flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
+    
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 Today Penalt Paid</p>
+      
+      <!-- Tooltip -->
+      <div class="relative group cursor-pointer">
+        <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <path d="M12 17h.01" />
+        </svg>
+        <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          Jumla ya faini zilizolipwa leo kutoka kwa wateja wenye mikopo iliyochelewa.
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-between">
+      <h3 class="text-3xl font-bold"><?= number_format(	$total_penalt->total_receved) ?></h3>
+      <span class="flex items-center gap-1 text-yellow-700 font-medium text-sm">✅</span>
+    </div>
+  </div>
+</a>
+
+
+  <!-- 3️⃣ Paid Expiring Today -->
+<a href="<?= base_url('admin/loan_withdrawal') ?>" class="block">
+  <!-- <div class="flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-green-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
+    
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 Today Processing fee Paid</p>
+      
+      
+      <div class="relative group cursor-pointer">
+        <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <path d="M12 17h.01" />
+        </svg>
+        <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          Jumla ya gharama za fomu zilizolipwa leo kutoka kwa wateja waliopewa mikopo .
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-between">
+      <h3 class="text-3xl font-bold"><?= number_format($total_loanWithdrawal->total_todayloan) ?></h3>
+      <span class="flex items-center gap-1 text-yellow-700 font-medium text-sm">✅</span>
+    </div>
+  </div>
+</a> -->
+<!-- </div> -->
 
 
 

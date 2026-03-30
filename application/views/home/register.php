@@ -53,10 +53,28 @@
           </div>
           <?php endif; ?>
 
+          <?php // Flash Error Message ?>
+          <?php if ($error = $this->session->flashdata('error')): ?>
+          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-500" role="alert">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="flex-shrink-0 size-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="m15 9-6 6"></path>
+                  <path d="m9 9 6 6"></path>
+                </svg>
+              </div>
+              <div class="ms-3">
+                <p class="text-sm"><?php echo $error;?></p>
+              </div>
+            </div>
+          </div>
+          <?php endif; ?>
+
           <!-- Form -->
           <?php // Using 'grid gap-y-6' for overall row spacing. Individual rows with columns will have their own grid. ?>
   
-          <?php echo form_open("welcome/create_company", ['class' => 'grid grid-cols-1 md:grid-cols-3 gap-6']); ?>
+          <?php echo form_open_multipart("welcome/create_company", ['class' => 'grid grid-cols-1 md:grid-cols-3 gap-6']); ?>
 
   <!-- Company Name -->
   <div class="col-span-1">
@@ -162,6 +180,20 @@
     <?php if ($comp_email_error): ?>
       <p class="text-xs text-red-600 mt-2"><?php echo strip_tags($comp_email_error); ?></p>
     <?php endif; ?>
+  </div>
+
+  <!-- Company Logo -->
+  <div class="col-span-1 md:col-span-3">
+    <label for="comp_logo" class="block text-sm mb-2 dark:text-white font-semibold">Company Logo</label>
+    <div class="relative">
+      <input type="file" id="comp_logo" name="comp_logo" accept="image/*" class="py-2.5 sm:py-3 px-4 block w-full border-2 border-gray-200 border-dashed rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:file:bg-cyan-900 dark:file:text-cyan-400">
+      <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        PNG, JPG, JPEG up to 2MB (Recommended: 200x200px)
+      </p>
+    </div>
   </div>
 
   <!-- Hidden Field -->

@@ -281,6 +281,9 @@ include_once APPPATH . "views/partials/officerheader.php";
 
                                 <?php @$loan_desc = $this->queries->get_total_pay_description($customer_loan->loan_id);
                                       @$remain_balance = $this->queries->get_total_remain_with($customer_loan->loan_id);
+
+                                      // print_r($remain_balance);
+                                      // exit();
                                       @$total_recovery = $this->queries->get_total_loan_pend($customer_loan->loan_id);
                                       @$total_penart =   $this->queries->get_total_penart_loan($customer_loan->loan_id);
                                       @$total_deposit_penart =  $this->queries->get_total_paypenart($customer_loan->loan_id);
@@ -358,7 +361,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         * Kiasi cha Kugawa:
       </label>
       <input type="text" id="withdrow_<?php echo $customer->customer_id; ?>" name="withdrow"
-  value="<?= htmlspecialchars(!empty($remain_balance->balance) ? $remain_balance->balance : 0, ENT_QUOTES, 'UTF-8'); ?>"
+ value="<?php echo $remain_balance->balance; ?>"
   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
   required>
 
@@ -390,14 +393,14 @@ include_once APPPATH . "views/partials/officerheader.php";
     </div>
 
   
-      <div class="sm:col-span-6">
+      <!-- <div class="sm:col-span-6">
       <label for="code_</?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">
         * Code Number:
       </label>
-      <input type="number" placeholder="andika code ya Mteja" id="code_<?php echo $customer->customer_id; ?>" name="code"
+      <input type="number" placeholder="andika code ya Mteja" id="code_<?php echo $customer->customer_id; ?>" name="code" 
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
         >
-    </div>    
+    </div>     -->
 
   </div>
 
@@ -416,7 +419,7 @@ include_once APPPATH . "views/partials/officerheader.php";
     <button type="button" class="py-2 px-3 btn-secondary-sm"
       data-hs-overlay="#hs-edit-shareholder-modal-<?= $customer->customer_id; ?>">Funga</button>
 
-     <a href="<?php echo base_url("oficer/get_loan_code_resend/{$customer->customer_id}"); ?>"
+     <!-- <a href="<?php echo base_url("oficer/get_loan_code_resend/{$customer->customer_id}"); ?>"
    class="py-2 px-3 btn-primary-sm bg-green-600 hover:bg-cyan-700 text-white flex items-center gap-2"
    onclick="showSvgLoaderAndRedirect(event, this)">
   <span>Resend Code</span>
@@ -443,7 +446,7 @@ include_once APPPATH . "views/partials/officerheader.php";
       </g>
     </svg>
   </span>
-</a>     
+</a>      -->
 
 
     <button type="submit" class="py-2 px-3 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white">Gawa</button>

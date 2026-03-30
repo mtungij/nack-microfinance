@@ -167,12 +167,14 @@
           <?php echo form_close(); ?>
           <!-- End Form -->
 
-          <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          <!-- <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account yet?
             <a class="text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="<?php echo base_url("welcome/register"); ?>">
               Sign up here
-            </a>
-          </p>
+            </a> -->
+          <!-- </p> -->
+
+          
 
         </div>
       </div>

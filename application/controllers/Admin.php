@@ -20,6 +20,7 @@ class Admin extends CI_Controller {
     $today_penart = $this->queries->get_total_penartToday($comp_id);
     $prepaid_today = $this->queries->prepaid_pay($comp_id);
 	$manager_data = $this->queries->get_compan_data($comp_id);
+  	$total_penalt = $this->queries->get_sum_income($comp_id);
 	
 
      $total_received = $this->queries->get_sumReceived_amount($comp_id);
@@ -133,6 +134,7 @@ class Admin extends CI_Controller {
 	' compdata'=> $compdata,
 	'total_loanDis'=>$total_loanDis,
 	'disbursed_loans'=>$disbursed_loans,
+  'total_penalt'=>$total_penalt,
 	'total_active_paid'=> $total_active_paid,
 	'today_endactive_paid'=> $today_endactive_paid,
 	'total_default_paid'=> $total_default_paid,
@@ -222,6 +224,115 @@ class Admin extends CI_Controller {
 		$this->load->view('admin/company_profile',['comp_data'=>$comp_data,'region'=>$region]);
 	}
 
+    public function company_settings(){
+    	$this->load->model('queries');
+            $comp_id = $this->session->userdata('comp_id');
+            $company = $this->queries->get_companyDataProfile($comp_id);
+            $this->load->view('admin/company_settings',['company'=>$company]);
+    }
+
+    public function update_company_settings(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        
+        // Form validation
+        $this->form_validation->set_rules('comp_name', 'Company Name', 'required|trim');
+        $this->form_validation->set_rules('comp_phone', 'Company Phone', 'required|trim');
+        $this->form_validation->set_rules('comp_email', 'Company Email', 'required|valid_email|trim');
+        $this->form_validation->set_rules('adress', 'Address', 'required|trim');
+        
+        if ($this->form_validation->run() == FALSE) {
+            $company = $this->queries->get_companyDataProfile($comp_id);
+            $this->load->view('admin/company_settings', ['company' => $company]);
+            return;
+        }
+        
+        $comp_logo = null;
+        
+        // Handle logo upload if file is selected
+        if (!empty($_FILES['comp_logo']['name'])) {
+            $upload_path = FCPATH . 'assets/images/company_logo/';
+            
+            // Ensure folder exists
+            if (!is_dir($upload_path)) {
+                mkdir($upload_path, 0755, true);
+            }
+            
+            $config = [
+                'upload_path'   => $upload_path,
+                'allowed_types' => 'jpg|jpeg|png|gif',
+                'max_size'      => 10240, // 10MB
+                'encrypt_name'  => true
+            ];
+            
+            $this->load->library('upload');
+            $this->upload->initialize($config);
+            
+            if ($this->upload->do_upload('comp_logo')) {
+                $uploadData = $this->upload->data();
+                
+                // Resize the image to 200x200
+                $this->load->library('image_lib');
+                $config_resize['image_library'] = 'gd2';
+                $config_resize['source_image'] = $uploadData['full_path'];
+                $config_resize['maintain_ratio'] = TRUE;
+                $config_resize['width'] = 200;
+                $config_resize['height'] = 200;
+                
+                $this->image_lib->initialize($config_resize);
+                $this->image_lib->resize();
+                
+                $comp_logo = $uploadData['file_name'];
+                
+                // Delete old logo if exists
+                $current_company = $this->queries->get_companyDataProfile($comp_id);
+                if (!empty($current_company->comp_logo)) {
+                    $old_logo_path = FCPATH . 'assets/images/company_logo/' . $current_company->comp_logo;
+                    if (file_exists($old_logo_path)) {
+                        unlink($old_logo_path);
+                    }
+                }
+            } else {
+                $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+                redirect('admin/company_settings');
+                return;
+            }
+        }
+        
+        // Prepare data array
+        $data = array(
+            'comp_name' => $this->input->post('comp_name'),
+            'comp_phone' => $this->input->post('comp_phone'),
+            'comp_email' => $this->input->post('comp_email'),
+            'adress' => $this->input->post('adress'),
+            'comp_number' => $this->input->post('comp_number'),
+        );
+        
+        // Add logo to data array if uploaded
+        if ($comp_logo !== null) {
+            $data['comp_logo'] = $comp_logo;
+        }
+        
+        // Update company data
+        $result = $this->queries->update_company_Data($data, $comp_id);
+        
+        if ($result) {
+            // Update session data
+            $updated_company = $this->queries->get_companyDataProfile($comp_id);
+            $this->session->set_userdata('comp_name', $updated_company->comp_name);
+            if (!empty($updated_company->comp_logo)) {
+                $this->session->set_userdata('company_logo', $updated_company->comp_logo);
+            }
+            
+            $this->session->set_flashdata('massage', 'Company settings updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update company settings');
+        }
+        
+        redirect('admin/company_settings');
+    }
+
+
 
 	public function update_company_profile($comp_id){
 		if(!empty($_FILES['comp_logo']['name'])){
@@ -269,6 +380,134 @@ class Admin extends CI_Controller {
             return redirect('admin/company_profile/');
 
 	}
+
+
+    public function my_profile(){
+    	$this->load->model('queries');
+         $comp_id = $this->session->userdata('comp_id');
+    $empl_id = $this->session->userdata('empl_id');
+          $employee = $this->queries->get_employee_data($empl_id);
+            //    echo "<pre>";
+            // print_r($employee);
+            //  echo "</pre>";
+            //   exit();
+
+           $this->load->view('admin/my_profile',['employee'=>$employee]);
+    }
+
+    public function update_my_password(){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        
+        // Form validation
+        $this->form_validation->set_rules('current_password', 'Current Password', 'required');
+        $this->form_validation->set_rules('new_password', 'New Password', 'required|min_length[6]');
+        $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'required|matches[new_password]');
+        
+        if ($this->form_validation->run() == FALSE) {
+            $employee = $this->queries->get_employee_data($empl_id);
+            $this->load->view('admin/my_profile', ['employee' => $employee]);
+            return;
+        }
+        
+        $employee = $this->queries->get_employee_data($empl_id);
+        $current_password = $this->input->post('current_password');
+        $new_password = $this->input->post('new_password');
+        
+        // Verify current password
+        if (!password_verify($current_password, $employee->password)) {
+            $this->session->set_flashdata('error', 'Current password is incorrect');
+            redirect('admin/my_profile');
+            return;
+        }
+        
+        // Hash new password
+        $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+        
+        // Update password
+        $data = ['password' => $hashed_password];
+        $result = $this->queries->update_employee($empl_id, $data);
+        
+        if ($result) {
+            $this->session->set_flashdata('massage', 'Password updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update password');
+        }
+        
+        redirect('admin/my_profile');
+    }
+
+    public function update_profile_picture(){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        
+        if (empty($_FILES['passport']['name'])) {
+            $this->session->set_flashdata('error', 'Please select a photo to upload');
+            redirect('admin/my_profile');
+            return;
+        }
+        
+        $upload_path = FCPATH . 'assets/images/passport/';
+        
+        // Ensure folder exists
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0755, true);
+        }
+        
+        $config = [
+            'upload_path'   => $upload_path,
+            'allowed_types' => 'jpg|jpeg|png|gif',
+            'max_size'      => 5120, // 5MB
+            'encrypt_name'  => true
+        ];
+        
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+        
+        if (!$this->upload->do_upload('passport')) {
+            $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+            redirect('admin/my_profile');
+            return;
+        }
+        
+        $upload_data = $this->upload->data();
+        
+        // Resize to 300x300
+        $this->load->library('image_lib');
+        $resize_config = [
+            'image_library'  => 'gd2',
+            'source_image'   => $upload_data['full_path'],
+            'maintain_ratio' => true,
+            'width'          => 300,
+            'height'         => 300
+        ];
+        
+        $this->image_lib->initialize($resize_config);
+        $this->image_lib->resize();
+        
+        $passport = $upload_data['file_name'];
+        
+        // Delete old passport if exists
+        $current_employee = $this->queries->get_employee_data($empl_id);
+        if (!empty($current_employee->passport)) {
+            $old_passport_path = FCPATH . 'assets/images/passport/' . $current_employee->passport;
+            if (file_exists($old_passport_path)) {
+                unlink($old_passport_path);
+            }
+        }
+        
+        // Update database
+        $data = ['passport' => $passport];
+        $result = $this->queries->update_employee($empl_id, $data);
+        
+        if ($result) {
+            $this->session->set_flashdata('massage', 'Profile picture updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update profile picture');
+        }
+        
+        redirect('admin/my_profile');
+    }
 
 	//chnage password 
 
@@ -1048,12 +1287,6 @@ public function store_link()
 		redirect('admin/create_sms');
 	}
 
-  
-
-
-	
-	
-
 
 	public function modify_employee($empl_id){
 		$this->form_validation->set_rules('blanch_id','blanch','required');
@@ -1639,17 +1872,44 @@ public function create_customer()
    return true;
 }
 
-public function all_customer(){
-	$this->load->model('queries');
-	$comp_id = $this->session->userdata('comp_id');
-	$customer = $this->queries->get_allcutomer($comp_id);
-	$blanch = $this->queries->get_blanch($comp_id);
-	   //  echo"<pre>";
-	   // print_r($customer);
-	   // echo"</pre>";
-	   //      exit();
-	$this->load->view('admin/all_customer',['customer'=>$customer,'blanch'=>$blanch]);
+public function all_customer()
+{
+    $this->load->model('queries');
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Get all customers (as an array)
+    $customers = $this->queries->get_allcutomer($comp_id);
+    $blanch    = $this->queries->get_blanch($comp_id);
+
+    if (!empty($customers)) {
+        foreach ($customers as $customer) {
+            // Skip if phone is empty
+            if (empty($customer->phone_no)) {
+                continue;
+            }
+
+            // $phone      = $customers->phone_no;
+
+
+            // $first_name = $customers->f_name;
+            // $last_name  = $customers->m_name;
+
+          //   	     echo "<pre>";
+				  //  print_r($phone);
+				  //  echo "</pre>";
+				  //              exit();
+
+            // $massage = "Ndugu mteja {$first_name} {$last_name}, unatahadharishwa vikali kutochukua mkopo kwa niaba ya mtu mwingine. Endapo mkopo huo utaleta changamoto yoyote, kampuni ya NACK CREDIT haitahusika wala haitapokea maelezo au malalamiko yoyote yanayohusiana na mkopo huo.";
+
+            // // Send SMS
+            // $this->sendsms($phone, $massage);
+        }
+    }
+
+    // Load the view with all customers and blanch
+    $this->load->view('admin/all_customer', ['customer' => $customers, 'blanch' => $blanch]);
 }
+
 
 
 public function filter_customer_status(){
@@ -2323,6 +2583,411 @@ $comp_phone = $compdata->comp_number;
     }
 
 
+
+    public function download_loan_application($loan_id){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        
+        // Get loan form data
+        $loan_data = $this->db->query("
+            SELECT 
+                l.*,
+                lc.*, 
+                c.*, 
+                b.*, 
+                e.*, 
+                cb.empl_name AS creator_name,
+                cb.passport AS creator_passport,
+                comp.comp_name,
+                comp.comp_logo
+            FROM tbl_loans l
+            JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
+            JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
+            JOIN tbl_customer c ON c.customer_id = l.customer_id 
+            JOIN tbl_employee e ON e.empl_id = l.empl_id
+            JOIN tbl_employee cb ON cb.empl_id = l.created_by
+            JOIN tbl_company comp ON comp.comp_id = l.comp_id
+            WHERE l.loan_id = '$loan_id' 
+            AND l.comp_id = '$comp_id'
+        ")->row();
+        
+        // Get sponsor details
+    $sponser = $this->db->query("
+    SELECT * FROM tbl_sponser 
+    WHERE customer_id = '{$loan_data->customer_id}'
+")->result();
+
+
+        // Get collateral
+        $collateral = $this->db->query("SELECT * FROM tbl_collelateral WHERE loan_id = '$loan_id'")->result();
+        
+        // Load mPDF library
+        require_once APPPATH . '../vendor/autoload.php';
+        
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+        ]);
+        
+        // Build HTML content
+        $html = '
+        <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { color: #0891b2; text-align: center; }
+            h2 { color: #0e7490; border-bottom: 2px solid #0891b2; padding-bottom: 5px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+            th { background-color: #0891b2; color: white; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .section { margin-bottom: 25px; }
+        </style>
+        
+        <div class="header">';
+        
+        if (!empty($loan_data->comp_logo)) {
+            $logo_path = FCPATH . 'assets/images/company_logo/' . basename($loan_data->comp_logo);
+            if (file_exists($logo_path)) {
+                $html .= '<img src="' . $logo_path . '" style="height: 60px; margin-bottom: 10px;">';
+            }
+        }
+        
+        $html .= '
+            <h1>' . strtoupper($loan_data->comp_name) . '</h1>
+            <h2>MAOMBI YA MKOPO</h2>
+            <p><strong>Tarehe:</strong> ' . date('d/m/Y') . '</p>
+        </div>
+        
+        <div class="section">
+            <h2>1. TAARIFA ZA MTEJA</h2>
+            <table>
+                <tr>
+                    <th width="30%">Jina Kamili</th>
+                    <td>' . strtoupper($loan_data->f_name . ' ' . $loan_data->m_name . ' ' . $loan_data->l_name) . '</td>
+                </tr>
+                <tr>
+                    <th>Namba ya Simu</th>
+                    <td>' . $loan_data->phone_no . '</td>
+                </tr>
+              
+                <tr>
+                    <th>Tarehe ya Kujiunga</th>
+                    <td>' . date('d/m/Y', strtotime($loan_data->customer_day)) . '</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>2. MAELEZO YA MKOPO</h2>
+            <table>
+                <tr>
+                    <th width="30%">Aina ya Mkopo</th>
+                    <td>' . strtoupper($loan_data->loan_name) . '</td>
+                </tr>
+                <tr>
+                    <th>Kiasi Kilichoombwa</th>
+                    <td>TZS ' . number_format($loan_data->how_loan) . '</td>
+                </tr>
+                <tr>
+                    <th>Muda wa Mkopo</th>
+                    <td>' . ($loan_data->day == 1 ? 'Siku' : ($loan_data->day == 7 ? 'Wiki' : 'Mwezi')) . '</td>
+                </tr>
+                <tr>
+                    <th>Idadi ya Malipo</th>
+                    <td>' . $loan_data->session . ' sessions</td>
+                </tr>
+                <tr>
+                    <th>Fomula ya Riba</th>
+                    <td>' . $loan_data->rate . '</td>
+                </tr>
+                <tr>
+                    <th>Biashara/Kazi ya Mkopaji</th>
+                    <td>' . $loan_data->reason . '</td>
+                </tr>
+                <tr>
+                    <th>Tarehe ya Maombi</th>
+                    <td>' . date('d/m/Y', strtotime($loan_data->loan_day)) . '</td>
+                </tr>
+            </table>
+        </div>';
+        
+        // Sponsor information
+        if (!empty($sponser)) {
+            $html .= '
+            <div class="section">
+                <h2>3. TAARIFA ZA MDHAMINI</h2>
+                <table>
+                    <tr>
+                        <th width="5%">S/No</th>
+                        <th>Jina la Mdhamini</th>
+                        <th>Namba ya Simu</th>
+                        <th>Uhusiano</th>
+                        <th>Kazi/Biashara</th>
+                    </tr>';
+            
+            $no = 1;
+            foreach ($sponser as $sp) {
+                $html .= '
+                    <tr>
+                        <td>' . $no++ . '</td>
+                        <td>' . $sp->sp_name . ' ' . $sp->sp_mname . ' ' . $sp->sp_lname . '</td>
+                        <td>' . $sp->sp_phone_no . '</td>
+                        <td>' . $sp->sp_relation . '</td>
+                        <td>' . $sp->nature . '</td>
+                    </tr>';
+            }
+            
+            $html .= '
+                </table>
+            </div>';
+        }
+        
+        // Collateral information
+        if (!empty($collateral)) {
+            $total_value = 0;
+            $html .= '
+            <div class="section">
+                <h2>4. TAARIFA ZA DHAMANA</h2>
+                <table>
+                    <tr>
+                        <th width="5%">S/No</th>
+                        <th>Jina la Dhamana</th>
+                        <th>Hali ya Dhamana</th>
+                        <th>Thamani</th>
+                    </tr>';
+            
+            $no = 1;
+            foreach ($collateral as $col) {
+                $total_value += $col->value;
+                $html .= '
+                    <tr>
+                        <td>' . $no++ . '</td>
+                        <td>' . $col->description . '</td>
+                        <td>' . $col->co_condition . '</td>
+                        <td>TZS ' . number_format($col->value, 2) . '</td>
+                    </tr>';
+            }
+            
+            $html .= '
+                    <tr>
+                        <th colspan="3" style="text-align: right;">JUMLA:</th>
+                        <th>TZS ' . number_format($total_value, 2) . '</th>
+                    </tr>
+                </table>
+            </div>';
+        }
+        
+        // Officer information
+        $html .= '
+        <div class="section">
+            <h2>5. AFISA ALIYEOMBA MKOPO</h2>
+            <table>
+                <tr>
+                    <th width="30%">Jina la Afisa</th>
+                    <td>' . $loan_data->creator_name . '</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div style="margin-top: 50px;">
+            <table style="border: none;">
+                <tr>
+                    <td style="border: none; width: 50%;">
+                        <p>Sahihi ya Mkopaji: _____________________</p>
+                        <p>Tarehe: _____________________</p>
+                    </td>
+                    <td style="border: none; width: 50%;">
+                        <p>Sahihi ya Afisa: _____________________</p>
+                        <p>Tarehe: _____________________</p>
+                    </td>
+                </tr>
+            </table>
+        </div>';
+        
+        $mpdf->WriteHTML($html);
+        
+        // Output PDF
+        $filename = 'Maombi_ya_Mkopo_' . $loan_data->f_name . '_' . $loan_data->l_name . '_' . date('Y-m-d') . '.pdf';
+        $mpdf->Output($filename, 'D');
+    }
+
+    public function download_loan_history($customer_id){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        
+        // Get customer data
+        $customer = $this->db->query("
+            SELECT c.*, sc.passport 
+            FROM tbl_customer c
+            LEFT JOIN tbl_sub_customer sc ON c.customer_id = sc.customer_id
+            WHERE c.customer_id = '$customer_id' 
+            AND c.comp_id = '$comp_id'
+        ")->row();
+        
+        // Get loan history
+         $loan_history = $this->queries->get_loan_history($customer_id);
+        
+        // Get company info
+        $company = $this->db->query("SELECT * FROM tbl_company WHERE comp_id = '$comp_id'")->row();
+        
+        // Load mPDF library
+        require_once APPPATH . '../vendor/autoload.php';
+        
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+        ]);
+        
+        // Build HTML content
+        $html = '
+        <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { color: #0891b2; text-align: center; }
+            h2 { color: #0e7490; border-bottom: 2px solid #0891b2; padding-bottom: 5px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { padding: 8px; text-align: left; border: 1px solid #ddd; font-size: 11px; }
+            th { background-color: #0891b2; color: white; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .customer-info { margin-bottom: 20px; }
+            .badge-success { background-color: #22c55e; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; }
+            .badge-warning { background-color: #f59e0b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; }
+            .badge-danger { background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; }
+        </style>
+        
+        <div class="header">';
+        
+        if (!empty($company->comp_logo)) {
+            $logo_path = FCPATH . 'assets/images/company_logo/' . basename($company->comp_logo);
+            if (file_exists($logo_path)) {
+                $html .= '<img src="' . $logo_path . '" style="height: 60px; margin-bottom: 10px;">';
+            }
+        }
+        
+        $html .= '
+            <h1>' . strtoupper($company->comp_name) . '</h1>
+            <h2>HISTORIA YA MIKOPO YA NYUMA</h2>
+            <p><strong>Tarehe:</strong> ' . date('d/m/Y') . '</p>
+        </div>
+        
+        <div class="customer-info">
+            <h2>TAARIFA ZA MTEJA</h2>';
+        
+        if (!empty($customer->passport)) {
+            $customer_passport_path = FCPATH . $customer->passport;
+            if (file_exists($customer_passport_path)) {
+                $html .= '<div style="text-align: center; margin: 10px 0;">
+                    <img src="' . $customer_passport_path . '" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #0891b2;">
+                </div>';
+            }
+        }
+        
+        $html .= '
+            <table>
+                <tr>
+                    <th width="30%">Jina Kamili</th>
+                    <td>' . strtoupper($customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name) . '</td>
+                </tr>
+                <tr>
+                    <th>Namba ya Simu</th>
+                    <td>' . $customer->phone_no . '</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h2>HISTORIA YA MIKOPO</h2>';
+        
+        if (!empty($loan_history)) {
+            $html .= '
+            <table>
+                <tr>
+                    <th width="5%">S/No</th>
+                    <th>Aina ya Mkopo</th>
+                    <th>Mkopo Uliopitishwa</th>
+                    <th>Jumla + Riba</th>
+                    <th>Aina ya Muda</th>
+                    <th>Tarehe ya Kutoa</th>
+                    <th>Tarehe ya Mwisho</th>
+                    <th>Malipo ya Mwisho</th>
+                    <th>Hali</th>
+                </tr>';
+            
+            $no = 1;
+            $total_loans = 0;
+            $total_with_interest = 0;
+            
+            foreach ($loan_history as $history) {
+                $total_loans += $history->loan_aprove;
+                $total_with_interest += $history->loan_int;
+                
+                // Determine duration type
+                $duration_type = '';
+                if ($history->day == 1) {
+                    $duration_type = "Siku ({$history->session})";
+                } elseif ($history->day == 7) {
+                    $duration_type = "Wiki ({$history->session})";
+                } elseif (in_array($history->day, [28, 29, 30, 31])) {
+                    $duration_type = "Miezi ({$history->session})";
+                }
+                
+                // Calculate credit score badge
+                $credit_score = '';
+                if (!empty($history->last_payment) && !empty($history->end_date)) {
+                    $last_payment_date = new DateTime($history->last_payment);
+                    $end_date = new DateTime($history->end_date);
+                    
+                    if ($last_payment_date <= $end_date) {
+                        $credit_score = 'Vizuri';
+                    } elseif ($last_payment_date > $end_date) {
+                        $diff = $last_payment_date->diff($end_date)->days;
+                        if ($diff <= 30) {
+                            $credit_score = 'Wastani';
+                        } else {
+                            $credit_score = 'Mbaya';
+                        }
+                    }
+                } else {
+                    $credit_score = 'N/A';
+                }
+                
+                $html .= '
+                <tr>
+                    <td>' . $no++ . '</td>
+                    <td>' . strtoupper($history->loan_name) . '</td>
+                    <td>TZS ' . number_format($history->loan_aprove) . '</td>
+                    <td>TZS ' . number_format($history->loan_int) . '</td>
+                    <td>' . $duration_type . '</td>
+                    <td>' . date('d/m/Y', strtotime($history->disbursed_date)) . '</td>
+                    <td>' . date('d/m/Y', strtotime($history->end_date)) . '</td>
+                    <td>' . (!empty($history->last_payment) ? date('d/m/Y', strtotime($history->last_payment)) : '-') . '</td>
+                    <td>' . $credit_score . '</td>
+                </tr>';
+            }
+            
+            $html .= '
+                <tr>
+                    <th colspan="2" style="text-align: right;">JUMLA:</th>
+                    <th>TZS ' . number_format($total_loans) . '</th>
+                    <th>TZS ' . number_format($total_with_interest) . '</th>
+                    <th colspan="5"></th>
+                </tr>
+            </table>';
+        } else {
+            $html .= '<p style="text-align: center; font-style: italic; color: #666;">Hana mkopo kwenye system</p>';
+        }
+        
+        $mpdf->WriteHTML($html);
+        
+        // Output PDF
+        $filename = 'Historia_ya_Mikopo_' . $customer->f_name . '_' . $customer->l_name . '_' . date('Y-m-d') . '.pdf';
+        $mpdf->Output($filename, 'D');
+    }
 
     public function view_customer_statemnt($loan_id){
         $this->load->model('queries');
@@ -3167,30 +3832,49 @@ if (!empty($employee_ids)) {
 		return $this->db->delete('tbl_outstand',['loan_id'=>$loan_id]);
 	}
 
-	public function loan_withdrawal(){
-		$this->load->model('queries');
-		$comp_id = $this->session->userdata('comp_id');
-		$disburse = $this->queries->get_withdrawal_Loan($comp_id);
-		  
-		$total_loanDis = $this->queries->get_sum_loanwithdrawal_data($comp_id);
-		$total_interest_loan = $this->queries->get_sum_loanwithdrawal_interest($comp_id);
-		$blanch = $this->queries->get_blanch($comp_id);
-		$formular = $this->queries->get_interestFormular($comp_id);
-    	$loan_fee_category = $this->queries->get_loanfee_categoryData($comp_id);
-    	$loan_category = $this->queries->get_loancategory($comp_id);
-	
-    // Example using CURL to POST to SMS provider API
-    // Insert your SMS gateway code here
+public function loan_withdrawal()
+{
+    $this->load->model('queries');
 
-    
+    $comp_id = $this->session->userdata('comp_id');
+    if (!$comp_id) {
+        redirect('login');
+    }
 
-		
-		    // echo "<pre>";
-		    // print_r($disburse );
-		    // echo "</pre>";
-		    //     exit();
-		$this->load->view('admin/loan_withdrawal',['disburse'=>$disburse,'total_loanDis'=>$total_loanDis,'total_interest_loan'=>$total_interest_loan,'blanch'=>$blanch,'formular'=>$formular,'loan_fee_category'=>$loan_fee_category,'loan_category'=>$loan_category]);
-	}
+    // Collect filters safely
+    $filters = [
+        'blanch_id' => $this->input->post('blanch_id', true),
+        'from'      => $this->input->post('from', true),
+        'to'        => $this->input->post('to', true),
+        'loan_name' => $this->input->post('loan_name', true),
+    ];
+
+    // Fetch filtered data
+    $disburse = $this->queries->get_withdrawal_Loan($comp_id, $filters);
+
+    // Fetch totals using SAME filters (important)
+    $total_loanDis = $this->queries->get_sum_loanwithdrawal_data($comp_id, $filters);
+    $total_interest_loan = $this->queries->get_sum_loanwithdrawal_interest($comp_id, $filters);
+
+    // Other required data
+    $blanch = $this->queries->get_blanch($comp_id);
+    $formular = $this->queries->get_interestFormular($comp_id);
+    $loan_fee_category = $this->queries->get_loanfee_categoryData($comp_id);
+    $loan_category = $this->queries->get_loancategory($comp_id);
+
+    // Load view
+    $this->load->view('admin/loan_withdrawal', [
+        'disburse'             => $disburse,
+        'total_loanDis'        => $total_loanDis,
+        'total_interest_loan'  => $total_interest_loan,
+        'blanch'               => $blanch,
+        'formular'             => $formular,
+        'loan_fee_category'    => $loan_fee_category,
+        'loan_category'        => $loan_category,
+        'filters'              => $filters // useful to keep selected values
+    ]);
+}
+
 
 	public function notification(){
             $this->load->model('queries');
@@ -3755,6 +4439,7 @@ public function send_payment($customer_id)
         return;
     }
 
+
     $loan_id = $customer_loan->loan_id;
 
     // Jumla na latest deposit
@@ -3802,6 +4487,37 @@ $latest_paid_day = isset($total_deposit_loan->latest_deposit_day)
     }
 
    return redirect('admin/data_with_depost/'.$customer_id);
+}
+
+public function update_customer_info()
+{
+    $this->load->model('queries');
+    
+    $customer_id = $this->input->post('customer_id');
+    $comp_id = $this->input->post('comp_id');
+    
+    $data = array(
+        'f_name' => $this->input->post('f_name'),
+        'm_name' => $this->input->post('m_name'),
+        'l_name' => $this->input->post('l_name'),
+        'date_birth' => $this->input->post('date_birth'),
+        'gender' => $this->input->post('gender'),
+        'phone_no' => $this->input->post('phone_no'),
+        'district' => $this->input->post('district'),
+        'ward' => $this->input->post('ward'),
+        'street' => $this->input->post('street'),
+
+    );
+    
+    $update = $this->queries->update_customer($customer_id, $data);
+    
+    if ($update) {
+        $this->session->set_flashdata('massage', 'Customer information updated successfully');
+    } else {
+        $this->session->set_flashdata('error', 'Failed to update customer information');
+    }
+    
+    redirect('admin/data_with_depost/' . $customer_id);
 }
 
 
@@ -6011,13 +6727,13 @@ public function print_cash(){
     //        exit();
        if ($empl_id == 'all') {
        
-    $data = $this->queries->search_prev_cashtransaction($from,$to,$comp_id,$blanch_id);
-    $total_cashDepost = $this->queries->get_sumCashtransDepostPrvious($from,$to,$comp_id,$blanch_id);
-    $total_withdrawal = $this->queries->get_sumCashtransWithdrowPrevious($from,$to,$comp_id,$blanch_id);
+    $cash = $this->queries->search_prev_cashtransaction($from,$to,$comp_id,$blanch_id);
+    $sum_depost = $this->queries->get_sumCashtransDepostPrvious($from,$to,$comp_id,$blanch_id);
+    $sum_withdrawls = $this->queries->get_sumCashtransWithdrowPrevious($from,$to,$comp_id,$blanch_id);
      }else{
-    $data = $this->queries->search_prev_cashtransaction_empl($from,$to,$comp_id,$blanch_id,$empl_id);
-    $total_cashDepost = $this->queries->get_sumCashtransDepostPrvious_empl($from,$to,$comp_id,$blanch_id,$empl_id);
-    $total_withdrawal = $this->queries->get_sumCashtransWithdrowPrevious_empl($from,$to,$comp_id,$blanch_id,$empl_id);
+    $cash = $this->queries->search_prev_cashtransaction_empl($from,$to,$comp_id,$blanch_id,$empl_id);
+    $sum_depost = $this->queries->get_sumCashtransDepostPrvious_empl($from,$to,$comp_id,$blanch_id,$empl_id);
+    $sum_withdrawls = $this->queries->get_sumCashtransWithdrowPrevious_empl($from,$to,$comp_id,$blanch_id,$empl_id);
 
      }
     
@@ -6027,7 +6743,18 @@ public function print_cash(){
     //    print_r($data);
     //           exit();
 
-    $this->load->view('admin/previous_cash',['data'=>$data,'from'=>$from,'to'=>$to,'total_cashDepost'=>$total_cashDepost,'total_withdrawal'=>$total_withdrawal,'comp_id'=>$comp_id,'blanch'=>$blanch,'blanch_data'=>$blanch_data,'blanch_id'=>$blanch_id,'empl_data'=>$empl_data,'empl_id'=>$empl_id]);
+    $this->load->view('admin/today_transaction',[
+        'cash'=>$cash,
+        'sum_depost'=>$sum_depost,
+        'sum_withdrawls'=>$sum_withdrawls,
+        'blanch'=>$blanch,
+        'from'=>$from,
+        'to'=>$to,
+        'blanch_data'=>$blanch_data,
+        'blanch_id'=>$blanch_id,
+        'empl_data'=>$empl_data,
+        'empl_id'=>$empl_id
+    ]);
     }
 
 
@@ -6108,24 +6835,41 @@ public function print_cash(){
 
 
 
-	public function loan_pending_time(){
-		$this->load->model('queries');
-		$comp_id = $this->session->userdata('comp_id');
-		$blanch = $this->queries->get_blanch($comp_id);
-	
-		$new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
-		$total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
-	
-		$old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
-		$pend = $this->queries->get_sun_loanPendingcompany($comp_id);
-	
-	
-		//    echo "<pre>";
-		//   print_r($new_pending);
-		//       exit();
+    public function loan_pending_time(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $blanch = $this->queries->get_blanch($comp_id);
+
+        $from = $this->input->post('from');
+        $to = $this->input->post('to');
+        $blanch_id = $this->input->post('blanch_id');
+
+        if (!empty($from) && !empty($to)) {
+            $new_pending = $this->queries->get_total_loan_pendingComp_by_date($comp_id, $from, $to, $blanch_id);
+            $total_pending_new = $this->queries->get_total_pend_loan_company_by_date($comp_id, $from, $to, $blanch_id);
+        } else {
+            $new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
+            $total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
+        }
+
+        $old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
+        $pend = $this->queries->get_sun_loanPendingcompany($comp_id);
+
+        //    echo "<pre>";
+        //   print_r($new_pending);
+        //       exit();
 		
-		$this->load->view('admin/loan_pending_time',['blanch'=>$blanch,'new_pending'=>$new_pending,'total_pending_new'=>$total_pending_new,'old_newpend'=>$old_newpend,'pend'=>$pend]);
-		}
+        $this->load->view('admin/loan_pending_time',[
+            'blanch'=>$blanch,
+            'new_pending'=>$new_pending,
+            'total_pending_new'=>$total_pending_new,
+            'old_newpend'=>$old_newpend,
+            'pend'=>$pend,
+            'from'=>$from,
+            'to'=>$to,
+            'blanch_id'=>$blanch_id
+        ]);
+        }
 
 		public function print_pending_loan()
 		{
@@ -6163,12 +6907,13 @@ public function print_cash(){
 			$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
 		$blanch = $this->queries->get_blanch($comp_id);
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
 	
-		$new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
-		$total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
+        $new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
+        $total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
 	
-		$old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
-		$pend = $this->queries->get_sun_loanPendingcompany($comp_id);
+        $old_newpend = $this->queries->get_pending_reportLoancompany_by_date($comp_id, $yesterday);
+        $pend = $this->queries->get_sun_loanPendingcompany_by_date($comp_id, $yesterday);
 		$lazo = $this->queries->get_today_expected_collections($comp_id);
 	
 	
@@ -6176,7 +6921,7 @@ public function print_cash(){
 		//   print_r($lazo);
 		//       exit();
 		
-		$this->load->view('admin/loan_pending_yesterday',['blanch'=>$blanch,'new_pending'=>$new_pending,'total_pending_new'=>$total_pending_new,'old_newpend'=>$old_newpend,'pend'=>$pend]);
+        $this->load->view('admin/loan_pending_yesterday',['blanch'=>$blanch,'new_pending'=>$new_pending,'total_pending_new'=>$total_pending_new,'old_newpend'=>$old_newpend,'pend'=>$pend,'yesterday'=>$yesterday]);
 		}
 
 		public function print_pending_yesterday()
@@ -6184,24 +6929,25 @@ public function print_cash(){
 			$this->load->model('queries');
 			$comp_id = $this->session->userdata('comp_id');
 			$compdata = $this->queries->get_companyData($comp_id);
+            $yesterday = date('Y-m-d', strtotime('-1 day'));
 
 		// 		  echo "<pre>";
     	// print_r($compdata);
     	//     exit();
 			$blanch = $this->queries->get_blanch($comp_id);
 		
-			$new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
-			$total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
+            $new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
+            $total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
 		
-			$old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
-			$pend = $this->queries->get_sun_loanPendingcompany($comp_id);
+            $old_newpend = $this->queries->get_pending_reportLoancompany_by_date($comp_id, $yesterday);
+            $pend = $this->queries->get_sun_loanPendingcompany_by_date($comp_id, $yesterday);
 
 		// 				  echo "<pre>";
     	// print_r($new_pending);
     	//     exit();
 
 			$mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
-			$html = $this->load->view('admin/pending_yesterday',['compdata'=>$compdata,'pend'=>$pend,'new_pending'=>$new_pending,'blanch'=>$blanch],true);
+            $html = $this->load->view('admin/pending_yesterday',['compdata'=>$compdata,'pend'=>$pend,'new_pending'=>$new_pending,'blanch'=>$blanch,'old_newpend'=>$old_newpend,'yesterday'=>$yesterday],true);
 			$mpdf->SetFooter('Generated By Brainsoft Technology');
 			$mpdf->WriteHTML($html);
 			$mpdf->Output();
@@ -6342,17 +7088,38 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
     $comp_id = $this->input->post('comp_id');
     $customerData = $this->queries->get_allcustomerData($comp_id);
     $customer = $this->queries->search_CustomerLoan($customer_id,$comp_id);
+
     @$customer_id = $customer->customer_id;
     @$statement = $this->queries->get_customer_datareport($customer_id);
+    @$customer_loan = $this->queries->get_loan_customer($customer_id);
+ $loan_history = $this->queries->get_loan_history($customer_id);
+
+    //      echo "<pre>";
+    //   print_r($customer_loan);
+    //         exit();
+     $loan_id = $this->input->post('loan_id');
     @$pay_customer = $this->queries->get_paycustomer($customer_id);
-    @$payisnull = $this->queries->get_paycustomerNotfee_Statement($customer_id);
+    @$payisnull = $this->queries->get_paycustomerNotfee_Statement($customer_id,$loan_id);
     @$sum_depost = $this->queries->get_sumDepost_loan($customer_id);
 
-    //     echo "<pre>";
-    //   print_r($customer);
-    //         exit();
-    $this->load->view('admin/search_account',['pay_customer'=>$pay_customer,'payisnull'=>$payisnull,'customer'=>$customer,'statement'=>$statement,'customerData'=>$customerData]);
+
+    $this->load->view('admin/search_account',['pay_customer'=>$pay_customer,'payisnull'=>$payisnull,'customer'=>$customer,'statement'=>$statement,'customerData'=>$customerData,'customer_loan'=>$customer_loan,'loan_history'=>$loan_history]);
     }
+
+
+    //    public function search_acount_statement(){
+    // $this->load->model('queries');
+    // $comp_id = $this->session->userdata('comp_id');
+    // $customery = $this->queries->get_allcustomerData($comp_id);
+    // $customer_id = $this->input->post('customer_id');
+    // $loan_id = $this->input->post('loan_id');
+    // $customer = $this->queries->search_CustomerLoan($customer_id);
+
+    //   //   echo "<pre>";
+    //   // print_r( $customery);
+    //   //       exit();
+    // $this->load->view('admin/search_account',['customer'=>$customer,'customery'=>$customery,'customer_id'=>$customer_id,'loan_id'=>$loan_id]);
+    // }
 
     public function search_customer_loan_report(){
     	$this->load->model('queries');
@@ -6414,7 +7181,34 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
      $mpdf->WriteHTML($html);
      $mpdf->Output();
     }
-       
+    
+    public function get_customer_loans_ajax(){
+        $this->load->model('queries');
+        $customer_id = $this->input->post('customer_id');
+        
+        if ($customer_id) {
+            $loans = $this->queries->get_loan_customer($customer_id);
+            
+            if ($loans) {
+                echo json_encode([
+                    'success' => true,
+                    'loans' => $loans
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'loans' => [],
+                    'message' => 'No loans found for this customer'
+                ]);
+            }
+        } else {
+            echo json_encode([
+                'success' => false,
+                'loans' => [],
+                'message' => 'Customer ID is required'
+            ]);
+        }
+    }
 
 
     	public function collelateral_session($loan_id){
@@ -6839,6 +7633,79 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
      $mpdf->Output();
+	}
+
+	public function download_salary_excel(){
+		$this->load->model('queries');
+		$comp_id = $this->session->userdata('comp_id');
+		$sheet = $this->queries->get_Allemployee_salary($comp_id);
+		$total_salary = $this->queries->get_sum_salary($comp_id);
+		$compdata = $this->queries->get_companyData($comp_id);
+		
+		// Set headers for Excel download
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="Salary_Sheet_' . date('Y-m-d_H-i-s') . '.xls"');
+		header('Cache-Control: max-age=0');
+		
+		// Output Excel content
+		echo "<html xmlns:x='urn:schemas-microsoft-com:office:excel'>";
+		echo "<head>";
+		echo "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />";
+		echo "<style>";
+		echo "table { border-collapse: collapse; width: 100%; }";
+		echo "th, td { border: 1px solid #dddddd; text-align: left; padding: 8px; }";
+		echo "th { background-color: #4CAF50; color: white; font-weight: bold; }";
+		echo ".total-row { background-color: #f2f2f2; font-weight: bold; }";
+		echo ".text-right { text-align: right; }";
+		echo "</style>";
+		echo "</head>";
+		echo "<body>";
+		
+		echo "<h2>" . htmlspecialchars($compdata->comp_name) . "</h2>";
+		echo "<h3>SALARY SHEET REPORT</h3>";
+		echo "<p>Date: " . date('d-m-Y') . "</p>";
+		echo "<br>";
+		
+		echo "<table>";
+		echo "<thead>";
+		echo "<tr>";
+		echo "<th>S/No</th>";
+		echo "<th>Employee Name</th>";
+		echo "<th>Branch</th>";
+		echo "<th>Position</th>";
+		echo "<th>Phone Number</th>";
+		echo "<th>Bank Account</th>";
+		echo "<th>Account Number</th>";
+		echo "<th>Salary Amount</th>";
+		echo "</tr>";
+		echo "</thead>";
+		echo "<tbody>";
+		
+		$no = 1;
+		foreach ($sheet as $employee) {
+			echo "<tr>";
+			echo "<td>" . $no++ . "</td>";
+			echo "<td>" . htmlspecialchars($employee->empl_name) . "</td>";
+			echo "<td>" . htmlspecialchars($employee->blanch_name) . "</td>";
+			echo "<td>" . htmlspecialchars($employee->position) . "</td>";
+			echo "<td>" . htmlspecialchars($employee->empl_no) . "</td>";
+			echo "<td>" . htmlspecialchars($employee->bank_account) . "</td>";
+			echo "<td>" . htmlspecialchars($employee->account_no) . "</td>";
+			echo "<td class='text-right'>" . number_format($employee->salary, 2) . "</td>";
+			echo "</tr>";
+		}
+		
+		// Total row
+		echo "<tr class='total-row'>";
+		echo "<td colspan='7' class='text-right'>TOTAL SALARY:</td>";
+		echo "<td class='text-right'>" . number_format($total_salary->total_pay, 2) . "</td>";
+		echo "</tr>";
+		
+		echo "</tbody>";
+		echo "</table>";
+		echo "</body>";
+		echo "</html>";
+		exit();
 	}
 
 	public function employee_allowance(){
@@ -7373,10 +8240,10 @@ $data_exp_category = $this->queries->get_expenses_category_total($comp_id);
    
         
     // echo "<pre>";
-    //   print_r(  $income_branchwise);
+    //   print_r(  $total_receved);
     //         exit();
 		//  echo "<pre>";
-		//    print_r($income);
+		
 		//          exit();
 		$this->load->view('admin/income_dashboard',['income'=>$income,'detail_income'=>$detail_income,'total_receved'=>$total_receved,'customer'=>$customer,'blanch'=>$blanch]);
 	}
@@ -8329,12 +9196,17 @@ public function get_outstand_loan() {
     $empl_id   = $this->input->post('empl_id');
     $from      = $this->input->post('from_date');
     $to        = $this->input->post('to_date');
+    $overdue_days = $this->input->post('overdue_days');
 
     // Fetch outstanding loans with filters
-    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to);
+    $outstand = $this->queries->get_outstand_loan_yesterday($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
+
+    //          echo "<pre>";
+    //  print_r($outstand);
+    //             exit();
 
     // Totals
-    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to);
+    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
 
     // Employees and branches for filters
     $employee = $this->queries->get_Allemployee($comp_id);
@@ -8366,6 +9238,216 @@ public function filter_default_blanch(){
      //            exit();
 	$this->load->view('admin/filter_default_blanch',['default_loan'=>$default_loan,'default_blanch_total'=>$default_blanch_total,'blanch'=>$blanch,'blanch_data'=>$blanch_data,'blanch_id'=>$blanch_id]);
 }
+
+
+
+public function defaulters_3_30_days_pdf()
+{
+    // Load model
+    $this->load->model('queries');
+
+    // Get company ID
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Get branch data (optional, if needed in the view)
+    $blanch_data = $this->queries->get_blanch($comp_id);
+
+    // Get defaulters 3–30 days
+    $outstand = $this->queries->get_defaulters_3_30_days($comp_id);
+     $compdata = $this->queries->get_companyData($comp_id);
+
+    // Prepare data array for view
+    $data = [
+        'compdata'   => $compdata, // make sure you have this function
+        'blanch_data'=> $blanch_data,
+        'outstand'   => $outstand,
+        'title'      => "Defaulters Report (3–30 Days Past Due)"
+    ];
+
+    // Load mPDF library
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L',      // Landscape
+        'margin_left' => 10,
+        'margin_right'=> 10,
+        'margin_top'  => 15,
+        'margin_bottom'=> 15,
+        'margin_header'=> 5,
+        'margin_footer'=> 5
+    ]);
+
+    // Load HTML view as string
+    $html = $this->load->view('admin/defaulters_3_30_days_pdf', $data, true);
+
+    // Write HTML to PDF
+    $mpdf->WriteHTML($html);
+
+    // Output PDF inline to browser
+    $mpdf->Output("Defaulters_3_30_Days_Report.pdf", "I"); // I = inline, D = download
+}
+
+
+public function defaulters_31_60_days_pdf()
+{
+    // Load model
+    $this->load->model('queries');
+
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Get branch info (optional)
+    $blanch_data = $this->queries->get_blanch($comp_id);
+
+    // Get defaulters 31–60 days
+    $outstand = $this->queries->get_defaulters_31_60_days($comp_id);
+       $compdata = $this->queries->get_companyData($comp_id);
+
+    // Prepare data for view
+    $data = [
+        'compdata'    => $compdata, // make sure you have this function
+        'blanch_data' => $blanch_data,
+        'outstand'    => $outstand,
+        'title'       => "Defaulters Report (31–60 Days Past Due)"
+    ];
+
+    // Load mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L', 
+        'margin_left' => 10,
+        'margin_right'=> 10,
+        'margin_top'  => 15,
+        'margin_bottom'=> 15,
+        'margin_header'=> 5,
+        'margin_footer'=> 5
+    ]);
+
+    // Load view HTML
+    $html = $this->load->view('admin/defaulters_31_60_days_pdf', $data, true);
+
+    // Generate PDF
+    $mpdf->WriteHTML($html);
+    $mpdf->Output("Defaulters_31_60_Days_Report.pdf", "I"); // I = inline
+}
+
+
+public function defaulters_61_90_days_pdf()
+{
+    // Load model
+    $this->load->model('queries');
+
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Branch info (optional, for view)
+    $blanch_data = $this->queries->get_blanch($comp_id);
+
+    // Get defaulters 61–90 days
+    $outstand = $this->queries->get_defaulters_61_90_days($comp_id);
+     $compdata = $this->queries->get_companyData($comp_id);
+
+    // Prepare data for view
+    $data = [
+        'compdata'    => $compdata, // make sure this exists
+        'blanch_data' => $blanch_data,
+        'outstand'    => $outstand,
+        'title'       => "Defaulters Report (61–90 Days Past Due)"
+    ];
+
+    // Load mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L', 
+        'margin_left' => 10,
+        'margin_right'=> 10,
+        'margin_top'  => 15,
+        'margin_bottom'=> 15,
+        'margin_header'=> 5,
+        'margin_footer'=> 5
+    ]);
+
+    // Load view HTML
+    $html = $this->load->view('admin/defaulters_61_90_days_pdf', $data, true);
+
+    // Generate PDF
+    $mpdf->WriteHTML($html);
+    $mpdf->Output("Defaulters_61_90_Days_Report.pdf", "I"); // I = inline in browser
+}
+
+
+
+public function defaulters_91_plus_days_pdf()
+{
+    // Load the Queries model
+    $this->load->model('queries');
+
+    $comp_id = $this->session->userdata('comp_id');
+
+    // Optional: branch info for header
+    $blanch_data = $this->queries->get_blanch($comp_id);
+
+    // Get defaulters 91+ days
+    $outstand = $this->queries->get_defaulters_91_plus_days($comp_id);
+
+    // Prepare data for view
+    $data = [
+        'compdata'    => $this->queries->get_companyData($comp_id), // ensure this method exists
+        'blanch_data' => $blanch_data,
+        'outstand'    => $outstand,
+        'title'       => "Defaulters Report (91+ Days Past Due)"
+    ];
+
+    // Load mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L', 
+        'margin_left' => 10,
+        'margin_right'=> 10,
+        'margin_top'  => 15,
+        'margin_bottom'=> 15
+    ]);
+
+    // Load view HTML
+    $html = $this->load->view('admin/defaulters_91_plus_days_pdf', $data, true);
+
+    // Generate PDF
+    $mpdf->WriteHTML($html);
+    $mpdf->Output("Defaulters_91_plus_Days_Report.pdf", "I"); // I = inline view
+}
+
+
+
+
+
+public  function yesterday_defaulters_pdf ()
+{
+    $this->load->model('queries');
+    $comp_id = $this->session->userdata('comp_id');
+    
+    // Get filter parameters from GET
+    $blanch_id = $this->input->get('blanch_id');
+    $empl_id = $this->input->get('empl_id');
+    $from = $this->input->get('from_date');
+    $to = $this->input->get('to_date');
+    $overdue_days = $this->input->get('overdue_days');
+    
+    // Fetch outstanding loans with filters
+    $outstand = $this->queries->get_outstand_loan_yesterday($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
+    
+    $compdata = $this->queries->get_companyData($comp_id);
+    
+    // Get branch and employee data if filtered
+    $blanch_data = null;
+    $empl_data = null;
+    if ($blanch_id) {
+        $blanch_data = $this->queries->get_blanch_data($blanch_id);
+    }
+    if ($empl_id) {
+        $empl_data = $this->queries->get_employee_data($empl_id);
+    }
+    
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $html = $this->load->view('admin/defaulters_report',['outstand'=>$outstand,'compdata'=>$compdata,'total_remain'=>$total_remain,'blanch_data'=>$blanch_data,'empl_data'=>$empl_data,'from'=>$from,'to'=>$to,'overdue_days'=>$overdue_days],true);
+    $mpdf->SetFooter('Generated By Brainsoft Technology');
+    $mpdf->WriteHTML($html);
+    $mpdf->Output('Defaulters_Report_' . date('Y-m-d') . '.pdf', 'D');
+}
+
+
 
 public function print_default_loan($blanch_id){
 $this->load->model('queries');
@@ -10231,6 +11313,73 @@ public function update_customer_details($customer_id){
   //print_r($server_output);
   }
   
+
+    // Customer Notifications Management
+    public function customer_notifications(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $data['compdata'] = $this->queries->get_companyData($comp_id);
+        $data['notifications'] = $this->queries->get_all_notifications($comp_id);
+        $this->load->view('admin/customer_notifications', $data);
+    }
+
+    public function create_customer_notification(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $admin_id = $this->session->userdata('empl_id');
+        
+        $data = [
+            'comp_id' => $comp_id,
+            'title' => $this->input->post('title'),
+            'message' => $this->input->post('message'),
+            'notification_type' => $this->input->post('notification_type'),
+            'target_audience' => $this->input->post('target_audience'),
+            'start_date' => $this->input->post('start_date'),
+            'end_date' => $this->input->post('end_date'),
+            'is_active' => 1,
+            'created_by' => $admin_id
+        ];
+        
+        $this->queries->create_notification($data);
+        $this->session->set_flashdata('massage', 'Notification created successfully');
+        redirect('admin/customer_notifications');
+    }
+
+    public function edit_customer_notification(){
+        $this->load->model('queries');
+        $notification_id = $this->input->post('notification_id');
+        
+        $data = [
+            'title' => $this->input->post('title'),
+            'message' => $this->input->post('message'),
+            'notification_type' => $this->input->post('notification_type'),
+            'target_audience' => $this->input->post('target_audience'),
+            'start_date' => $this->input->post('start_date'),
+            'end_date' => $this->input->post('end_date'),
+            'is_active' => $this->input->post('is_active')
+        ];
+        
+        $this->queries->update_notification($notification_id, $data);
+        $this->session->set_flashdata('massage', 'Notification updated successfully');
+        redirect('admin/customer_notifications');
+    }
+
+    public function delete_customer_notification($notification_id){
+        $this->load->model('queries');
+        $this->queries->delete_notification($notification_id);
+        $this->session->set_flashdata('massage', 'Notification deleted successfully');
+        redirect('admin/customer_notifications');
+    }
+
+    public function toggle_notification_status($notification_id){
+        $this->load->model('queries');
+        $notification = $this->queries->get_notification_by_id($notification_id);
+        
+        $new_status = ($notification->is_active == 1) ? 0 : 1;
+        $this->queries->update_notification($notification_id, ['is_active' => $new_status]);
+        
+        echo json_encode(['success' => true, 'new_status' => $new_status]);
+    }
 
 
 

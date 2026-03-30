@@ -6,24 +6,18 @@ include_once APPPATH . "views/partials/officerheader.php";
 <div class="w-full lg:ps-64">
     <div class="p-4 sm:p-6 space-y-6">
 
-        <!-- Section 1: Page Title / Subheader -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-            <h1 class="text-xl font-semibold text-gray-800 dark:text-white">
-  Welcome <span class="font-bold text-blue-600">- <?= $empl_data->empl_name ?></span> / 
-  <span class="font-bold text-green-600"><?= $manager_data->blanch_name; ?></span>
-</h1>
 
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					</b> <?php //echo $_SESSION['empl_name']; ?>                </h3>
-                </p>
-            </div>
-            <div>
-                <?php // Optional action button, e.g., for the "Branches" dropdown
-                // We will integrate the "Branches" dropdown within the "Quick Stats & Actions" card as per your old layout.
-                ?>
-            </div>
-        </div>
+<!-- Debug: Check session data -->
+<?php 
+echo "<!-- Session company_logo: " . ($this->session->userdata('company_logo') ?? 'NULL') . " -->";
+echo "<!-- Session comp_id: " . ($this->session->userdata('comp_id') ?? 'NULL') . " -->";
+echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NULL') . " -->";
+?>
+
+
+
+        <!-- Section 1: Page Title / Subheader -->
+     
         <!-- End Page Title / Subheader -->
 
 
@@ -224,28 +218,6 @@ include_once APPPATH . "views/partials/officerheader.php";
     <span class="text-white text-sm">Today Deposited</span>
   </a>
 
-
-      <div class="bg-gradient-to-r from-blue-400 to-blue-600 dark:from-blue-700 dark:to-indigo-800 text-white rounded-xl shadow p-6">
-    <h4 class="text-2xl font-bold flex items-center gap-2">
-        <i class="icon-wallet"></i> 	<?php echo number_format($total_laza); ?>
-    </h4>
-    <span class="text-white text-sm">Not Deposited Today</span>
-</div>
-
-      <div class="bg-gradient-to-r from-cyan-400 to-cyan-600 dark:from-cyan-700 dark:to-teal-800 text-white rounded-xl shadow p-6">
-    <h4 class="text-2xl font-bold flex items-center gap-2">
-        <i class="icon-wallet"></i> <?php echo number_format($total_zidi); ?>
-    </h4>
-    <span class="text-white text-sm">Prepaid Amount</span>
-</div>
-
-
-  <div class="bg-gradient-to-r from-orange-400 to-orange-600 dark:from-cyan-700 dark:to-teal-800 text-white rounded-xl shadow p-6">
-    <h4 class="text-2xl font-bold flex items-center gap-2">
-        <i class="icon-wallet"></i> <?php echo number_format($total_zidi); ?>
-    </h4>
-    <span class="text-white text-sm">Total Active payments</span>
-</div>
 
 <div class="bg-gradient-to-r from-orange-400 to-orange-600 dark:from-cyan-700 dark:to-teal-800 text-white rounded-xl shadow p-6">
     <h4 class="text-2xl font-bold flex items-center gap-2">
@@ -592,23 +564,23 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     </a>
 
                     <!-- Stat Card: Approved Loans -->
-                    <a href="<?php echo base_url("oficer/get_loan_aproved"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <!-- <a href="<?php echo base_url("oficer/get_loan_aproved"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                         <?php
 							$ap = $this->db->query("SELECT * FROM tbl_loans WHERE comp_id = '$comp_id' AND loan_status = 'aproved'");
 							 ?>
-                            <!-- <img src="</?php echo base_url('assets/img/aproved.png'); ?>" class="size-10" alt="Approved Loans"> -->
+                         
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Approved Loans</h2>
                         </div>
                         <p class="text-2xl font-bold text-green-600 dark:text-green-400"> <?= count($approved_customer) ?></p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Loans awaiting disbursement</p>
-                    </a>
+                    </a> -->
 
 					<a href="<?php echo base_url("oficer/disburse_loan"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                        
                             <!-- <img src="</?php echo base_url('assets/img/aproved.png'); ?>" class="size-10" alt="Approved Loans"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Disbursed Loans</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Approved Loans</h2>
                         </div>
                         <p class="text-2xl font-bold text-green-600 dark:text-green-400"> <?= $disbursed_customer ?></p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Loans awaiting disbursement</p>

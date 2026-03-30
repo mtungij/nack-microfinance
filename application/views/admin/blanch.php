@@ -20,7 +20,7 @@ include_once APPPATH . "views/partials/header.php";
 ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
-<div class="w-full lg:ps-64"> <?php // Main content wrapper from the new template ?>
+<div class="w-full lg:ps-64"> 
     <div class="p-4 sm:p-6 space-y-6">
 
         <!-- Page Title / Subheader -->

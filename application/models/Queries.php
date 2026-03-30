@@ -27,6 +27,27 @@ class Queries extends CI_Model {
     return $this->db->insert_id(); // ✅ This returns the correct auto-incremented comp_id
 }
 
+public function get_company_info()
+{
+    return $this->db->limit(1)->get('tbl_company')->row();
+}
+
+public function get_company_by_id($comp_id)
+{
+    return $this->db
+        ->where('comp_id', $comp_id)
+        ->limit(1)
+        ->get('tbl_company')
+        ->row();
+}
+
+public function get_employee_by_phone($phone)
+{
+    return $this->db->where('empl_no', $phone)->get('tbl_employee')->row();
+}
+
+
+
 
 public function check_region_code($code){
     return $this->db->get_where('tbl_region', ['region_code' => $code])->row();
@@ -705,9 +726,11 @@ public function get_monthly_received_loan($comp_id)
 public function get_loan_by_id($loan_id)
 {
     return $this->db
-        ->where('loan_id', $loan_id)
-        ->where('loan_status', 'open')
-        ->get('tbl_loans')
+        ->select('l.*, ot.loan_stat_date, ot.loan_end_date')
+        ->from('tbl_loans l')
+        ->join('tbl_outstand ot', 'ot.loan_id = l.loan_id', 'left')
+        ->where('l.loan_id', $loan_id)
+        ->get()
         ->row();
 }
 
@@ -1147,7 +1170,8 @@ public function get_total_pay_description_acount_statement($loan_id)
 				cb.empl_name AS creator_name,
 				cb.empl_email AS creator_email,
 				cb.empl_no AS creator_no,
-				cb.empl_sex AS creator_sex
+				cb.empl_sex AS creator_sex,
+				cb.passport AS creator_passport
 			FROM tbl_loans l
 			JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
 			JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
@@ -1314,10 +1338,11 @@ public function get_total_pay_description_acount_statement($loan_id)
 
 
 
-     public function get_withdrawal_Loan($comp_id, $filters = [])
+    public function get_withdrawal_Loan($comp_id, $filters = [])
 {
     $this->db->select('*');
     $this->db->from('tbl_loans l');
+
     $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
     $this->db->join('tbl_loan_category lt', 'lt.category_id = l.category_id', 'left');
     $this->db->join('tbl_blanch b', 'b.blanch_id = l.blanch_id', 'left');
@@ -1328,24 +1353,20 @@ public function get_total_pay_description_acount_statement($loan_id)
     $this->db->where('l.comp_id', $comp_id);
     $this->db->where('l.loan_status', 'withdrawal');
 
-    // ✅ If no filters provided, show only today's data
-    if (empty($filters['from']) && empty($filters['to'])) {
-        $today = date("Y-m-d");
-        $this->db->where('DATE(ot.loan_stat_date)', $today);
-    }
-
-    // ✅ If user passes date range
+    // Date logic
     if (!empty($filters['from']) && !empty($filters['to'])) {
-        $this->db->where('ot.loan_stat_date >=', $filters['from']);
-        $this->db->where('ot.loan_stat_date <=', $filters['to']);
+        $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
+        $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
+    } else {
+        $today = date('Y-m-d');
+        $this->db->where('ot.loan_stat_date >=', $today . ' 00:00:00');
+        $this->db->where('ot.loan_stat_date <=', $today . ' 23:59:59');
     }
 
-    // ✅ If branch filter
     if (!empty($filters['blanch_id'])) {
         $this->db->where('l.blanch_id', $filters['blanch_id']);
     }
 
-    // ✅ If loan name filter
     if (!empty($filters['loan_name'])) {
         $this->db->like('l.loan_name', $filters['loan_name']);
     }
@@ -1353,6 +1374,76 @@ public function get_total_pay_description_acount_statement($loan_id)
     $this->db->order_by('l.loan_id', 'DESC');
     return $this->db->get()->result();
 }
+
+
+
+
+
+public function check_phone_existence_with_loans($phone, $comp_id)
+{
+    $results = [];
+
+    // ========== CUSTOMER ==========
+    $this->db->select("
+        'Customer' AS source,
+        c.customer_id AS ref_id,
+        CONCAT(c.f_name,' ',c.l_name) AS full_name,
+        b.blanch_name AS branch_name,
+        l.loan_id,
+        l.loan_status,
+        o.loan_stat_date,
+        o.loan_end_date
+    ", FALSE);
+    $this->db->from('tbl_customer c');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = c.blanch_id', 'left');
+    $this->db->join('tbl_loans l', 'l.customer_id = c.customer_id', 'left');
+    $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
+    $this->db->where('c.phone_no', $phone);
+    $this->db->where('c.comp_id', $comp_id);
+    $results = array_merge($results, $this->db->get()->result());
+
+    // ========== SPONSER ==========
+    $this->db->select("
+        'Sponsor' AS source,
+        s.sp_id AS ref_id,
+        CONCAT(s.sp_name,' ',s.sp_lname) AS full_name,
+        b.blanch_name AS branch_name,
+        l.loan_id,
+        l.loan_status,
+		c.*,
+		l.*,
+        o.loan_stat_date,
+        o.loan_end_date
+    ", FALSE);
+    $this->db->from('tbl_sponser s');
+    $this->db->join('tbl_customer c', 'c.customer_id = s.customer_id', 'left');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = c.blanch_id', 'left');
+    $this->db->join('tbl_loans l', 'l.customer_id = s.customer_id', 'left');
+    $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
+    $this->db->where('s.sp_phone_no', $phone);
+    $this->db->where('s.comp_id', $comp_id);
+    $results = array_merge($results, $this->db->get()->result());
+
+    // ========== EMPLOYEE ==========
+    $this->db->select("
+        'Employee' AS source,
+        e.empl_id AS ref_id,
+        e.empl_name AS full_name,
+        b.blanch_name AS branch_name,
+        NULL AS loan_id,
+        NULL AS loan_status,
+        NULL AS loan_stat_date,
+        NULL AS loan_end_date
+    ", FALSE);
+    $this->db->from('tbl_employee e');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = e.blanch_id', 'left');
+    $this->db->where('empl_no', $phone);
+    $this->db->where('e.comp_id', $comp_id);
+    $results = array_merge($results, $this->db->get()->result());
+
+    return $results;
+}
+
 
 public function get_sum_loanwithdrawal_data_filtered($comp_id, $filters = [])
 {
@@ -2398,10 +2489,18 @@ public function get_account_by_transid($trans_id) {
 		 return $blanch->row();
 	}
 
-	public function get_employee_data($empl_id){
-		$empl = $this->db->query("SELECT * FROM tbl_employee WHERE empl_id = '$empl_id'");
-	   return $empl->row();
-	}
+	public function get_employee_data($empl_id)
+{
+    $query = $this->db->query("
+        SELECT e.*, b.*
+        FROM tbl_employee e
+        JOIN tbl_blanch b ON b.blanch_id = e.blanch_id
+        WHERE e.empl_id = ?
+    ", array($empl_id));
+
+    return $query->row();
+}
+
 
 	public function update_employee_permissions($employee_id, $new_permissions)
 {
@@ -2829,10 +2928,24 @@ public function update_account($account_id,$data){
           return $total_aproved->row();
        }
 
-       public function get_loan_customer($customer_id){
-       	$data = $this->db->query("SELECT * FROM tbl_loans l JOIN tbl_customer c ON c.customer_id = l.customer_id JOIN tbl_blanch b ON b.blanch_id = l.blanch_id JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id JOIN tbl_account_type at ON at.account_id = sc.account_id JOIN tbl_loan_category lc ON lc.category_id = l.category_id  WHERE l.customer_id = '$customer_id'");
-       	return $data->result();
-       }
+   public function get_loan_customer($customer_id) {
+    $data = $this->db->query("
+        SELECT * 
+        FROM tbl_loans l
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id
+        JOIN tbl_account_type at ON at.account_id = sc.account_id
+        JOIN tbl_loan_category lc ON lc.category_id = l.category_id
+        LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.customer_id = ?
+    ", array($customer_id));
+
+    return $data->result();
+}
+
+
 
 
        public function get_loanExpectation($comp_id){
@@ -3112,7 +3225,7 @@ public function get_sum_totalloanInterstBlanch($blanch_id){
 
 	
 
-public function get_paycustomerNotfee_Statement($customer_id, $loan_id)
+public function get_paycustomerNotfee_Statement($customer_id, $loan_id = null)
 {
     $this->db->select('p.*, l.*, at.*, pen.*');
     $this->db->from('tbl_pay p');
@@ -3121,15 +3234,17 @@ public function get_paycustomerNotfee_Statement($customer_id, $loan_id)
     $this->db->join('tbl_penat pen', 'pen.comp_id = p.comp_id', 'left');
 
     $this->db->where('p.customer_id', $customer_id);
-    $this->db->where('p.loan_id', $loan_id);
+    if ($loan_id !== null) {
+        $this->db->where('p.loan_id', $loan_id);
+    }
 
     // 🔹 Skip penalty display for these descriptions
-    $this->db->where_not_in('p.description', [
-        'CASH WITHDRAWALS',
-        'SYSTEM WITHDRAWAL',
-		'AUTO CRON REMAIN DEBT',
-        'CASH DEPOST'
-    ]);
+    // $this->db->where_not_in('p.description', [
+    //     'CASH WITHDRAWALS',
+    //     'SYSTEM WITHDRAWAL',
+	// 	'AUTO CRON REMAIN DEBT',
+    //     'CASH DEPOST'
+    // ]);
 
     $this->db->group_by(['p.loan_id', 'p.pay_day', 'p.description', 'p.depost', 'p.pay_id']);
     $this->db->order_by('p.pay_id', 'DESC');
@@ -4158,6 +4273,88 @@ public function get_today_withdrawal_loanBlanch($blanch_id){
 	  return $data->row();
 }
 
+public function get_cash_transaction_blanch($blanch_id){
+		 $date = date("Y-m-d");
+		 $data = $this->db->query("SELECT pr.prev_id,pr.pay_id,pr.empl_id,pr.customer_id,pr.loan_id,pr.depost,pr.withdraw,pr.with_trans,pr.lecod_day,pr.day_id,e.empl_name,c.f_name,c.m_name,c.l_name,c.phone_no,b.blanch_name,pr.time_rec,pr.loan_aprov,dat.account_name AS deposit_account,wat.account_name AS withdrawal_account FROM tbl_prev_lecod pr LEFT JOIN tbl_customer c ON c.customer_id = pr.customer_id LEFT JOIN tbl_blanch b ON b.blanch_id = pr.blanch_id LEFT JOIN tbl_employee e ON e.empl_id = pr.empl_id LEFT JOIN tbl_account_transaction dat ON dat.trans_id = pr.trans_id  LEFT JOIN tbl_account_transaction wat ON wat.trans_id = pr.with_trans WHERE pr.blanch_id = '$blanch_id' AND date(pr.time_rec) = '$date' ORDER BY prev_id DESC");
+		 return $data->result();
+	}
+
+	public function get_cash_transaction_sum_blanch($blanch_id){
+		$date = date("Y-m-d");
+		$data = $this->db->query("SELECT SUM(loan_aprov) AS total_aprove,SUM(depost) AS total_deposit FROM tbl_prev_lecod pr LEFT JOIN tbl_customer c ON c.customer_id = pr.customer_id LEFT JOIN tbl_blanch b ON b.blanch_id = pr.blanch_id LEFT JOIN tbl_employee e ON e.empl_id = pr.empl_id WHERE pr.blanch_id = '$blanch_id' AND date(pr.time_rec) = '$date' ORDER BY prev_id DESC");
+		 return $data->row();
+	}
+
+		public function get_deposit_sunnary_account_blanch($blanch_id){
+		$date = date("Y-m-d");
+		$data = $this->db->query("SELECT at.account_name,SUM(pr.depost) AS total_deposit_acc FROM tbl_prev_lecod pr LEFT JOIN tbl_account_transaction at ON at.trans_id = pr.trans_id  WHERE pr.blanch_id = '$blanch_id' AND pr.lecod_day = '$date' AND pr.trans_id IS TRUE GROUP BY pr.trans_id");
+		return $data->result();
+	}
+
+		public function get_depositing_out_blanch($blanch_id){
+		$date = date("Y-m-d");
+		$data = $this->db->query("SELECT * FROM tbl_depost d LEFT JOIN tbl_customer c ON c.customer_id = d.customer_id LEFT JOIN tbl_account_transaction at ON at.trans_id = d.depost_method LEFT JOIN tbl_blanch b ON b.blanch_id = d.blanch_id WHERE d.blanch_id = '$blanch_id' AND d.depost_day = '$date' AND d.dep_status = 'out'");
+		return $data->result();
+	}
+
+
+		public function get_withdrawal_summary_account_blanch_data($blanch_id){
+		$date = date("Y-m-d");
+		$data = $this->db->query("SELECT at.account_name,SUM(pr.loan_aprov) AS total_with_acc FROM tbl_prev_lecod pr LEFT JOIN tbl_account_transaction at ON at.trans_id = pr.with_trans  WHERE pr.blanch_id = '$blanch_id' AND pr.lecod_day = '$date' AND pr.with_trans IS TRUE GROUP BY pr.with_trans");
+		return $data->result();
+	}
+
+	public function get_total_code_number_blanch_data($blanch_id)
+{
+    $date = date("Y-m-d");
+
+    $sql = "
+        SELECT SUM(pr.total_int) AS total_interest
+        FROM tbl_prev_lecod pr
+        JOIN tbl_loans l ON l.loan_id = pr.loan_id
+        WHERE pr.blanch_id = ?
+          AND pr.lecod_day = ?
+          AND l.loan_status = 'withdrawal'
+    ";
+
+    $query = $this->db->query($sql, [$blanch_id, $date]);
+    return $query->row();
+}
+
+
+	  public function get_total_deducted_income_blanch_data($blanch_id){
+ 	$today = date("Y-m-d");
+ 	$data = $this->db->query("SELECT SUM(deducted_balance) AS total_deducted FROM tbl_deducted_fee WHERE blanch_id = '$blanch_id' AND deducted_date = '$today'");
+ 	return $data->row();
+ }
+
+ 		public function get_total_penart_paid_blanch_data($blanch_id){
+		$date = date("Y-m-d");
+		$data_penart = $this->db->query("SELECT SUM(penart_paid) AS total_penart FROM tbl_pay_penart WHERE blanch_id = '$blanch_id' AND penart_date = '$date'");
+		return $data_penart->row();
+	}
+
+		public  function get_miamala_hewa_blanch_data($blanch_id){
+		$date = date("Y-m-d");
+		$data = $this->db->query("SELECT * FROM tbl_miamala m LEFT JOIN tbl_account_transaction at ON at.trans_id = m.provider LEFT JOIN tbl_blanch b ON b.blanch_id = m.blanch_id WHERE m.blanch_id = '$blanch_id' AND m.date = '$date' AND m.status = 'open'");
+		return $data->result();
+	}
+
+		public  function get_miamala_hewa_total_blanch_data($blanch_id){
+		$date = date("Y-m-d");
+		$data = $this->db->query("SELECT SUM(m.amount) AS total_miamala FROM tbl_miamala m LEFT JOIN tbl_account_transaction at ON at.trans_id = m.provider LEFT JOIN tbl_blanch b ON b.blanch_id = m.blanch_id WHERE m.blanch_id = '$blanch_id' AND m.date = '$date' AND m.status = 'open'");
+		return $data->row();
+	}
+
+	public function get_depositing_hai_blanch($blanch_id){
+		$date = date("Y-m-d");
+		$data = $this->db->query("SELECT COUNT(d.dep_id) AS total_hai FROM tbl_depost d LEFT JOIN tbl_customer c ON c.customer_id = d.customer_id  LEFT JOIN tbl_blanch b ON b.blanch_id = d.blanch_id WHERE d.blanch_id = '$blanch_id' AND d.depost_day = '$date' AND d.dep_status = 'withdrawal'");
+		return $data->row();
+	}
+
+	
+
+
 
 public function get_total_penartToday($comp_id){
 	$today = date("Y-m-d");
@@ -4323,6 +4520,11 @@ public function get_sun_loanPendingcompany($comp_id){
 
 }
 
+public function get_sun_loanPendingcompany_by_date($comp_id, $date){
+	$pending = $this->db->query("SELECT SUM(return_total) AS total_pending FROM tbl_loan_pending WHERE comp_id = ? AND action_date = ?", [$comp_id, $date]);
+	return $pending->row();
+}
+
 
 
 public function get_pending_reportLoancompany($comp_id){
@@ -4345,6 +4547,26 @@ public function get_pending_reportLoancompany($comp_id){
     ");
 
     return $data->result();
+}
+
+public function get_pending_reportLoancompany_by_date($comp_id, $date){
+	$data = $this->db->query("
+		SELECT 
+			lp.*, 
+			c.*, 
+			b.*, 
+			l.*, 
+			lt.loan_name 
+		FROM tbl_loan_pending lp 
+		LEFT JOIN tbl_customer c ON c.customer_id = lp.customer_id 
+		LEFT JOIN tbl_blanch b ON b.blanch_id = lp.blanch_id 
+		LEFT JOIN tbl_loans l ON l.loan_id = lp.loan_id 
+		LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id
+		WHERE lp.comp_id = ? 
+		AND lp.action_date = ?
+	", [$comp_id, $date]);
+
+	return $data->result();
 }
 
 
@@ -4546,10 +4768,188 @@ public function get_totalLoanDoneGroup($group_id){
     	return $this->db->where('comp_id',$comp_id)->update('tbl_company',$data);
     }
 
-    public function get_outstand_loan($loan_id){
-     $out = $this->db->query("SELECT * FROM tbl_loans l JOIN tbl_outstand o ON o.loan_id = l.loan_id WHERE l.loan_id = '$loan_id'");
-      return $out->row();
-    }
+public function get_outstand_loan_yesterday($comp_id){
+    $yesterday = date('d/m/Y', strtotime('-1 day'));
+
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE DATE_FORMAT(o.loan_end_date, '%d/%m/%Y') = ?
+        AND l.comp_id = ?
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$yesterday, $comp_id])->result();
+}
+
+
+
+
+
+
+public function get_defaulters_3_30_days($comp_id)
+{
+    $sql = "
+        SELECT 
+            l.*, 
+            o.*, 
+            c.*, 
+            e.*, 
+            b.*,
+            COALESCE(SUM(d.depost), 0) AS total_deposit,
+
+            -- Outstanding balance
+            (l.loan_int - COALESCE(SUM(d.depost), 0)) AS balance,
+
+            -- Overdue days (0 if fully paid)
+            CASE 
+                WHEN COALESCE(SUM(d.depost), 0) >= l.loan_int THEN 0
+                ELSE GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0)
+            END AS overdue_days
+
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+
+        WHERE l.comp_id = ?
+
+        GROUP BY l.loan_id
+
+        HAVING 
+            overdue_days BETWEEN 3 AND 30
+            AND balance > 0
+    ";
+
+    return $this->db->query($sql, [$comp_id])->result();
+}
+
+
+
+public function get_defaulters_31_60_days($comp_id)
+{
+    // Calculate overdue range: 31 to 60 days
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.comp_id = ?
+          AND (GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) BETWEEN 31 AND 60)
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$comp_id])->result();
+}
+
+
+public function get_defaulters_61_90_days($comp_id)
+{
+    // Select loans where overdue_days between 61 and 90
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.comp_id = ?
+          AND (GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) BETWEEN 61 AND 90)
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$comp_id])->result();
+}
+
+
+
+public function get_defaulters_91_plus_days($comp_id)
+{
+    // Select loans where overdue_days are greater than 90
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.comp_id = ?
+          AND (GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) > 90)
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$comp_id])->result();
+}
+
+
+
+public function get_outstand_loan_yesterday_by_branch($blanch_id)
+{
+    $yesterday = date('d/m/Y', strtotime('-1 day'));
+
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE DATE_FORMAT(o.loan_end_date, '%d/%m/%Y') = ?
+        AND l.blanch_id = ?
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$yesterday, $blanch_id])->result();
+}
+
+
+
+// Total outstanding loans for yesterday by branch
+
+public function get_defaulters_3_30_days_by_branch($blanch_id)
+{
+    $sql = "
+        SELECT l.*, o.*, c.*, e.*, b.*,
+               COALESCE(SUM(d.depost), 0) AS total_deposit,
+               GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) AS overdue_days
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        JOIN tbl_customer c ON c.customer_id = l.customer_id
+        JOIN tbl_employee e ON e.empl_id = l.empl_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
+        WHERE l.blanch_id = ?
+          AND (GREATEST(DATEDIFF(CURDATE(), o.loan_end_date), 0) BETWEEN 3 AND 30)
+        GROUP BY l.loan_id
+    ";
+
+    return $this->db->query($sql, [$blanch_id])->result();
+}
+
+
 
     public function get_blanchIncome($blanch_id,$receve_day){
     	  $this->db->select('r.receved_id,r.comp_id,r.inc_id,r.blanch_id,r.customer_id,r.empl,r.receve_amount,r.receve_day,c.customer_id,c.f_name,c.m_name,c.l_name,i.inc_id,i.comp_id,i.inc_name,b.blanch_id,b.blanch_name');
@@ -4785,7 +5185,7 @@ return $data->row();
  }
 
 
-public function outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $from = null, $to = null) {
+public function outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $from = null, $to = null, $overdue_days = null) {
     $this->db->select('
         ot.*, 
         l.loan_int, l.restration, l.day, l.session, l.empl_id, l.blanch_id,
@@ -4819,12 +5219,18 @@ public function outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $fro
     }
 
     $this->db->group_by('ot.loan_id'); // group deposits per loan
+    
+    // Apply overdue days filter after grouping using HAVING
+    if(!empty($overdue_days) && is_numeric($overdue_days)){
+        $this->db->having('overdue_days >=', $overdue_days);
+    }
+    
     $query = $this->db->get();
     return $query->result();
 }
 
 
-public function total_outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $from = null, $to = null) {
+public function total_outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $from = null, $to = null, $overdue_days = null) {
     $this->db->select('SUM(l.loan_int) AS total_loan, SUM(COALESCE(d.depost,0)) AS total_paid, SUM(l.loan_int - COALESCE(d.depost,0)) AS total_remain');
     $this->db->from('tbl_outstand_loan ot');
     $this->db->join('tbl_loans l','l.loan_id = ot.loan_id','left');
@@ -4845,6 +5251,9 @@ public function total_outstand_loan($comp_id, $blanch_id = null, $empl_id = null
     }
     if(!empty($to)){
         $this->db->where('o.loan_end_date <=', $to);
+    }
+    if(!empty($overdue_days) && is_numeric($overdue_days)){
+        $this->db->where('DATEDIFF(CURDATE(), o.loan_end_date) >=', $overdue_days);
     }
 
     $query = $this->db->get();
@@ -4913,6 +5322,40 @@ public function total_outstand_loan($comp_id, $blanch_id = null, $empl_id = null
   	$data = $this->db->query("SELECT COUNT(p.pend_id) AS pending_day,c.f_name,c.m_name,c.l_name,b.blanch_name,c.phone_no,l.loan_int,l.restration,l.day,l.session,ot.remain_amount,o.loan_stat_date,o.loan_end_date,ot.out_status FROM tbl_outstand_loan ot JOIN tbl_loans l ON l.loan_id = ot.loan_id JOIN tbl_customer c ON c.customer_id = ot.customer_id JOIN tbl_outstand o ON o.loan_id = ot.loan_id JOIN tbl_blanch b ON b.blanch_id = l.blanch_id JOIN tbl_loan_pending p ON p.loan_id = ot.loan_id WHERE ot.blanch_id = '$blanch_id' AND ot.out_status = 'open' GROUP BY p.loan_id");
  	 return $data->result();
  }
+
+
+
+public function defaulters_customer($blanch_id){
+    $sql = "
+        SELECT 
+            COUNT(p.pend_id) AS pending_day,
+            c.f_name, c.m_name, c.l_name,
+            b.blanch_name,
+            c.phone_no,
+            l.loan_int, l.restration, l.day, l.session,
+            ot.remain_amount,
+            o.loan_stat_date, o.loan_end_date,
+            ot.out_status,
+            MAX(d.deposit_day) AS last_payment_day,
+            DATEDIFF(CURDATE(), COALESCE(MAX(d.deposit_day), o.loan_end_date)) AS overdue_days
+        FROM tbl_outstand_loan ot
+        JOIN tbl_loans l ON l.loan_id = ot.loan_id
+        JOIN tbl_customer c ON c.customer_id = ot.customer_id
+        JOIN tbl_outstand o ON o.loan_id = ot.loan_id
+        JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+        JOIN tbl_loan_pending p ON p.loan_id = ot.loan_id
+        LEFT JOIN tbl_depost d ON d.loan_id = ot.loan_id
+        WHERE ot.blanch_id = ?
+          AND ot.out_status = 'open'
+        GROUP BY p.loan_id
+        HAVING overdue_days >= 10
+        ORDER BY overdue_days DESC
+    ";
+
+    $query = $this->db->query($sql, [$blanch_id]);
+    return $query->result();
+}
+
 
  public function insert_superUser($data){
  	return $this->db->insert('tbl_super_admin',$data);
@@ -7116,10 +7559,48 @@ public function get_total_loan_pendingComp($comp_id){
     return $query->result();
 }
 
+public function get_total_loan_pendingComp_by_date($comp_id, $from, $to, $blanch_id = null){
+	$sql = "
+		SELECT * 
+		FROM tbl_pending_total pt
+		JOIN tbl_loans l ON l.loan_id = pt.loan_id
+		JOIN tbl_blanch b ON b.blanch_id = pt.blanch_id
+		JOIN tbl_customer c ON c.customer_id = pt.customer_id
+		JOIN tbl_loan_category lc ON lc.category_id = l.category_id
+		WHERE pt.comp_id = ?
+		AND pt.date BETWEEN ? AND ?
+		AND total_pend IS NOT FALSE
+	";
+
+	$params = [$comp_id, $from, $to];
+
+	if (!empty($blanch_id)) {
+		$sql .= " AND pt.blanch_id = ?";
+		$params[] = $blanch_id;
+	}
+
+	$query = $this->db->query($sql, $params);
+
+	return $query->result();
+}
+
 
 
 public function get_total_pend_loan_company($comp_id){
 	$data = $this->db->query("SELECT SUM(total_pend) AS total_pending FROM tbl_pending_total WHERE comp_id = '$comp_id'");
+	return $data->row();
+}
+
+public function get_total_pend_loan_company_by_date($comp_id, $from, $to, $blanch_id = null){
+	$sql = "SELECT SUM(total_pend) AS total_pending FROM tbl_pending_total WHERE comp_id = ? AND date BETWEEN ? AND ?";
+	$params = [$comp_id, $from, $to];
+
+	if (!empty($blanch_id)) {
+		$sql .= " AND blanch_id = ?";
+		$params[] = $blanch_id;
+	}
+
+	$data = $this->db->query($sql, $params);
 	return $data->row();
 }
 
@@ -7803,7 +8284,9 @@ public function get_remain_amount($loan_id) {
  
 
 
- public function get_total_pay_description($loan_id){
+
+
+	  public function get_total_pay_description($loan_id){
      $data = $this->db->query("SELECT * FROM tbl_pay p LEFT JOIN tbl_loans l ON l.loan_id = p.loan_id LEFT JOIN tbl_account_transaction at ON at.trans_id = p.p_method WHERE p.loan_id = '$loan_id' ORDER BY p.pay_id DESC LIMIT 5");
      return $data->result();
      }
@@ -7949,35 +8432,35 @@ public function get_employee_by_id($empl_id) {
 //     return $query->result();
 // }
 
-// public function get_today_expected_collections($comp_id)
-// {
-//     $today = date('Y-m-d');
+public function get_today_expected_collections($comp_id)
+{
+	$today = date('Y-m-d');
 
-//     $this->db->select("
-//         l.loan_id,
-//         l.customer_id,
-//         l.how_loan AS loan_amount,
-//         l.restration,
-//         l.date_show AS expected_date,
-//         COALESCE(p.description, 0) AS amount_paid,
-//         COALESCE(p.depost, 0) AS depost,
-//         COALESCE(p.date_data, NULL) AS payment_date
-//     ");
+	$this->db->select(
+		"l.loan_id,
+		l.customer_id,
+		l.how_loan AS loan_amount,
+		l.restration,
+		l.date_show AS expected_date,
+		COALESCE(p.description, 0) AS amount_paid,
+		COALESCE(p.depost, 0) AS depost,
+		COALESCE(p.date_data, NULL) AS payment_date"
+	);
 
-//     $this->db->from('tbl_loans l');
+	$this->db->from('tbl_loans l');
 
-//     // LEFT JOIN so that loans still appear even if no payment has been made
-//     $this->db->join('tbl_pay p', 'l.loan_id = p.loan_id AND p.date_data = l.date_show', 'left');
+	// LEFT JOIN so that loans still appear even if no payment has been made
+	$this->db->join('tbl_pay p', 'l.loan_id = p.loan_id AND p.date_data = l.date_show', 'left');
 
-//     // Filter by today's expected collection date
-//     $this->db->where('l.date_show', $today);
+	// Filter by today's expected collection date
+	$this->db->where('l.date_show', $today);
 
-//     // Filter by company
-//    
+	// Filter by company
+	$this->db->where('l.comp_id', $comp_id);
 
-//     $query = $this->db->get();
-//     return $query->result();
-// }
+	$query = $this->db->get();
+	return $query->result();
+}
 
 
 public function get_customers_pending_payment()
@@ -8686,6 +9169,365 @@ public function get_today_offficerexpected_collections($blanch_id, $empl_id)
 	
 		return $customer->result(); 
 	}
+
+	// Customer Portal Methods
+
+	/**
+	 * Verify customer login credentials
+	 */
+	public function verify_customer_login($phone_no, $customer_code) {
+		$query = $this->db->where('phone_no', $phone_no)
+							->where('customer_code', $customer_code)
+							->get('tbl_customer');
+		
+		if ($query->num_rows() == 1) {
+			return $query->row();
+		}
+		return false;
+	}
+
+	/**
+	 * Get customer by ID
+	 */
+	public function get_customer_by_id($customer_id) {
+		$query = $this->db->where('customer_id', $customer_id)
+							->get('tbl_customer');
+		return $query->row();
+	}
+
+	/**
+	 * Get all loans for a specific customer
+	 */
+public function get_customer_all_loans($customer_id) {
+    $query = $this->db->select('l.*, lc.loan_name, l.session, o.*')
+                      ->from('tbl_loans l')
+                      ->join('tbl_loan_category lc', 'l.category_id = lc.category_id', 'left')
+                      ->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left')
+                      ->where('l.customer_id', $customer_id)
+                      ->order_by('l.loan_id', 'DESC')
+                      ->get();
+
+    return $query->result();
+}
+
+
+	/**
+	 * Get customer payment history for a specific loan
+	 */
+	public function get_customer_payment_history($loan_id) {
+		$query = $this->db->select('d.*, a.account_name')
+							->from('tbl_pay d')
+							->join('tbl_account_transaction a', 'd.p_method = a.trans_id', 'left')
+							->where('d.loan_id', $loan_id)
+							->where('d.depost >', 0)
+							->order_by('d.pay_day', 'DESC')
+							->get();
+		return $query->result();
+	}
+
+	// Notification Methods
+
+	/**
+	 * Get active notifications for customer
+	 */
+	public function get_customer_notifications($customer_id, $comp_id) {
+		$today = date('Y-m-d');
+		
+		// Get customer's active loan status
+		$active_loan = $this->get_loan_active_customer($customer_id);
+		$has_active_loan = !empty($active_loan) && $active_loan->loan_status == 'withdrawal';
+		
+		$this->db->select('n.*, CASE WHEN nr.read_id IS NOT NULL THEN 1 ELSE 0 END as is_read', FALSE);
+		$this->db->from('tbl_notifications n');
+		$this->db->join('tbl_notification_reads nr', 
+						'nr.notification_id = n.notification_id AND nr.customer_id = ' . $customer_id, 
+						'left');
+		$this->db->where('n.comp_id', $comp_id);
+		$this->db->where('n.is_active', 1);
+		$this->db->where('n.start_date <=', $today);
+		$this->db->where('n.end_date >=', $today);
+		
+		// Filter by target audience
+		$this->db->group_start();
+		$this->db->where('n.target_audience', 'all');
+		if ($has_active_loan) {
+			$this->db->or_where('n.target_audience', 'active_loans');
+		} else {
+			$this->db->or_where('n.target_audience', 'completed_loans');
+		}
+		$this->db->group_end();
+		
+		$this->db->order_by('n.created_at', 'DESC');
+		
+		return $this->db->get()->result();
+	}
+
+	/**
+	 * Get unread notification count
+	 */
+	public function get_unread_notification_count($customer_id, $comp_id) {
+		$today = date('Y-m-d');
+		
+		$active_loan = $this->get_loan_active_customer($customer_id);
+		$has_active_loan = !empty($active_loan) && $active_loan->loan_status == 'withdrawal';
+		
+		$this->db->select('COUNT(*) as unread_count');
+		$this->db->from('tbl_notifications n');
+		$this->db->join('tbl_notification_reads nr', 
+						'nr.notification_id = n.notification_id AND nr.customer_id = ' . $customer_id, 
+						'left');
+		$this->db->where('n.comp_id', $comp_id);
+		$this->db->where('n.is_active', 1);
+		$this->db->where('n.start_date <=', $today);
+		$this->db->where('n.end_date >=', $today);
+		$this->db->where('nr.read_id IS NULL', null, false);
+		
+		$this->db->group_start();
+		$this->db->where('n.target_audience', 'all');
+		if ($has_active_loan) {
+			$this->db->or_where('n.target_audience', 'active_loans');
+		} else {
+			$this->db->or_where('n.target_audience', 'completed_loans');
+		}
+		$this->db->group_end();
+		
+		return $this->db->get()->row()->unread_count;
+	}
+
+	/**
+	 * Mark notification as read
+	 */
+	public function mark_notification_read($notification_id, $customer_id) {
+		$data = array(
+			'notification_id' => $notification_id,
+			'customer_id' => $customer_id
+		);
+		
+		// Use INSERT IGNORE to avoid duplicates
+		$this->db->insert('tbl_notification_reads', $data);
+		return $this->db->affected_rows() > 0;
+	}
+
+	/**
+	 * Admin: Create notification
+	 */
+	public function create_notification($data) {
+		return $this->db->insert('tbl_notifications', $data);
+	}
+
+	/**
+	 * Admin: Get all notifications
+	 */
+	public function get_all_notifications($comp_id) {
+		$this->db->select('n.*, e.empl_name as created_by_name');
+		$this->db->from('tbl_notifications n');
+		$this->db->join('tbl_employee e', 'n.created_by = e.empl_id', 'left');
+		$this->db->where('n.comp_id', $comp_id);
+		$this->db->order_by('n.created_at', 'DESC');
+		return $this->db->get()->result();
+	}
+
+	/**
+	 * Admin: Update notification
+	 */
+	public function update_notification($notification_id, $data) {
+		$this->db->where('notification_id', $notification_id);
+		return $this->db->update('tbl_notifications', $data);
+	}
+
+	/**
+	 * Admin: Delete notification
+	 */
+	public function delete_notification($notification_id) {
+		// Delete reads first
+		$this->db->delete('tbl_notification_reads', array('notification_id' => $notification_id));
+		// Delete notification
+		return $this->db->delete('tbl_notifications', array('notification_id' => $notification_id));
+	}
+
+	/**
+	 * Admin: Get notification by ID
+	 */
+	public function get_notification_by_id($notification_id) {
+		return $this->db->where('notification_id', $notification_id)
+						->get('tbl_notifications')
+						->row();
+	}
+
+	/**
+	 * Get loan payment schedule with missed payments highlighted
+	 */
+	public function get_loan_payment_schedule_with_missed($loan_id) {
+		// Get loan details
+		$loan = $this->db->query("SELECT l.*, ot.loan_stat_date, ot.loan_end_date 
+								   FROM tbl_loans l 
+								   LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id 
+								   WHERE l.loan_id = '$loan_id'")->row();
+		
+		if (!$loan) {
+			return [];
+		}
+		
+		// DEBUG: Log loan details
+		error_log("DEBUG Loan ID: $loan_id");
+		error_log("DEBUG loan_stat_date: " . ($loan->loan_stat_date ?? 'NULL'));
+		error_log("DEBUG loan_end_date: " . ($loan->loan_end_date ?? 'NULL'));
+
+// Get actual payments grouped by date
+	$actual_payments = $this->db->query("SELECT DATE(p.depost_day) as payment_date, 
+										 SUM(p.depost) as total_paid 
+										 FROM tbl_depost p 
+										 WHERE p.loan_id = '$loan_id' 
+										 GROUP BY DATE(p.depost_day) 
+										 ORDER BY p.depost_day ASC")->result();
 	
+	// DEBUG: Log actual payments
+	error_log("DEBUG Total actual payments found: " . count($actual_payments));
+	foreach ($actual_payments as $payment) {
+		error_log("DEBUG Payment date: {$payment->payment_date}, Amount: {$payment->total_paid}");
+	}
 	
+	// Create array of payment dates for easy lookup
+	$payment_dates = [];
+	foreach ($actual_payments as $payment) {
+		$payment_dates[$payment->payment_date] = $payment->total_paid;
+	}
+	
+	// If loan doesn't have start date yet (not disbursed), just return actual payments
+	if (empty($loan->loan_stat_date)) {
+		$schedule = [];
+		foreach ($actual_payments as $payment) {
+			$payment_obj = new stdClass();
+			$payment_obj->depost_day = $payment->payment_date;
+			$payment_obj->depost = $payment->total_paid;
+			$payment_obj->description = 'Malipo';
+			$payment_obj->account_name = '';
+			$payment_obj->is_missed = false;
+			$schedule[] = $payment_obj;
+		}
+		return $schedule;
+		}
+
+		// Get detailed payments for display
+		$detailed_payments = $this->db->query("SELECT p.*, at.account_name 
+											   FROM tbl_depost p 
+											   LEFT JOIN tbl_account_transaction at ON at.trans_id = p.depost_method 
+											   WHERE p.loan_id = '$loan_id' 
+											   ORDER BY p.pay_id ASC")->result();
+
+		// Calculate expected payment dates
+		$schedule = [];
+		$loan_start = new DateTime($loan->loan_stat_date);
+		$today = new DateTime();
+		$current_date = clone $loan_start;
+		
+		// For daily loans, start from next day
+		if ($loan->day == 1) {
+			$current_date->modify('+1 day');
+		} else if ($loan->day == 7) {
+			$current_date->modify('+7 days');
+		} else if ($loan->day == 28 || $loan->day == 30) {
+			$current_date->modify('+1 month');
+		}
+
+		$installment = $loan->restration ?? 0;
+		$total_loan = $loan->loan_int ?? 0;
+		$expected_payments_count = $total_loan > 0 && $installment > 0 ? ceil($total_loan / $installment) : 0;
+
+	// Collect all dates (expected + actual)
+	$all_dates = [];
+	
+	// Set loan end date for comparison
+	$loan_end = !empty($loan->loan_end_date) ? new DateTime($loan->loan_end_date) : null;
+	
+	// Generate expected payment dates
+	$payment_index = 0;
+	
+	for ($i = 0; $i < $expected_payments_count; $i++) {
+		$expected_date = $current_date->format('Y-m-d');
+		
+		// Only show dates up to and including today
+		if ($current_date > $today) {
+			break;
+		}
+		
+		$all_dates[] = $expected_date;
+		
+		// Move to next payment date
+		if ($loan->day == 1) {
+			$current_date->modify('+1 day');
+		} else if ($loan->day == 7) {
+			$current_date->modify('+7 days');
+		} else if ($loan->day == 28 || $loan->day == 30) {
+			$current_date->modify('+1 month');
+		}
+	}
+	
+	// Add any actual payment dates that aren't in expected dates
+	foreach ($payment_dates as $date => $amount) {
+		if (!in_array($date, $all_dates)) {
+			$all_dates[] = $date;
+		}
+	}
+	
+	// Sort all dates
+	sort($all_dates);
+	
+	// Get loan end date for comparison
+	$loan_end_date_str = !empty($loan->loan_end_date) ? date('Y-m-d', strtotime($loan->loan_end_date)) : null;
+	
+	// DEBUG: Log comparison setup
+	error_log("DEBUG loan_end_date_str for comparison: " . ($loan_end_date_str ?? 'NULL'));
+	error_log("DEBUG Total dates to process: " . count($all_dates));
+	
+	// Generate schedule with all dates (expected and actual)
+	foreach ($all_dates as $date_key) {
+		// Check if payment was made on this date
+		if (isset($payment_dates[$date_key])) {
+			// Payment was made - create single consolidated row for this date
+			$consolidated_payment = new stdClass();
+			$consolidated_payment->depost_day = $date_key;
+			$consolidated_payment->depost = $payment_dates[$date_key]; // Total amount paid on this date
+			$consolidated_payment->description = 'Malipo';
+			$consolidated_payment->balance = null;
+			$consolidated_payment->is_missed = false;
+			
+			// Check if this actual payment (depost_day) is after loan end date
+			if ($loan_end_date_str && $date_key > $loan_end_date_str) {
+				$consolidated_payment->is_outside_contract = true;
+				error_log("DEBUG OUTSIDE CONTRACT: Payment date $date_key > loan_end_date $loan_end_date_str");
+			} else {
+				$consolidated_payment->is_outside_contract = false;
+				error_log("DEBUG INSIDE CONTRACT: Payment date $date_key <= loan_end_date " . ($loan_end_date_str ?? 'NULL'));
+			}
+			
+			// Get account name from first payment on this date
+			foreach ($detailed_payments as $payment) {
+				$payment_date = date('Y-m-d', strtotime($payment->depost_day));
+				if ($payment_date == $date_key) {
+					$consolidated_payment->account_name = $payment->account_name ?? '';
+					$consolidated_payment->balance = $payment->balance ?? null;
+					break;
+				}
+			}
+			
+			$schedule[] = $consolidated_payment;
+		} else {
+			// Payment was missed - create a missed payment entry
+			$missed_payment = new stdClass();
+			$missed_payment->depost_day = $date_key;
+			$missed_payment->description = 'Haijalipwa';
+			$missed_payment->depost = 0;
+			$missed_payment->balance = null;
+			$missed_payment->account_name = '';
+			$missed_payment->p_method = '';
+			$missed_payment->is_missed = true;
+			$missed_payment->is_outside_contract = false;
+			$schedule[] = $missed_payment;
+		}
+	}
+
+	return $schedule;
+}
+
 }

@@ -34,8 +34,15 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         </div>
         <?php endif; ?>
 
-       <div class="bg-cyan-600 text-white p-4 rounded-lg shadow">
+       <div class="bg-cyan-600 text-white p-4 rounded-lg shadow flex justify-between items-center">
       <h2 class="text-lg font-semibold uppercase tracking-widest">Loan Application Form</h2>
+      <a href="<?= base_url('admin/download_loan_application/' . $loan_form->loan_id); ?>" 
+         class="inline-flex items-center gap-2 px-4 py-2 bg-white text-cyan-700 rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+         </svg>
+         Pakua Maombi (PDF)
+      </a>
     </div>
 
 <div class="flex flex-col md:flex-row gap-8 items-stretch">
@@ -344,13 +351,18 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 
 
         	<div class="flex flex-col bg-white border shadow-sm rounded-xl pb-1.5 dark:bg-gray-800 dark:border-gray-700">
-		<div class="w-full bg-cyan-600 text-white">
-        <div class="flex flex-col max-w-screen-xl px-4 mx-auto md:flex-row md:justify-between md:px-6 lg:px-8">
-            <div class="p-2 flex flex-row items-center justify-between">
-                <a href="#" class="text-lg font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline">
+		<div class="w-full bg-cyan-600 text-white p-4">
+        <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold tracking-widest uppercase">
 		Historia Ya Mikopo ya Nyuma
-                </a>
-            </div>
+            </h2>
+            <a href="<?= base_url('admin/download_loan_history/' . $loan_form->customer_id); ?>" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-white text-cyan-700 rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm">
+               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+               </svg>
+               Pakua Historia (PDF)
+            </a>
         </div>
     </div>
 			
@@ -592,10 +604,25 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 </div>
 
 <div class="sm:col-span-4">
-    <label for="age" class="block text-sm font-medium mb-2 dark:text-gray-300">* Afisa Aliyeomba Mkopo:</label>
-    <input type="text" readonly id="age" name="" autocomplete="off"
-           class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
-            value="<?php echo set_value('customer_day', isset($loan_form->creator_name) ? $loan_form->creator_name : ''); ?>">
+    <label class="block text-sm font-medium mb-2 dark:text-gray-300">* Afisa Aliyeomba Mkopo:</label>
+    <div class="flex items-center gap-3 py-2.5 px-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+        <?php if (!empty($loan_form->creator_passport)): ?>
+            <img src="<?= base_url('assets/images/passport/' . basename($loan_form->creator_passport)); ?>" 
+                 alt="Officer Photo" 
+                 class="w-16 h-16 rounded-full object-cover border-2 border-cyan-500 shadow-md"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 items-center justify-center text-white font-semibold text-xl border-2 border-cyan-500 shadow-md" style="display: none;">
+                <?= isset($loan_form->creator_name) ? strtoupper(substr($loan_form->creator_name, 0, 1)) : 'A'; ?>
+            </div>
+        <?php else: ?>
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold text-xl border-2 border-cyan-500 shadow-md">
+                <?= isset($loan_form->creator_name) ? strtoupper(substr($loan_form->creator_name, 0, 1)) : 'A'; ?>
+            </div>
+        <?php endif; ?>
+        <span class="text-sm text-gray-800 dark:text-gray-300 font-medium">
+            <?= isset($loan_form->creator_name) ? $loan_form->creator_name : ''; ?>
+        </span>
+    </div>
 </div>
 
 

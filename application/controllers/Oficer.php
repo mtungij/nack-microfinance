@@ -136,7 +136,7 @@ class Oficer extends CI_Controller{
 
   // }
     
-    
+      
 
 
       //    echo "<pre>";
@@ -188,6 +188,20 @@ class Oficer extends CI_Controller{
     'loan_feeCloseData'=>$loan_feeCloseData,'deducted'=>$deducted,'non_deducted'=>$non_deducted,'blanch_amount_balance'=>$blanch_amount_balance]);
     }
 
+      public function my_profile(){
+    	$this->load->model('queries');
+           $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+          $employee = $this->queries->get_employee_data($empl_id);
+            //    echo "<pre>";
+            // print_r($employee);
+            //  echo "</pre>";
+            //   exit();
+
+           $this->load->view('officer/my_profile',['employee'=>$employee]);
+    }
+
+   
 public function mycustomer ()
 
 {
@@ -293,6 +307,129 @@ public function mycustomer ()
 
         $this->group();
     }
+
+
+
+  
+
+
+
+         public function update_profile_picture(){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        
+        if (empty($_FILES['passport']['name'])) {
+            $this->session->set_flashdata('error', 'Please select a photo to upload');
+            redirect('oficer/my_profile');
+            return;
+        }
+        
+        $upload_path = FCPATH . 'assets/images/passport/';
+        
+        // Ensure folder exists
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0755, true);
+        }
+        
+        $config = [
+            'upload_path'   => $upload_path,
+            'allowed_types' => 'jpg|jpeg|png|gif',
+            'max_size'      => 5120, // 5MB
+            'encrypt_name'  => true
+        ];
+        
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+        
+        if (!$this->upload->do_upload('passport')) {
+            $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+            redirect('oficer/my_profile');
+            return;
+        }
+        
+        $upload_data = $this->upload->data();
+        
+        // Resize to 300x300
+        $this->load->library('image_lib');
+        $resize_config = [
+            'image_library'  => 'gd2',
+            'source_image'   => $upload_data['full_path'],
+            'maintain_ratio' => true,
+            'width'          => 300,
+            'height'         => 300
+        ];
+        
+        $this->image_lib->initialize($resize_config);
+        $this->image_lib->resize();
+        
+        $passport = $upload_data['file_name'];
+        
+        // Delete old passport if exists
+        $current_employee = $this->queries->get_employee_data($empl_id);
+        if (!empty($current_employee->passport)) {
+            $old_passport_path = FCPATH . 'assets/images/passport/' . $current_employee->passport;
+            if (file_exists($old_passport_path)) {
+                unlink($old_passport_path);
+            }
+        }
+        
+        // Update database
+        $data = ['passport' => $passport];
+        $result = $this->queries->update_employee($empl_id, $data);
+        
+        if ($result) {
+            $this->session->set_flashdata('massage', 'Profile picture updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update profile picture');
+        }
+        
+        redirect('oficer/my_profile');
+    }
+
+
+
+        public function update_my_password(){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        
+        // Form validation
+        $this->form_validation->set_rules('current_password', 'Current Password', 'required');
+        $this->form_validation->set_rules('new_password', 'New Password', 'required|min_length[6]');
+        $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'required|matches[new_password]');
+        
+        if ($this->form_validation->run() == FALSE) {
+            $employee = $this->queries->get_employee_data($empl_id);
+            $this->load->view('officer/my_profile', ['employee' => $employee]);
+            return;
+        }
+        
+        $employee = $this->queries->get_employee_data($empl_id);
+        $current_password = $this->input->post('current_password');
+        $new_password = $this->input->post('new_password');
+        
+        // Verify current password
+        if (!password_verify($current_password, $employee->password)) {
+            $this->session->set_flashdata('error', 'Current password is incorrect');
+            redirect('oficer/my_profile');
+            return;
+        }
+        
+        // Hash new password
+        $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+        
+        // Update password
+        $data = ['password' => $hashed_password];
+        $result = $this->queries->update_employee($empl_id, $data);
+        
+        if ($result) {
+            $this->session->set_flashdata('massage', 'Password updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update password');
+        }
+        
+        redirect('oficer/my_profile');
+    }
+
 
 
      public function modify_group($group_id){
@@ -1864,6 +2001,8 @@ public function customer(){
     $this->form_validation->set_rules('m_name', 'Middle name', 'required');
     $this->form_validation->set_rules('l_name', 'Last name', 'required');
     $this->form_validation->set_rules('phone_no', 'phone number', 'required');
+    $this->form_validation->set_rules('gender', 'gender', 'required');
+    $this->form_validation->set_rules('date_birth', 'date of birth', 'required');
     $this->form_validation->set_error_delimiters('<div class="text-danger">', '</div>');
 
     if ($this->form_validation->run()) {
@@ -1885,6 +2024,7 @@ public function customer(){
         $f_name = $data['f_name'];
         $m_name = $data['m_name'];
         $l_name = $data['l_name'];
+        $data['gender'] = trim($data['gender']);
         $blanch_id = $data['blanch_id'];
         $comp_id = $data['comp_id'];
 
@@ -1915,7 +2055,7 @@ public function customer(){
         }
     }
 
-    $this->customer_details();
+    $this->customer();
 }
 
 
@@ -2413,14 +2553,43 @@ $this->load->model('queries');
 public function search_customer()
 {
     $this->load->model('queries');
+
+    /* ===============================
+       1. Hakiki login & session data
+    ================================*/
+    $empl_id = $this->session->userdata('empl_id');
+    if (!$empl_id) {
+        redirect('login');
+        return;
+    }
+
     $blanch_id = $this->session->userdata('blanch_id');
-    $empl_id   = $this->session->userdata('empl_id');
+
+    /* ===============================
+       2. Pata manager & company info
+    ================================*/
     $manager_data = $this->queries->get_manager_data($empl_id);
-    $comp_id   = $manager_data->comp_id;
+    if (!$manager_data) {
+        $this->session->set_flashdata('error', 'Taarifa za meneja hazijapatikana.');
+        redirect('oficer/loan_application');
+        return;
+    }
+
+    $comp_id = $manager_data->comp_id;
+
+    /* ===============================
+       3. Pata employee data
+    ================================*/
     $empl_data = $this->queries->get_employee_data($empl_id);
 
-    // ✅ Pata customer_id kutoka POST au SESSION
-    $customer_id = $this->input->post('customer_id') ?? $this->session->userdata('customer_id');
+    /* ===============================
+       4. Pata customer_id (POST au SESSION)
+    ================================*/
+    $customer_id = $this->input->post('customer_id');
+
+    if (!$customer_id) {
+        $customer_id = $this->session->userdata('customer_id');
+    }
 
     if (!$customer_id) {
         $this->session->set_flashdata('error', 'Tafadhali chagua mteja.');
@@ -2428,18 +2597,26 @@ public function search_customer()
         return;
     }
 
-    // Ondoa customer_id baada ya kuchukua
+    // Ondoa customer_id baada ya kuitumia
     $this->session->unset_userdata('customer_id');
 
+    /* ===============================
+       5. Tafuta mteja
+    ================================*/
     $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
 
     if (!$customer) {
-        $this->session->set_flashdata('error', 'Mteja hakupatikana.');
+        $this->session->set_flashdata(
+            'error',
+            'Mteja hakupatikana au hajaruhusiwa chini ya kampuni hii.'
+        );
         redirect('oficer/loan_application');
         return;
     }
 
-    // ✅ Check if customer has open loan
+    /* ===============================
+       6. Hakiki mkopo ulio wazi
+    ================================*/
     $open_loan = $this->db
         ->where('customer_id', $customer_id)
         ->where('loan_status', 'open')
@@ -2452,46 +2629,54 @@ public function search_customer()
             'sponser'       => $this->queries->get_sponser($customer_id),
             'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
             'region'        => $this->queries->get_region(),
+            'comp_id'       => $comp_id, 
             'empl_data'     => $empl_data,
             'privillage'    => $this->queries->get_position_empl($empl_id),
             'manager'       => $this->queries->get_position_manager($empl_id)
         ]);
     }
 
-    // ⚠️ Check pending loans
+    /* ===============================
+       7. Hakiki mikopo inayosubiri
+    ================================*/
     if ($this->queries->has_pending_loans($customer_id)) {
         return $this->load->view('officer/toast_message_view', [
-            'message' => "Mteja <span class='font-bold'>{$customer->f_name} {$customer->m_name} {$customer->l_name}</span> bado hajamaliza mkopo wake. Tafadhali maliza mkopo kabla ya kuomba tena.",
+            'message' => "Mteja <b>{$customer->f_name} {$customer->m_name} {$customer->l_name}</b> bado hajamaliza mkopo wake. Tafadhali maliza mkopo kabla ya kuomba tena.",
             'type'    => 'loan'
         ]);
     }
 
-    // ✅ Check penalties
+    /* ===============================
+       8. Hakiki faini
+    ================================*/
     $latestLoan = $this->queries->get_latest_done_loan($customer_id);
 
     if ($latestLoan) {
-        $total_penart = @$this->queries->get_total_penart_loan($latestLoan->loan_id)->total_penart ?: 0;
-        $paid         = @$this->queries->get_total_penart_paid_loan($latestLoan->loan_id)->total_PaidPenart ?: 0;
+        $total_penart = $this->queries->get_total_penart_loan($latestLoan->loan_id)->total_penart ?? 0;
+        $paid         = $this->queries->get_total_penart_paid_loan($latestLoan->loan_id)->total_PaidPenart ?? 0;
 
         $msamaha = $this->queries->get_penart_check($latestLoan->loan_id);
-        $waived  = ($msamaha && isset($msamaha->status) && $msamaha->status === 'checked');
+        $waived  = ($msamaha && $msamaha->status === 'checked');
 
         if (!$waived && ($total_penart > $paid)) {
             return $this->load->view('officer/toast_message_view', [
-                'message' => "Habari, Mteja {$customer->f_name} {$customer->m_name} {$customer->l_name} anadaiwa faini Jumla ya TZS " . number_format($total_penart - $paid) . ". Tafadhali alipe deni la faini au omba ahakikiwe ili umuombee mkopo.",
-                'type'    => 'penalty'
+                'message' => "Habari, Mteja <b>{$customer->f_name} {$customer->m_name} {$customer->l_name}</b> anadaiwa faini TZS " .
+                    number_format($total_penart - $paid) .
+                    ". Tafadhali alipe au omba ahakikiwe.",
+                'type' => 'penalty'
             ]);
         }
     }
 
-    // ✅ Prepare sponsor info
+    /* ===============================
+       9. Sponsor info
+    ================================*/
     $sponser = $this->queries->get_sponser($customer_id);
-    $askReplace = false;
-    if ($latestLoan && $sponser) {
-        $askReplace = true;
-    }
+    $askReplace = ($latestLoan && $sponser) ? true : false;
 
-    // ✅ Load view
+    /* ===============================
+       10. Load final view
+    ================================*/
     return $this->load->view('officer/search_customer', [
         'customer'      => $customer,
         'comp_id'       => $comp_id,
@@ -2675,156 +2860,217 @@ public function handle_sponser_confirmation()
 //     }
 
 
-
-public function create_sponser($customer_id, $comp_id)
+public function create_sponser($customer_id = null, $comp_id = null)
 {
     $this->load->model('queries');
     $this->load->library('form_validation');
 
+    /* ================= SESSION & BASIC DATA ================= */
+
+    $empl_id = $this->session->userdata('empl_id');
+
     if (!$comp_id) {
-        $comp_id = $this->session->userdata('comp_id'); // or get it some other way
+        $comp_id = $this->session->userdata('comp_id');
     }
 
     $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
-    $customerdata = $customer->customer_id;
-    $company_data = $this->queries->get_companyData($comp_id);
-    $comp_phone = $company_data->comp_phone;
-    //  echo "<pre>";
-    //         print_r(     $company_data);
-    //         echo "</pre>";
-    //             exit();
 
-    // Set form validation rules
+      // echo "<pre>";
+      //       print_r(    $customer );
+      //       echo "</pre>";
+      //           exit();
+
+    if (!$customer) {
+        show_error('Customer not found');
+    }
+
+    $customerdata = $customer->customer_id;
+
+    /* ================= FORM VALIDATION ================= */
+
     $this->form_validation->set_rules('sp_name', 'First Name', 'required');
     $this->form_validation->set_rules('sp_mname', 'Middle Name', 'required');
     $this->form_validation->set_rules('sp_lname', 'Last Name', 'required');
     $this->form_validation->set_rules(
         'sp_phone_no',
         'Phone Number',
-        'required|numeric|exact_length[10]',
-        [
-          'required' => 'Please enter the %s.',
-            'numeric' => 'The %s must contain only numbers.',
-            'exact_length' => 'The %s must be exactly 10 digits.',
-        ]
+        'required|numeric|exact_length[10]'
     );
-    $this->form_validation->set_rules('sp_relation', 'Relationship With Customer', 'required');
-    $this->form_validation->set_rules('nature', 'Guarantor Business', 'required');
+    $this->form_validation->set_rules('sp_relation', 'Relationship', 'required');
+    $this->form_validation->set_rules('nature', 'Business Nature', 'required');
 
-    // Optional file validations
+    /* ================= OPTIONAL FILE VALIDATION ================= */
+
     if (!empty($_FILES['barua_utambulisho']['name'])) {
-        $this->form_validation->set_rules('barua_utambulisho', 'Barua ya Utambulisho', 'callback_validate_pdf_upload[barua_utambulisho]');
+        $this->form_validation->set_rules(
+            'barua_utambulisho',
+            'Barua ya Utambulisho',
+            'callback_validate_pdf_upload[barua_utambulisho]'
+        );
     }
 
     if (!empty($_FILES['kitambulisho']['name'])) {
-        $this->form_validation->set_rules('kitambulisho', 'Kitambulisho', 'callback_validate_pdf_upload[kitambulisho]');
+        $this->form_validation->set_rules(
+            'kitambulisho',
+            'Kitambulisho',
+            'callback_validate_pdf_upload[kitambulisho]'
+        );
     }
+
+    /* ================= VALIDATION FAIL ================= */
 
     if ($this->form_validation->run() == FALSE) {
-        $sponser = (object)$this->input->post();
+        $sponser = (object) $this->input->post();
         $this->load->view('officer/search_customer', [
             'customer' => $customer,
-            'sponser' => $sponser
+            'sponser'  => $sponser
         ]);
-    } else {
-        // Upload files only if provided
-        $barua_name = '';
-        $kitambulisho_name = '';
-
-        if (!empty($_FILES['barua_utambulisho']['name'])) {
-            $barua_name = $this->upload_file('barua_utambulisho', 'barua_' . $customer_id);
-        }
-
-        if (!empty($_FILES['kitambulisho']['name'])) {
-            $kitambulisho_name = $this->upload_file('kitambulisho', 'kitambulisho_' . $customer_id);
-        }
-
-        // Handle Cropped Passport Image
-        $passportData = $this->input->post('passport_cropped');
-        $passportPath = '';
-
-         if (!empty($passportData)) {
-            $passportBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $passportData);
-            $passportDecoded = base64_decode($passportBase64);
-
-            $passportFileName = 'passport_' . $customer_id . '_' . time() . '.jpg';
-            $passportUploadPath = 'assets/sponser_passport/' . $passportFileName;
-
-            // Create directory if it doesn't exist
-            if (!file_exists(FCPATH . 'assets/sponser_passport/')) {
-                mkdir(FCPATH . 'assets/sponser_passport/', 0755, true);
-            }
-
-            // Save image
-            file_put_contents(FCPATH . $passportUploadPath, $passportDecoded);
-            $passportPath = $passportUploadPath;
-        }
-
-        // Normalize phone number for SMS sending
-        $input_phone = $this->input->post('sp_phone_no');
-        if (substr($input_phone, 0, 1) === '0') {
-    $phone = '255' . substr($input_phone, 1);
-} else {
-    // Otherwise, keep it as is
-    $phone = $input_phone;
-}
-//  echo "<pre>";
-  //           print_r(    $phone);
-  //           echo "</pre>";
-  //               exit();
-        // Prepare sponsor data (store original phone format)
-        $data = [
-            'sp_name'           => $this->input->post('sp_name'),
-            'sp_mname'          => $this->input->post('sp_mname'),
-            'sp_lname'          => $this->input->post('sp_lname'),
-            'sp_phone_no'       => $input_phone,
-            'sp_relation'       => $this->input->post('sp_relation'),
-            'nature'            => $this->input->post('nature'),
-            'comp_id'           => $comp_id,
-            'customer_id'       => $customerdata,
-            'barua_path'        => $barua_name,
-            'kitambulisho_path' => $kitambulisho_name,
-            'passport_path'     => $passportPath
-        ];
-
-       // Check if sponsor exists
-$this->db->where('customer_id', $customerdata);
-$this->db->where('comp_id', $comp_id);
-$exists = $this->db->get('tbl_sponser')->row();
-
-if ($exists) {
-    // Sponsor exists, update
-    $this->db->where('customer_id', $customerdata);
-    $this->db->where('comp_id', $comp_id);
-     $this->db->update('tbl_sponser', $data);
-} else {
-    // Sponsor does not exist, insert new
-    $this->db->insert('tbl_sponser', $data);
-}
-
-
-        $this->session->set_flashdata('massage', 'Taarifa za mdhamini zimepokelewa');
-
-        // Prepare SMS message
-//         $compdata = $this->queries->get_companyData($comp_id);
-//         $comp_name = $compdata->comp_name;
-
-//         $sp_fullname = $data['sp_name'] . ' ' . $data['sp_mname'] . ' ' . $data['sp_lname'];
-//         $customer_name = $customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name;
-// $massage = "Habari Bw. $sp_fullname, "
-//     . "$comp_name inakutambua kama mdhamini wa $customer_name. "
-//     . "Iwapo huhusiki, tafadhali wasiliana nasi mapema kupitia $comp_phone. "
-//     . "Asante kwa ushirikiano wako.";
-    
-
-//         // Send SMS only if phone is valid and normalized
-
-        
-      
-//             $this->sendsms($phone, $massage);
-
-                    redirect("oficer/loan_applicationForm/" . $customerdata);
+        return;
     }
+
+    /* ================= FILE UPLOADS ================= */
+
+    $barua_name = '';
+    $kitambulisho_name = '';
+
+    if (!empty($_FILES['barua_utambulisho']['name'])) {
+        $barua_name = $this->upload_file(
+            'barua_utambulisho',
+            'barua_' . $customer_id
+        );
+    }
+
+    if (!empty($_FILES['kitambulisho']['name'])) {
+        $kitambulisho_name = $this->upload_file(
+            'kitambulisho',
+            'kitambulisho_' . $customer_id
+        );
+    }
+
+    /* ================= PASSPORT (BASE64) ================= */
+
+    $passportPath = '';
+    $passportData = $this->input->post('passport_cropped');
+
+    if (!empty($passportData)) {
+        $passportBase64 = preg_replace(
+            '#^data:image/\w+;base64,#i',
+            '',
+            $passportData
+        );
+
+        $passportDecoded = base64_decode($passportBase64);
+
+        $passportFileName = 'passport_' . $customer_id . '_' . time() . '.jpg';
+        $passportPath = 'assets/sponser_passport/' . $passportFileName;
+
+        if (!file_exists(FCPATH . 'assets/sponser_passport/')) {
+            mkdir(FCPATH . 'assets/sponser_passport/', 0755, true);
+        }
+
+        file_put_contents(FCPATH . $passportPath, $passportDecoded);
+    }
+
+    /* ================= PREPARE DATA ================= */
+
+$data = [
+    'customer_id'        => $customerdata,
+    'comp_id'            => $comp_id,
+
+    'sp_name'            => $this->input->post('sp_name'),
+    'sp_mname'           => $this->input->post('sp_mname'),
+    'sp_lname'           => $this->input->post('sp_lname'),
+    'sp_phone_no'        => $this->input->post('sp_phone_no'),
+    'sp_relation'        => $this->input->post('sp_relation'),
+    'nature'             => $this->input->post('nature'),
+
+    // ✅ FILE PATHS (CORRECT COLUMN NAMES)
+    'barua_path'         => $barua_name,
+    'kitambulisho_path'  => $kitambulisho_name,
+    'passport_path'      => $passportPath,
+
+    // ✅ EXISTS IN TABLE
+    'created_at'         => date('Y-m-d H:i:s')
+];
+
+
+    /* ================= INSERT OR UPDATE ================= */
+
+    $exists = $this->db
+        ->where('customer_id', $customerdata)
+        ->where('comp_id', $comp_id)
+        ->get('tbl_sponser')
+        ->row();
+
+    if ($exists) {
+        $this->db
+            ->where('customer_id', $customerdata)
+            ->where('comp_id', $comp_id)
+            ->update('tbl_sponser', $data);
+    } else {
+        $this->db->insert('tbl_sponser', $data);
+    }
+
+    /* ================= SUCCESS ================= */
+
+    $this->session->set_flashdata(
+        'massage',
+        'Taarifa za mdhamini zimepokelewa'
+    );
+
+    redirect("oficer/loan_applicationForm/" . $customer_id);
+}
+
+
+public function verify_sponsor_otp_page($customer_id)
+{
+    $sponser = $this->db
+        ->where('customer_id', $customer_id)
+        ->where('otp_verified', 0)
+        ->get('tbl_sponser')
+        ->row();
+
+    if (!$sponser) {
+        // OTP tayari verified → nenda loan form
+        redirect("oficer/loan_applicationForm/" . $customer_id);
+        return;
+    }
+
+    $this->load->view('officer/verify_sponsor_otp', [
+        'customer_id' => $customer_id,
+        'phone'       => $sponser->sp_phone_no
+    ]);
+}
+
+
+
+public function verify_sponsor_otp()
+{
+    $customer_id = $this->input->post('customer_id');
+    $otp = $this->input->post('otp');
+
+    $sponser = $this->db
+        ->where('customer_id', $customer_id)
+        ->where('otp_code', $otp)
+        ->where('otp_verified', 0)
+        ->where('otp_expires >=', date('Y-m-d H:i:s'))
+        ->get('tbl_sponser')
+        ->row();
+
+    if (!$sponser) {
+        $this->session->set_flashdata('otp_error', 'OTP sio sahihi au muda umeisha.');
+        redirect("oficer/verify_sponsor_otp_page/" . $customer_id);
+        return;
+    }
+
+    // Verify OTP
+    $this->db->where('sp_id', $sponser->sp_id)->update('tbl_sponser', [
+        'otp_verified' => 1,
+        'otp_code'     => null
+    ]);
+
+    // ✅ SASA NDIPO IFUNGUE LOAN FORM
+    redirect("oficer/loan_applicationForm/" . $customer_id);
 }
 
 
@@ -3260,12 +3506,12 @@ $admins_numbers = $this->queries->get_admin_numbers();
     $blanch_name = $blanch_data->blanch_name;
 
     // MESSAGE MPYA
-$message = "Ndugu $sponsor_fname, $customer_fname $customer_lname ni mkopaji kwenye $comp_name ($blanch_name) kwa Tsh $loan. Jukumu lako kama mdhamini ni kulipa ikiwa mkopaji hatalipa. Ikiwa hujapanga kudhamini, toa taarifa kwa 0629364847.";
+// $message = "Ndugu $sponsor_fname, $customer_fname $customer_lname ni mkopaji kwenye $comp_name ($blanch_name) kwa Tsh $loan. Jukumu lako kama mdhamini ni kulipa ikiwa mkopaji hatalipa. Ikiwa hujapanga kudhamini, toa taarifa kwa 0629364847.";
 
 
 
 
-    $this->sendsms($phone, $message);
+    // $this->sendsms($phone, $message);
 
     $this->load->view('officer/collelateral',[
         'loan_attach'=>$loan_attach,
@@ -4920,56 +5166,109 @@ $latest_paid_day = isset($total_deposit_loan->latest_deposit_day)
 
 
 public function today_officer_transaction(){
-  // $position = strtoupper($this->session->userdata('position_name'));
-  $this->load->model('queries');
-  $blanch_id = $this->session->userdata('blanch_id');
-  $empl_id = $this->session->userdata('empl_id');
-  $manager_data = $this->queries->get_manager_data($empl_id);
-  $comp_id = $manager_data->comp_id;
-  $company_data = $this->queries->get_companyData($comp_id);
-  $blanch_data = $this->queries->get_blanchData($blanch_id);
-  $empl_data = $this->queries->get_employee_data($empl_id);
-  
- 
- 
-  $privillage = $this->queries->get_position_empl($empl_id);
-  $manager = $this->queries->get_position_manager($empl_id);
+ $this->load->model('queries');
+    $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+    $manager_data = $this->queries->get_manager_data($empl_id);
+    $comp_id = $manager_data->comp_id;
+    $company_data = $this->queries->get_companyData($comp_id);
+    $blanch_data = $this->queries->get_blanchData($blanch_id);
+    $empl_data = $this->queries->get_employee_data($empl_id);
+    
+    $cash_transaction = $this->queries->get_cash_transaction_blanch($blanch_id);
+    $sum_cashTransaction = $this->queries->get_cash_transaction_sum_blanch($blanch_id);
 
-  // if ($position === 'LOAN OFFICER') {
-  //     $cash = $this->queries->get_cash_transaction_by_officer($empl_id);
-  //     $sum_depost = $this->queries->get_sumCashtransDepostByOfficer($empl_id);
-  //     $sum_withdrawls = $this->queries->get_sumCashtransWithdrowByOfficer($empl_id);
-      
-  // } elseif ($position === 'BRANCH MANAGER') {
-      $cash = $this->queries->get_cash_transactionBlanch($blanch_id);
-      $sum_depost = $this->queries->get_sumCashtransDepostBlanch($blanch_id);
-      $sum_withdrawls = $this->queries->get_sumCashtransWithdrowBlanch($blanch_id);
-  // } else {
-  //     $cash = [];
-  //     $sum_depost = 0;
-  // }
 
-  // echo "<pre>";
-  //   print_r($cash);
-  //  echo "<pre>";
-  //  exit();
- 
- 
+    $account_deposit = $this->queries->get_deposit_sunnary_account_blanch($blanch_id);
+    $default_list = $this->queries->get_depositing_out_blanch($blanch_id);
+    $toyal_default = $this->queries->get_depositing_out_total_blanch($blanch_id);
 
-  $this->load->view('officer/today_officer_transaction', [
-      'cash' => $cash,
-      'sum_depost' => $sum_depost,
-      'sum_withdrawls' => $sum_withdrawls,
-      'empl_data' => $empl_data,
-      'privillage' => $privillage,
-      'manager' => $manager
-  ]);
+    $withdrawal_account = $this->queries->get_withdrawal_summary_account_blanch_data($blanch_id);
+    $total_code_no = $this->queries->get_total_code_number_blanch_data($blanch_id);
+    $deducted_fee = $this->queries->get_total_deducted_income_blanch_data($blanch_id);
+
+    $penart_paid = $this->queries->get_total_penart_paid_blanch_data($blanch_id);
+
+    $miamala = $this->queries->get_miamala_hewa_blanch_data($blanch_id);
+    $total_miamala = $this->queries->get_miamala_hewa_total_blanch_data($blanch_id);
+
+
+    $hai_wateja = $this->queries->get_depositing_hai_blanch($blanch_id);
+    $sugu_wateja = $this->queries->get_depositing_sugu_blanch($blanch_id);
+    //        echo "<pre>";
+    // print_r($sugu_wateja);
+    //            exit();
+
+    $this->load->view('officer/today_officer_transaction',['empl_data'=>$empl_data,'cash_transaction'=>$cash_transaction,'sum_cashTransaction'=>$sum_cashTransaction,'account_deposit'=>$account_deposit,'default_list'=>$default_list,'toyal_default'=>$toyal_default,'withdrawal_account'=>$withdrawal_account,'total_code_no'=>$total_code_no,'deducted_fee'=>$deducted_fee,'penart_paid'=>$penart_paid,'miamala'=>$miamala,'total_miamala'=>$total_miamala,'hai_wateja'=>$hai_wateja,'sugu_wateja'=>$sugu_wateja]);
 }
 
 public function print_officer_todaycash_transaction()
 
 {
+    $this->load->model('queries');
+    $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+    $manager_data = $this->queries->get_manager_data($empl_id);
+    $comp_id = $manager_data->comp_id;
+    $company_data = $this->queries->get_companyData($comp_id);
+    $blanch_data = $this->queries->get_blanchData($blanch_id);
+    $empl_data = $this->queries->get_employee_data($empl_id);
 
+    $cash_transaction = $this->queries->get_cash_transaction_blanch($blanch_id);
+    $sum_cashTransaction = $this->queries->get_cash_transaction_sum_blanch($blanch_id);
+
+    $account_deposit = $this->queries->get_deposit_sunnary_account_blanch($blanch_id);
+    $default_list = $this->queries->get_depositing_out_blanch($blanch_id);
+    $toyal_default = $this->queries->get_depositing_out_total_blanch($blanch_id);
+
+    $withdrawal_account = $this->queries->get_withdrawal_summary_account_blanch_data($blanch_id);
+    $total_code_no = $this->queries->get_total_code_number_blanch_data($blanch_id);
+    $deducted_fee = $this->queries->get_total_deducted_income_blanch_data($blanch_id);
+
+    $penart_paid = $this->queries->get_total_penart_paid_blanch_data($blanch_id);
+
+    $miamala = $this->queries->get_miamala_hewa_blanch_data($blanch_id);
+    $total_miamala = $this->queries->get_miamala_hewa_total_blanch_data($blanch_id);
+
+    $hai_wateja = $this->queries->get_depositing_hai_blanch($blanch_id);
+    $sugu_wateja = $this->queries->get_depositing_sugu_blanch($blanch_id);
+
+    $company_name = $company_data->comp_name ?? 'Today_Officer_Transaction';
+    $company_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $company_name);
+
+    $mpdf = new \Mpdf\Mpdf([
+      'format' => 'A4-L',
+      'orientation' => 'L'
+    ]);
+
+    $html = $this->load->view('officer/print_today_officer_transaction', [
+      'company_data' => $company_data,
+      'blanch_data' => $blanch_data,
+      'empl_data' => $empl_data,
+      'cash_transaction' => $cash_transaction,
+      'sum_cashTransaction' => $sum_cashTransaction,
+      'account_deposit' => $account_deposit,
+      'default_list' => $default_list,
+      'toyal_default' => $toyal_default,
+      'withdrawal_account' => $withdrawal_account,
+      'total_code_no' => $total_code_no,
+      'deducted_fee' => $deducted_fee,
+      'penart_paid' => $penart_paid,
+      'miamala' => $miamala,
+      'total_miamala' => $total_miamala,
+      'hai_wateja' => $hai_wateja,
+      'sugu_wateja' => $sugu_wateja,
+    ], true);
+
+    $mpdf->SetFooter('Generated By Brainsoft Technology | {PAGENO} of {nbpg}');
+    $mpdf->WriteHTML($html);
+
+    if (ob_get_length()) {
+      ob_end_clean();
+    }
+
+    $filename = $company_name . '_today_officer_transaction.pdf';
+    $mpdf->Output($filename, 'I');
 }
 
 
@@ -5746,6 +6045,27 @@ public function insert_comp_balance($comp_id,$new_depost){
 }
 
 
+public function penalt_today ()
+{
+
+   $this->load->model('queries');
+   $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+    $manager_data = $this->queries->get_manager_data($empl_id);
+    $comp_id = $manager_data->comp_id;
+    $company_data = $this->queries->get_companyData($comp_id);
+    $blanch_data = $this->queries->get_blanchData($blanch_id);
+    $empl_data = $this->queries->get_employee_data($empl_id);
+
+    $detail_income = $this->queries->get_income_detailBlanchData($blanch_id);
+
+    // print_r($detail_income);
+    //       exit();
+
+          $this->load->view('officer/penalt_today',['detail_income'=>$detail_income,'empl_data'=>$empl_data]);
+
+}
+
 
 public function create_withdrow_balance($customer_id){
     ini_set("max_execution_time", 3600);
@@ -5978,9 +6298,9 @@ if (substr($phone_sp, 0, 1) === '0') {
           //  exit();
 
  
-$massage = " $company_name inakujulisha, mkopaji $customer_name ambaye ulikubali kumdhamini awali tayari amepokea mkopo wa sh. $loan_amount. Utapaswa kufuatilia malipo yake yote hadi mkopo uwe umemalizika";
+// $massage = " $company_name inakujulisha, mkopaji $customer_name ambaye ulikubali kumdhamini awali tayari amepokea mkopo wa sh. $loan_amount. Utapaswa kufuatilia malipo yake yote hadi mkopo uwe umemalizika";
 
-		$this->sendsms($phone,$massage);
+		// $this->sendsms($phone,$massage);
 
          return redirect('oficer/data_with_depost/'.$customer_id);
     }
@@ -7355,6 +7675,8 @@ $total_depost=$this->queries->get_total_amount_paid_loan($loan_id);
   $statement = $this->queries->get_customer_datareport($customer_id);
 
   
+
+  
     $pay_customer = $this->queries->get_paycustomer($customer_id);
     $payisnull = $this->queries->get_paycustomerNotfee_Statement($customer_id,$loan_id);
 
@@ -7552,21 +7874,19 @@ public function today_received_pdf()
         'total_dabo'     => $total_dabo,
     ];
 
-    // // Load the view as HTML
-    // $html = $this->load->view('officer/report_siku', $data, true); // true = return as string
+    // Load the view as HTML
+    $html = $this->load->view('officer/report_siku', $data, true);
 
-    // // Generate PDF
-    // $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L']); // Landscape
-    // $mpdf->WriteHTML($html);
-    // $mpdf->Output('loan_report_'.date('Y-m-d').'.pdf', 'I'); // Open in browser
-
-
+    // Generate PDF
     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
-    $html = $this->load->view('officer/report_siku',$data,true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
     $mpdf->WriteHTML($html);
-    $mpdf->Output('loan_report_'); 
+
+    // Safe: open PDF in browser
+    $filename = 'loan_report_' . date('Y-m-d') . '.pdf';
+    $mpdf->Output($filename, 'I'); // 'I' = inline in browser
 }
+
 
 
 
@@ -7883,6 +8203,43 @@ public function oficer_profile(){
  $this->load->view('officer/loan_calculator',['loan_category'=>$loan_category]);
 	}
 
+  public function clonic_customers(){
+
+      $this->load->model('queries');
+     $blanch_id = $this->session->userdata('blanch_id');
+        $empl_id = $this->session->userdata('empl_id');
+        $manager_data = $this->queries->get_manager_data($empl_id);
+        $comp_id = $manager_data->comp_id;
+        $company_data = $this->queries->get_companyData($comp_id);
+        $blanch_data = $this->queries->get_blanchData($blanch_id);
+        $empl_data = $this->queries->get_employee_data($empl_id);
+        $privillage = $this->queries->get_position_empl($empl_id);
+        $outstand = $this->queries->defaulters_customer($blanch_id);
+        $filtered = [];
+        foreach ($outstand as $item) {
+          $endDateStr = substr($item->loan_end_date ?? '', 0, 10);
+          $endDate = DateTime::createFromFormat('Y-m-d', $endDateStr);
+          if (!$endDate) {
+            continue;
+          }
+          $today = new DateTime();
+          $diff = $endDate->diff($today);
+          $pendingDays = $diff->invert ? 0 : $diff->days;
+          if ($pendingDays > 50) {
+            $item->pending_days = $pendingDays;
+            $filtered[] = $item;
+          }
+        }
+        $outstand = $filtered;
+
+        // echo "<pre>";
+        // print_r($outstand);
+        // echo "<br>";
+        //        exit();
+    $this->load->view('officer/clonic_customers',['outstand'=>$outstand,'privillage'=>$privillage]);
+
+  }
+
     public function get_outstand_loan(){
     $this->load->model('queries');
      $blanch_id = $this->session->userdata('blanch_id');
@@ -7893,13 +8250,58 @@ public function oficer_profile(){
         $blanch_data = $this->queries->get_blanchData($blanch_id);
         $empl_data = $this->queries->get_employee_data($empl_id);
         $privillage = $this->queries->get_position_empl($empl_id);
-        $outstand = $this->queries->outstand_loanBlanch($blanch_id);
-        $total_remain = $this->queries->total_outstand_loanBlanch($blanch_id);
+        $outstand = $this->queries->get_outstand_loan_yesterday_by_branch($blanch_id);
+       
+
+        $start_date = $this->input->get('start_date');
+        $end_date = $this->input->get('end_date');
+        if (!empty($start_date) || !empty($end_date)) {
+          $filtered = [];
+          foreach ($outstand as $item) {
+            $dateStr = substr($item->loan_stat_date ?? '', 0, 10);
+            if (!$dateStr) {
+              continue;
+            }
+            $date = DateTime::createFromFormat('Y-m-d', $dateStr);
+            if (!$date) {
+              continue;
+            }
+            $include = true;
+            if (!empty($start_date)) {
+              $start = DateTime::createFromFormat('Y-m-d', $start_date);
+              if ($start && $date < $start) {
+                $include = false;
+              }
+            }
+            if (!empty($end_date)) {
+              $end = DateTime::createFromFormat('Y-m-d', $end_date);
+              if ($end && $date > $end) {
+                $include = false;
+              }
+            }
+            if ($include) {
+              $filtered[] = $item;
+            }
+          }
+          $outstand = $filtered;
+          $totalOut = 0;
+          foreach ($outstand as $item) {
+            $totalOut += (float)($item->remain_amount ?? 0);
+          }
+          $total_remain = (object)['total_out' => $totalOut];
+        }
         $manager = $this->queries->get_position_manager($empl_id);
-     //   echo "<pre>";
-     // print_r($outstand);
-     //        exit();
-    $this->load->view('officer/out_stand_loan',['outstand'=>$outstand,'privillage'=>$privillage,'total_remain'=>$total_remain,'manager'=>$manager]);
+    //    echo "<pre>";
+    //  print_r($outstand);
+    //         exit();
+    $this->load->view('officer/out_stand_loan',[
+      'outstand'=>$outstand,
+      'privillage'=>$privillage,
+     
+      'manager'=>$manager,
+      'start_date'=>$start_date ?? '',
+      'end_date'=>$end_date ?? ''
+    ]);
 }
 
    public function manager_get_outstand_loan(){
@@ -7921,6 +8323,81 @@ public function oficer_profile(){
      //        exit();
     $this->load->view('officer/out_stand_loan',['outstand'=>$outstand,'privillage'=>$privillage,'total_remain'=>$total_remain,'manager'=>$manager]);
 }
+
+      public function download_outstand_loan(){
+      $this->load->model('queries');
+      $blanch_id = $this->session->userdata('blanch_id');
+      $empl_id = $this->session->userdata('empl_id');
+      $manager_data = $this->queries->get_manager_data($empl_id);
+      $comp_id = $manager_data->comp_id;
+      $company_data = $this->queries->get_companyData($comp_id);
+      $blanch_data = $this->queries->get_blanchData($blanch_id);
+
+      $outstand = $this->queries->outstand_loanBlanch($blanch_id);
+      $total_remain = $this->queries->total_outstand_loanBlanch($blanch_id);
+
+      $start_date = $this->input->get('start_date');
+      $end_date = $this->input->get('end_date');
+      if (!empty($start_date) || !empty($end_date)) {
+        $filtered = [];
+        foreach ($outstand as $item) {
+          $dateStr = substr($item->loan_stat_date ?? '', 0, 10);
+          if (!$dateStr) {
+            continue;
+          }
+          $date = DateTime::createFromFormat('Y-m-d', $dateStr);
+          if (!$date) {
+            continue;
+          }
+          $include = true;
+          if (!empty($start_date)) {
+            $start = DateTime::createFromFormat('Y-m-d', $start_date);
+            if ($start && $date < $start) {
+              $include = false;
+            }
+          }
+          if (!empty($end_date)) {
+            $end = DateTime::createFromFormat('Y-m-d', $end_date);
+            if ($end && $date > $end) {
+              $include = false;
+            }
+          }
+          if ($include) {
+            $filtered[] = $item;
+          }
+        }
+        $outstand = $filtered;
+        $totalOut = 0;
+        foreach ($outstand as $item) {
+          $totalOut += (float)($item->remain_amount ?? 0);
+        }
+        $total_remain = (object)['total_out' => $totalOut];
+      }
+
+      $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L',
+        'orientation' => 'L'
+      ]);
+
+      $html = $this->load->view('officer/print_outstand_loan_pdf', [
+        'company_data' => $company_data,
+        'blanch_data' => $blanch_data,
+        'outstand' => $outstand,
+        'total_remain' => $total_remain,
+        'start_date' => $start_date,
+        'end_date' => $end_date,
+      ], true);
+
+      $mpdf->SetFooter('Generated By Brainsoft Technology | {PAGENO} of {nbpg}');
+      $mpdf->WriteHTML($html);
+
+      if (ob_get_length()) {
+        ob_end_clean();
+      }
+
+      $filename = 'outstand_loans_' . date('Ymd_His') . '.pdf';
+      $mpdf->Output($filename, 'I');
+      }
 
 
 public function print_allCustomer(){
@@ -7947,6 +8424,88 @@ public function print_allCustomer(){
     $mpdf->Output(); 
 
 }
+
+
+
+public function download_yesterday_defaulters_pdf()
+{
+    $this->load->model('queries');
+
+    // Get branch ID from session
+    $blanch_id = $this->session->userdata('blanch_id');
+
+    // Get branch and company info
+    $blanch_data = $this->queries->get_blanchData($blanch_id);
+    $compdata = $this->queries->get_companyData($blanch_data->comp_id);
+
+    // Get loans ending yesterday for this branch
+    $outstand = $this->queries->get_outstand_loan_yesterday_by_branch($blanch_id);
+
+    // Data for view
+    $data = [
+        'compdata'    => $compdata,
+        'blanch_data' => $blanch_data,
+        'outstand'    => $outstand,
+        'title'       => "Yesterday's Defaulters Report"
+    ];
+
+    // Clear any previous output
+    if (ob_get_length()) ob_end_clean();
+
+    // Load mPDF
+    $mpdf = new \Mpdf\Mpdf(['format' => 'A4-L']); // Landscape
+    $html = $this->load->view('officer/yesterday_defaulters_pdf', $data, true);
+    $mpdf->WriteHTML($html);
+
+    // Force download
+    $filename = "Yesterday_Defaulters_{$blanch_data->blanch_name}_" . date('d-m-Y') . ".pdf";
+    $mpdf->Output($filename, 'D'); // 'D' = Download
+
+    exit; // Stop any further output
+}
+
+
+   public function defaulters_3_30_days_pdf()
+    {
+        $this->load->model('queries');
+
+        // Get company ID and branch ID from session
+        $comp_id = $this->session->userdata('comp_id');
+        $blanch_id = $this->session->userdata('blanch_id');
+
+        // Get company & branch info
+        $compdata = $this->queries->get_companyData($comp_id);
+        $blanch_data = $this->queries->get_blanchData($blanch_id);
+
+        // Get all loans overdue 3–30 days for this company
+        $outstand = $this->queries->get_defaulters_3_30_days_by_branch($blanch_id);
+
+echo "<pre>";
+
+echo "🚧 Ipo kwenye matengenezo, tafadhali subiri...";
+exit();
+
+        // Data for PDF view
+        $data = [
+            'compdata'    => $compdata,
+            'blanch_data' => $blanch_data,
+            'outstand'    => $outstand,
+            'title'       => "Defaulters Report (3–30 Days Past Due)"
+        ];
+
+        // Clear previous output
+        if (ob_get_length()) ob_end_clean();
+
+        // Load mPDF and render PDF
+        $mpdf = new \Mpdf\Mpdf(['format' => 'A4-L']); // Landscape
+        $html = $this->load->view('officer/defaulters_3_30_days_pdf', $data, true);
+        $mpdf->WriteHTML($html);
+
+        // Force download
+        $filename = "Defaulters_3_30_Days_" . date('d-m-Y') . ".pdf";
+        $mpdf->Output($filename, 'D');
+        exit;
+    }
 
 
 

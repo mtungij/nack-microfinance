@@ -33,7 +33,21 @@ include_once APPPATH . "views/partials/guest_header.php";
       <div class="bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-gray-900 dark:border-gray-700">
         <div class="p-4 sm:p-7">
           <div class="text-center">
-            <h1 class="block text-2xl font-bold text-gray-800 dark:text-white">Login to Your Account</h1>
+     
+
+            <div class="flex justify-center my-6">
+              <div id="logoContainer" class="h-24 w-24 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg transition-all duration-300">
+                <svg class="h-16 w-16 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z" />
+                </svg>
+              </div>
+            </div>
+     <p id="companyName" 
+   class="text-center text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 min-h-[24px] uppercase">
+   Loan Management System
+</p>
+
+
 
             <?php // Admin/Employee toggle links from your old panel-heading ?>
             <div class="mt-3 mb-4 text-center">
@@ -153,15 +167,71 @@ include_once APPPATH . "views/partials/guest_header.php";
             <!-- End Checkbox -->
 
             <button type="submit" class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:pointer-events-none">Login</button>
-          <?php echo form_close(); ?>
-          <!-- End Form -->
 
-            <p class="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-            Dont have an account?
-            <a class="text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="<?php echo base_url("welcome/register"); ?>">
-              Sign Up
-            </a>
-          </p>
+          <?php echo form_close(); ?>
+   
+    <!-- Divider -->
+    <div class="flex items-center my-6">
+      <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+      <span class="mx-3 text-xs text-gray-500 uppercase tracking-wider">Or</span>
+      <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+    </div>
+
+    <!-- Customer Login Button -->
+<a href="<?php echo base_url('customer'); ?>"
+   class="w-full py-2.5 sm:py-3 px-4 flex justify-center items-center gap-2 text-sm sm:text-base font-medium 
+          rounded-lg border border-green-600 text-green-600 bg-white 
+          hover:bg-green-600 hover:text-white 
+          transition-all duration-200 
+          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+          dark:bg-gray-900 dark:text-green-400 dark:border-green-500 dark:hover:bg-green-600 dark:hover:text-white">
+
+  <!-- Customer Icon with hover pulse -->
+  <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 transform transition-transform duration-300 hover:scale-110 hover:animate-pulse" 
+       xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M4.5 20.25a7.5 7.5 0 0115 0" />
+  </svg>
+
+  <span class="truncate">Ingia Kama Mteja</span>
+</a>
+
+
+
+  </div>
+</div>
+
+          <!-- Support Section Above Sign Up -->
+<!-- Support Section Above Sign Up -->
+<!-- Support Section Above Sign Up -->
+<div class="mt-8 text-center">
+    <div class="flex items-center justify-center gap-3 mb-4 animate-pulse">
+        <span class="text-base font-medium text-gray-700 dark:text-gray-900">Need help or support?</span>
+        <a href="https://wa.me/255629364847?text=<?php echo urlencode('Nahitaji kufahamu zaidi kuhusu software hii ya mikopo ya Loan-Pocket'); ?>" target="_blank"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-200 shadow-lg">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.52 3.48A11.94 11.94 0 0 0 12 0C5.37 0 0 5.37 0 12a11.95 11.95 0 0 0 1.63 6.06L0 24l6.34-1.65A11.95 11.95 0 0 0 12 24c6.63 0 12-5.37 12-12a11.94 11.94 0 0 0-3.48-8.52zM12 22a9.93 9.93 0 0 1-5.12-1.4l-.37-.23-3.76.98.99-3.66-.24-.38A9.94 9.94 0 1 1 12 22zm5.37-7.58c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15s-.77.97-.95 1.17-.35.22-.65.07a8.05 8.05 0 0 1-2.37-1.46 8.88 8.88 0 0 1-1.63-2.03c-.17-.3 0-.46.13-.62.13-.14.3-.35.45-.53.15-.18.2-.3.3-.5.1-.2.05-.38 0-.53-.05-.15-.65-1.56-.9-2.12-.24-.57-.48-.5-.67-.5H7.6c-.2 0-.52.07-.8.38s-1.05 1.03-1.05 2.5c0 1.46 1.07 2.87 1.23 3.07.15.2 2.1 3.22 5.07 4.51.7.3 1.26.48 1.69.61.71.23 1.36.2 1.87.13.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"/>
+            </svg>
+            <span class="text-base font-semibold">WhatsApp</span>
+        </a>
+    </div>
+
+    <!-- Sign Up Link Below -->
+    <!-- <p class="text-sm text-gray-600 dark:text-gray-800">
+        Dont have an account? 
+        <a href="<?php echo base_url("welcome/register"); ?>"
+           class="text-cyan-600 decoration-2 hover:underline focus:outline-none font-medium dark:text-cyan-500">
+            Sign Up
+        </a> -->
+    </p>
+</div>
+
+
+
+
+
 
 <!-- <div class="mt-4 text-center text-sm text-white">
   <h2 class="text-lg font-semibold mb-2 text-green-700">Support</h2>
@@ -196,6 +266,84 @@ include_once APPPATH . "views/partials/guest_header.php";
     </div>
 
   </div> <?php // End centering div ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emplNoInput = document.getElementById('empl_no');
+    const logoContainer = document.getElementById('logoContainer');
+    const companyName = document.getElementById('companyName');
+    let debounceTimer;
+
+    emplNoInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const phoneNumber = this.value.trim();
+
+        // Reset to default if empty
+        if (phoneNumber.length < 10) {
+            resetToDefault();
+            return;
+        }
+
+        // Debounce to avoid too many requests
+        debounceTimer = setTimeout(() => {
+            fetchCompanyInfo(phoneNumber);
+        }, 500);
+    });
+
+    function fetchCompanyInfo(phoneNumber) {
+        fetch('<?php echo base_url("welcome/get_employee_company"); ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'empl_no=' + encodeURIComponent(phoneNumber)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.company) {
+                displayCompanyLogo(data.company);
+            } else {
+                resetToDefault();
+            }
+        })
+        .catch(() => resetToDefault());
+    }
+
+ function displayCompanyLogo(company) {
+    companyName.textContent = company.comp_name || '';
+
+    // Responsive sizes using Tailwind: sm, md, lg, xl
+    const logoSizeClasses = 'h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32';
+
+    if (company.comp_logo) {
+        const logoUrl = '<?php echo base_url("assets/images/company_logo/"); ?>' + company.comp_logo;
+        logoContainer.className = `${logoSizeClasses} rounded-full bg-white flex items-center justify-center shadow-lg border-2 border-cyan-500 transition-all duration-300 p-2`;
+        logoContainer.innerHTML = `
+            <img src="${logoUrl}" 
+                 alt="${company.comp_name}" 
+                 class="h-full w-full object-cover rounded-full"
+                 onerror="this.parentElement.innerHTML = getDefaultIcon(); this.parentElement.className = '${logoSizeClasses} rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg transition-all duration-300';">
+        `;
+    } else {
+        logoContainer.className = `${logoSizeClasses} rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg transition-all duration-300`;
+        logoContainer.innerHTML = getDefaultIcon();
+    }
+}
+
+
+    function resetToDefault() {
+        companyName.textContent = 'Loan Management System';
+        logoContainer.className = 'h-24 w-24 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg transition-all duration-300';
+        logoContainer.innerHTML = getDefaultIcon();
+    }
+
+    function getDefaultIcon() {
+        return `<svg class="h-16 w-16 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z" />
+                </svg>`;
+    }
+});
+</script>
 
 <?php
 include_once APPPATH . "views/partials/footer.php";

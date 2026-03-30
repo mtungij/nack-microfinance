@@ -46,20 +46,44 @@
               // This logic is already in your new partials/header.php's <script> section.
               // We just need a button to toggle it.
         ?>
-        <button type="button" id="hs-theme-switcher" class="hs-dark-mode-active:hidden block hs-dark-mode group p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-300 dark:hover:bg-gray-700" data-hs-theme-click-value="dark">
-          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <button id="theme-toggle" type="button" class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-gray-50 p-2 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+          <svg id="theme-toggle-dark-icon" class="hidden size-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 116.707 2.707a8.001 8.001 0 0010.586 10.586z"></path></svg>
+          <svg id="theme-toggle-light-icon" class="hidden size-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.464 4.05a1 1 0 00-1.414 1.414l.707.707A1 1 0 006.171 4.757l-.707-.707zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
         </button>
-        <button type="button" id="hs-theme-switcher-light" class="hs-dark-mode-active:block hidden hs-dark-mode group p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-300 dark:hover:bg-gray-700" data-hs-theme-click-value="light">
-          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+
+        <button id="pwa-install-btn" type="button" class="hidden items-center justify-center rounded-full border border-cyan-200 bg-cyan-50 p-2 text-cyan-700 hover:bg-cyan-100 dark:border-cyan-700 dark:bg-cyan-800/30 dark:text-cyan-200 dark:hover:bg-cyan-700/40" aria-label="Install app">
+          <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16a1 1 0 0 1-.707-.293l-4-4a1 1 0 0 1 1.414-1.414L11 12.586V4a1 1 0 1 1 2 0v8.586l2.293-2.293a1 1 0 0 1 1.414 1.414l-4 4A1 1 0 0 1 12 16z"/><path d="M5 18a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1z"/></svg>
         </button>
 
 
         <!-- Profile Dropdown -->
         <div class="hs-dropdown [--placement:bottom-right] relative inline-flex">
           <button id="hs-dropdown-with-header" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
-            <img class="inline-block size-8 rounded-full ring-2 ring-white dark:ring-gray-800" src="<?php echo base_url('assets/img/user.png'); // Default user image ?>" alt="User image">
+            <?php 
+            // Get employee passport from session or database
+            $empl_id = $this->session->userdata('empl_id');
+            $passport = null;
+            
+            if ($empl_id) {
+                $this->load->model('queries');
+                $employee = $this->queries->get_employee_data($empl_id);
+                $passport = $employee->passport ?? null;
+            }
+            
+            if (!empty($passport) && file_exists(FCPATH . 'assets/images/passport/' . $passport)): 
+            ?>
+                <img class="inline-block size-8 rounded-full ring-2 ring-white dark:ring-gray-800 object-cover" 
+                     src="<?php echo base_url('assets/images/passport/' . $passport); ?>" 
+                     alt="Profile Picture">
+            <?php else: ?>
+                <div class="inline-flex size-8 rounded-full ring-2 ring-white dark:ring-gray-800 bg-gradient-to-br from-cyan-500 to-blue-600 items-center justify-center">
+                    <svg class="size-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
+                    </svg>
+                </div>
+            <?php endif; ?>
             <span class="hidden md:block text-gray-600 dark:text-gray-400 text-xs font-medium ms-1 me-2">
-              <?php echo htmlspecialchars($_SESSION['comp_name'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?>
+              <?php echo htmlspecialchars($_SESSION['empl_name'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?>
             </span>
             <svg class="hidden md:block hs-dropdown-open:rotate-180 size-2.5 text-gray-500 dark:text-gray-500" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -70,20 +94,26 @@
             <div class="py-3 px-5 -m-2 bg-gray-100 rounded-t-lg dark:bg-gray-700">
               <p class="text-sm text-gray-500 dark:text-gray-400">Signed in as</p>
               <p class="text-sm font-medium text-gray-800 dark:text-gray-300">
-                <?php echo htmlspecialchars($_SESSION['comp_name'] ?? 'user@example.com', ENT_QUOTES, 'UTF-8'); // Display email or name ?>
+                <?php echo htmlspecialchars($_SESSION['empl_name'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?>
               </p>
             </div>
             <div class="mt-2 py-2 first:pt-0 last:pb-0">
-              <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url("admin/company_profile"); ?>">
+              <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url("admin/my_profile"); ?>">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 My Profile
-                <span class="ms-auto text-xs text-gray-500 dark:text-gray-500">Account settings</span>
+                <span class="ms-auto text-xs text-gray-500 dark:text-gray-500">User settings</span>
               </a>
-              <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url("admin/sms_history"); ?>">
+
+               <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url("admin/company_settings"); ?>">
+                <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Company Profile
+                <span class="ms-auto text-xs text-gray-500 dark:text-gray-500"> Company settings</span>
+              </a>
+              <!-- <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url("admin/sms_history"); ?>">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                 SMS
                  <span class="ms-auto text-xs text-gray-500 dark:text-gray-500">SMS History</span>
-              </a>
+              </a> -->
               <?php // Add other dropdown items here if needed ?>
               <hr class="my-2 border-gray-200 dark:border-gray-700">
               <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-red-500 dark:hover:bg-gray-700" href="<?php echo base_url("welcome/logout"); ?>">
@@ -99,3 +129,64 @@
   </nav>
 </header>
 <!-- ========== END HEADER ========== -->
+<script>
+  (function () {
+    var themeToggleBtn = document.getElementById('theme-toggle');
+    var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+    var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+    if (!themeToggleBtn || !themeToggleDarkIcon || !themeToggleLightIcon) return;
+
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      themeToggleLightIcon.classList.remove('hidden');
+    } else {
+      document.documentElement.classList.remove('dark');
+      themeToggleDarkIcon.classList.remove('hidden');
+    }
+
+    themeToggleBtn.addEventListener('click', function () {
+      themeToggleDarkIcon.classList.toggle('hidden');
+      themeToggleLightIcon.classList.toggle('hidden');
+
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('color-theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('color-theme', 'dark');
+      }
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    var installBtn = document.getElementById('pwa-install-btn');
+    if (!installBtn) return;
+
+    var deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.remove('hidden');
+      installBtn.classList.add('inline-flex');
+    });
+
+    installBtn.addEventListener('click', function () {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.finally(function () {
+        deferredPrompt = null;
+        installBtn.classList.add('hidden');
+        installBtn.classList.remove('inline-flex');
+      });
+    });
+
+    window.addEventListener('appinstalled', function () {
+      installBtn.classList.add('hidden');
+      installBtn.classList.remove('inline-flex');
+    });
+  })();
+</script>
