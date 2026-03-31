@@ -6127,19 +6127,71 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
 
 
  public function transfar_amount(){
-	$this->load->helper('custom');
- 	$this->load->model('queries');
- 	$comp_id = $this->session->userdata('comp_id');
- 	$blanch = $this->queries->get_blanch($comp_id);
- 	$float = $this->queries->get_amount_transfor($comp_id);
- 	$blanch = $this->queries->get_blanch($comp_id);
- 	$sum_froat = $this->queries->get_sumFloatData($comp_id);
- 	$account = $this->queries->get_account_transaction($comp_id);
- 	$sum_chargers = $this->queries->get_sumTransfor_chargers($comp_id);
-    //   echo "<pre>";
- 	//  print_r($float);
- 	//       exit();
- 	$this->load->view('admin/amount_transfor',['blanch'=>$blanch,'float'=>$float,'blanch'=>$blanch,'sum_froat'=>$sum_froat,'account'=>$account,'sum_chargers'=>$sum_chargers]);
+    $this->load->helper('custom');
+    $this->load->model('queries');
+    $comp_id = $this->session->userdata('comp_id');
+    if (!$comp_id) { redirect('login'); }
+
+    $from             = $this->input->get('from');
+    $to               = $this->input->get('to');
+    $blanch_id_filter = $this->input->get('blanch_id');
+
+    $blanch  = $this->queries->get_blanch($comp_id);
+    $account = $this->queries->get_account_transaction_with_balance($comp_id);
+
+    if (!empty($from) || !empty($to) || !empty($blanch_id_filter)) {
+        $float    = $this->queries->get_amount_transfor_filtered($comp_id, $from, $to, $blanch_id_filter);
+        $sum_data = $this->queries->get_sum_float_filtered($comp_id, $from, $to, $blanch_id_filter);
+        $sum_froat    = (object)['cashFloat'      => $sum_data->total_amount   ?? 0];
+        $sum_chargers = (object)['total_chargers' => $sum_data->total_chargers ?? 0];
+    } else {
+        $float        = $this->queries->get_amount_transfor($comp_id);
+        $sum_froat    = $this->queries->get_sumFloatData($comp_id);
+        $sum_chargers = $this->queries->get_sumTransfor_chargers($comp_id);
+    }
+
+    $this->load->view('admin/amount_transfor', [
+        'blanch'           => $blanch,
+        'float'            => $float,
+        'sum_froat'        => $sum_froat,
+        'account'          => $account,
+        'sum_chargers'     => $sum_chargers,
+        'from'             => $from,
+        'to'               => $to,
+        'blanch_id_filter' => $blanch_id_filter,
+    ]);
+ }
+
+ public function download_float_pdf(){
+    ini_set('memory_limit', '256M');
+    $this->load->model('queries');
+    $comp_id = $this->session->userdata('comp_id');
+    if (!$comp_id) { redirect('login'); }
+
+    $from      = $this->input->get('from');
+    $to        = $this->input->get('to');
+    $blanch_id = $this->input->get('blanch_id');
+
+    $float    = $this->queries->get_amount_transfor_filtered($comp_id, $from, $to, $blanch_id);
+    $sum_data = $this->queries->get_sum_float_filtered($comp_id, $from, $to, $blanch_id);
+    $compdata = $this->queries->get_companyData($comp_id);
+
+    $total_amount   = (float)($sum_data->total_amount   ?? 0);
+    $total_chargers = (float)($sum_data->total_chargers ?? 0);
+
+    $mpdf = new \Mpdf\Mpdf(['margin_left' => 10, 'margin_right' => 10, 'margin_top' => 10, 'margin_bottom' => 10]);
+
+    $html = $this->load->view('admin/float_transfer_pdf', [
+        'compdata'       => $compdata,
+        'float'          => $float,
+        'total_amount'   => $total_amount,
+        'total_chargers' => $total_chargers,
+        'from'           => $from,
+        'to'             => $to,
+    ], true);
+
+    $mpdf->WriteHTML($html);
+    $mpdf->Output('float_transfer_' . date('Ymd_His') . '.pdf', 'D');
  }
 
  public function create_float(){
@@ -11518,11 +11570,37 @@ public function update_customer_details($customer_id){
         echo json_encode(['success' => true, 'new_status' => $new_status]);
     }
 
+    public function switch_language(){
+        $lang = strtolower((string)$this->input->get('lang'));
+        if (!in_array($lang, ['english', 'swahili'], true)) {
+            $lang = 'english';
+        }
+
+        $this->session->set_userdata('ui_lang', $lang);
+
+        $redirect = $this->input->server('HTTP_REFERER');
+        if (empty($redirect)) {
+            $redirect = base_url('admin/index');
+        }
+
+        redirect($redirect);
+    }
+
 
 
 	//session destroy
 public function __construct(){
 parent::__construct();
+
+$ui_lang = $this->session->userdata('ui_lang');
+if (empty($ui_lang)) {
+    $ui_lang = 'english';
+    $this->session->set_userdata('ui_lang', $ui_lang);
+}
+
+$idiom = ($ui_lang === 'swahili') ? 'swahili' : 'english';
+$this->lang->load('app', $idiom);
+
 if (!$this->session->userdata("comp_id"))
 	return redirect("welcome/login");
 }

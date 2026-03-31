@@ -1,8 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<?php
+$ui_lang = $this->session->userdata('ui_lang') ?: 'english';
+$html_lang = ($ui_lang === 'swahili') ? 'sw' : 'en';
+?>
+<html lang="<?php echo $html_lang; ?>">
 <head>
   <!-- Required Meta Tags Always Come First -->
   <meta charset="utf-8">
+  <meta name="google" content="notranslate">
   <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="Comprehensive overview with charts, tables, and a streamlined dashboard layout for easy data visualization and analysis.">
@@ -117,7 +122,7 @@ input[type="checkbox"]:not(:checked)::after {
   <link rel="stylesheet" href="<?php echo base_url('public/css/output.css') ?>">
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 font-poppins">
+<body class="bg-gray-50 dark:bg-gray-900 font-poppins notranslate" translate="no">
 <script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.js"></script>
   
   <?php include_once APPPATH . 'views/partials/navbar.php'; ?>

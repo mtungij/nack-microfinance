@@ -2238,6 +2238,52 @@ public function get_amount_transfor($comp_id)
     return $this->db->get()->result();
 }
 
+public function get_amount_transfor_filtered($comp_id, $from = null, $to = null, $blanch_id = null)
+{
+    $this->db->select("
+        t.trans_id,
+        t.blanch_amount,
+        t.trans_day,
+        t.charger,
+        b.blanch_name,
+        at.account_name AS to_account,
+        tr.account_name AS from_account
+    ");
+    $this->db->from('tbl_transfor t');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = t.blanch_id');
+    $this->db->join('tbl_account_transaction at', 'at.trans_id = t.to_trans_id');
+    $this->db->join('tbl_account_transaction tr', 'tr.trans_id = t.from_trans_id');
+    $this->db->where('t.comp_id', $comp_id);
+    if (!empty($from)) {
+        $this->db->where('DATE(t.trans_day) >=', $from);
+    }
+    if (!empty($to)) {
+        $this->db->where('DATE(t.trans_day) <=', $to);
+    }
+    if (!empty($blanch_id)) {
+        $this->db->where('t.blanch_id', $blanch_id);
+    }
+    $this->db->order_by('t.trans_id', 'DESC');
+    return $this->db->get()->result();
+}
+
+public function get_sum_float_filtered($comp_id, $from = null, $to = null, $blanch_id = null)
+{
+    $this->db->select("SUM(t.blanch_amount) AS total_amount, SUM(t.charger) AS total_chargers");
+    $this->db->from('tbl_transfor t');
+    $this->db->where('t.comp_id', $comp_id);
+    if (!empty($from)) {
+        $this->db->where('DATE(t.trans_day) >=', $from);
+    }
+    if (!empty($to)) {
+        $this->db->where('DATE(t.trans_day) <=', $to);
+    }
+    if (!empty($blanch_id)) {
+        $this->db->where('t.blanch_id', $blanch_id);
+    }
+    return $this->db->get()->row();
+}
+
 
        public function update_amount($trans_id,$data){
        	return $this->db->where('trans_id',$trans_id)->update('tbl_transfor',$data);
@@ -6195,6 +6241,18 @@ public function insert_account_name($data){
 public function get_account_transaction($comp_id){
     $data = $this->db->query("SELECT * FROM tbl_account_transaction WHERE comp_id = '$comp_id'");
        return $data->result();
+}
+
+public function get_account_transaction_with_balance($comp_id){
+    $data = $this->db->query("
+        SELECT at.trans_id, at.account_name,
+               COALESCE(ac.comp_balance, 0) AS comp_balance
+        FROM tbl_account_transaction at
+        LEFT JOIN tbl_ac_company ac ON ac.trans_id = at.trans_id AND ac.comp_id = '$comp_id'
+        WHERE at.comp_id = '$comp_id'
+        ORDER BY at.account_name ASC
+    ");
+    return $data->result();
 }
 
 public function get_customer_account_verfied($blanch_id){

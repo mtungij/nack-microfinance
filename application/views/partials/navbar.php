@@ -33,6 +33,17 @@
       </div>
 
       <div class="flex flex-row items-center justify-end gap-2">
+        <?php
+          $ui_lang = $this->session->userdata('ui_lang') ?: 'english';
+          $next_lang = ($ui_lang === 'swahili') ? 'english' : 'swahili';
+          $lang_button_label = ($ui_lang === 'swahili') ? 'EN' : 'SW';
+        ?>
+        <a href="<?php echo base_url('admin/switch_language?lang=' . $next_lang); ?>"
+           class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            title="<?php echo $this->lang->line('switch_language'); ?>">
+          <?php echo $lang_button_label; ?>
+        </a>
+
         <?php // Optional: Notification Bell
         /*
         <button type="button" class="p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-300 dark:hover:bg-gray-700">
@@ -92,7 +103,7 @@
 
           <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg p-2 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-dropdown-with-header">
             <div class="py-3 px-5 -m-2 bg-gray-100 rounded-t-lg dark:bg-gray-700">
-              <p class="text-sm text-gray-500 dark:text-gray-400">Signed in as</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('signed_in_as'); ?></p>
               <p class="text-sm font-medium text-gray-800 dark:text-gray-300">
                 <?php echo htmlspecialchars($_SESSION['empl_name'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?>
               </p>
@@ -100,14 +111,14 @@
             <div class="mt-2 py-2 first:pt-0 last:pb-0">
               <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url("admin/my_profile"); ?>">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                My Profile
-                <span class="ms-auto text-xs text-gray-500 dark:text-gray-500">User settings</span>
+                <?php echo $this->lang->line('my_profile'); ?>
+                <span class="ms-auto text-xs text-gray-500 dark:text-gray-500"><?php echo $this->lang->line('user_settings'); ?></span>
               </a>
 
                <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url("admin/company_settings"); ?>">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                Company Profile
-                <span class="ms-auto text-xs text-gray-500 dark:text-gray-500"> Company settings</span>
+                <?php echo $this->lang->line('company_profile'); ?>
+                <span class="ms-auto text-xs text-gray-500 dark:text-gray-500"> <?php echo $this->lang->line('company_settings'); ?></span>
               </a>
               <!-- <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url("admin/sms_history"); ?>">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
@@ -118,7 +129,7 @@
               <hr class="my-2 border-gray-200 dark:border-gray-700">
               <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-red-500 dark:hover:bg-gray-700" href="<?php echo base_url("welcome/logout"); ?>">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-                Sign out
+                <?php echo $this->lang->line('sign_out'); ?>
               </a>
             </div>
           </div>

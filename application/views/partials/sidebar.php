@@ -107,7 +107,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
               d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h5V14h4v7h5a1 1 0 001-1V10" />
       </svg>
 
-      Menu
+      <?php echo $this->lang->line('menu'); ?>
     </button>
 
     <!-- REPORTS TAB -->
@@ -125,7 +125,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
               d="M11 3v18M5 9v12M17 15v6" />
       </svg>
 
-      Reports
+      <?php echo $this->lang->line('reports'); ?>
     </button>
 
   </div>
@@ -145,7 +145,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
            href="<?php echo base_url("admin/index"); ?>">
           <!-- SVG: Home/Dashboard Icon (Heroicons: home) -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd" /></svg>
-          Dashboard
+          <?php echo $this->lang->line('dashboard'); ?>
         </a>
         <?php endif; ?>
       </li>
@@ -159,7 +159,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path d="M13.92 3.845a19.361 19.361 0 0 1-6.3 1.98C6.765 5.942 5.89 6 5 6a4 4 0 0 0-.504 7.969 15.974 15.974 0 0 0 1.271 3.341c.397.77 1.342 1 2.05.59l.867-.5c.726-.42.94-1.321.588-2.021-.166-.33-.315-.666-.448-1.008 1.053.286 2.227.504 3.476.695V17a1 1 0 0 0 1.447.894l1--.5A1 1 0 0 0 16 16.382V4.618a1 1 0 0 0-1.447-.894l-1 .5a1 1 0 0 0-.553 1.012c-.337-.116-.67-.227-1.08-.391Z" />
           </svg>
-          Manage Notifications
+          <?php echo $this->lang->line('manage_notifications'); ?>
         </a>
         <?php endif; ?>
       </li>
@@ -170,7 +170,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
            href="<?php echo base_url("oficer/loan_calculator"); ?>">
           <!-- SVG: BookOpenIcon -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A2.75 2.75 0 0 1 4.75 2h10.5A2.75 2.75 0 0 1 18 4.75v10.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25V4.75Zm8-1.5V17a.75.75 0 0 1-1.5 0V3.25a.75.75 0 0 1 1.5 0Z" clip-rule="evenodd" /></svg>
-          Loan Calculator
+          <?php echo $this->lang->line('loan_calculator'); ?>
         </a>
       </li>
 
@@ -179,7 +179,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
                   <?php echo $branch_account_balances_active ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
            href="<?php echo base_url("admin/branch_account_balances"); ?>">
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.5 4A1.5 1.5 0 0 1 4 2.5h12A1.5 1.5 0 0 1 17.5 4v2A1.5 1.5 0 0 1 16 7.5H4A1.5 1.5 0 0 1 2.5 6V4Zm0 6A1.5 1.5 0 0 1 4 8.5h12A1.5 1.5 0 0 1 17.5 10v2A1.5 1.5 0 0 1 16 13.5H4A1.5 1.5 0 0 1 2.5 12v-2Zm0 6A1.5 1.5 0 0 1 4 14.5h12A1.5 1.5 0 0 1 17.5 16v.5A1.5 1.5 0 0 1 16 18H4a1.5 1.5 0 0 1-1.5-1.5V16Z"/></svg>
-          Branch Account Balances
+          <?php echo $this->lang->line('branch_account_balances'); ?>
         </a>
       </li>
 
@@ -190,7 +190,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
            href="<?php echo base_url("admin/blanch"); ?>">
           <!-- SVG: Branch Icon (Heroicons: building-office or similar) -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.25 3.25A1.75 1.75 0 0 0 9.5 5v10H5.75a.75.75 0 0 0 0 1.5h10.5a.75.75 0 0 0 0-1.5H12.5V5A1.75 1.75 0 0 0 10.75 3.25H9.5Zm-2.5 6.5h.01a.75.75 0 0 0 0 1.5H8.75a.75.75 0 0 0 0-1.5ZM10.5 9.75h.01a.75.75 0 0 0 0 1.5H10.5a.75.75 0 0 0 0-1.5ZM8.75 12.25h.01a.75.75 0 0 0 0 1.5H8.75a.75.75 0 0 0 0-1.5ZM10.5 12.25h.01a.75.75 0 0 0 0 1.5H10.5a.75.75 0 0 0 0-1.5Z" clip-rule="evenodd" /></svg>
-          Tawi
+          <?php echo $this->lang->line('branch_sw'); ?>
         </a>
         <?php endif; ?>
       </li>
@@ -201,7 +201,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
            href="<?php echo base_url("admin/group"); ?>">
           <!-- SVG: Groups Icon (Heroicons: users) -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.25 1.25 0 0 0 .421-.953V12.5a4.25 4.25 0 0 1 8.5 0v1.04a1.25 1.25 0 0 0 .421.953l-.002.002a5.75 5.75 0 0 1-9.339 0l-.002-.002ZM13.083 10.933a3.25 3.25 0 0 1-2.916 1.717.75.75 0 0 0-.033.03l-.002-.002a4.75 4.75 0 0 0-8.264 0l-.002.002a.75.75 0 0 0-.033-.03A3.25 3.25 0 0 1 .25 12.5V11.5a.75.75 0 0 1 1.5 0v1a1.75 1.75 0 0 0 3.5 0v-1a.75.75 0 0 1 1.5 0v1a1.75 1.75 0 0 0 3.5 0v-1a.75.75 0 0 1 1.5 0v1a1.75 1.75 0 0 0 2.009 1.665A2.75 2.75 0 0 0 17.5 15.5v-1a.75.75 0 0 1 1.5 0v1a4.25 4.25 0 0 1-4.25 4.25h-1.53a.75.75 0 0 1-.629-.349l-.001-.003a2.25 2.25 0 0 0-4.18 0l-.001.003a.75.75 0 0 1-.629.349H5.75A4.25 4.25 0 0 1 1.5 15.5v-1a.75.75 0 0 1 1.5 0v1a2.75 2.75 0 0 0 2.75 2.75h.04a3.75 3.75 0 0 1 7.42 0h.04a2.75 2.75 0 0 0 2.75-2.75v-1a.75.75 0 0 1 .917-.74A3.25 3.25 0 0 1 13.083 10.933Z" /></svg>
-          Register Groups
+          <?php echo $this->lang->line('register_groups'); ?>
         </a>
         <?php endif; ?>
       </li>
@@ -211,7 +211,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
                 class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $setting_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
           <!-- SVG: Settings Icon (Heroicons: cog-6-tooth) -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 0 1-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 0 1 .947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 0 1 2.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 0 1 2.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 0 1-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 0 1-.947-2.287c.836-1.372-.734-2.942-2.106-2.106A1.532 1.532 0 0 1 11.49 3.17ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" /></svg>
-          Setting
+          <?php echo $this->lang->line('setting'); ?>
           <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4 <?php echo $setting_submenu_active ? 'text-gray-600 dark:text-gray-400' : 'text-gray-600 group-hover:text-gray-500 dark:text-gray-400'; ?>"
                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m6 9 6 6 6-6"/>
@@ -225,7 +225,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
             <li>
               <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_category') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
                  href="<?php echo base_url("admin/loan_category"); ?>">
-                Loan Category
+                <?php echo $this->lang->line('loan_category'); ?>
               </a>
             </li>
             <?php endif; ?>
@@ -233,7 +233,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
             <li>
               <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_fee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
                  href="<?php echo base_url("admin/loan_fee"); ?>">
-                Loan Fee
+                <?php echo $this->lang->line('loan_fee'); ?>
               </a>
             </li>
             <?php endif; ?>
@@ -241,7 +241,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
             <li>
               <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/penart_setting') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
                  href="<?php echo base_url("admin/penart_setting"); ?>">
-                Penalty Setting
+                <?php echo $this->lang->line('penalty_setting'); ?>
               </a>
             </li>
             <?php endif; ?>
@@ -249,7 +249,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
              <li>
               <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/formular_setting') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
                  href="<?php echo base_url("admin/formular_setting"); ?>">
-                Interest Formular Setting
+                <?php echo $this->lang->line('interest_formula_setting'); ?>
               </a>
             </li>
             <?php endif; ?>
@@ -257,7 +257,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
              <li>
               <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/transaction_account') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
                  href="<?php echo base_url("admin/transaction_account"); ?>">
-                Transaction Accounts
+                <?php echo $this->lang->line('transaction_accounts'); ?>
               </a>
             </li>
             <?php endif; ?>
@@ -271,7 +271,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
                 class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $capital_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
           <!-- SVG: Layer/Capital Icon (Heroicons: bank-notes or CircleStackIcon) -->
            <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 10.028a2.5 2.5 0 1 0-1.5 0A2.5 2.5 0 0 0 10.75 10.028ZM2 10a8 8 0 1 1 16 0 8 8 0 0 1-16 0Z" /><path d="M11 2.255a.75.75 0 0 1 1.5 0v2.58a12.07 12.07 0 0 0-1.5-.168V2.255Z" /><path d="M9 2.255v2.412a12.07 12.07 0 0 0-1.5.168V2.255a.75.75 0 0 1 1.5 0Z" /><path d="M15.168 4.832a.75.75 0 0 1 .108 1.056l-2.25 3.499a.75.75 0 0 1-1.165 0l-2.25-3.499a.75.75 0 1 1 1.166-.752L12.1 6.67l1.323-2.053a.75.75 0 0 1 1.056-.108.75.75 0 0 1 .108 1.056L12.1 9.33l1.323 2.053a.75.75 0 1 1-1.166.752l-2.25-3.499a.75.75 0 0 1 1.165 0l2.25 3.499a.75.75 0 0 1-.108 1.056.75.75 0 0 1-1.056-.108L10.85 10.934l-1.323 2.053a.75.75 0 1 1-1.166-.752l2.25-3.499a.75.75 0 0 1 0-1.165l-2.25-3.499a.75.75 0 0 1 1.166-.752l1.323 2.053L13.944 4.724a.75.75 0 0 1 1.056.108Z" /><path d="M4.832 15.168a.75.75 0 0 1 1.056-.108l3.499-2.25a.75.75 0 0 1 0-1.165l-3.499-2.25a.75.75 0 1 1 .752-1.166L9.33 10.9l-2.053 1.323a.75.75 0 0 1-1.056.108.75.75 0 0 1-.108-1.056l2.053-1.323L6.67 7.9a.75.75 0 1 1 .752 1.166l-3.499 2.25a.75.75 0 0 1-1.165 0l-3.499-2.25a.75.75 0 0 1 .108-1.056.75.75 0 0 1 1.056.108L4.066 9.15l2.053-1.323a.75.75 0 1 1 .752 1.166l-3.499 2.25a.75.75 0 0 1 0 1.165l3.499 2.25a.75.75 0 0 1-.752 1.166L2.276 13.323a.75.75 0 0 1-.108-1.056.75.75 0 0 1 1.056-.108Z" /></svg>
-          Capital
+          <?php echo $this->lang->line('capital'); ?>
           <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4 <?php echo $capital_submenu_active ? 'text-gray-600 dark:text-gray-400' : 'text-gray-600 group-hover:text-gray-500 dark:text-gray-400'; ?>"
                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m6 9 6 6 6-6"/>
@@ -280,13 +280,13 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
         <div id="capital-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $capital_submenu_active ? '' : 'hidden'; ?>">
             <ul class="pt-2 ps-2">
             <?php if (has_permission('Wanahisa (ShareHolders)')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/shareHolder') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/shareHolder"); ?>">Share Holder</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/shareHolder') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/shareHolder"); ?>"><?php echo $this->lang->line('share_holder'); ?></a></li>
                 <?php endif; ?>
                 <?php if (has_permission('Record mtaji Wa Kampuni')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/capital') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/capital"); ?>">Add Capital</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/capital') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/capital"); ?>"><?php echo $this->lang->line('add_capital'); ?></a></li>
                 <?php endif; ?>
                 <?php if (has_permission('Gawa Float Tawini')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/transfar_amount') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/transfar_amount"); ?>">Float</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/transfar_amount') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/transfar_amount"); ?>"><?php echo $this->lang->line('float'); ?></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -297,7 +297,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
         <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $expenses_income_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
           <!-- SVG: ArrowPathIcon or ArrowsRightLeftIcon for Expenses/Income -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v1.512c4.675.044 8.5 3.866 8.5 8.563V15a.75.75 0 0 1-1.5 0v-.937c0-3.941-3.121-7.125-7-7.125H10.5a.75.75 0 0 1-.75-.75V3.75A.75.75 0 0 1 10 3ZM8.75 6.75a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75v-1.512c-4.675-.044-8.5-3.866-8.5-8.563V5a.75.75 0 0 1 1.5 0v.937c0 3.941 3.121 7.125 7 7.125H9.5a.75.75 0 0 1 .75.75v1.75a.75.75 0 0 1-.75.75Zm1.25-6.75a.75.75 0 0 1-.75.75h-4.5a.75.75 0 0 1 0-1.5h4.5a.75.75 0 0 1 .75.75Z" clip-rule="evenodd" /></svg>
-          Expenses & Income
+          <?php echo $this->lang->line('expenses_income'); ?>
           <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div id="expenses-income-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $expenses_income_submenu_active ? '' : 'hidden'; ?>">
@@ -307,13 +307,13 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
               <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_submenu_active(['expenses', 'expnses_requisition_form', 'get_recomended_request']) ? 'text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
                 <!-- SVG: MinusCircleIcon for Expenses -->
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM6.75 9.25a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" clip-rule="evenodd" /></svg>
-                Expenses
+                <?php echo $this->lang->line('expenses'); ?>
                 <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
               </button>
               <div id="expenses-sub-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo is_submenu_active(['expenses', 'expnses_requisition_form', 'get_recomended_request']) ? '' : 'hidden'; ?>">
                 <ul class="pt-2 ps-4">
                 <?php if (has_permission('Sajili Matumizi Ya Ofisi')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/expenses') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/expenses"); ?>">Register Expenses</a></li>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/expenses') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/expenses"); ?>"><?php echo $this->lang->line('register_expenses'); ?></a></li>
                   <?php endif; ?>
                   <!-- <?php if (has_permission('Record Matumizi ')): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/expnses_requisition_form') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/expnses_requisition_form"); ?>">Expenses</a></li>
@@ -323,7 +323,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
                   <?php endif; ?> -->
                  
                   <?php if (has_permission('Matumizi yote')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/get_recomended_request') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/get_recomended_request"); ?>">Accepted Expenses</a></li>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/get_recomended_request') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/get_recomended_request"); ?>"><?php echo $this->lang->line('accepted_expenses'); ?></a></li>
                   <?php endif; ?>
                 </ul>
               </div>
@@ -334,19 +334,19 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
               <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_submenu_active(['income_detail', 'income_dashboard', 'deducted_income', 'deducted_income_sumary', 'deduction_branch_company', 'income_balance']) ? 'text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
                 <!-- SVG: PlusCircleIcon for Income -->
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd" /></svg>
-                Income
+                <?php echo $this->lang->line('income'); ?>
                 <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
               </button>
               <div id="income-sub-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo is_submenu_active(['income_detail', 'income_dashboard', 'deducted_income', 'deducted_income_sumary', 'deduction_branch_company', 'income_balance']) ? '' : 'hidden'; ?>">
                  <ul class="pt-2 ps-4">
                  <?php if (has_permission('Faini za Mikopo')): ?>
-                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/income_detail') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/income_detail"); ?>">Register Income</a></li>
-                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/income_dashboard') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/income_dashboard"); ?>">Income Dashboard</a></li>
-                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/deducted_income') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/deducted_income"); ?>">Deducted Income</a></li>
-                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/non_deducted_income_placeholder') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/income_dashboard"); ?>">Non- Deducted Income</a></li> <?php // Note: URL was same as income dashboard ?>
-                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/deducted_income_sumary') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/deducted_income_sumary"); ?>">Transfer Branch To Branch</a></li>
-                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/deduction_branch_company') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/deduction_branch_company"); ?>">Transfer Branch To company</a></li>
-                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/income_balance') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/income_balance"); ?>">Income Balance</a></li>
+                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/income_detail') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/income_detail"); ?>"><?php echo $this->lang->line('register_income'); ?></a></li>
+                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/income_dashboard') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/income_dashboard"); ?>"><?php echo $this->lang->line('income_dashboard'); ?></a></li>
+                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/deducted_income') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/deducted_income"); ?>"><?php echo $this->lang->line('deducted_income'); ?></a></li>
+                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/non_deducted_income_placeholder') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/income_dashboard"); ?>"><?php echo $this->lang->line('non_deducted_income'); ?></a></li> <?php // Note: URL was same as income dashboard ?>
+                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/deducted_income_sumary') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/deducted_income_sumary"); ?>"><?php echo $this->lang->line('transfer_branch_to_branch'); ?></a></li>
+                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/deduction_branch_company') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/deduction_branch_company"); ?>"><?php echo $this->lang->line('transfer_branch_to_company'); ?></a></li>
+                    <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/income_balance') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/income_balance"); ?>"><?php echo $this->lang->line('income_balance'); ?></a></li>
                     <?php endif; ?>
                  </ul>
               </div>
@@ -362,31 +362,31 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
         <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $employee_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
           <!-- SVG: UserGroupIcon for Employee -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.25 1.25 0 0 0 .421-.953V12.5a4.25 4.25 0 0 1 8.5 0v1.04a1.25 1.25 0 0 0 .421.953l-.002.002a5.75 5.75 0 0 1-9.339 0l-.002-.002ZM12.243 20a2.75 2.75 0 0 0 2.063-4.631L11.5 12.665l.081-.087.019-.023a1.75 1.75 0 0 0-2.202-2.53L5.572 12.67a.75.75 0 0 1-1.023-.02L2.05 10.873a.75.75 0 0 0-1.122.96l1.516 3.3a2.75 2.75 0 0 0 4.414 1.666l2.443-1.536a1.25 1.25 0 0 1 1.413 0l2.443 1.536A2.75 2.75 0 0 0 12.243 20Z" /></svg>
-          Employee
+          <?php echo $this->lang->line('employee'); ?>
           <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div id="employee-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $employee_submenu_active ? '' : 'hidden'; ?>">
             <ul class="pt-2 ps-2">
             <?php if (has_permission('Sajili Staff Mpya')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/employee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/employee"); ?>">Register Employee</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/employee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/employee"); ?>"><?php echo $this->lang->line('register_employee'); ?></a></li>
                 <?php endif; ?>
                 <?php if (has_permission('block/hamisha Tawi Staff')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/all_employee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/all_employee"); ?>">All Employee</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/all_employee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/all_employee"); ?>"><?php echo $this->lang->line('all_employee'); ?></a></li>
                 <?php endif; ?>
                 <?php if (has_permission('Ona Staff Wote Matawini')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/view_blanchEmployee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/view_blanchEmployee"); ?>">All Branch & Employee</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/view_blanchEmployee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/view_blanchEmployee"); ?>"><?php echo $this->lang->line('all_branch_employee'); ?></a></li>
                 <?php endif; ?>
                 <!-- <?php if (has_permission('Record Likizo Ya Staff')): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/leave') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/leave"); ?>">Employee Leave</a></li>
                 <?php endif; ?> -->
                 <?php if (has_permission('Sheet Ya Mishahara ya Staff')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/salary_sheet') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/salary_sheet"); ?>">Salary Sheet</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/salary_sheet') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/salary_sheet"); ?>"><?php echo $this->lang->line('salary_sheet'); ?></a></li>
                 <?php endif; ?>
                 <!-- <?php if (has_permission('Posho ya Mfanyakazi')): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/employee_allowance') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/employee_allowance"); ?>">Employee Allowance</a></li>
                 <?php endif; ?> -->
                 <?php if (has_permission('Faini za kopo')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/employee_deduction') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/employee_deduction"); ?>">Employee Deduction</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/employee_deduction') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/employee_deduction"); ?>"><?php echo $this->lang->line('employee_deduction'); ?></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -398,16 +398,16 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
         <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $customer_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
             <!-- SVG: IdentificationIcon -->
             <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v11A1.5 1.5 0 0 0 2.5 17h15A1.5 1.5 0 0 0 19 15.5v-11A1.5 1.5 0 0 0 17.5 3h-15Zm14.5 1a.5.5 0 0 1 .5.5V6H2V4.5a.5.5 0 0 1 .5-.5h14.5ZM2 7.5h16V15a.5.5 0 0 1-.5.5H12v-2.5a.75.75 0 0 0-.75-.75h-2.5a.75.75 0 0 0-.75.75V15.5H2.5a.5.5 0 0 1-.5-.5v-7Z" /><path d="M11.25 12.75a.75.75 0 0 0-1.5 0v2.5a.75.75 0 0 0 1.5 0v-2.5Z" /><path d="M5 10.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1-.75-.75v-3Z" /><path d="M12.75 10a.75.75 0 0 0-.75.75v3a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 .75-.75v-3a.75.75 0 0 0-.75-.75h-1.5Z" /></svg>
-            Customer
+            <?php echo $this->lang->line('customer'); ?>
             <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div id="customer-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $customer_submenu_active ? '' : 'hidden'; ?>">
             <ul class="pt-2 ps-2">
             <?php if (has_permission('Sajili Mteja Mpya')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/customer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/customer"); ?>">Register Customer</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/customer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/customer"); ?>"><?php echo $this->lang->line('register_customer'); ?></a></li>
                 <?php endif; ?>
                 <?php if (has_permission('Orodha Ya Wateja wote')): ?>
-                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/all_customer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/all_customer"); ?>">All Customer</a></li>
+                <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/all_customer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/all_customer"); ?>"><?php echo $this->lang->line('all_customer'); ?></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -419,28 +419,28 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
           <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $loan_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
               <!-- SVG: CurrencyDollarIcon -->
               <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.085 7.412c-.021.022-.042.045-.062.069a5.022 5.022 0 0 1 .001-1.415 4.844 4.844 0 0 1 .304-.903.75.75 0 0 1 1.426.461 3.344 3.344 0 0 0-.209.622c-.015.05-.03.098-.044.147A3.522 3.522 0 0 0 9.5 8.5h1A3.5 3.5 0 0 0 14 5a.75.75 0 0 1 1.5 0 5.001 5.001 0 0 1-7.516 3.716l-.001-.002Zm-2.44 1.377a4.844 4.844 0 0 1-.304.903.75.75 0 1 1-1.427-.461 3.344 3.344 0 0 0 .21-.622c.014-.05.029-.098.043-.147a3.522 3.522 0 0 0 .251-1.073H6.5a3.5 3.5 0 0 0-3.5 3.5.75.75 0 0 1-1.5 0A5 5 0 0 1 9.017 6.284l.001.002c.02-.022.042-.045.061-.069a5.022 5.022 0 0 1-.001 1.415Z" clip-rule="evenodd" /></svg>
-              Loan
+              <?php echo $this->lang->line('loan'); ?>
               <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </button>
           <div id="loan-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $loan_submenu_active ? '' : 'hidden'; ?>">
               <ul class="pt-2 ps-2">
               <?php if (has_permission('Ombea Mkopo wa Mteja')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_application') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_application"); ?>">Loan Application</a></li>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_application') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_application"); ?>"><?php echo $this->lang->line('loan_application'); ?></a></li>
              <?php endif; ?>
              <?php if (has_permission('Pitisha Maombi Ya Mikopo')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_pending') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_pending"); ?>">Loan Pending Approve</a></li>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_pending') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_pending"); ?>"><?php echo $this->lang->line('loan_pending_approve'); ?></a></li>
                   <?php endif; ?>
                   <?php if (has_permission('Ruhusu Malipo Ya Mkopo')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/get_loan_aproved') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/get_loan_aproved"); ?>">Loan Approved But not Disbursed</a></li>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/get_loan_aproved') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/get_loan_aproved"); ?>"><?php echo $this->lang->line('loan_approved_not_disbursed'); ?></a></li>
                   <?php endif; ?>
                   <?php if (has_permission('Ona  Mikopo Iliyoruhusiwa Malipo')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/disburse_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/disburse_loan"); ?>">Loan Disbursed</a></li>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/disburse_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/disburse_loan"); ?>"><?php echo $this->lang->line('loan_disbursed'); ?></a></li>
                   <?php endif; ?>
                   <?php if (has_permission('Ona Mikopo Iliyotolewa')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_withdrawal') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_withdrawal"); ?>">Loan Withdrawal</a></li>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_withdrawal') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_withdrawal"); ?>"><?php echo $this->lang->line('loan_withdrawal'); ?></a></li>
                   <?php endif; ?>
                   <?php if (has_permission('Ona Mikopo Iliyokosa Sifa')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/all_loan_lejected') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/all_loan_lejected"); ?>">Loan Rejected</a></li>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/all_loan_lejected') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/all_loan_lejected"); ?>"><?php echo $this->lang->line('loan_rejected'); ?></a></li>
                   <?php endif; ?>
                   <!-- </?php if (has_permission('Ombea Mkopo wa Mteja')): ?> -->
                   <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loanpending_groups') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loanpending_groups"); ?>">Loan Group</a></li> -->
@@ -474,7 +474,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
            href="<?php echo base_url("admin/teller_dashboard"); ?>">
           <!-- SVG: WindowIcon -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h13A1.5 1.5 0 0 1 18 3.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 2 16.5v-13Zm1.5-.5a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5h-13Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M2 7.5A1.5 1.5 0 0 1 3.5 6h5A1.5 1.5 0 0 1 10 7.5v9A1.5 1.5 0 0 1 8.5 18h-5A1.5 1.5 0 0 1 2 16.5v-9Zm1.5-.5a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-5Z" clip-rule="evenodd" /></svg>
-          Teller Dashboard
+          <?php echo $this->lang->line('teller_dashboard'); ?>
         </a>
       </li>
       <?php endif; ?>
@@ -499,7 +499,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
           <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $report_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
              <!-- SVG: DocumentChartBarIcon -->
               <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a.75.75 0 0 1 .75.75v14.5a.75.75 0 0 1-1.5 0V2.75A.75.75 0 0 1 10 2Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.75 10a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M7 6.75A.75.75 0 0 1 7.75 6h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 6.75Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M7 13.25a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M2.5 2A1.5 1.5 0 0 0 1 3.5v13A1.5 1.5 0 0 0 2.5 18h15A1.5 1.5 0 0 0 19 16.5v-13A1.5 1.5 0 0 0 17.5 2h-15Zm0 1h15a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 .5-.5Z" clip-rule="evenodd" /></svg>
-              Payment Report
+              <?php echo $this->lang->line('payment_report'); ?>
               <svg class="hs-accordion-active:rotate-180 shrink-0 ms-auto size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </button>
           <div id="report-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $report_submenu_active ? '' : 'hidden'; ?>">
@@ -510,7 +510,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
         d="M9 12h6m-6 4h6M9 8h6m2 12H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z"/>
 </svg>
-                  Cash Transaction</a></li>
+                  <?php echo $this->lang->line('cash_transaction'); ?></a></li>
                     <?php endif; ?> 
                     <!-- </?php if (has_permission('Report ya Malipo Ya leo Wateja Kampuni nzima')): ?> -->
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/today_transactions') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/today_transactions"); ?>">
@@ -518,7 +518,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
         d="M9 12h6m-6 4h6M9 8h6m2 12H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z"/>
 </svg>
-                  Today Transaction</a></li>
+                  <?php echo $this->lang->line('today_transaction'); ?></a></li>
                     <!-- </?php endif; ?>  -->
 
                     <?php if (has_permission('Report ya Malipo Ya kitini')): ?>
@@ -527,7 +527,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
         d="M9 12h6m-6 4h6M9 8h6m2 12H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z"/>
 </svg>
-                  Kitini Report</a></li>
+                  <?php echo $this->lang->line('kitini_report'); ?></a></li>
                     <?php endif; ?> 
 
                                       <?php if (has_permission('Malipo ya Kila Afisa')): ?>
@@ -536,7 +536,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
         d="M9 12h6m-6 4h6M9 8h6m2 12H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z"/>
 </svg>
-                 Officer Cash Transaction</a></li> 
+                 <?php echo $this->lang->line('officer_cash_transaction'); ?></a></li> 
                   <?php endif; ?>
                
                   </ul>
@@ -556,7 +556,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
     </svg>
 
-    General Collection Report
+    <?php echo $this->lang->line('general_collection_report'); ?>
   </a>
 </li>
                   <?php endif; ?>
@@ -568,7 +568,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
         d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
 </svg>
 
-                      Loan pending
+                      <?php echo $this->lang->line('loan_pending'); ?>
                     </a>
                   </li>
                   <?php endif; ?>
@@ -579,7 +579,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
         d="M2 7h20M2 11h20M4 15h16M6 19h12"/>
 </svg>
-                      Loan Repayments
+                      <?php echo $this->lang->line('loan_repayments'); ?>
                     </a>
                   </li>
                   <?php endif; ?>
@@ -591,7 +591,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
         d="M12 9v4m0 4h.01M10.29 3.86l-8 14A1 1 0 003 19h18a1 1 0 00.71-1.14l-8-14a1 1 0 00-1.42 0z"/>
 </svg>
 
-                      Madeni Sugu
+                      <?php echo $this->lang->line('bad_debts'); ?>
                     </a>
                   </li>
      
@@ -607,7 +607,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
         d="M9 12h6m-6 4h6M9 8h6m2 12H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z"/>
 </svg>
-                    Customer Loan Report
+                    <?php echo $this->lang->line('customer_loan_report'); ?>
                     
                   </a></li> 
                   <?php endif; ?>
@@ -617,7 +617,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
         d="M9 12h6m-6 4h6M9 8h6m2 12H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z"/>
 </svg>
-                  Customer Account Statement</a></li> 
+                  <?php echo $this->lang->line('customer_account_statement'); ?></a></li> 
                   <?php endif; ?>
                   <?php if (has_permission('Makusanyo Ya Wateja Leo ')): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/today_recevable_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/today_recevable_loan"); ?>">
@@ -625,10 +625,10 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
         d="M9 12h6m-6 4h6M9 8h6m2 12H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z"/>
 </svg>
-                  Today Receivable</a></li> 
+                  <?php echo $this->lang->line('today_receivable'); ?></a></li> 
                   <?php endif; ?>
                   <?php if (has_permission('Malipo Ya Leo')): ?>
-                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/today_receved_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/today_receved_loan"); ?>">Today Received</a></li> 
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/today_receved_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/today_receved_loan"); ?>"><?php echo $this->lang->line('today_received'); ?></a></li> 
                   <?php endif; ?>
 
                   <!-- </?php if (has_permission('Lipa/Weka Malipo Ya Mteja')): ?>
@@ -645,7 +645,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6M9 8h6m2 12H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z"/>
                   </svg>
-                  Expected Receivable</a></li> 
+                  <?php echo $this->lang->line('expected_receivable'); ?></a></li> 
                   <?php endif; ?>
              
       </ul>

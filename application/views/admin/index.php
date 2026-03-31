@@ -10,7 +10,7 @@ include_once APPPATH . "views/partials/header.php";
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-                    Admin Dashboard
+                  <?php echo $this->lang->line('admin_dashboard'); ?>
                 </h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
            
@@ -37,7 +37,7 @@ include_once APPPATH . "views/partials/header.php";
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
       <div class="flex items-center justify-between">
         <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
-          👥 Today Expected Collection
+          👥 <?php echo $this->lang->line('today_expected_collection'); ?>
         </p>
         <div class="relative group cursor-pointer">
           <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -63,7 +63,7 @@ include_once APPPATH . "views/partials/header.php";
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
       <div class="flex items-center justify-between">
         <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
-          ⏰ Overdue Loans
+          ⏰ <?php echo $this->lang->line('overdue_loans'); ?>
         </p>
         <div class="relative group cursor-pointer">
           <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -88,7 +88,7 @@ include_once APPPATH . "views/partials/header.php";
   <a href="<?= base_url('admin/today_expiring_loans') ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     <div class="flex items-center justify-between">
-      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 Upcoming Loan Deadlines</p>
+      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 <?php echo $this->lang->line('upcoming_loan_deadlines'); ?></p>
       <div class="relative group cursor-pointer">
         <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10" />
@@ -123,7 +123,7 @@ include_once APPPATH . "views/partials/header.php";
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     
     <div class="flex items-center justify-between">
-      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">💰 Paid Today</p>
+      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">💰 <?php echo $this->lang->line('paid_today'); ?></p>
       
       <div class="relative group cursor-pointer">
         <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -153,7 +153,7 @@ include_once APPPATH . "views/partials/header.php";
 
     <div class="flex items-center justify-between">
       <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
-        💸 Today Loan Approved
+        💸 <?php echo $this->lang->line('today_loan_approved'); ?>
       </p>
 
       <!-- Tooltip Info Icon -->
@@ -187,7 +187,7 @@ include_once APPPATH . "views/partials/header.php";
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     
     <div class="flex items-center justify-between">
-      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 Today Loan Withdraw</p>
+      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 <?php echo $this->lang->line('today_loan_withdraw'); ?></p>
       
       <!-- Tooltip -->
       <div class="relative group cursor-pointer">
@@ -217,7 +217,7 @@ include_once APPPATH . "views/partials/header.php";
   <div class="flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     
     <div class="flex items-center justify-between">
-      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 Today Penalt Paid</p>
+      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 <?php echo $this->lang->line('today_penalty_paid'); ?></p>
       
       <!-- Tooltip -->
       <div class="relative group cursor-pointer">

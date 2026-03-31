@@ -3,41 +3,6 @@
 
 include_once APPPATH . "views/partials/header.php";
 
-// --- DUMMY DATA ---
-// Your controller should pass:
-// $account: array of account objects (trans_id, account_name) for "From" and "To" account dropdowns
-// $blanch: array of branch objects (blanch_id, blanch_name) for "To Branch" dropdown
-// $float: array of float transfer records (from_account, blanch_amount, blanch_name, to_account, charger, trans_day, trans_id, comp_id)
-// $sum_froat: object with 'cashFloat' property
-// $sum_chargers: object with 'total_chargers' property
-
-// if (!isset($account)) {
-//     $account = [
-//         (object)['trans_id' => 1, 'account_name' => 'Main Company Account'],
-//         (object)['trans_id' => 2, 'account_name' => 'Operational Account'],
-//         (object)['trans_id' => 10, 'account_name' => 'NMB Bank (Branch Default)'],
-//         (object)['trans_id' => 11, 'account_name' => 'Cash In Hand (Branch Default)'],
-//     ];
-// }
-// if (!isset($blanch)) {
-//     $blanch = [
-//         (object)['blanch_id' => 101, 'blanch_name' => 'HQ Branch'],
-//         (object)['blanch_id' => 102, 'blanch_name' => 'Northern Zone Branch'],
-//     ];
-// }
-// if (!isset($float)) {
-//     $float = [
-//         (object)['trans_id' => 201, 'comp_id' => 1, 'from_account' => 'Main Company Account', 'blanch_amount' => 500000, 'blanch_id' => 101, 'blanch_name' => 'HQ Branch', 'to_account' => 'NMB Bank (Branch Default)', 'charger' => 500, 'trans_day' => '2023-10-26'],
-//         (object)['trans_id' => 202, 'comp_id' => 1, 'from_account' => 'Operational Account', 'blanch_amount' => 300000, 'blanch_id' => 102, 'blanch_name' => 'Northern Zone Branch', 'to_account' => 'Cash In Hand (Branch Default)', 'charger' => 100, 'trans_day' => '2023-10-27'],
-//     ];
-// }
-// if (!isset($sum_froat)) {
-//     $sum_froat = (object)['cashFloat' => 800000];
-// }
-// if (!isset($sum_chargers)) {
-//     $sum_chargers = (object)['total_chargers' => 600];
-// }
-// --- END DUMMY DATA ---
 ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
@@ -47,10 +12,10 @@ include_once APPPATH . "views/partials/header.php";
         <!-- Page Title / Subheader -->
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-                Float Transfer
+                <?php echo $this->lang->line('float_transfer'); ?>
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Manage the transfer of funds to branches.
+                <?php echo $this->lang->line('manage_transfer_funds'); ?>
             </p>
         </div>
         <!-- End Page Title / Subheader -->
@@ -80,34 +45,40 @@ include_once APPPATH . "views/partials/header.php";
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-                    Float Transfer
+                    <?php echo $this->lang->line('float_transfer'); ?>
                 </h3>
                 <?php echo form_open("admin/create_float", ['novalidate' => true]); ?>
                     <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                         <div class="sm:col-span-6 md:col-span-2">
-                            <label for="from_trans_id" class="label-sm-dt">* From Company Account:</label>
+                            <label for="from_trans_id" class="label-sm-dt"><?php echo $this->lang->line('from_company_account'); ?></label>
                             <select id="from_trans_id" name="from_trans_id" required class="input-select-preline">
-                                <option value="">Select Account</option>
+                                <option value=""><?php echo $this->lang->line('select_account'); ?></option>
                                 <?php if (isset($account) && is_array($account)): foreach ($account as $acc_item): ?>
-                                <option value="<?php echo htmlspecialchars($acc_item->trans_id, ENT_QUOTES, 'UTF-8'); ?>" <?php echo set_select('from_trans_id', $acc_item->trans_id); ?>>
-                                    <?php echo htmlspecialchars($acc_item->account_name, ENT_QUOTES, 'UTF-8'); ?>
+                                <?php $bal = (float)($acc_item->comp_balance ?? 0); ?>
+                                <option value="<?php echo htmlspecialchars($acc_item->trans_id, ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-balance="<?php echo $bal; ?>"
+                                        <?php echo set_select('from_trans_id', $acc_item->trans_id); ?>>
+                                    <?php echo htmlspecialchars($acc_item->account_name, ENT_QUOTES, 'UTF-8'); ?> = <?php echo number_format($bal); ?>
                                 </option>
                                 <?php endforeach; endif; ?>
                             </select>
+                            <div id="from_account_balance_badge" class="hidden mt-1 px-3 py-1.5 rounded-md bg-cyan-50 border border-cyan-200 text-xs font-semibold text-cyan-800 dark:bg-cyan-900/20 dark:border-cyan-700 dark:text-cyan-300">
+                                <?php echo $this->lang->line('balance'); ?>: <span id="from_account_balance_val"></span>
+                            </div>
                             <?php echo form_error("from_trans_id", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
                         <div class="sm:col-span-6 md:col-span-3">
-                            <label for="blanch_amount" class="label-sm-dt">* Amount:</label>
+                            <label for="blanch_amount" class="label-sm-dt"><?php echo $this->lang->line('amount'); ?></label>
 
                             <input type="text" id="blanch_amount" name="blanch_amount" placeholder="Amount" required class="input-text-preline" value="<?php echo set_value('blanch_amount'); ?>" inputmode="decimal">
                             <?php echo form_error("blanch_amount", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
                         
                         <div class="sm:col-span-6 md:col-span-3">
-                            <label for="blanch_id" class="label-sm-dt">* To Branch Name:</label>
+                            <label for="blanch_id" class="label-sm-dt"><?php echo $this->lang->line('to_branch_name'); ?></label>
                             <select id="blanch_id" name="blanch_id" required class="input-select-preline">
-                                <option value="">Select Branch</option>
+                                <option value=""><?php echo $this->lang->line('select_branch'); ?></option>
                                 <?php if (isset($blanch) && is_array($blanch)): foreach ($blanch as $bl_item): ?>
                                 <option value="<?php echo htmlspecialchars($bl_item->blanch_id, ENT_QUOTES, 'UTF-8'); ?>" <?php echo set_select('blanch_id', $bl_item->blanch_id); ?>>
                                     <?php echo htmlspecialchars($bl_item->blanch_name, ENT_QUOTES, 'UTF-8'); ?>
@@ -118,9 +89,9 @@ include_once APPPATH . "views/partials/header.php";
                         </div>
 
                         <div class="sm:col-span-6 md:col-span-2">
-                            <label for="to_trans_id" class="label-sm-dt">* To Branch Account:</label>
+                            <label for="to_trans_id" class="label-sm-dt"><?php echo $this->lang->line('to_branch_account'); ?></label>
                             <select id="to_trans_id" name="to_trans_id" required class="input-select-preline">
-                                <option value="">Select Account</option>
+                                <option value=""><?php echo $this->lang->line('select_account'); ?></option>
                                 <?php if (isset($account) && is_array($account)): foreach ($account as $acc_item): ?>
                                 <option value="<?php echo htmlspecialchars($acc_item->trans_id, ENT_QUOTES, 'UTF-8'); ?>" <?php echo set_select('to_trans_id', $acc_item->trans_id); ?>>
                                     <?php echo htmlspecialchars($acc_item->account_name, ENT_QUOTES, 'UTF-8'); ?>
@@ -131,7 +102,7 @@ include_once APPPATH . "views/partials/header.php";
                         </div>
                         
                         <div class="sm:col-span-12 md:col-span-2">
-                            <label for="charger" class="label-sm-dt">* Withdrawal Chargers:</label>
+                            <label for="charger" class="label-sm-dt"><?php echo $this->lang->line('withdrawal_chargers'); ?></label>
                            <input type="text" id="charger" name="charger" placeholder="Chargers" required class="input-text-preline" value="<?php echo set_value('charger', '0'); ?>" inputmode="decimal">
 
                             <?php echo form_error("charger", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
@@ -141,8 +112,8 @@ include_once APPPATH . "views/partials/header.php";
                     <input type="hidden" name="trans_day" value="<?php echo date("Y-m-d"); ?>">
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-                            <button type="submit" class="btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white">Submit</button>
-                            <button type="reset" class="btn-secondary-sm">Cancel</button>
+                            <button type="submit" class="btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('submit'); ?></button>
+                            <button type="reset" class="btn-secondary-sm"><?php echo $this->lang->line('cancel'); ?></button>
                         </div>
                     </div>
                 <?php echo form_close(); ?>
@@ -152,43 +123,55 @@ include_once APPPATH . "views/partials/header.php";
 
         <!-- Card: Float List Table -->
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Float List</h2>
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('float_list'); ?></h2>
+                <?php
+                    $pdf_params = array_filter([
+                        'from'      => $from ?? '',
+                        'to'        => $to ?? '',
+                        'blanch_id' => $blanch_id_filter ?? '',
+                    ]);
+                ?>
+                <a href="<?php echo base_url('admin/download_float_pdf' . (!empty($pdf_params) ? '?' . http_build_query($pdf_params) : '')); ?>"
+                   class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md bg-red-600 text-white hover:bg-red-700">
+                    <?php echo $this->lang->line('download_pdf'); ?>
+                </a>
             </div>
 
             <!-- Filters -->
             <div class="p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
-                <?php echo form_open("admin/previous_transfor"); ?>
+                <form method="get" action="<?php echo base_url('admin/transfar_amount'); ?>">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         <div>
-                            <label for="filter_from_date" class="label-sm-dt">From:</label>
-                            <input type="date" name="from" id="filter_from_date" class="input-text-preline" required value="<?php echo set_value('from'); ?>">
+                            <label for="filter_from_date" class="label-sm-dt"><?php echo $this->lang->line('from'); ?></label>
+                            <input type="date" name="from" id="filter_from_date" class="input-text-preline" value="<?php echo htmlspecialchars($from ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div>
-                            <label for="filter_to_date" class="label-sm-dt">To:</label>
-                            <input type="date" name="to" id="filter_to_date" class="input-text-preline" required value="<?php echo set_value('to'); ?>">
+                            <label for="filter_to_date" class="label-sm-dt"><?php echo $this->lang->line('to'); ?></label>
+                            <input type="date" name="to" id="filter_to_date" class="input-text-preline" value="<?php echo htmlspecialchars($to ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div>
-                            <label for="filter_blanch_id" class="label-sm-dt">Branch:</label>
-                            <select name="blanch_id" id="filter_blanch_id" class="input-select-preline" required>
-                                <option value="">Select Branch</option>
+                            <label for="filter_blanch_id" class="label-sm-dt"><?php echo $this->lang->line('branch'); ?></label>
+                            <select name="blanch_id" id="filter_blanch_id" class="input-select-preline">
+                                <option value=""><?php echo $this->lang->line('all_branches'); ?></option>
                                 <?php if(isset($blanch) && !empty($blanch)): foreach ($blanch as $bl_item): ?>
-                                <option value="<?php echo htmlspecialchars($bl_item->blanch_id); ?>" <?php echo set_select('blanch_id', $bl_item->blanch_id); ?>><?php echo htmlspecialchars($bl_item->blanch_name); ?></option>
+                                <option value="<?php echo htmlspecialchars($bl_item->blanch_id, ENT_QUOTES, 'UTF-8'); ?>" <?php echo ((string)($blanch_id_filter ?? '') === (string)$bl_item->blanch_id) ? 'selected' : ''; ?>><?php echo htmlspecialchars($bl_item->blanch_name, ENT_QUOTES, 'UTF-8'); ?></option>
                                 <?php endforeach; endif; ?>
                             </select>
                         </div>
-                        <div>
-                            <button type="submit" class="w-full py-2.5 px-4 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white">Get Data</button>
+                        <div class="flex gap-2">
+                            <button type="submit" class="flex-1 py-2.5 px-4 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('filter'); ?></button>
+                            <a href="<?php echo base_url('admin/transfar_amount'); ?>" class="flex-1 text-center py-2.5 px-4 btn-secondary-sm"><?php echo $this->lang->line('reset'); ?></a>
                         </div>
                     </div>
-                <?php echo form_close(); ?>
+                </form>
             </div>
             <!-- End Filters -->
 
             <div class="p-4" data-hs-datatable='{
                 "pageLength": 10, "paging": true, "searching": true, /* Enable default search if needed, or use custom above */
                 "pagingOptions": { "pageBtnClasses": "min-w-10 h-10 btn-ghost-dt" },
-                "language": { "zeroRecords": "<div class=\"dt-empty-message\">No float transfers found for the selected criteria.</div>" }
+                "language": { "zeroRecords": "<div class=\"dt-empty-message\"><?php echo addslashes($this->lang->line('no_float_transfers')); ?></div>" }
             }'>
                  <?php // If you want a dedicated search input for the table, different from filters:
                  /*
@@ -200,12 +183,12 @@ include_once APPPATH . "views/partials/header.php";
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="float_table">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="th-dt"><span>From Company Acc</span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
-                                <th class="th-dt"><span>Amount</span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
-                                <th class="th-dt"><span>To Branch</span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
-                                <th class="th-dt"><span>To Branch Acc</span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
-                                <th class="th-dt"><span>Withdrawal Chargers</span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
-                                <th class="th-dt"><span>Date</span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
+                                <th class="th-dt"><span><?php echo $this->lang->line('from_company_acc'); ?></span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
+                                <th class="th-dt"><span><?php echo $this->lang->line('amount'); ?></span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
+                                <th class="th-dt"><span><?php echo $this->lang->line('to_branch'); ?></span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
+                                <th class="th-dt"><span><?php echo $this->lang->line('to_branch_acc'); ?></span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
+                                <th class="th-dt"><span><?php echo $this->lang->line('withdrawal_chargers'); ?></span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
+                                <th class="th-dt"><span><?php echo $this->lang->line('date'); ?></span><svg class="sort-icon-dt"><path class="hs-datatable-ordering-desc:text-cyan-600" d="m7 15 5 5 5-5"/><path class="hs-datatable-ordering-asc:text-cyan-600" d="m7 9 5-5 5 5"/></svg></th>
                                 <?php // If an action column is needed later:
                                 /* <th class="th-dt text-end --exclude-from-ordering"><span>Action</span></th> */
                                 ?>
@@ -230,7 +213,7 @@ include_once APPPATH . "views/partials/header.php";
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td class="px-6 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200">TOTAL</td>
+                                <td class="px-6 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('total'); ?></td>
                                 <td class="px-6 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200">
     <?php echo number_format(floatval(str_replace(',', '', $sum_froat->cashFloat ?? 0))); ?>
 </td>
@@ -303,9 +286,32 @@ window.addEventListener('load', () => {
         }
       });
     });
-    // If Preline selects need explicit init:
-    // HSStaticMethods.autoInit(['select']);
   }, 500);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Show balance badge when From Company Account changes
+  const fromSelect = document.getElementById('from_trans_id');
+  const badge      = document.getElementById('from_account_balance_badge');
+  const balVal     = document.getElementById('from_account_balance_val');
+
+  function updateBalanceBadge() {
+    if (!fromSelect.value) {
+      badge.classList.add('hidden');
+      return;
+    }
+    const opt = fromSelect.options[fromSelect.selectedIndex];
+    const raw = parseFloat((opt && opt.getAttribute('data-balance')) || 0);
+    balVal.textContent = Number(raw).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    badge.classList.remove('hidden');
+  }
+
+  if (fromSelect) {
+    fromSelect.addEventListener('change', updateBalanceBadge);
+    fromSelect.addEventListener('input', updateBalanceBadge);
+    // Show immediately if a value is pre-selected (e.g. after validation failure)
+    if (fromSelect.value) updateBalanceBadge();
+  }
 });
 </script>
 
