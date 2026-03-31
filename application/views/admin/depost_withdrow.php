@@ -439,7 +439,7 @@ if ($status === 'withdrawal' || $status === 'out') { ?>
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
         <option value="">Select Account</option>
         <?php foreach ($acount as $acounts): ?>
-          <option value="<?= $acounts->trans_id; ?>"><?= $acounts->account_name; ?></option>
+          <option value="<?= $acounts->trans_id; ?>"><?= $acounts->account_name; ?> - Salio: <?= number_format(isset($acounts->blanch_capital) ? $acounts->blanch_capital : 0); ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -536,7 +536,7 @@ if ($status === 'withdrawal' || $status === 'out') { ?>
     <option value="">Chagua Malipo</option>
     <?php foreach ($acount as $acounts): ?>
       <option value="<?= $acounts->trans_id; ?>" data-label="<?= strtolower(trim($acounts->account_name)); ?>">
-        <?= $acounts->account_name; ?>
+        <?= $acounts->account_name; ?> - Salio: <?= number_format(isset($acounts->blanch_capital) ? $acounts->blanch_capital : 0); ?>
       </option>
     <?php endforeach; ?>
   </select>

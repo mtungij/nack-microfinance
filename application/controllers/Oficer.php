@@ -5300,7 +5300,7 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
       
 
           // echo "<pre>";
-          // print_r( $empl_data);
+          // print_r( $depost);
           //     exit();
 
           $customer_id = $depost['customer_id'];
@@ -5987,6 +5987,10 @@ public function insert_comp_balance($comp_id,$new_depost){
     public function depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$p_method,$group_id,$deposit_date,$dep_id,$wakala,$baki){
     //$day = date("Y-m-d");
     $this->db->query("INSERT INTO tbl_pay (`loan_id`,`blanch_id`,`comp_id`,`customer_id`,`depost`,`balance`,`description`,`pay_status`,`stat`,`date_pay`,`emply`,`p_method`,`group_id`,`date_data`,`dep_id`,`wakala`,`rem_debt`) VALUES ('$loan_id','$blanch_id','$comp_id','$customer_id','$new_depost','$sum_balance','CASH DEPOSIT','1','1','$day','$role','$p_method','$group_id','$deposit_date','$dep_id','$wakala','$baki')");
+
+    // Increase branch account balance on the selected payment account.
+    $this->db->query("UPDATE `tbl_blanch_account` SET `blanch_capital` = `blanch_capital` + '$new_depost' WHERE `blanch_id` = '$blanch_id' AND `receive_trans_id` = '$p_method'");
+
     return $this->db->insert_id();
 
       }
@@ -6107,7 +6111,7 @@ public function create_withdrow_balance($customer_id){
           $payment_method = $method;
           $trans_id = $method;
       
-          //  print_r($loan_status);
+          //  print_r($new_balance);
           // echo "</pre>";
           //       exit();
 
@@ -6202,9 +6206,11 @@ if (substr($phone_sp, 0, 1) === '0') {
           $sms_number = @$smscount->sms_number;  
           $sms_id = @$smscount->sms_id;  
            
-            //    echo "<pre>";
-            // print_r($withMoney);
-            //     exit();
+          //                 echo "<pre>";
+          // print_r( $blanch_capital);
+          //  echo "<br>";
+          //  exit();
+           
                 
           $datas_balance = $this->queries->get_remainbalance($customer_id);
           $customer_data = $this->queries->get_customerData($customer_id);
@@ -6213,7 +6219,9 @@ if (substr($phone_sp, 0, 1) === '0') {
           $branch_name =$customer_data->blanch_name;
           $balance = $old_balance;
           $with_balance = $balance - $new_balance; 
-
+  // print_r(  $balance);
+  //          echo "<br>";
+  //          exit();
           $up_balance = $this->queries->get_upBalance_Data($customer_id);
           $balance = $up_balance->balance;
           $input_balance = $withdrow_newbalance;
@@ -6249,11 +6257,15 @@ if (substr($phone_sp, 0, 1) === '0') {
            
             $new_deducted = $deducted + $sum_total_loanFee;
 
+          //                   echo "<pre>";
+          // print_r( $new_deducted);
+          //  echo "<br>";
+
                if($new_code === $code){
                  $this->session->set_flashdata('error','Pin ya mteja Uliyojaza Haipo Sahihi!!');
                }else
                if($blanch_capital < $withdrow_newbalance){
-            $this->session->set_flashdata('error','Huna salio la fedha kwenye mfumo kuweza kutoa mkopo. Tafadhali wasiliana na Meneja wa Kampuni.');
+            $this->session->set_flashdata('error','Huna salio la kutosha kwenye mfumo kuweza kutoa mkopo. Tafadhali wasiliana na Meneja .');
              }elseif($input_balance <= $balance){
               //$day_loandata = $this->queries->get_loan_day($loan_id);
                $this->witdrow_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_balance,$with_balance,$description,$role,$method,$group_id);

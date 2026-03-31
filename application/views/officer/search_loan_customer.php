@@ -204,7 +204,7 @@ include_once APPPATH . "views/partials/officerheader.php";
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
           </svg>
-      Weka
+      Deposit
     </button>
     <?php } elseif ($status === 'disbarsed') { ?>
         <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-green-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-edit-shareholder-modal-<?= $customer->customer_id; ?>">
@@ -213,11 +213,11 @@ include_once APPPATH . "views/partials/officerheader.php";
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
           </svg>
-        Toa
+        Withdraw
       </button>
     <?php } elseif ($status === 'done') { ?>
         <a href="#" class="btn btn-info" data-toggle="modal" data-target="#addcontact3">
-            <i class="icon-pencil"></i> Faini
+            <i class="icon-pencil"></i> Penalt
         </a>
 <?php }
 } ?>
@@ -376,7 +376,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
         <option value="">Chagua Malipo</option>
         <?php foreach ($acount as $acounts): ?>
-          <option value="<?= $acounts->trans_id; ?>"><?= $acounts->account_name; ?></option>
+          <option value="<?= $acounts->trans_id; ?>" style="color: #16a34a;"><?= $acounts->account_name; ?> - Salio: <?= number_format(isset($acounts->blanch_capital) ? $acounts->blanch_capital : 0); ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -510,7 +510,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
         <option value="">Chagua Malipo</option>
         <?php foreach ($acount as $acounts): ?>
-          <option value="<?= $acounts->trans_id; ?>"><?= $acounts->account_name; ?></option>
+          <option value="<?= $acounts->trans_id; ?>" style="color: #16a34a;"><?= $acounts->account_name; ?> - Salio: <?= number_format(isset($acounts->blanch_capital) ? $acounts->blanch_capital : 0); ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -623,9 +623,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const wakalaInput = document.getElementById("wakala");
 
     methodSelect.addEventListener("change", function () {
-        let selectedText = methodSelect.options[methodSelect.selectedIndex].text.toLowerCase();
+    let selectedText = methodSelect.options[methodSelect.selectedIndex].text.toLowerCase();
+    // Remove appended balance text like " - Salio: 1,000" before checking method name.
+    let methodName = selectedText.split(" - salio:")[0].trim();
+    let wakalaRequired = (methodName !== "cash");
 
-        if (selectedText !== "cash") {
+    if (wakalaRequired) {
             wakalaField.style.display = "block";
             wakalaInput.setAttribute("required", "required");
         } else {

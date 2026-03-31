@@ -33,6 +33,7 @@ $groups_active = is_active_link('admin/group');
 $notification_active = is_active_link('admin/create_notifications');
 $customer_notifications_active = is_active_link('admin/customer_notifications');
 $loan_calculator =is_active_link('admin/loan_calculator');
+$branch_account_balances_active = is_active_link('admin/branch_account_balances');
 
 $setting_submenu_active = is_submenu_active(['loan_category', 'loan_fee', 'penart_setting', 'formular_setting', 'transaction_account']);
 $capital_submenu_active = is_submenu_active(['shareHolder', 'capital', 'transfar_amount']);
@@ -172,6 +173,16 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
           Loan Calculator
         </a>
       </li>
+
+      <li>
+        <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg
+                  <?php echo $branch_account_balances_active ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
+           href="<?php echo base_url("admin/branch_account_balances"); ?>">
+          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.5 4A1.5 1.5 0 0 1 4 2.5h12A1.5 1.5 0 0 1 17.5 4v2A1.5 1.5 0 0 1 16 7.5H4A1.5 1.5 0 0 1 2.5 6V4Zm0 6A1.5 1.5 0 0 1 4 8.5h12A1.5 1.5 0 0 1 17.5 10v2A1.5 1.5 0 0 1 16 13.5H4A1.5 1.5 0 0 1 2.5 12v-2Zm0 6A1.5 1.5 0 0 1 4 14.5h12A1.5 1.5 0 0 1 17.5 16v.5A1.5 1.5 0 0 1 16 18H4a1.5 1.5 0 0 1-1.5-1.5V16Z"/></svg>
+          Branch Account Balances
+        </a>
+      </li>
+
       <li>
       <?php if (has_permission('Sajili Tawi Jipya')): ?>
         <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg

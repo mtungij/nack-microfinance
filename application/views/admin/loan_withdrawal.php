@@ -36,6 +36,23 @@ include_once APPPATH . "views/partials/header.php";
     Filter Data
 </button>
 
+<!-- Hidden form that carries the current filter values straight to the PDF endpoint -->
+<form id="pdf-download-form" method="POST" action="<?php echo base_url('admin/download_loan_withdrawal_pdf'); ?>" style="display:none;">
+    <?php $csrf = $this->security->get_csrf_token_name(); ?>
+    <input type="hidden" name="<?php echo $csrf; ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
+    <input type="hidden" id="pdf-blanch-id"   name="blanch_id"  value="<?php echo isset($filters['blanch_id']) ? htmlspecialchars($filters['blanch_id']) : ''; ?>">
+    <input type="hidden" id="pdf-from"         name="from"       value="<?php echo isset($filters['from']) ? htmlspecialchars($filters['from']) : ''; ?>">
+    <input type="hidden" id="pdf-to"           name="to"         value="<?php echo isset($filters['to'])   ? htmlspecialchars($filters['to'])   : ''; ?>">
+    <input type="hidden" id="pdf-paid-today"   name="paid_today" value="<?php echo !empty($filters['paid_today']) ? '1' : ''; ?>">
+</form>
+
+<button type="button" onclick="document.getElementById('pdf-download-form').submit()" class="flex items-center justify-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
+    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/>
+    </svg>
+    Download PDF
+</button>
+
                   
                 </div>
             </div>
@@ -56,6 +73,8 @@ include_once APPPATH . "views/partials/header.php";
 							<th scope="col" class="px-4 py-3 dark:text-white">Method</th>
 							<th scope="col" class="px-4 py-3 dark:text-white">Withdraw Date</th>
 							<th scope="col" class="px-4 py-3 dark:text-white">Loan End Date</th>
+							<th scope="col" class="px-4 py-3 dark:text-white">Amount Paid</th>
+							<th scope="col" class="px-4 py-3 dark:text-white">Remain Debt</th>
 
 							<th scope="col" class="px-4 py-3 dark:text-white">Action</th> 
                         </tr>
@@ -66,11 +85,17 @@ include_once APPPATH . "views/partials/header.php";
     $total_loan_aprove = 0;
     $total_loan_int = 0;
     $total_restoration = 0;
+    $total_paid_all = 0;
+    $total_remain_all = 0;
     ?>
     <?php foreach($disburse as $loan_aproveds): 
         $total_loan_aprove += $loan_aproveds->loan_aprove;
         $total_loan_int += $loan_aproveds->loan_int;
         $total_restoration += $loan_aproveds->restration;
+        $row_paid   = $loan_aproveds->total_paid ?? 0;
+        $row_remain = max(0, $loan_aproveds->loan_int - $row_paid);
+        $total_paid_all   += $row_paid;
+        $total_remain_all += $row_remain;
     ?>
         <tr class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></th>
@@ -108,6 +133,10 @@ include_once APPPATH . "views/partials/header.php";
             <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->account_name; ?></td>
             <td class="px-4 py-3 dark:text-white"><?= substr($loan_aproveds->loan_stat_date, 0,10); ?></td>
             <td class="px-4 py-3 dark:text-white"><?= substr($loan_aproveds->loan_end_date, 0,10); ?></td>
+            <!-- Amount Paid -->
+            <td class="px-4 py-3 text-green-600 dark:text-green-400"><?= number_format($row_paid); ?></td>
+            <!-- Remaining Debt -->
+            <td class="px-4 py-3 <?= $row_remain > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'; ?>"><?= number_format($row_remain); ?></td>
 <td class="px-4 py-3 dark:text-white">
     <a href="<?= base_url("admin/delete_loanwith/{$loan_aproveds->loan_id}") ?>" 
        class="text-red-600 hover:text-red-900 flex items-center gap-1" 
@@ -127,11 +156,14 @@ include_once APPPATH . "views/partials/header.php";
  <!-- Totals Row -->
 <tr class="bg-gray-200 dark:bg-gray-800 font-extrabold text-lg">
     <td colspan="5" class="px-4 py-3 dark:text-white text-right">Total</td>
-    <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_loan_aprove); ?></td> <!-- Principal Total -->
-    <td class="px-4 py-3 text-blue-700 dark:text-blue-400"><?= number_format($total_loan_int); ?></td>    <!-- Loan Amount Total -->
+    <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_loan_aprove); ?></td>
+    <td class="px-4 py-3 text-blue-700 dark:text-blue-400"><?= number_format($total_loan_int); ?></td>
     <td></td>
-    <td class="px-4 py-3 text-purple-700 dark:text-purple-400"><?= number_format($total_restoration); ?></td> <!-- Collection Total -->
-    <td colspan="5"></td>
+    <td class="px-4 py-3 text-purple-700 dark:text-purple-400"><?= number_format($total_restoration); ?></td>
+    <td colspan="3"></td>
+    <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_paid_all); ?></td>
+    <td class="px-4 py-3 text-red-700 dark:text-red-400"><?= number_format($total_remain_all); ?></td>
+    <td></td>
 </tr>
 
 
@@ -185,6 +217,16 @@ include_once APPPATH . "views/partials/header.php";
         <label for="address" class="block text-sm font-medium text-gray-700 dark:text-white">Mpaka Tarehe</label>
 		<input type="date" name="to" value="<?php echo $date; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
+    </div>
+
+    <!-- Paid Today -->
+    <div class="flex items-center gap-3">
+      <input type="checkbox" id="paid_today" name="paid_today" value="1"
+        <?php echo (!empty($filters['paid_today'])) ? 'checked' : ''; ?>
+        class="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600">
+      <label for="paid_today" class="text-sm font-medium text-gray-700 dark:text-white">
+        Waliolipa Leo (Paid Today)
+      </label>
     </div>
 
   </div>

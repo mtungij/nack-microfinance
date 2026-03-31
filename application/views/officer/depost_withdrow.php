@@ -410,7 +410,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
         <option value="">Chagua Malipo</option>
         <?php foreach ($acount as $acounts): ?>
-          <option value="<?= $acounts->trans_id; ?>"><?= $acounts->account_name; ?></option>
+          <option value="<?= $acounts->trans_id; ?>" style="color: #16a34a;"><?= $acounts->account_name; ?> - Salio: <?= number_format(isset($acounts->blanch_capital) ? $acounts->blanch_capital : 0); ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -516,9 +516,17 @@ include_once APPPATH . "views/partials/officerheader.php";
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
         <option value="">Chagua Malipo</option>
         <?php foreach ($acount as $acounts): ?>
-          <option value="<?= $acounts->trans_id; ?>"><?= $acounts->account_name; ?></option>
+          <option value="<?= $acounts->trans_id; ?>" style="color: #16a34a;"><?= $acounts->account_name; ?> - Salio: <?= number_format(isset($acounts->blanch_capital) ? $acounts->blanch_capital : 0); ?></option>
         <?php endforeach; ?>
       </select>
+    </div>
+
+    <div class="sm:col-span-6" id="wakala-field" style="display:none;">
+      <label for="wakala" class="block text-sm font-medium mb-2 dark:text-gray-300">
+        * Wakala:
+      </label>
+      <input type="text" id="wakala" name="wakala"
+        class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600">
     </div>
 
 
@@ -750,5 +758,33 @@ function getAge(dob) {
     hiddenInput.value = rawValue;
   });
 </script>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const methodSelect = document.getElementById("p_method");
+    const wakalaField = document.getElementById("wakala-field");
+    const wakalaInput = document.getElementById("wakala");
+
+    if (!methodSelect || !wakalaField || !wakalaInput) return;
+
+    function toggleWakalaRequirement() {
+      let selectedText = methodSelect.options[methodSelect.selectedIndex].text.toLowerCase();
+      let methodName = selectedText.split(" - salio:")[0].trim();
+      let wakalaRequired = (methodName !== "" && methodName !== "cash");
+
+      if (wakalaRequired) {
+        wakalaField.style.display = "block";
+        wakalaInput.setAttribute("required", "required");
+      } else {
+        wakalaField.style.display = "none";
+        wakalaInput.removeAttribute("required");
+        wakalaInput.value = "";
+      }
+    }
+
+    methodSelect.addEventListener("change", toggleWakalaRequirement);
+    toggleWakalaRequirement();
+  });
+  </script>
 
 

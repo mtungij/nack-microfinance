@@ -1340,7 +1340,8 @@ public function get_total_pay_description_acount_statement($loan_id)
 
     public function get_withdrawal_Loan($comp_id, $filters = [])
 {
-    $this->db->select('*');
+    $this->db->select('l.*, c.*, lt.*, b.*, s.*, ot.*, at.*,
+        (SELECT COALESCE(SUM(d.depost), 0) FROM tbl_depost d WHERE d.loan_id = l.loan_id) AS total_paid', FALSE);
     $this->db->from('tbl_loans l');
 
     $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
@@ -1369,6 +1370,12 @@ public function get_total_pay_description_acount_statement($loan_id)
 
     if (!empty($filters['loan_name'])) {
         $this->db->like('l.loan_name', $filters['loan_name']);
+    }
+
+    // Filter: only loans with a deposit made today
+    if (!empty($filters['paid_today'])) {
+        $paidToday = date('Y-m-d');
+        $this->db->where("EXISTS (SELECT 1 FROM tbl_depost d WHERE d.loan_id = l.loan_id AND DATE(d.depost_day) = '$paidToday')", NULL, FALSE);
     }
 
     $this->db->order_by('l.loan_id', 'DESC');
@@ -1460,22 +1467,23 @@ public function get_sum_loanwithdrawal_data_filtered($comp_id, $filters = [])
 
     // Filter by date range
     if (!empty($filters['from']) && !empty($filters['to'])) {
-        $this->db->where('ot.loan_stat_date >=', $filters['from']);
-        $this->db->where('ot.loan_end_date <=', $filters['to']);
+        $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
+        $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
     } else {
         // Default: today
         $today = date("Y-m-d");
         $this->db->where('DATE(ot.loan_stat_date)', $today);
     }
 
-    return $this->db->get()->row()->loan_aprove;
+    return $this->db->get()->row()->loan_aprove ?? 0;
 }
 
 
 
 public function get_withdrawal_Loan_filtered($comp_id, $filters = [])
 {
-    $this->db->select('l.*, c.*, lt.*, b.*, s.*, ot.*, at.*');
+    $this->db->select('l.*, c.*, lt.*, b.*, s.*, ot.*, at.*,
+        (SELECT COALESCE(SUM(d.depost), 0) FROM tbl_depost d WHERE d.loan_id = l.loan_id) AS total_paid', FALSE);
     $this->db->from('tbl_loans l');
     $this->db->join('tbl_customer c', 'c.customer_id = l.customer_id', 'left');
     $this->db->join('tbl_loan_category lt', 'lt.category_id = l.category_id', 'left');
@@ -1493,11 +1501,17 @@ public function get_withdrawal_Loan_filtered($comp_id, $filters = [])
     }
 
     if (!empty($filters['from'])) {
-        $this->db->where('ot.loan_stat_date >=', $filters['from']);
+        $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
     }
 
     if (!empty($filters['to'])) {
-        $this->db->where('ot.loan_stat_date <=', $filters['to']);
+        $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
+    }
+
+    // Filter: only loans with a deposit made today
+    if (!empty($filters['paid_today'])) {
+        $paidToday = date('Y-m-d');
+        $this->db->where("EXISTS (SELECT 1 FROM tbl_depost d WHERE d.loan_id = l.loan_id AND DATE(d.depost_day) = '$paidToday')", NULL, FALSE);
     }
 
     $this->db->order_by('l.loan_id', 'DESC');
@@ -1521,10 +1535,10 @@ public function get_sum_loanwithdrawal_interest_filtered($comp_id, $filters = []
         $this->db->where('l.blanch_id', $filters['blanch_id']);
     }
     if (!empty($filters['from'])) {
-        $this->db->where('ot.loan_stat_date >=', $filters['from']);
+        $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
     }
     if (!empty($filters['to'])) {
-        $this->db->where('ot.loan_stat_date <=', $filters['to']);
+        $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
     }
 
     $query = $this->db->get();
@@ -2083,7 +2097,7 @@ public function get_today_disbursed_loans($comp_id)
 
        public function get_sum_loanwithdrawal_data($comp_id){
        	$date = date("Y-m-d");
-       	$total_loan_dis = $this->db->query("SELECT SUM(l.loan_aprove) AS total_loan FROM tbl_loans l LEFT JOIN tbl_outstand ot ON ot.loan_id = ot.loan_id WHERE l.comp_id = '$comp_id' AND l.loan_status = 'withdrawal' AND ot.loan_stat_date = '$date'");
+       	$total_loan_dis = $this->db->query("SELECT SUM(l.loan_aprove) AS total_loan FROM tbl_loans l LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id WHERE l.comp_id = '$comp_id' AND l.loan_status = 'withdrawal' AND DATE(ot.loan_stat_date) = '$date'");
        	  return $total_loan_dis->row();
        }
 
@@ -2187,12 +2201,42 @@ public function get_today_disbursed_loans($comp_id)
        public function insert_amount($data){
        	return $this->db->insert('tbl_transfor',$data);
        }
+public function get_amount_transfor($comp_id)
+{
+    $day = date("Y-m-d");
 
-       public function get_amount_transfor($comp_id){
-       	$day = date("Y-m-d");
-       	$data = $this->db->query("SELECT t.trans_id,t.comp_id,t.blanch_id,t.blanch_amount,t.trans_day,b.blanch_id,b.comp_id,b.region_id,b.blanch_name,b.blanch_no,at.account_name AS to_account,t.from_trans_id,t.to_trans_id,at.trans_id,tr.account_name AS from_account,t.charger  FROM tbl_transfor t JOIN tbl_blanch b ON b.blanch_id = t.blanch_id JOIN tbl_account_transaction at ON at.trans_id = t.to_trans_id JOIN tbl_account_transaction tr ON tr.trans_id = t.from_trans_id WHERE t.comp_id = '$comp_id' AND t.trans_day = '$day' ORDER BY t.trans_id DESC");
-       	  return $data->result();
-       }
+    $this->db->select("
+        t.trans_id,
+        t.comp_id,
+        t.blanch_id,
+        t.blanch_amount,
+        t.trans_day,
+        b.blanch_id,
+        b.comp_id,
+        b.region_id,
+        b.blanch_name,
+        b.blanch_no,
+        at.account_name AS to_account,
+        t.from_trans_id,
+        t.to_trans_id,
+        at.trans_id,
+        tr.account_name AS from_account,
+        t.charger
+    ");
+
+    $this->db->from('tbl_transfor t');
+
+    $this->db->join('tbl_blanch b', 'b.blanch_id = t.blanch_id');
+    $this->db->join('tbl_account_transaction at', 'at.trans_id = t.to_trans_id');
+    $this->db->join('tbl_account_transaction tr', 'tr.trans_id = t.from_trans_id');
+
+    $this->db->where('t.comp_id', $comp_id);
+    $this->db->where('t.trans_day', $day);
+
+    $this->db->order_by('t.trans_id', 'DESC');
+
+    return $this->db->get()->result();
+}
 
 
        public function update_amount($trans_id,$data){
@@ -6511,6 +6555,51 @@ public function get_account_balance_blanch($comp_id){
 	$data = $this->db->query("SELECT SUM(blanch_capital) AS total_blanch_balance,account_name FROM tbl_blanch_account ba JOIN tbl_account_transaction at ON at.trans_id = ba.receive_trans_id WHERE ba.comp_id = '$comp_id' GROUP BY ba.receive_trans_id");
 		return $data->result();
 	
+}
+
+public function get_branch_account_balances($comp_id){
+	$data = $this->db->query("SELECT b.blanch_name, at.account_name, ba.blanch_capital FROM tbl_blanch_account ba JOIN tbl_account_transaction at ON at.trans_id = ba.receive_trans_id JOIN tbl_blanch b ON b.blanch_id = ba.blanch_id WHERE ba.comp_id = '$comp_id' ORDER BY b.blanch_name ASC, at.account_name ASC");
+	return $data->result();
+}
+
+public function get_branch_account_balances_filtered($comp_id, $from = null, $to = null, $blanch_id = null, $trans_id = null){
+	$this->db->select('b.blanch_name, at.account_name, ba.blanch_capital, ba.blanch_id, ba.receive_trans_id');
+	$this->db->from('tbl_blanch_account ba');
+	$this->db->join('tbl_account_transaction at', 'at.trans_id = ba.receive_trans_id');
+	$this->db->join('tbl_blanch b', 'b.blanch_id = ba.blanch_id');
+	$this->db->where('ba.comp_id', $comp_id);
+
+	if (!empty($blanch_id)) {
+		$this->db->where('ba.blanch_id', $blanch_id);
+	}
+
+	if (is_array($trans_id)) {
+		$trans_id = array_values(array_filter($trans_id, static function ($value) {
+			return $value !== '' && $value !== null;
+		}));
+		if (!empty($trans_id)) {
+			$this->db->where_in('ba.receive_trans_id', $trans_id);
+		}
+	} elseif (!empty($trans_id)) {
+		$this->db->where('ba.receive_trans_id', $trans_id);
+	}
+
+	if (!empty($from) || !empty($to)) {
+		$exists_sql = "EXISTS (SELECT 1 FROM tbl_pay p WHERE p.comp_id = ba.comp_id AND p.blanch_id = ba.blanch_id AND p.p_method = ba.receive_trans_id";
+		if (!empty($from)) {
+			$exists_sql .= " AND DATE(p.pay_day) >= " . $this->db->escape($from);
+		}
+		if (!empty($to)) {
+			$exists_sql .= " AND DATE(p.pay_day) <= " . $this->db->escape($to);
+		}
+		$exists_sql .= ")";
+		$this->db->where($exists_sql, null, false);
+	}
+
+	$this->db->order_by('b.blanch_name', 'ASC');
+	$this->db->order_by('at.account_name', 'ASC');
+
+	return $this->db->get()->result();
 }
 
 public function get_total_blanch_capital($comp_id){

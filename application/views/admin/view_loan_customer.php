@@ -629,8 +629,8 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                     </div>
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Idhinisha Mkopo</button>
-                            <a href="<?php echo base_url("admin/reject_loan/{$loan_form->loan_id}") ?>" class="py-2 px-4 btn-primary-sm dark:bg-red-800 hover:bg-cyan-700 text-white">Kataa</a>
+                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 border border-cyan-500 hover:bg-cyan-700 text-white">Approve</button>
+                            <a href="<?php echo base_url("admin/reject_loan/{$loan_form->loan_id}") ?>" class="py-2 px-4 bg-red-600 dark:bg-red-800 rounded border border-red-500 hover:bg-red-700 text-white">Reject</a>
                         </div>
                     </div>
                 <?php echo form_close(); ?>
