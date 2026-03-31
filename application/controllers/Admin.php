@@ -10067,14 +10067,26 @@ $this->load->view('admin/sms_history',['history'=>$history,'sms_jumla'=>$sms_jum
         $from = $this->input->get('from');
         $to = $this->input->get('to');
         $blanch_id = $this->input->get('blanch_id');
-        $trans_id = $this->input->get('trans_id');
-
-        if (!is_array($trans_id)) {
-            $trans_id = (!empty($trans_id)) ? [$trans_id] : [];
+        $trans_id_input = $this->input->get('trans_id');
+        if (is_array($trans_id_input)) {
+            $trans_id = $trans_id_input;
+        } elseif (is_string($trans_id_input) && strpos($trans_id_input, ',') !== false) {
+            $trans_id = explode(',', $trans_id_input);
+        } elseif ($trans_id_input !== null && $trans_id_input !== '') {
+            $trans_id = [$trans_id_input];
+        } else {
+            $trans_id = [];
         }
-        $trans_id = array_values(array_filter($trans_id, static function ($value) {
-            return $value !== '' && $value !== null;
-        }));
+
+        $trans_id = array_values(array_unique(array_filter(array_map(static function ($value) {
+            $value = trim((string)$value);
+            if ($value === '') {
+                return null;
+            }
+            return ctype_digit($value) ? (int)$value : null;
+        }, $trans_id), static function ($value) {
+            return $value !== null;
+        })));
 
         $balances = $this->queries->get_branch_account_balances_filtered($comp_id, $from, $to, $blanch_id, $trans_id);
 
@@ -10105,14 +10117,26 @@ $this->load->view('admin/sms_history',['history'=>$history,'sms_jumla'=>$sms_jum
         $from = $this->input->get('from');
         $to = $this->input->get('to');
         $blanch_id = $this->input->get('blanch_id');
-        $trans_id = $this->input->get('trans_id');
-
-        if (!is_array($trans_id)) {
-            $trans_id = (!empty($trans_id)) ? [$trans_id] : [];
+        $trans_id_input = $this->input->get('trans_id');
+        if (is_array($trans_id_input)) {
+            $trans_id = $trans_id_input;
+        } elseif (is_string($trans_id_input) && strpos($trans_id_input, ',') !== false) {
+            $trans_id = explode(',', $trans_id_input);
+        } elseif ($trans_id_input !== null && $trans_id_input !== '') {
+            $trans_id = [$trans_id_input];
+        } else {
+            $trans_id = [];
         }
-        $trans_id = array_values(array_filter($trans_id, static function ($value) {
-            return $value !== '' && $value !== null;
-        }));
+
+        $trans_id = array_values(array_unique(array_filter(array_map(static function ($value) {
+            $value = trim((string)$value);
+            if ($value === '') {
+                return null;
+            }
+            return ctype_digit($value) ? (int)$value : null;
+        }, $trans_id), static function ($value) {
+            return $value !== null;
+        })));
 
         $compdata = $this->queries->get_companyData($comp_id);
         $balances = $this->queries->get_branch_account_balances_filtered($comp_id, $from, $to, $blanch_id, $trans_id);
