@@ -21,10 +21,10 @@ include_once APPPATH . "views/partials/header.php";
         <!-- Page Title / Subheader -->
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-               Select Client to Request Loan
+               <?php echo $this->lang->line('select_client_loan'); ?>
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                kumbuka kama atakuwa hajamaliza mkopo system itakataa kumuombea mkopo.
+                <?php echo $this->lang->line('loan_application_desc'); ?>
             </p>
         </div>
         <!-- End Page Title / Subheader -->
@@ -34,8 +34,8 @@ include_once APPPATH . "views/partials/header.php";
         <div class="bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500" role="alert">
             <div class="flex">
                 <div class="flex-shrink-0"><span class="inline-flex justify-center items-center size-8 rounded-full border-4 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-500"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg></span></div>
-                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white">Success</h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
-                <div class="ps-3 ms-auto"><div class="-mx-1.5 -my-1.5"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only">Dismiss</span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
+                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('success'); ?></h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
+                <div class="ps-3 ms-auto"><div class="-mx-1.5 -my-1.5"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only"><?php echo $this->lang->line('dismiss'); ?></span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
             </div>
         </div>
         <?php endif; ?>
@@ -44,17 +44,17 @@ include_once APPPATH . "views/partials/header.php";
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-                   Search Customer
+                   <?php echo $this->lang->line('search_customer'); ?>
                 </h3>
                 <?php echo form_open("admin/search_customer", ['novalidate' => true]); ?>
                    
                     
                         <!-- Branch Select2 Dropdown -->
 						<div class="col-span-12">
-    <label for="branchSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Branch:</label>
+    <label for="branchSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('branch_sw'); ?>:</label>
     <select id="branchSelect" required name="customer_id"
         class="py-3 px-4 pe-9 block w-full bg-cyan-600 border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:placeholder-gray-500 dark:focus:ring-gray-600 select2">
-        <option value="">Select customer</option>
+        <option value=""><?php echo $this->lang->line('select_customer'); ?></option>
 		<?php foreach ($customer as $customers): ?>
     <option value="<?= $customers->customer_id ?>">
         <?= strtoupper($customers->f_name . " " . $customers->m_name . " " . $customers->l_name); ?> /
@@ -73,7 +73,7 @@ include_once APPPATH . "views/partials/header.php";
                     
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Search</button>
+                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('search'); ?></button>
                         </div>
                     </div>
                 <?php echo form_close(); ?>

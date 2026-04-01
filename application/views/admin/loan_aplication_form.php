@@ -21,10 +21,10 @@ include_once APPPATH . "views/partials/header.php";
         <!-- Page Title / Subheader -->
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-               Register New Customer
+               <?php echo $this->lang->line('loan_application_form'); ?>
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Register only New Customer.
+                <?php echo $this->lang->line('loan_application_form_desc'); ?>
             </p>
         </div>
         <!-- End Page Title / Subheader -->
@@ -34,8 +34,8 @@ include_once APPPATH . "views/partials/header.php";
         <div class="bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500" role="alert">
             <div class="flex">
                 <div class="flex-shrink-0"><span class="inline-flex justify-center items-center size-8 rounded-full border-4 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-500"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg></span></div>
-                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white">Success</h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
-                <div class="ps-3 ms-auto"><div class="-mx-1.5 -my-1.5"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only">Dismiss</span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
+                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('success'); ?></h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
+                <div class="ps-3 ms-auto"><div class="-mx-1.5 -my-1.5"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only"><?php echo $this->lang->line('dismiss'); ?></span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
             </div>
         </div>
         <?php endif; ?>
@@ -45,7 +45,7 @@ include_once APPPATH . "views/partials/header.php";
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-                    Register New Customer
+                    <?php echo $this->lang->line('loan_application_form'); ?>
                 </h3>
                 <?php if (isset($customer)): ?>
     <?php echo form_open("admin/create_loanapplication/{$customer->customer_id}", ['novalidate' => true]); ?>
@@ -57,9 +57,9 @@ include_once APPPATH . "views/partials/header.php";
 
     <!-- Loan Product -->
     <div class="sm:col-span-4">
-        <label for="branchSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Loan Product Name:</label>
+        <label for="branchSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_product_name'); ?>:</label>
         <select id="branchSelect" name="category_id" class="py-3 px-4 pe-9 block w-full bg-cyan-600 border-gray-200 rounded-lg text-sm select2">
-            <option value="">Select Loan Product</option>
+            <option value=""><?php echo $this->lang->line('select_loan_product'); ?></option>
             <?php foreach ($loan_category as $loan_categorys): ?>
                 <option value="<?php echo $loan_categorys->category_id; ?>" <?php echo set_select('category_id', $loan_categorys->category_id); ?>>
                     <?php echo $loan_categorys->loan_name; ?> / <?php echo $loan_categorys->loan_price; ?> - <?php echo $loan_categorys->loan_perday; ?>
@@ -85,9 +85,9 @@ include_once APPPATH . "views/partials/header.php";
 
     <!-- Employee -->
     <div class="sm:col-span-4">
-        <label for="StaffSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Select Employee:</label>
+        <label for="StaffSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('select_employee'); ?>:</label>
         <select id="StaffSelect" name="empl_id" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm">
-            <option value="">Select Staff Name</option>
+            <option value=""><?php echo $this->lang->line('select_staff_name'); ?></option>
             <?php foreach ($mpl_data_blanch as $mpl_data_blanchs): ?>
                 <option value="<?php echo $mpl_data_blanchs->empl_id; ?>" <?php echo set_select('empl_id', $mpl_data_blanchs->empl_id); ?>>
                     <?php echo $mpl_data_blanchs->empl_name; ?>
@@ -107,46 +107,46 @@ include_once APPPATH . "views/partials/header.php";
 
     <!-- Loan Amount -->
     <div class="sm:col-span-4">
-        <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* Loan Amount:</label>
-        <input type="number" id="how_loan" name="how_loan" placeholder="Kiasi cha mkopo kinachoombwa bila riba" value="<?php echo set_value('how_loan'); ?>" autocomplete="off" required class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+        <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_amount'); ?>:</label>
+        <input type="number" id="how_loan" name="how_loan" placeholder="<?php echo $this->lang->line('loan_amount_placeholder'); ?>" value="<?php echo set_value('how_loan'); ?>" autocomplete="off" required class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
         <?php echo form_error("how_loan", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
     </div>
 
     <!-- Loan Duration -->
     <div class="sm:col-span-4">
-        <label for="durationselect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Loan Duration:</label>
+        <label for="durationselect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_duration'); ?>:</label>
         <select id="durationselect" name="day" class="py-3 px-4 pe-9 block w-full bg-cyan-600 border-gray-200 rounded-lg text-sm select2">
-            <option value="">Loan Duration</option>
-            <option value="1" <?php echo set_select('day', '1'); ?>>Siku</option>
-            <option value="7" <?php echo set_select('day', '7'); ?>>Week</option>
-            <option value="30" <?php echo set_select('day', '30'); ?>>Mwezi</option>
+            <option value=""><?php echo $this->lang->line('loan_duration'); ?></option>
+            <option value="1" <?php echo set_select('day', '1'); ?>><?php echo $this->lang->line('day_option'); ?></option>
+            <option value="7" <?php echo set_select('day', '7'); ?>><?php echo $this->lang->line('week_option'); ?></option>
+            <option value="30" <?php echo set_select('day', '30'); ?>><?php echo $this->lang->line('month_option'); ?></option>
         </select>
         <?php echo form_error("day", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
     </div>
 
     <div class="sm:col-span-4">
-        <label for="session" class="block text-sm font-medium mb-2 dark:text-gray-300">* Number of Repayment:</label>
-        <input type="number" id="session" name="session" placeholder="andika idadi jumla ya marejesho" value="<?php echo set_value('session'); ?>" autocomplete="off" required class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+        <label for="session" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('number_of_repayments'); ?>:</label>
+        <input type="number" id="session" name="session" placeholder="<?php echo $this->lang->line('repayment_placeholder'); ?>" value="<?php echo set_value('session'); ?>" autocomplete="off" required class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
         <?php echo form_error("session", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
     </div>
 
     <div class="sm:col-span-4">
-        <label for="reason" class="block text-sm font-medium mb-2 dark:text-gray-300">* Biashara/Kazi ya mkopoji:</label>
-        <input type="text" id="reason" name="reason" placeholder="andika idadi jumla ya marejesho" value="<?php echo set_value('reason'); ?>" autocomplete="off" required class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+        <label for="reason" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('borrower_business'); ?>:</label>
+        <input type="text" id="reason" name="reason" placeholder="<?php echo $this->lang->line('borrower_business_placeholder'); ?>" value="<?php echo set_value('reason'); ?>" autocomplete="off" required class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
         <?php echo form_error("reason", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
     </div>
 
     <!-- Interest Formular -->
     <div class="sm:col-span-4">
-        <label for="rateSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Select Interest Formular:</label>
+        <label for="rateSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('select_interest_formula'); ?>:</label>
         <select id="rateSelect" name="rate" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
-            <option value="">Select interest Formular</option>
+            <option value=""><?php echo $this->lang->line('select_interest_formula'); ?></option>
             <?php foreach ($formular as $formulars): ?>
                 <option value="<?php echo $formulars->formular_name; ?>" <?php echo set_select('rate', $formulars->formular_name); ?>>
                     <?php 
-                        if ($formulars->formular_name == 'SIMPLE') echo 'SIMPLE FORMULAR';
-                        elseif ($formulars->formular_name == 'FLAT RATE') echo 'FLAT RATE FORMULAR';
-                        elseif ($formulars->formular_name == 'REDUCING') echo 'REDUCING FORMULAR';
+                        if ($formulars->formular_name == 'SIMPLE') echo $this->lang->line('simple_formula');
+                        elseif ($formulars->formular_name == 'FLAT RATE') echo $this->lang->line('flat_rate_formula');
+                        elseif ($formulars->formular_name == 'REDUCING') echo $this->lang->line('reducing_formula');
                     ?>
                 </option>
             <?php endforeach; ?>
@@ -158,7 +158,7 @@ include_once APPPATH . "views/partials/header.php";
 
 <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
     <div class="flex justify-center gap-x-2">
-        <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Next</button>
+        <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('next'); ?></button>
     </div>
 </div>
 <?php echo form_close(); ?>

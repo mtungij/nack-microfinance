@@ -15,12 +15,12 @@ include_once APPPATH . "views/partials/header.php";
                     </span>
                 </div>
                 <div class="ms-3">
-                    <h3 class="text-gray-800 font-semibold dark:text-white">Success</h3>
+                    <h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('success'); ?></h3>
                     <p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das; ?></p>
                 </div>
                 <div class="ps-3 ms-auto">
                     <button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]">
-                        <span class="sr-only">Dismiss</span>
+                        <span class="sr-only"><?php echo $this->lang->line('dismiss'); ?></span>
                         <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
                     </button>
                 </div>
@@ -34,7 +34,7 @@ include_once APPPATH . "views/partials/header.php";
                 <div class="flex flex-col max-w-screen-xl px-4 mx-auto md:flex-row md:justify-between md:px-6 lg:px-8">
                     <div class="p-4 flex flex-row items-center justify-between">
                         <a href="#" class="text-lg font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline">
-                            Customer Notifications & Advertisements
+                            <?php echo $this->lang->line('customer_notifications_advertisements'); ?>
                         </a>
                     </div>
                 </div>
@@ -45,7 +45,7 @@ include_once APPPATH . "views/partials/header.php";
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
             <div class="p-4 sm:p-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 dark:text-white">Manage Notifications</h2>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white"><?php echo $this->lang->line('manage_notifications'); ?></h2>
                     <button type="button" 
                             class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-medium rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                             aria-haspopup="dialog" 
@@ -55,7 +55,7 @@ include_once APPPATH . "views/partials/header.php";
                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        Create New Notification
+                        <?php echo $this->lang->line('create_new_notification'); ?>
                     </button>
                 </div>
 
@@ -65,14 +65,14 @@ include_once APPPATH . "views/partials/header.php";
                         <thead class="bg-cyan-600 dark:bg-cyan-600">
                             <tr>
                                 <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">#</th>
-                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">Title</th>
-                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">Type</th>
-                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">Target Audience</th>
-                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">Start Date</th>
-                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">End Date</th>
-                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">Status</th>
-                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">Created</th>
-                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white">Action</th>
+                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('title'); ?></th>
+                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('type'); ?></th>
+                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('target_audience'); ?></th>
+                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('start_date'); ?></th>
+                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('end_date'); ?></th>
+                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('status'); ?></th>
+                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('created'); ?></th>
+                                <th scope="col" class="py-3 px-4 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('action'); ?></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -82,13 +82,13 @@ include_once APPPATH . "views/partials/header.php";
                                 <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200"><strong><?= htmlspecialchars($notification->title); ?></strong></td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                                     <?php if ($notification->notification_type == 'info'): ?>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Info</span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><?php echo $this->lang->line('info'); ?></span>
                                     <?php elseif ($notification->notification_type == 'warning'): ?>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Warning</span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><?php echo $this->lang->line('warning'); ?></span>
                                     <?php elseif ($notification->notification_type == 'success'): ?>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Success</span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><?php echo $this->lang->line('success'); ?></span>
                                     <?php else: ?>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Promotion</span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"><?php echo $this->lang->line('promotion'); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?= ucwords(str_replace('_', ' ', $notification->target_audience)); ?></td>
@@ -96,7 +96,7 @@ include_once APPPATH . "views/partials/header.php";
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?= date('M d, Y', strtotime($notification->end_date)); ?></td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <?= $notification->is_active == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
-                                        <?= $notification->is_active == 1 ? 'Active' : 'Inactive'; ?>
+                                        <?= $notification->is_active == 1 ? $this->lang->line('active') : $this->lang->line('inactive'); ?>
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?= date('M d, Y', strtotime($notification->created_at)); ?></td>
@@ -105,15 +105,15 @@ include_once APPPATH . "views/partials/header.php";
                                         <button type="button" 
                                                 onclick="editNotification(<?= $notification->notification_id; ?>)" 
                                                 class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700"
-                                                title="Edit">
+                                                title="<?php echo $this->lang->line('edit'); ?>">
                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
                                         <a href="<?= base_url('admin/delete_customer_notification/' . $notification->notification_id); ?>" 
-                                           onclick="return confirm('Are you sure you want to delete this notification?')" 
+                                           onclick="return confirm('<?php echo $this->lang->line('confirm_delete_notification'); ?>')" 
                                            class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-red-600 text-white hover:bg-red-700"
-                                           title="Delete">
+                                           title="<?php echo $this->lang->line('delete'); ?>">
                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -121,7 +121,7 @@ include_once APPPATH . "views/partials/header.php";
                                         <button type="button" 
                                                 onclick="toggleStatus(<?= $notification->notification_id; ?>)" 
                                                 class="inline-flex items-center px-2 py-1 text-xs font-medium rounded <?= $notification->is_active == 1 ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'bg-green-600 text-white hover:bg-green-700'; ?>"
-                                                title="<?= $notification->is_active == 1 ? 'Deactivate' : 'Activate'; ?>">
+                                                title="<?= $notification->is_active == 1 ? $this->lang->line('deactivate') : $this->lang->line('activate'); ?>">
                                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                             </svg>
@@ -145,9 +145,9 @@ include_once APPPATH . "views/partials/header.php";
             
             <!-- Modal Header -->
             <div class="flex justify-between items-center py-3 px-4 border-b dark:border-gray-700">
-                <h3 class="font-bold text-gray-800 dark:text-white">Create New Notification</h3>
+                <h3 class="font-bold text-gray-800 dark:text-white"><?php echo $this->lang->line('create_new_notification'); ?></h3>
                 <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" data-hs-overlay="#hs-create-notification-modal">
-                    <span class="sr-only">Close</span>
+                    <span class="sr-only"><?php echo $this->lang->line('close'); ?></span>
                     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
@@ -158,48 +158,48 @@ include_once APPPATH . "views/partials/header.php";
                 <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                     
                     <div class="sm:col-span-12">
-                        <label for="title" class="block text-sm font-medium mb-2 dark:text-gray-300">* Title:</label>
+                           <label for="title" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('title'); ?>:</label>
                         <input type="text" id="title" name="title" 
-                               placeholder="Enter notification title"
+                               placeholder="<?php echo $this->lang->line('enter_notification_title'); ?>"
                                class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                required>
                     </div>
 
                     <div class="sm:col-span-12">
-                        <label for="message" class="block text-sm font-medium mb-2 dark:text-gray-300">* Message:</label>
+                        <label for="message" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('message'); ?>:</label>
                         <textarea id="message" name="message" rows="4" 
-                                  placeholder="Enter notification message"
+                                  placeholder="<?php echo $this->lang->line('enter_notification_message'); ?>"
                                   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                   required></textarea>
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="notification_type" class="block text-sm font-medium mb-2 dark:text-gray-300">* Notification Type:</label>
+                        <label for="notification_type" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('notification_type'); ?>:</label>
                         <select id="notification_type" name="notification_type" 
                                 class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                 required>
-                            <option value="">Select Type</option>
-                            <option value="info">Info (Blue)</option>
-                            <option value="warning">Warning (Yellow)</option>
-                            <option value="success">Success (Green)</option>
-                            <option value="promotion">Promotion (Purple)</option>
+                            <option value=""><?php echo $this->lang->line('select_type'); ?></option>
+                            <option value="info"><?php echo $this->lang->line('info_blue'); ?></option>
+                            <option value="warning"><?php echo $this->lang->line('warning_yellow'); ?></option>
+                            <option value="success"><?php echo $this->lang->line('success_green'); ?></option>
+                            <option value="promotion"><?php echo $this->lang->line('promotion_purple'); ?></option>
                         </select>
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="target_audience" class="block text-sm font-medium mb-2 dark:text-gray-300">* Target Audience:</label>
+                        <label for="target_audience" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('target_audience'); ?>:</label>
                         <select id="target_audience" name="target_audience" 
                                 class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                 required>
-                            <option value="">Select Audience</option>
-                            <option value="all">All Customers</option>
-                            <option value="active_loans">Customers with Active Loans</option>
-                            <option value="completed_loans">Customers with Completed Loans</option>
+                            <option value=""><?php echo $this->lang->line('select_audience'); ?></option>
+                            <option value="all"><?php echo $this->lang->line('all_customers'); ?></option>
+                            <option value="active_loans"><?php echo $this->lang->line('customers_with_active_loans'); ?></option>
+                            <option value="completed_loans"><?php echo $this->lang->line('customers_with_completed_loans'); ?></option>
                         </select>
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="start_date" class="block text-sm font-medium mb-2 dark:text-gray-300">* Start Date:</label>
+                        <label for="start_date" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('start_date'); ?>:</label>
                         <input type="date" id="start_date" name="start_date" 
                                value="<?= date('Y-m-d'); ?>"
                                class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
@@ -207,7 +207,7 @@ include_once APPPATH . "views/partials/header.php";
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="end_date" class="block text-sm font-medium mb-2 dark:text-gray-300">* End Date:</label>
+                        <label for="end_date" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('end_date'); ?>:</label>
                         <input type="date" id="end_date" name="end_date" 
                                class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                required>
@@ -220,11 +220,11 @@ include_once APPPATH . "views/partials/header.php";
                     <button type="button" 
                             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700" 
                             data-hs-overlay="#hs-create-notification-modal">
-                        Close
+                        <?php echo $this->lang->line('close'); ?>
                     </button>
                     <button type="submit" 
                             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-cyan-600 text-white hover:bg-cyan-700">
-                        Create Notification
+                        <?php echo $this->lang->line('create_notification'); ?>
                     </button>
                 </div>
             </div>
@@ -241,9 +241,9 @@ include_once APPPATH . "views/partials/header.php";
             
             <!-- Modal Header -->
             <div class="flex justify-between items-center py-3 px-4 border-b dark:border-gray-700">
-                <h3 class="font-bold text-gray-800 dark:text-white">Edit Notification</h3>
+                <h3 class="font-bold text-gray-800 dark:text-white"><?php echo $this->lang->line('edit_notification'); ?></h3>
                 <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" data-hs-overlay="#hs-edit-notification-modal">
-                    <span class="sr-only">Close</span>
+                    <span class="sr-only"><?php echo $this->lang->line('close'); ?></span>
                     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
@@ -256,63 +256,63 @@ include_once APPPATH . "views/partials/header.php";
                 <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                     
                     <div class="sm:col-span-12">
-                        <label for="edit_title" class="block text-sm font-medium mb-2 dark:text-gray-300">* Title:</label>
+                        <label for="edit_title" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('title'); ?>:</label>
                         <input type="text" id="edit_title" name="title" 
                                class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                required>
                     </div>
 
                     <div class="sm:col-span-12">
-                        <label for="edit_message" class="block text-sm font-medium mb-2 dark:text-gray-300">* Message:</label>
+                        <label for="edit_message" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('message'); ?>:</label>
                         <textarea id="edit_message" name="message" rows="4" 
                                   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                   required></textarea>
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="edit_notification_type" class="block text-sm font-medium mb-2 dark:text-gray-300">* Notification Type:</label>
+                        <label for="edit_notification_type" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('notification_type'); ?>:</label>
                         <select id="edit_notification_type" name="notification_type" 
                                 class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                 required>
-                            <option value="info">Info (Blue)</option>
-                            <option value="warning">Warning (Yellow)</option>
-                            <option value="success">Success (Green)</option>
-                            <option value="promotion">Promotion (Purple)</option>
+                            <option value="info"><?php echo $this->lang->line('info_blue'); ?></option>
+                            <option value="warning"><?php echo $this->lang->line('warning_yellow'); ?></option>
+                            <option value="success"><?php echo $this->lang->line('success_green'); ?></option>
+                            <option value="promotion"><?php echo $this->lang->line('promotion_purple'); ?></option>
                         </select>
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="edit_target_audience" class="block text-sm font-medium mb-2 dark:text-gray-300">* Target Audience:</label>
+                        <label for="edit_target_audience" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('target_audience'); ?>:</label>
                         <select id="edit_target_audience" name="target_audience" 
                                 class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                 required>
-                            <option value="all">All Customers</option>
-                            <option value="active_loans">Customers with Active Loans</option>
-                            <option value="completed_loans">Customers with Completed Loans</option>
+                            <option value="all"><?php echo $this->lang->line('all_customers'); ?></option>
+                            <option value="active_loans"><?php echo $this->lang->line('customers_with_active_loans'); ?></option>
+                            <option value="completed_loans"><?php echo $this->lang->line('customers_with_completed_loans'); ?></option>
                         </select>
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="edit_start_date" class="block text-sm font-medium mb-2 dark:text-gray-300">* Start Date:</label>
+                        <label for="edit_start_date" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('start_date'); ?>:</label>
                         <input type="date" id="edit_start_date" name="start_date" 
                                class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                required>
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="edit_end_date" class="block text-sm font-medium mb-2 dark:text-gray-300">* End Date:</label>
+                        <label for="edit_end_date" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('end_date'); ?>:</label>
                         <input type="date" id="edit_end_date" name="end_date" 
                                class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                required>
                     </div>
 
                     <div class="sm:col-span-6">
-                        <label for="edit_is_active" class="block text-sm font-medium mb-2 dark:text-gray-300">* Status:</label>
+                        <label for="edit_is_active" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('status'); ?>:</label>
                         <select id="edit_is_active" name="is_active" 
                                 class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" 
                                 required>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
+                            <option value="1"><?php echo $this->lang->line('active'); ?></option>
+                            <option value="0"><?php echo $this->lang->line('inactive'); ?></option>
                         </select>
                     </div>
 
@@ -323,11 +323,11 @@ include_once APPPATH . "views/partials/header.php";
                     <button type="button" 
                             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700" 
                             data-hs-overlay="#hs-edit-notification-modal">
-                        Close
+                        <?php echo $this->lang->line('close'); ?>
                     </button>
                     <button type="submit" 
                             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-cyan-600 text-white hover:bg-cyan-700">
-                        Update Notification
+                        <?php echo $this->lang->line('update_notification'); ?>
                     </button>
                 </div>
             </div>
@@ -360,7 +360,7 @@ function editNotification(id) {
 }
 
 function toggleStatus(id) {
-    if (confirm('Are you sure you want to change the status of this notification?')) {
+    if (confirm('<?php echo $this->lang->line('confirm_toggle_notification_status'); ?>')) {
         fetch('<?= base_url("admin/toggle_notification_status/"); ?>' + id, {
             method: 'POST',
             headers: {
@@ -375,7 +375,7 @@ function toggleStatus(id) {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Failed to toggle notification status. Please try again.');
+            alert('<?php echo $this->lang->line('failed_toggle_notification_status'); ?>');
         });
     }
 }

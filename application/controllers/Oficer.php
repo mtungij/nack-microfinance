@@ -9825,6 +9825,15 @@ public function test_page(){
         //session destroy
       public function __construct(){
         parent::__construct();
+        $ui_lang = $this->session->userdata('ui_lang');
+        if (empty($ui_lang)) {
+            $ui_lang = 'english';
+            $this->session->set_userdata('ui_lang', $ui_lang);
+        }
+
+        $idiom = ($ui_lang === 'swahili') ? 'swahili' : 'english';
+        $this->lang->load('app', $idiom);
+
         if (!$this->session->userdata("empl_id"))
             return redirect("welcome/employee_login");
 }   

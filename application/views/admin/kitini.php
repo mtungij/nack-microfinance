@@ -42,14 +42,14 @@ include_once APPPATH . "views/partials/header.php";
   if (!empty($from) && !empty($to) && strtotime($from) !== false && strtotime($to) !== false): 
 ?>
   <div class="mb-4 p-4 bg-gray-100 rounded-md shadow-sm">
-    <strong>Showing payments from:</strong>
+    <strong><?php echo $this->lang->line('showing_payments_from'); ?></strong>
     <span class="text-green-600 font-semibold"><?php echo date("d M Y", strtotime($from)); ?></span>
     to
     <span class="text-green-600 font-semibold"><?php echo date("d M Y", strtotime($to)); ?></span>
   </div>
 <?php else: ?>
   <div class="mb-4 p-4 bg-gray-100 rounded-md shadow-sm text-gray-600">
-    <strong>No date range selected. Showing all payments.</strong>
+    <strong><?php echo $this->lang->line('no_date_range_selected_showing_all'); ?></strong>
   </div>
 <?php endif; ?>
 
@@ -61,15 +61,15 @@ include_once APPPATH . "views/partials/header.php";
   <div class="flex flex-wrap items-center gap-2 mb-4">
     <!-- Search Input -->
     <div class="relative w-full sm:w-auto">
-      <label for="shareholder-table-search" class="sr-only">Search</label>
+      <label for="shareholder-table-search" class="sr-only"><?php echo $this->lang->line('search'); ?></label>
       <input
         type="search"
         name="shareholder-table-search"
         id="shareholder-table-search"
         class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
-        placeholder="Search share holders..."
+        placeholder="<?php echo $this->lang->line('search'); ?>..."
         data-hs-datatable-search="#shareholder_table"
-        aria-label="Search share holders"
+        aria-label="<?php echo $this->lang->line('search'); ?>"
       />
       <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3">
         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -93,7 +93,7 @@ include_once APPPATH . "views/partials/header.php";
   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-3.586L3.293 6.707A1 1 0 013 6V4z"></path>
   </svg>
-  Filter Data
+  <?php echo $this->lang->line('filter_data'); ?>
 </button>
 
 
@@ -108,7 +108,7 @@ include_once APPPATH . "views/partials/header.php";
       <path d="M14 2H6a2 2 0 00-2 2v16c0 1.104.896 2 2 2h12a2 2 0 002-2V8l-6-6zM13 3.5L18.5 9H13V3.5zM10 14h1v4h-1v-4zm-2.5 0H9v1.5H8v.5h1v1H7.5V14zm7 0H15a1 1 0 110 2h-.5v2H13v-4z" />
     </svg>
   </span>
-  Print PDF
+  <?php echo $this->lang->line('print_pdf'); ?>
 </a>
 
     </div>
@@ -120,12 +120,12 @@ include_once APPPATH . "views/partials/header.php";
   <table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
     <thead class="text-xs text-cyan-500 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-50">
         <tr>
-            <th scope="col" class="px-4 py-3">Employee Name</th>
-            <th scope="col" class="px-4 py-3">Payment Method</th>
-            <th scope="col" class="px-4 py-3">Representative</th>
-            <th scope="col" class="px-4 py-3">Customer Name</th>
-            <th scope="col" class="px-4 py-3">Deposit</th>
-            <th scope="col" class="px-4 py-3">Wakala</th>
+            <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('employee_name'); ?></th>
+            <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('payment_method'); ?></th>
+            <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('representative'); ?></th>
+            <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('customer_name'); ?></th>
+            <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('deposit'); ?></th>
+            <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('agent'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -190,7 +190,7 @@ include_once APPPATH . "views/partials/header.php";
 
             <!-- Employee Total Row -->
             <tr class="bg-gray-200 dark:bg-gray-700 font-semibold">
-                <td colspan="4" class="text-right px-4 py-2">Total for <?= htmlspecialchars($employee['empl_name']); ?></td>
+                <td colspan="4" class="text-right px-4 py-2"><?php echo $this->lang->line('total_for'); ?> <?= htmlspecialchars($employee['empl_name']); ?></td>
                 <td><?= number_format($employeeTotalDeposit, 2); ?></td>
                 <td></td>
             </tr>
@@ -199,13 +199,13 @@ include_once APPPATH . "views/partials/header.php";
 
         <!-- General Total Row -->
         <tr class="bg-cyan-500 text-white font-bold">
-            <td colspan="4" class="text-right px-4 py-2">General Total</td>
+            <td colspan="4" class="text-right px-4 py-2"><?php echo $this->lang->line('general_total'); ?></td>
             <td><?= number_format($generalTotalDeposit, 2); ?></td>
             <td></td>
         </tr>
 
     <?php else: ?>
-        <tr><td colspan="6">No payments found.</td></tr>
+        <tr><td colspan="6"><?php echo $this->lang->line('no_payments_found'); ?></td></tr>
     <?php endif; ?>
 </tbody>
 
@@ -273,10 +273,10 @@ include_once APPPATH . "views/partials/header.php";
       <!-- Modal Header -->
       <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
         <h3 id="hs-basic-modal-label" class="font-bold text-gray-800 dark:text-white">
-          Filter Data
+          <?php echo $this->lang->line('filter_data'); ?>
         </h3>
         <button type="button" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600" aria-label="Close" data-hs-overlay="#hs-basic-modal">
-          <span class="sr-only">Close</span>
+          <span class="sr-only"><?php echo $this->lang->line('close'); ?></span>
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18"></path>
             <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12"></path>
@@ -302,7 +302,7 @@ include_once APPPATH . "views/partials/header.php";
 
           <div class="sm:col-span-6">
             <label for="with_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
-              *DATE FROM:
+              *<?php echo strtoupper($this->lang->line('from_date')); ?>:
             </label>
             <input type="date" id="with_date" name="from" 
             value="<?php echo $date; ?>" 
@@ -312,7 +312,7 @@ include_once APPPATH . "views/partials/header.php";
 
           <div class="sm:col-span-6">
             <label for="with_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
-              * DATE TO:
+              * <?php echo strtoupper($this->lang->line('to_date')); ?>:
             </label>
             <input type="date" id="with_date" name="to"
             value="<?php echo $date; ?>" 
@@ -329,12 +329,12 @@ include_once APPPATH . "views/partials/header.php";
       <!-- Modal Footer -->
       <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
         <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700" data-hs-overlay="#hs-basic-modal">
-          Close
+          <?php echo $this->lang->line('close'); ?>
         </button>
 
         <!-- Submit Button -->
         <button type="submit" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-          Save changes
+          <?php echo $this->lang->line('apply_filters'); ?>
         </button>
       </div>
       <?php echo form_close(); ?>

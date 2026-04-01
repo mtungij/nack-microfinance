@@ -32,7 +32,7 @@ include_once APPPATH . "views/partials/header.php";
                               
                             </div>
                             <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" 
-							placeholder="tafuta staff hapa"
+								placeholder="<?php echo $this->lang->line('search_staff'); ?>"
         data-hs-datatable-search="#shareholder_table"
         aria-label="Search share holders"
 							>
@@ -49,15 +49,15 @@ include_once APPPATH . "views/partials/header.php";
                 <table id="shareholder_table"  class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
                         <tr>
-                 <th scope="col" class="px-4 py-3 dark:text-white">S/No</th>
-							<th scope="col" class="px-4 py-3 dark:text-white">Staff Name</th>
-               <th scope="col" class="px-4 py-3 dark:text-white">Branch Name</th>
-               <th scope="col" class="px-4 py-3 dark:text-white">Email</th>
-					 <th scope="col" class="px-4 py-3 dark:text-white">Phone Number</th>
-            <th scope="col" class="px-4 py-3 dark:text-white">Position</th>
-             <th scope="col" class="px-4 py-3 dark:text-white">Accounts Status</th>
-							<th scope="col" class="px-4 py-3 dark:text-white">created at</th>
-							<th scope="col" class="px-4 py-3 dark:text-white">Action</th> 
+                 <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('sno'); ?></th>
+								<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('staff_name'); ?></th>
+               <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
+               <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('email'); ?></th>
+						 <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
+            <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('position'); ?></th>
+             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('account_status'); ?></th>
+							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('created_at'); ?></th>
+							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th>
                         </tr>
                     </thead>
 					<tbody>
@@ -89,7 +89,7 @@ include_once APPPATH . "views/partials/header.php";
                           <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
                           <path d="m9 12 2 2 4-4"></path>
                         </svg>
-                        Active
+                        <?php echo $this->lang->line('active'); ?>
                       </span>
                     </div>
 
@@ -104,7 +104,7 @@ include_once APPPATH . "views/partials/header.php";
                           <path d="M12 9v4"></path>
                           <path d="M12 17h.01"></path>
                         </svg>
-                        Blocked
+                        <?php echo $this->lang->line('blocked'); ?>
                       </span>
                     </div>
 
@@ -129,7 +129,7 @@ $actionUrl   = $isOpen
     ? base_url("admin/block_employee/{$employees->empl_id}") 
     : base_url("admin/Unblock_employee/{$employees->empl_id}");
 
-$actionLabel = $isOpen ? 'Block User' : 'Un‑block User';
+$actionLabel = $isOpen ? $this->lang->line('block_user') : $this->lang->line('unblock_user');
 $confirmText = $isOpen
     ? "Block "   . addslashes($employees->empl_name)   . "?"
     : "Un‑block " . addslashes($employees->empl_name) . "?";
@@ -143,9 +143,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
     <!-- dropdown trigger -->
     <button id="hs-table-action-sh-<?= $employees->account_no; ?>" type="button"
       class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
-      Action
-      <svg class="hs-dropdown-open:rotate-180 size-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none"
-           xmlns="http://www.w3.org/2000/svg">
+      <?php echo $this->lang->line('action'); ?>
         <path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5"
               stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
@@ -159,7 +157,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
       <!-- view option -->
       <div class="py-2 first:pt-0 last:pb-0">
         <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">
-          Choose an option
+          <?php echo $this->lang->line('choose_an_option'); ?>
         </span>
         <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
            href="#"
@@ -169,7 +167,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
           </svg>
-          View
+          <?php echo $this->lang->line('view'); ?>
         </a>
       </div>
 
@@ -218,7 +216,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
         <path d="M16 11v-2a3 3 0 0 1 6 0v2"/>
         <circle cx="18" cy="15" r="1"/>
       </svg>
-      User Preveldeges
+      <?php echo $this->lang->line('user_privileges'); ?>
     </a>
   </div>
 <?php else: ?>
@@ -234,7 +232,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
         <path d="M16 11v-2a3 3 0 0 1 6 0v2"/>
         <circle cx="18" cy="15" r="1"/>
       </svg>
-      User Access
+      <?php echo $this->lang->line('user_access'); ?>
     </a>
   </div>
 <?php endif; ?>
@@ -252,7 +250,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
             <path d="M16 11v-2a3 3 0 0 1 6 0v2"/>
             <circle cx="18" cy="15" r="1"/>f
           </svg>
-          Delete
+          <?php echo $this->lang->line('delete'); ?>
         </a>
       </div>
 
@@ -295,13 +293,13 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
                 <div
                   class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-gray-800 dark:border-gray-700">
                   <div class="flex justify-between items-center py-3 px-4 border-b dark:border-gray-700">
-                    <h3 class="font-bold text-gray-800 dark:text-white">Edit Staff:
+                    <h3 class="font-bold text-gray-800 dark:text-white"><?php echo $this->lang->line('edit_staff'); ?>:
                       <?php echo htmlspecialchars($employees->empl_name, ENT_QUOTES, 'UTF-8'); ?>
                     </h3>
                     <button type="button"
                       class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                       data-hs-overlay="#hs-edit-shareholder-modal-<?php echo $employees->empl_id; ?>"><span
-                        class="sr-only">Close</span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg"
+                        class="sr-only"><?php echo $this->lang->line('close'); ?></span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg"
                         width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18" />
@@ -334,7 +332,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
                     <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                       <div class="sm:col-span-4">
                         <label for="empl_name_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">* Staff name:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('staff_name'); ?>:</label>
                         <input
                           class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600 type="
                           text" id="empl_name_<?php echo $employees->empl_id; ?>" name="empl_name"
@@ -347,9 +345,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="share_mobile_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">* Mobile no:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('mobile_no'); ?>:</label>
                         <input type="number" id="share_mobile_<?php echo $employees->empl_id; ?>" name="empl_no"
-                          placeholder="Mobile no" autocomplete="off" required
+                          placeholder="<?php echo $this->lang->line('mobile_no'); ?>" autocomplete="off" required
                           class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                           value="<?php echo htmlspecialchars($employees->empl_no, ENT_QUOTES, 'UTF-8'); ?>">
 
@@ -357,9 +355,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="empl_email_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">* Email:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('email'); ?>:</label>
                         <input type="email" id="empl_email_<?php echo $employees->empl_id; ?>" name="empl_email"
-                          placeholder="Email" autocomplete="off" required
+                          placeholder="<?php echo $this->lang->line('email'); ?>" autocomplete="off" required
                           class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                           value="<?php echo htmlspecialchars($employees->empl_email, ENT_QUOTES, 'UTF-8'); ?>">
 
@@ -370,10 +368,10 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="blanch_id_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">*Branch Name:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('branch_name'); ?>:</label>
                         <select id="blanch_id_<?php echo $employees->empl_id; ?>" name="blanch_id" data-hs-select='{
                   "hasSearch": true,
-                                        "placeholder": "Select branch",
+                                        "placeholder": "<?php echo $this->lang->line('select_branch'); ?>",
                                         "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"me-2\" data-icon></span><span class=\"text-gray-800 dark:text-gray-200\" data-title></span></button>",
                                         "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-2.5 px-4 pe-9 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600",
                                         "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-50 w-full bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto dark:bg-gray-800 dark:border-gray-700",
@@ -385,7 +383,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
 
 
-                          <option value="">Select Branch</option>
+                          <option value=""><?php echo $this->lang->line('select_branch'); ?></option>
                           <?php foreach ($blanch as $blanchs): ?>
                             <option value="<?= $blanchs->blanch_id; ?>" <?= ($blanchs->blanch_id == $employees->blanch_id) ? 'selected' : ''; ?>>
                               <?= htmlspecialchars($blanchs->blanch_name, ENT_QUOTES, 'UTF-8'); ?>
@@ -398,10 +396,10 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="position_id_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">*Position:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('position'); ?>:</label>
                         <select id="position_id_<?php echo $employees->empl_id; ?>" name="position_id" data-hs-select='{
                   "hasSearch": true,
-                                        "placeholder": "Select Position",
+                                        "placeholder": "<?php echo $this->lang->line('select_position'); ?>",
                                         "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"me-2\" data-icon></span><span class=\"text-gray-800 dark:text-gray-200\" data-title></span></button>",
                                         "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-2.5 px-4 pe-9 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600",
                                         "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-50 w-full bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto dark:bg-gray-800 dark:border-gray-700",
@@ -410,7 +408,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
                                         "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-gray-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
                                       }'>
 
-                          <option value="">Select Position</option>
+                          <option value=""><?php echo $this->lang->line('select_position'); ?></option>
                           <?php foreach ($position as $positions): ?>
                             <option value="<?= $positions->position_id; ?>"
                               <?= ($positions->position_id == $employees->position_id) ? 'selected' : ''; ?>>
@@ -423,9 +421,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="username_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">*System Username:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('system_username'); ?>:</label>
                         <input type="text" id="username_<?php echo $employees->empl_id; ?>" name="username"
-                          placeholder="System Username" autocomplete="off"
+                          placeholder="<?php echo $this->lang->line('system_username'); ?>" autocomplete="off"
                           class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                           value="<?php echo htmlspecialchars($employees->username, ENT_QUOTES, 'UTF-8'); ?>">
 
@@ -437,7 +435,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="account_no_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">*Bank Account:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('bank_account'); ?>:</label>
                         <select id="account_no_<?php echo $employees->empl_id; ?>" name="bank_account" data-hs-select='{
                   "hasSearch": true,
                                         "placeholder": "Select gender",
@@ -465,9 +463,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="salary_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">*Salary:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('salary'); ?>:</label>
                         <input type="number" id="salary_<?php echo $employees->empl_id; ?>" name="salary"
-                          placeholder="System salary" autocomplete="off"
+                          placeholder="<?php echo $this->lang->line('salary'); ?>" autocomplete="off"
                           class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                           value="<?php echo htmlspecialchars($employees->salary, ENT_QUOTES, 'UTF-8'); ?>">
 
@@ -476,9 +474,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="account_no_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">*Bank Account No:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('bank_account_number'); ?>:</label>
                         <input type="number" id="account_no_<?php echo $employees->empl_id; ?>" name="account_no"
-                          placeholder="System account_no" autocomplete="off"
+                          placeholder="<?php echo $this->lang->line('bank_account_number'); ?>" autocomplete="off"
                           class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                           value="<?php echo htmlspecialchars($employees->account_no, ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo form_error("account_no", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
@@ -493,9 +491,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                     <div class="mt-6 flex justify-end items-center gap-x-2 py-3">
                       <button type="button" class="py-2 px-3 btn-secondary-sm"
-                        data-hs-overlay="#hs-edit-shareholder-modal-<?php echo $employees->empl_id; ?>">Close</button>
+                        data-hs-overlay="#hs-edit-shareholder-modal-<?php echo $employees->empl_id; ?>"><?php echo $this->lang->line('close'); ?></button>
                       <button type="submit"
-                        class="py-2 px-3 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white">Update</button>
+                        class="py-2 px-3 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('update'); ?></button>
                     </div>
                     <?php echo form_close(); ?>
                   </div>
@@ -513,10 +511,10 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
     <div class="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
       <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
         <h3 id="hs-basic-modal-label" class="font-bold text-gray-800 dark:text-white">
-          Filter Data
+          <?php echo $this->lang->line('filter_data'); ?>
         </h3>
         <button type="button" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600" aria-label="Close" data-hs-overlay="#hs-basic-modal">
-          <span class="sr-only">Close</span>
+          <span class="sr-only"><?php echo $this->lang->line('close'); ?></span>
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 6 6 18"></path>
             <path d="m6 6 12 12"></path>
@@ -561,10 +559,10 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
   <!-- Modal Footer Buttons -->
   <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
     <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700" data-hs-overlay="#hs-basic-modal">
-      Close
+      <?php echo $this->lang->line('close'); ?>
     </button>
     <button type="submit" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-      Apply Filters
+      <?php echo $this->lang->line('apply_filters'); ?>
     </button>
   </div>
   <?php echo form_close(); ?>

@@ -20,10 +20,10 @@ include_once APPPATH . "views/partials/header.php";
         <!-- Page Title / Subheader -->
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-               Add Collateral
+               <?php echo $this->lang->line('add_collateral'); ?>
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Register Loan Collateral Here
+              <?php echo $this->lang->line('add_collateral_desc'); ?>
             </p>
         </div>
         <!-- End Page Title / Subheader -->
@@ -33,8 +33,8 @@ include_once APPPATH . "views/partials/header.php";
         <div class="bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500" role="alert">
             <div class="flex">
                 <div class="flex-shrink-0"><span class="inline-flex justify-center items-center size-8 rounded-full border-4 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-500"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg></span></div>
-                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white">Success</h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
-                <div class="ps-3 ms-auto"><div class="-mx-1.5 -my-1.5"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only">Dismiss</span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
+                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('success'); ?></h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
+                <div class="ps-3 ms-auto"><div class="-mx-1.5 -my-1.5"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only"><?php echo $this->lang->line('dismiss'); ?></span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
             </div>
         </div>
         <?php endif; ?>
@@ -43,22 +43,22 @@ include_once APPPATH . "views/partials/header.php";
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-                       Register Loan Collateral 
+                       <?php echo $this->lang->line('register_loan_collateral'); ?>
                 </h3>
                 <?php echo form_open("admin/create_colateral/{$loan_attach->loan_id}", ['novalidate' => true]); ?>
                     <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                         <div class="sm:col-span-4">
-                            <label for="description" class="block text-sm font-medium mb-2 dark:text-gray-300">*  Collateral Name:</label>
-                            <input type="text" id="description" name="description" placeholder="Jaza Jina la dhamana" autocomplete="off" required
+                            <label for="description" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('collateral_name'); ?>:</label>
+                            <input type="text" id="description" name="description" placeholder="<?php echo $this->lang->line('collateral_name_placeholder'); ?>" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('description'); ?>">
                             <?php echo form_error("description", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
                         <div class="sm:col-span-4">
-    <label for="co_condition" class="block text-sm font-medium mb-2 dark:text-gray-300">*  Collateral Condition:</label>
+    <label for="co_condition" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('collateral_condition'); ?>:</label>
     <select id="co_condition" name="co_condition" required
         data-hs-select='{
-            "placeholder": "Chagua hali ya dhamana",
+            "placeholder": "<?php echo $this->lang->line('collateral_condition_placeholder'); ?>",
             "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"me-2\" data-icon></span><span class=\"text-gray-800 dark:text-gray-200\" data-title></span></button>",
             "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-2.5 px-4 pe-9 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600",
             "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-50 w-full bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto dark:bg-gray-800 dark:border-gray-700",
@@ -66,20 +66,20 @@ include_once APPPATH . "views/partials/header.php";
             "optionTemplate": "<div><div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div class=\"text-gray-800 dark:text-gray-200\" data-title></div></div></div>",
             "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-gray-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
         }'>
-        <option value="">Chagua hali ya dhamana</option>
-        <option value="mpya" <?php echo set_select('co_condition', 'mpya'); ?>>Mpya</option>
-        <option value="nzuri" <?php echo set_select('co_condition', 'nzuri'); ?>>Inafanya kazi vizuri</option>
-        <option value="imetumika" <?php echo set_select('co_condition', 'imetumika'); ?>>Imetumika lakini bado nzuri</option>
-        <option value="hitilafu_ndogo" <?php echo set_select('co_condition', 'hitilafu_ndogo'); ?>>Imeharibika kidogo</option>
-        <option value="hitilafu_kubwa" <?php echo set_select('co_condition', 'hitilafu_kubwa'); ?>>Imeharibika sana</option>
-        <option value="haifanyi_kazi" <?php echo set_select('co_condition', 'haifanyi_kazi'); ?>>Haifanyi kazi</option>
+        <option value=""><?php echo $this->lang->line('collateral_condition_placeholder'); ?></option>
+        <option value="mpya" <?php echo set_select('co_condition', 'mpya'); ?>><?php echo $this->lang->line('condition_new'); ?></option>
+        <option value="nzuri" <?php echo set_select('co_condition', 'nzuri'); ?>><?php echo $this->lang->line('condition_good'); ?></option>
+        <option value="imetumika" <?php echo set_select('co_condition', 'imetumika'); ?>><?php echo $this->lang->line('condition_used_good'); ?></option>
+        <option value="hitilafu_ndogo" <?php echo set_select('co_condition', 'hitilafu_ndogo'); ?>><?php echo $this->lang->line('condition_minor_damage'); ?></option>
+        <option value="hitilafu_kubwa" <?php echo set_select('co_condition', 'hitilafu_kubwa'); ?>><?php echo $this->lang->line('condition_major_damage'); ?></option>
+        <option value="haifanyi_kazi" <?php echo set_select('co_condition', 'haifanyi_kazi'); ?>><?php echo $this->lang->line('condition_not_working'); ?></option>
     </select>
     <?php echo form_error("co_condition", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
 </div>
 <input type="hidden" name="loan_id"  id="loan_id" value="<?php echo $loan_attach->loan_id; ?>">
 
                         <div class="sm:col-span-4">
-                            <label for="value" class="block text-sm font-medium mb-2 dark:text-gray-300">* Collateral Value:</label>
+                            <label for="value" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('collateral_value'); ?>:</label>
                             <input type="number" id="value" name="value" placeholder="" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('value'); ?>">
                             <?php echo form_error("value", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
@@ -89,8 +89,8 @@ include_once APPPATH . "views/partials/header.php";
 
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white">Save</button>
-                            <a href="<?php echo base_url("admin/loan_pending"); ?>" class="py-2 px-4 btn-secondary-sm dark:bg-red-600">Skip</a>
+                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('save'); ?></button>
+                            <a href="<?php echo base_url("admin/loan_pending"); ?>" class="py-2 px-4 btn-secondary-sm dark:bg-red-600"><?php echo $this->lang->line('skip'); ?></a>
                         </div>
                         </div>
                     </div>
@@ -103,18 +103,18 @@ include_once APPPATH . "views/partials/header.php";
         <!-- Card: Share Holder List Table -->
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Dhamana Zilizosajiliwa</h2>
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('registered_collaterals'); ?></h2>
             </div>
 
             <div class="p-4" data-hs-datatable='{
                 "pageLength": 10, "paging": true,
                 "pagingOptions": { "pageBtnClasses": "min-w-10 h-10 inline-flex justify-center items-center text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:focus:bg-gray-700 dark:hover:bg-gray-700" },
-                "language": { "zeroRecords": "<div class=\"py-10 px-5 flex flex-col justify-center items-center text-center\"><svg class=\"shrink-0 size-6 text-gray-500 dark:text-gray-400\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><div class=\"max-w-sm mx-auto\"><p class=\"mt-2 text-sm text-gray-600 dark:text-gray-400\">No share holders found.</p></div></div>" }
+                "language": { "zeroRecords": "<div class=\"py-10 px-5 flex flex-col justify-center items-center text-center\"><svg class=\"shrink-0 size-6 text-gray-500 dark:text-gray-400\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><div class=\"max-w-sm mx-auto\"><p class=\"mt-2 text-sm text-gray-600 dark:text-gray-400\"><?php echo $this->lang->line('no_collateral_found'); ?></p></div></div>" }
             }'>
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                     <div class="relative max-w-xs w-full">
                         <label for="shareholder-table-search" class="sr-only">Search</label>
-                        <input type="text" name="shareholder-table-search" id="shareholder-table-search" class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" placeholder="Search share holders..." data-hs-datatable-search="#shareholder_table">
+                        <input type="text" name="shareholder-table-search" id="shareholder-table-search" class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" placeholder="<?php echo $this->lang->line('search_collateral'); ?>" data-hs-datatable-search="#shareholder_table">
                         <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3"><svg class="size-4 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
                     </div>
                 </div>
@@ -125,11 +125,11 @@ include_once APPPATH . "views/partials/header.php";
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="shareholder_table">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">S/No.</span></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Collateral Name</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Collateral Condition</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Collateral Value</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                        <th scope="col" class="py-3 px-6 text-end --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Action</span></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('sno'); ?></span></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('collateral_name'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('collateral_condition'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('collateral_value'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-end --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('action'); ?></span></div></th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -146,14 +146,14 @@ include_once APPPATH . "views/partials/header.php";
                                                     <button id="hs-table-action-sh-<?php echo  $collaterals->col_id; ?>" type="button" class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">Action<svg class="hs-dropdown-open:rotate-180 size-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                                                     <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden divide-y divide-gray-200 min-w-40 z-20 bg-white shadow-2xl rounded-lg p-2 mt-2 dark:divide-gray-700 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-table-action-sh-<?php echo  $collaterals->col_id; ?>">
                                                         <div class="py-2 first:pt-0 last:pb-0">
-                                                            <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">Choose an option</span>
-                                                            <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="#" data-hs-overlay="#hs-edit-shareholder-modal-<?php echo  $collaterals->col_id; ?>"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>Edit</a>
+                                                            <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500"><?php echo $this->lang->line('choose_an_option'); ?></span>
+                                                            <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="#" data-hs-overlay="#hs-edit-shareholder-modal-<?php echo  $collaterals->col_id; ?>"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg><?php echo $this->lang->line('edit'); ?></a>
                                                         </div>
                                                         <div class="py-2 first:pt-0 last:pb-0">
     <a
         class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:ring-2 focus:ring-red-500 dark:text-red-500 dark:hover:bg-gray-700"
         href="<?php echo base_url("admin/delete_colateral/{$collaterals->loan_id}/{$collaterals->col_id}") ?>"
-        onclick="return confirm('Are you sure you want to delete this collateral?')"
+        onclick="return confirm('<?php echo $this->lang->line('confirm_delete_collateral'); ?>')"
     >
         <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -163,7 +163,7 @@ include_once APPPATH . "views/partials/header.php";
             <line x1="10" x2="10" y1="11" y2="17"/>
             <line x1="14" x2="14" y1="11" y2="17"/>
         </svg>
-        Delete
+        <?php echo $this->lang->line('delete'); ?>
     </a>
 </div>
 

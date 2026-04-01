@@ -162,7 +162,7 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
         <div class="bg-white shadow rounded p-4 flex items-center">
             <img src="https://www.wrraptheme.com/templates/lucid/html/assets/images/coin/XRP.svg" class="w-8 h-8 mr-3" />
             <div>
-                <div class="text-xs text-gray-500 font-semibold">Total Customer</div>
+                <div class="text-xs text-gray-500 font-semibold"><?php echo $this->lang->line('total_customers'); ?></div>
                 <div class="text-xl font-bold text-gray-800">
                    <?= $total_customers ?>
                 </div>
@@ -172,7 +172,7 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
         <div class="bg-white shadow rounded p-4 flex items-center">
             <img src="https://www.wrraptheme.com/templates/lucid/html/assets/images/coin/ETH.svg" class="w-8 h-8 mr-3" />
             <div>
-                <div class="text-xs text-gray-500 font-semibold">Total Active Customers</div>
+                <div class="text-xs text-gray-500 font-semibold"><?php echo $this->lang->line('total_active_customers'); ?></div>
                 <div class="text-xl font-bold text-gray-800">
                    <?= $active_customer ?>
                 </div>
@@ -182,7 +182,7 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
         <div class="bg-white shadow rounded p-4 flex items-center">
             <img src="https://www.wrraptheme.com/templates/lucid/html/assets/images/coin/XRP.svg" class="w-8 h-8 mr-3" />
             <div>
-                <div class="text-xs text-gray-500 font-semibold">Total Default Customers</div>
+                <div class="text-xs text-gray-500 font-semibold"><?php echo $this->lang->line('total_default_customers'); ?></div>
                 <div class="text-xl font-bold text-gray-800">
                    <?= $default_customer ?>
                 </div>
@@ -192,7 +192,7 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
         <div class="bg-white shadow rounded p-4 flex items-center">
             <img src="https://www.wrraptheme.com/templates/lucid/html/assets/images/coin/neo.svg" class="w-8 h-8 mr-3" />
             <div>
-                <div class="text-xs text-gray-500 font-semibold">Customers completed today</div>
+                <div class="text-xs text-gray-500 font-semibold"><?php echo $this->lang->line('customers_completed_today'); ?></div>
                 <div class="text-xl font-bold text-gray-800">
                    <?= $done_customer ?>
                 </div>
@@ -208,14 +208,14 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
 
 
     </h4>
-    <span class="text-white text-sm">Today Receivable</span>
+    <span class="text-white text-sm"><?php echo $this->lang->line('today_receivable'); ?></span>
   </a>
 
       <a href="<?= base_url('Oficer/cash_transaction')?>" class="bg-gradient-to-r from-blue-400 to-blue-600 dark:from-blue-700 dark:to-indigo-800 text-white rounded-xl shadow p-6">
     <h4 class="text-2xl font-bold flex items-center gap-2">
         <i class="icon-wallet"></i> 	<?php echo number_format($total_lipwa); ?>
     </h4>
-    <span class="text-white text-sm">Today Deposited</span>
+    <span class="text-white text-sm"><?php echo $this->lang->line('today_deposited'); ?></span>
   </a>
 
 
@@ -223,7 +223,7 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
     <h4 class="text-2xl font-bold flex items-center gap-2">
         <i class="icon-wallet"></i> <?php echo number_format($total_default->total_default); ?>
     </h4>
-    <span class="text-white text-sm">Total Default payments</span>
+    <span class="text-white text-sm"><?php echo $this->lang->line('total_default_payments'); ?></span>
 </div>
     </div>
 
@@ -234,14 +234,14 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
     <h4 class="text-2xl font-bold flex items-center gap-2">
         <i class="icon-wallet"></i> <?php echo number_format($non_deducted->total_nonDeducted_fee); ?>
     </h4>
-    <span class="text-white text-sm">Faini Leo</span>
+    <span class="text-white text-sm"><?php echo $this->lang->line('fine_today'); ?></span>
 </div>
 
 <div class="bg-gradient-to-r from-orange-400 to-orange-600 dark:from-teal-700 dark:to-green-800 text-white rounded-xl shadow p-6">
     <h4 class="text-2xl font-bold flex items-center gap-2">
         <i class="icon-wallet"></i> <?php echo number_format($total_deducted->total_deducted_fee); ?>
     </h4>
-    <span class="text-white text-sm">Fomu Leo</span>
+    <span class="text-white text-sm"><?php echo $this->lang->line('forms_today'); ?></span>
 </div>
 
 
@@ -493,7 +493,7 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
         <div class="bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                    Quick Overview
+                    <?php echo $this->lang->line('quick_overview'); ?>
                 </h3>
                 <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
                     <button id="branches-dropdown-btn" type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
@@ -504,7 +504,7 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
                     </button>
                     <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-40 z-20 bg-white shadow-md rounded-lg p-2 mt-2 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="branches-dropdown-btn">
                         <div class="py-2 first:pt-0 last:pb-0">
-                            <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">Branches List</span>
+                            <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500"><?php echo $this->lang->line('branches_list'); ?></span>
                             <?php if (isset($blanch) && is_array($blanch)): ?>
                                 <?php foreach ($blanch as $blanchs): ?>
                                 <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
@@ -556,11 +556,11 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     <a href="<?php echo base_url("oficer/loan_pending"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                              <!-- <img src="<//?php echo base_url('assets/img/hukumu.png'); ?>" class="size-10" alt="Loan Requests"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Loan Requests</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('loan_requests'); ?></h2>
                         </div>
                         
                         <p class="text-2xl font-bold text-red-600 dark:text-red-400"><?php echo  $new_loans ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">New loan applications</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('new_loan_applications'); ?></p>
                     </a>
 
                     <!-- Stat Card: Approved Loans -->
@@ -570,31 +570,31 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
 							$ap = $this->db->query("SELECT * FROM tbl_loans WHERE comp_id = '$comp_id' AND loan_status = 'aproved'");
 							 ?>
                          
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Approved Loans</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('approved_loans'); ?></h2>
                         </div>
                         <p class="text-2xl font-bold text-green-600 dark:text-green-400"> <?= count($approved_customer) ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Loans awaiting disbursement</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('loans_awaiting_disbursement'); ?></p>
                     </a> -->
 
 					<a href="<?php echo base_url("oficer/disburse_loan"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                        
                             <!-- <img src="</?php echo base_url('assets/img/aproved.png'); ?>" class="size-10" alt="Approved Loans"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Approved Loans</h2>
+              <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('approved_loans'); ?></h2>
                         </div>
                         <p class="text-2xl font-bold text-green-600 dark:text-green-400"> <?= $disbursed_customer ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Loans awaiting disbursement</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('loans_awaiting_disbursement'); ?></p>
                     </a>
 
                     <!-- Stat Card: Today Loan Pending -->
                      <a href="<?php echo base_url("oficer/loan_pending_time"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/penart.png'); ?>" class="size-10" alt="Today Pending"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Today Loan Pending</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('today_loan_pending'); ?></h2>
                         </div>
                       
                         <p class="text-2xl font-bold text-gray-800 dark:text-gray-200"></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Loan payments due yesterday</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('loan_payments_due_yesterday'); ?></p>
                     </a>
 
                     <!-- Stat Card: Today Receivable -->

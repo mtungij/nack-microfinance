@@ -33,6 +33,21 @@
       </div>
 
       <div class="flex flex-row items-center justify-end gap-2">
+        <?php
+          $ui_lang = $this->session->userdata('ui_lang') ?: 'english';
+          $next_lang = ($ui_lang === 'swahili') ? 'english' : 'swahili';
+          $lang_button_label = ($ui_lang === 'swahili') ? 'EN' : 'SW';
+        ?>
+        <a id="officer-lang-toggle"
+           href="<?php echo base_url('admin/switch_language?lang=' . $next_lang); ?>"
+           class="inline-flex min-w-[56px] items-center justify-center gap-x-1 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs font-bold text-cyan-700 shadow-sm hover:bg-cyan-100 dark:border-cyan-700 dark:bg-cyan-800/30 dark:text-cyan-200 dark:hover:bg-cyan-700/40"
+           title="<?php echo $this->lang->line('switch_language'); ?>">
+          <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm6.93 9h-3.12a15.73 15.73 0 0 0-1.02-5.06A8.03 8.03 0 0 1 18.93 11ZM12 4.07A13.86 13.86 0 0 1 13.8 11h-3.6A13.86 13.86 0 0 1 12 4.07ZM4.25 13h3.12a15.73 15.73 0 0 0 1.02 5.06A8.03 8.03 0 0 1 4.25 13Zm3.12-2H4.25a8.03 8.03 0 0 1 4.14-5.06A15.73 15.73 0 0 0 7.37 11Zm4.63 8.93A13.86 13.86 0 0 1 10.2 13h3.6A13.86 13.86 0 0 1 12 19.93ZM14.2 11h-4.4A13.86 13.86 0 0 1 12 4.07 13.86 13.86 0 0 1 14.2 11Zm.41 7.06A15.73 15.73 0 0 0 15.63 13h3.12a8.03 8.03 0 0 1-4.14 5.06Z"/>
+          </svg>
+          <?php echo $lang_button_label; ?>
+        </a>
+
         <?php // Optional: Notification Bell
         /*
         <button type="button" class="p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-300 dark:hover:bg-gray-700">

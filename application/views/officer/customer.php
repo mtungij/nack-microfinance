@@ -21,10 +21,10 @@ include_once APPPATH . "views/partials/officerheader.php";
         <!-- Page Title / Subheader -->
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-               Register New Customer
+               <?php echo $this->lang->line('register_new_customer'); ?>
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Register only New Customer.
+                <?php echo $this->lang->line('register_new_customer_desc'); ?>
             </p>
         </div>
         <!-- End Page Title / Subheader -->
@@ -40,13 +40,13 @@ include_once APPPATH . "views/partials/officerheader.php";
                 </span>
             </div>
             <div class="ms-3">
-                <h3 class="text-gray-800 font-semibold dark:text-white">Success</h3>
+                <h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('success'); ?></h3>
                 <p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $success; ?></p>
             </div>
             <div class="ps-3 ms-auto">
                 <div class="-mx-1.5 -my-1.5">
                     <button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none" data-hs-remove-element="[role=alert]">
-                        <span class="sr-only">Dismiss</span>
+                        <span class="sr-only"><?php echo $this->lang->line('dismiss'); ?></span>
                         <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     </button>
                 </div>
@@ -65,13 +65,13 @@ include_once APPPATH . "views/partials/officerheader.php";
                 </span>
             </div>
             <div class="ms-3">
-                <h3 class="text-gray-800 font-semibold dark:text-white">Error</h3>
+                <h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('error'); ?></h3>
                 <p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $error; ?></p>
             </div>
             <div class="ps-3 ms-auto">
                 <div class="-mx-1.5 -my-1.5">
                     <button type="button" class="inline-flex bg-red-50 rounded-lg p-1.5 text-red-500 hover:bg-red-100 focus:outline-none" data-hs-remove-element="[role=alert]">
-                        <span class="sr-only">Dismiss</span>
+                        <span class="sr-only"><?php echo $this->lang->line('dismiss'); ?></span>
                         <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     </button>
                 </div>
@@ -85,7 +85,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-                    Register New Customer
+                    <?php echo $this->lang->line('register_new_customer'); ?>
                 </h3>
                 
          <?php
@@ -101,29 +101,29 @@ include_once APPPATH . "views/partials/officerheader.php";
                 <?php echo form_open("oficer/create_customer", ['novalidate' => true]); ?>
                     <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                         <div class="sm:col-span-4">
-                            <label for="f_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* First Name:</label>
-                            <input type="text" id="f_name" name="f_name" placeholder="Full name" autocomplete="off" 
+                            <label for="f_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('first_name'); ?>:</label>
+                            <input type="text" id="f_name" name="f_name" placeholder="<?php echo $this->lang->line('full_name_placeholder'); ?>" autocomplete="off" 
                                    class=" uppercase py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('f_name'); ?>">
                             <?php echo form_error("f_name", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
 						<div class="sm:col-span-4">
-                            <label for="m_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* Middle Name:</label>
-                            <input type="text" id="m_name" name="m_name" placeholder="Full name" autocomplete="off" 
+                            <label for="m_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('middle_name'); ?>:</label>
+                            <input type="text" id="m_name" name="m_name" placeholder="<?php echo $this->lang->line('full_name_placeholder'); ?>" autocomplete="off" 
                                    class=" uppercase py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('m_name'); ?>">
                             <?php echo form_error("m_name", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
 						<div class="sm:col-span-4">
-                            <label for="l_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* Last Name:</label>
-                            <input type="text" id="l_name" name="l_name" placeholder="Full name" autocomplete="off" 
+                            <label for="l_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('last_name'); ?>:</label>
+                            <input type="text" id="l_name" name="l_name" placeholder="<?php echo $this->lang->line('full_name_placeholder'); ?>" autocomplete="off" 
                                    class=" uppercase py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('l_name'); ?>">
                             <?php echo form_error("l_name", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
                         <div class="sm:col-span-4">
-                            <label for="phone_no" class="block text-sm font-medium mb-2 dark:text-gray-300">* Phone number:</label>
-                            <input type="text" id="phone_no" name="phone_no" placeholder="0712 345 678" autocomplete="off" required
+                            <label for="phone_no" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('phone_number'); ?>:</label>
+                            <input type="text" id="phone_no" name="phone_no" placeholder="<?php echo $this->lang->line('phone_number_format'); ?>" autocomplete="off" required
                                 class="phone-format py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                                 value="<?php echo set_value('phone_no'); ?>">
 
@@ -131,18 +131,18 @@ include_once APPPATH . "views/partials/officerheader.php";
                         </div>
 
                         <div class="sm:col-span-4">
-                            <label for="gender" class="block text-sm font-medium mb-2 dark:text-gray-300">* Gender:</label>
+                            <label for="gender" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('gender'); ?>:</label>
                             <select id="gender" name="gender"
                                 class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600">
-                                <option value="">Select gender</option>
-                                <option value="Male" <?php echo set_select('gender', 'Male'); ?>>Male</option>
-                                <option value="Female" <?php echo set_select('gender', 'Female'); ?>>Female</option>
+                                <option value=""><?php echo $this->lang->line('select_gender'); ?></option>
+                                <option value="Male" <?php echo set_select('gender', 'Male'); ?>><?php echo $this->lang->line('male'); ?></option>
+                                <option value="Female" <?php echo set_select('gender', 'Female'); ?>><?php echo $this->lang->line('female'); ?></option>
                             </select>
                             <?php echo form_error("gender", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
                         <div class="sm:col-span-4">
-                            <label for="date_birth" class="block text-sm font-medium mb-2 dark:text-gray-300">* Date of Birth:</label>
+                            <label for="date_birth" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('date_of_birth'); ?>:</label>
                             <input type="date" id="date_birth" name="date_birth" autocomplete="off"
                                 class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                                 value="<?php echo set_value('date_birth'); ?>">
@@ -160,7 +160,7 @@ include_once APPPATH . "views/partials/officerheader.php";
                     </div>
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Next</button>
+                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('next'); ?></button>
                         </div>
                     </div>
                 <?php echo form_close(); ?>
@@ -188,7 +188,7 @@ include_once APPPATH . "views/partials/footer.php";
 document.querySelector('form').addEventListener('submit', function(e) {
     const btn = this.querySelector('button[type="submit"]');
     btn.disabled = true;
-    btn.innerText = 'Submitting...';
+    btn.innerText = '<?php echo $this->lang->line('submitting'); ?>';
 });
 </script>
 

@@ -22,10 +22,10 @@ include_once APPPATH . "views/partials/header.php";
         <!-- Page Title / Subheader -->
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-               Register Staff
+               <?php echo $this->lang->line('register_staff'); ?>
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Register, edit, and view company staff.
+                <?php echo $this->lang->line('register_staff_desc'); ?>
             </p>
         </div>
         <!-- End Page Title / Subheader -->
@@ -35,8 +35,8 @@ include_once APPPATH . "views/partials/header.php";
         <div class="bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500" role="alert">
             <div class="flex">
                 <div class="flex-shrink-0"><span class="inline-flex justify-center items-center size-8 rounded-full border-4 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-500"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg></span></div>
-                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white">Success</h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
-                <div class="ps-3 ms-auto"><div class="-mx-1.5 -my-1.5"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only">Dismiss</span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
+                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('success'); ?></h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
+                <div class="ps-3 ms-auto"><div class="-mx-1.5 -my-1.5"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only"><?php echo $this->lang->line('dismiss'); ?></span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
             </div>
         </div>
         <?php endif; ?>
@@ -45,27 +45,27 @@ include_once APPPATH . "views/partials/header.php";
         <div class="flex flex-col bg-white border shadow-sm r`ounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-                    Register Staff
+                    <?php echo $this->lang->line('register_staff'); ?>
                 </h3>
                 <?php echo form_open("admin/create_employee", ['novalidate' => true]); ?>
                     <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                         <div class="sm:col-span-4">
-                            <label for="share_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* Full name:</label>
-                            <input type="text" id="share_name" name="empl_name" placeholder="Full name" autocomplete="off" required
+                            <label for="share_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('full_name'); ?>:</label>
+                            <input type="text" id="share_name" name="empl_name" placeholder="<?php echo $this->lang->line('full_name_placeholder'); ?>" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('share_name'); ?>">
                             <?php echo form_error("share_name", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
                         <div class="sm:col-span-4">
-                            <label for="share_mobile" class="block text-sm font-medium mb-2 dark:text-gray-300">* Mobile no:</label>
-                            <input type="number" id="share_mobile" name="empl_no" placeholder="Mobile no" autocomplete="off" required
+                            <label for="share_mobile" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('mobile_no'); ?>:</label>
+                            <input type="number" id="share_mobile" name="empl_no" placeholder="<?php echo $this->lang->line('mobile_no_placeholder'); ?>" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('share_mobile'); ?>">
                             <?php echo form_error("share_mobile", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
                         
                         <div class="sm:col-span-4">
-                            <label for="share_email" class="block text-sm font-medium mb-2 dark:text-gray-300">* Email:</label>
-                            <input type="email" id="share_email" name="empl_email" placeholder="Email" autocomplete="off" required
+                            <label for="share_email" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('email'); ?>:</label>
+                            <input type="email" id="share_email" name="empl_email" placeholder="<?php echo $this->lang->line('email_placeholder'); ?>" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('share_email'); ?>">
                             <?php echo form_error("share_email", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
@@ -77,11 +77,11 @@ include_once APPPATH . "views/partials/header.php";
 							
 
                         <div class="sm:col-span-4">
-                            <label for="blanch_id" class="block text-sm font-medium mb-2 dark:text-gray-300">*Branch:</label>
+                            <label for="blanch_id" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('branch'); ?>:</label>
                             <select id="blanch_id" name="blanch_id" required
                                     data-hs-select='{
-									"hasSearch": true,
-                                        "placeholder": "Select branch",
+										"hasSearch": true,
+                                        "placeholder": "<?php echo $this->lang->line('select_branch'); ?>",
                                         "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"me-2\" data-icon></span><span class=\"text-gray-800 dark:text-gray-200\" data-title></span></button>",
                                         "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-2.5 px-4 pe-9 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600",
                                         "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-50 w-full bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto dark:bg-gray-800 dark:border-gray-700",
@@ -93,7 +93,7 @@ include_once APPPATH . "views/partials/header.php";
                              
 
 								
-								<option value="">Select Branch</option>
+										<option value=""><?php echo $this->lang->line('select_branch'); ?></option>
 								<?php foreach ($blanch as $blanchs): ?>
 								<option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?></option>
 								<?php endforeach; ?>
@@ -106,11 +106,11 @@ include_once APPPATH . "views/partials/header.php";
 
 
 <div class="sm:col-span-4">
-                            <label for="position_id" class="block text-sm font-medium mb-2 dark:text-gray-300">*Position:</label>
+                            <label for="position_id" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('position'); ?>:</label>
                             <select id="position_id" name="position_id" required
                                     data-hs-select='{
-									"hasSearch": true,
-                                        "placeholder": "Select Position",
+										"hasSearch": true,
+                                        "placeholder": "<?php echo $this->lang->line('select_position'); ?>",
                                         "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"me-2\" data-icon></span><span class=\"text-gray-800 dark:text-gray-200\" data-title></span></button>",
                                         "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-2.5 px-4 pe-9 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600",
                                         "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-50 w-full bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto dark:bg-gray-800 dark:border-gray-700",
@@ -130,8 +130,8 @@ include_once APPPATH . "views/partials/header.php";
 					
 
                         <div class="sm:col-span-4">
-                            <label for="share_dob" class="block text-sm font-medium mb-2 dark:text-gray-300">*System Username:</label>
-                            <input type="text" id="username" name="username" placeholder="System Username" autocomplete="off" required
+                            <label for="share_dob" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('system_username'); ?>:</label>
+                            <input type="text" id="username" name="username" placeholder="<?php echo $this->lang->line('system_username_placeholder'); ?>" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('share_dob'); ?>">
                             <?php echo form_error("username", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
@@ -140,7 +140,7 @@ include_once APPPATH . "views/partials/header.php";
                             <label for="empl_sex" class="block text-sm font-medium mb-2 dark:text-gray-300">* Gender:</label>
                             <select id="empl_sex" name="empl_sex" required
                                     data-hs-select='{
-                                        "placeholder": "Select gender",
+                                        "placeholder": "<?php echo $this->lang->line('select_gender'); ?>",
                                         "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"me-2\" data-icon></span><span class=\"text-gray-800 dark:text-gray-200\" data-title></span></button>",
                                         "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-2.5 px-4 pe-9 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600",
                                         "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-50 w-full bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto dark:bg-gray-800 dark:border-gray-700",
@@ -158,11 +158,11 @@ include_once APPPATH . "views/partials/header.php";
 
 
 						<div class="sm:col-span-4">
-                            <label for="account_no" class="block text-sm font-medium mb-2 dark:text-gray-300">*Bank Account:</label>
+											<label for="account_no" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('bank_account'); ?>:</label>
                             <select id="account_no" name="account_no" required
                                     data-hs-select='{
-									"hasSearch": true,
-                                        "placeholder": "Select Bank Account",
+										"hasSearch": true,
+                                        "placeholder": "<?php echo $this->lang->line('select_bank_account'); ?>",
                                         "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"me-2\" data-icon></span><span class=\"text-gray-800 dark:text-gray-200\" data-title></span></button>",
                                         "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-2.5 px-4 pe-9 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600",
                                         "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-50 w-full bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto dark:bg-gray-800 dark:border-gray-700",
@@ -227,7 +227,7 @@ include_once APPPATH . "views/partials/header.php";
             <div>
               
               <p class="text-sm text-gray-600 uppercase font-bold dark:text-white">
-              Management System Access
+              <?php echo $this->lang->line('management_system_access'); ?>
               </p>
             </div>
 
@@ -292,15 +292,15 @@ include_once APPPATH . "views/partials/header.php";
 <div id="branch-manager-privilege" style="display: none;" class="mt-4 space-y-2">
   <label class="inline-flex items-center">
     <input type="checkbox" name="can_approve_loan" class="form-checkbox text-blue-600">
-    <span class="ml-2 text-gray-700 dark:text-gray-300">Can Approve Loan</span>
+    <span class="ml-2 text-gray-700 dark:text-gray-300"><?php echo $this->lang->line('can_approve_loan'); ?></span>
   </label><br>
   <label class="inline-flex items-center">
     <input type="checkbox" name="can_disburse_loan" class="form-checkbox text-blue-600">
-    <span class="ml-2 text-gray-700 dark:text-gray-300">Can Disburse Loan</span>
+    <span class="ml-2 text-gray-700 dark:text-gray-300"><?php echo $this->lang->line('can_disburse_loan'); ?></span>
   </label><br>
   <label class="inline-flex items-center">
     <input type="checkbox" name="can_approve_expenses" class="form-checkbox text-blue-600">
-    <span class="ml-2 text-gray-700 dark:text-gray-300">Can Approve Expenses</span>
+    <span class="ml-2 text-gray-700 dark:text-gray-300"><?php echo $this->lang->line('can_approve_expenses'); ?></span>
   </label>
 </div>
 
@@ -309,8 +309,8 @@ include_once APPPATH . "views/partials/header.php";
 
 <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white">Save</button>
-                            <button type="reset" class="py-2 px-4 btn-secondary-sm">Cancel</button>
+                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-600 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('save'); ?></button>
+                            <button type="reset" class="py-2 px-4 btn-secondary-sm"><?php echo $this->lang->line('cancel'); ?></button>
                         </div>
                     </div>
   <?php echo form_close(); ?>
@@ -322,18 +322,18 @@ include_once APPPATH . "views/partials/header.php";
         <!-- Card: Share Holder List Table -->
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Employee List</h2>
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('employee_list'); ?></h2>
             </div>
 
             <div class="p-4" data-hs-datatable='{
                 "pageLength": 10, "paging": true,
                 "pagingOptions": { "pageBtnClasses": "min-w-10 h-10 inline-flex justify-center items-center text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:focus:bg-gray-700 dark:hover:bg-gray-700" },
-                "language": { "zeroRecords": "<div class=\"py-10 px-5 flex flex-col justify-center items-center text-center\"><svg class=\"shrink-0 size-6 text-gray-500 dark:text-gray-400\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><div class=\"max-w-sm mx-auto\"><p class=\"mt-2 text-sm text-gray-600 dark:text-gray-400\">No share holders found.</p></div></div>" }
+                "language": { "zeroRecords": "<div class=\"py-10 px-5 flex flex-col justify-center items-center text-center\"><svg class=\"shrink-0 size-6 text-gray-500 dark:text-gray-400\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><div class=\"max-w-sm mx-auto\"><p class=\"mt-2 text-sm text-gray-600 dark:text-gray-400\"><?php echo $this->lang->line('no_employees_found'); ?></p></div></div>" }
             }'>
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                     <div class="relative max-w-xs w-full">
-                        <label for="shareholder-table-search" class="sr-only">Search</label>
-                        <input type="text" name="shareholder-table-search" id="shareholder-table-search" class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" placeholder="Search share holders..." data-hs-datatable-search="#shareholder_table">
+                        <label for="shareholder-table-search" class="sr-only"><?php echo $this->lang->line('search'); ?></label>
+                        <input type="text" name="shareholder-table-search" id="shareholder-table-search" class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" placeholder="<?php echo $this->lang->line('search_employees'); ?>" data-hs-datatable-search="#shareholder_table">
                         <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3"><svg class="size-4 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
                     </div>
                 </div>
@@ -344,10 +344,10 @@ include_once APPPATH . "views/partials/header.php";
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="shareholder_table">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">S/No.</span></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Name</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Phone</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Email</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('sno'); ?></span></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('name'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('phone'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('email'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
                                         <th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Gender</span></div></th>
                                         <th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Branch</span></div></th>
 										
@@ -379,7 +379,7 @@ if ($status === 'open') { ?>
           <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
           <path d="m9 12 2 2 4-4"></path>
         </svg>
-        Active
+        <?php echo $this->lang->line('active'); ?>
       </span>
     </div>
 
@@ -391,7 +391,7 @@ if ($status === 'open') { ?>
           <path d="M12 9v4"></path>
           <path d="M12 17h.01"></path>
         </svg>
-        Blocked
+        <?php echo $this->lang->line('blocked'); ?>
       </span>
     </div>
 
@@ -399,14 +399,14 @@ if ($status === 'open') { ?>
 
                                             <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                                 <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
-                                                    <button id="hs-table-action-sh-<?php echo $employees->account_no; ?>" type="button" class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">Action<svg class="hs-dropdown-open:rotate-180 size-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                                                    <button id="hs-table-action-sh-<?php echo $employees->account_no; ?>" type="button" class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700"><?php echo $this->lang->line('action'); ?><svg class="hs-dropdown-open:rotate-180 size-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                                                     <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden divide-y divide-gray-200 min-w-40 z-20 bg-white shadow-2xl rounded-lg p-2 mt-2 dark:divide-gray-700 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-table-action-sh-<?php echo $employees->empl_id; ?>">
                                                         <div class="py-2 first:pt-0 last:pb-0">
-                                                            <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">Choose an option</span>
-                                                            <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="#" data-hs-overlay="#hs-edit-shareholder-modal-<?php echo $employees->empl_id; ?>"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>Edit</a>
+                                                            <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500"><?php echo $this->lang->line('choose_an_option'); ?></span>
+                                                            <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="#" data-hs-overlay="#hs-edit-shareholder-modal-<?php echo $employees->empl_id; ?>"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg><?php echo $this->lang->line('edit'); ?></a>
                                                         </div>
                                                         <div class="py-2 first:pt-0 last:pb-0">
-                                                            <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:ring-2 focus:ring-red-500 dark:text-red-500 dark:hover:bg-gray-700" href="<?php echo base_url("admin/delete_employee/{$employees->empl_id}"); ?>" onclick="return confirm('Are you sure?')"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>Delete</a>
+                                                            <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:ring-2 focus:ring-red-500 dark:text-red-500 dark:hover:bg-gray-700" href="<?php echo base_url("admin/delete_employee/{$employees->empl_id}"); ?>" onclick="return confirm('<?php echo $this->lang->line('confirm_delete_employee'); ?>')"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg><?php echo $this->lang->line('delete'); ?></a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -420,7 +420,7 @@ if ($status === 'open') { ?>
                     </div>
                 </div>
                 <div class="py-3 px-4 border-t border-gray-200 dark:border-gray-700 hidden" data-hs-datatable-paging="">
-                    <nav class="flex items-center space-x-1"><button type="button" class="p-2.5 min-w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700" data-hs-datatable-paging-prev=""><span aria-hidden="true">«</span><span class="sr-only">Previous</span></button><div class="flex items-center space-x-1 [&>.active]:bg-gray-100 dark:[&>.active]:bg-gray-700" data-hs-datatable-paging-pages=""></div><button type="button" class="p-2.5 min-w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700" data-hs-datatable-paging-next=""><span class="sr-only">Next</span><span aria-hidden="true">»</span></button></nav>
+                    <nav class="flex items-center space-x-1"><button type="button" class="p-2.5 min-w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700" data-hs-datatable-paging-prev=""><span aria-hidden="true">«</span><span class="sr-only"><?php echo $this->lang->line('previous'); ?></span></button><div class="flex items-center space-x-1 [&>.active]:bg-gray-100 dark:[&>.active]:bg-gray-700" data-hs-datatable-paging-pages=""></div><button type="button" class="p-2.5 min-w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700" data-hs-datatable-paging-next=""><span class="sr-only"><?php echo $this->lang->line('next'); ?></span><span aria-hidden="true">»</span></button></nav>
                 </div>
             </div>
         </div>
@@ -433,8 +433,8 @@ if ($status === 'open') { ?>
                 <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all lg:max-w-3xl lg:w-full m-3 lg:mx-auto"> <?php // Wider modal for more fields ?>
                     <div class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-gray-800 dark:border-gray-700">
                         <div class="flex justify-between items-center py-3 px-4 border-b dark:border-gray-700">
-                            <h3 class="font-bold text-gray-800 dark:text-white">Edit Staff: <?php echo htmlspecialchars($employees->empl_name, ENT_QUOTES, 'UTF-8'); ?></h3>
-                            <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" data-hs-overlay="#hs-edit-shareholder-modal-<?php echo $employees->empl_id; ?>"><span class="sr-only">Close</span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                            <h3 class="font-bold text-gray-800 dark:text-white"><?php echo $this->lang->line('edit_staff'); ?>: <?php echo htmlspecialchars($employees->empl_name, ENT_QUOTES, 'UTF-8'); ?></h3>
+                            <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" data-hs-overlay="#hs-edit-shareholder-modal-<?php echo $employees->empl_id; ?>"><span class="sr-only"><?php echo $this->lang->line('close'); ?></span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                         </div>
                         <div class="p-4 sm:p-6 overflow-y-auto">
 						<?php echo form_open("admin/modify_employee/{$employees->empl_id}"); ?>
@@ -444,21 +444,21 @@ if ($status === 'open') { ?>
 
 								<div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                         <div class="sm:col-span-4">
-						<label for="empl_name_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">* Staff name:</label>
+						<label for="empl_name_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('staff_name'); ?>:</label>
 							<input class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600 type="text" id="empl_name_<?php echo $employees->empl_id; ?>" name="empl_name" value="<?php echo htmlspecialchars($employees->empl_name, ENT_QUOTES, 'UTF-8'); ?>" class="py-2.5 px-4 input-text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" required>
                         </div>
 
 					
 
                         <div class="sm:col-span-4">
-                            <label for="share_mobile_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">* Mobile no:</label>
+                            <label for="share_mobile_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('mobile_no'); ?>:</label>
                             <input type="number" id="share_mobile_<?php echo $employees->empl_id; ?>" name="empl_no" placeholder="Mobile no" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo htmlspecialchars($employees->empl_no, ENT_QUOTES, 'UTF-8'); ?>">
                             
                         </div>
                         
                         <div class="sm:col-span-4">
-                            <label for="empl_email_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">* Email:</label>
+                            <label for="empl_email_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('email'); ?>:</label>
                             <input type="email" id="empl_email_<?php echo $employees->empl_id; ?>" name="empl_email" placeholder="Email" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"  value="<?php echo htmlspecialchars($employees->empl_email, ENT_QUOTES, 'UTF-8'); ?>">
                             
@@ -468,7 +468,7 @@ if ($status === 'open') { ?>
 				
 
                         <div class="sm:col-span-4">
-                            <label for="blanch_id_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">*Branch Name:</label>
+                            <label for="blanch_id_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('branch_name'); ?>:</label>
                             <select id="blanch_id_<?php echo $employees->empl_id; ?>" name="blanch_id" 
                                     data-hs-select='{
 									"hasSearch": true,

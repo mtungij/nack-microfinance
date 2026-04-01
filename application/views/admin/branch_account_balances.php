@@ -6,7 +6,7 @@ include_once APPPATH . "views/partials/header.php";
   <div class="p-4 sm:p-6 space-y-6">
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 shadow-sm">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">Branch Account Balances</h2>
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white"><?php echo $this->lang->line('branch_account_balances'); ?></h2>
         <?php
           $download_params = [
             'from' => $from ?? '',
@@ -18,10 +18,10 @@ include_once APPPATH . "views/partials/header.php";
         <div class="flex items-center gap-3">
           <a href="<?php echo base_url('admin/download_branch_account_balances_pdf?' . http_build_query($download_params)); ?>"
              class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-700">
-            Download PDF
+            <?php echo $this->lang->line('download_pdf'); ?>
           </a>
           <span class="text-sm font-medium text-cyan-700 dark:text-cyan-400">
-            Total: <?php echo number_format((float)($total_balance_amount ?? 0)); ?>
+            <?php echo $this->lang->line('total'); ?>: <?php echo number_format((float)($total_balance_amount ?? 0)); ?>
           </span>
         </div>
       </div>
@@ -44,23 +44,23 @@ include_once APPPATH . "views/partials/header.php";
           $month_params = array_merge($preset_base, ['from' => $month_from, 'to' => $month_to]);
         ?>
         <div class="sm:col-span-2 lg:col-span-5 flex flex-wrap items-center gap-2 mb-1">
-          <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">Quick Filter:</span>
-          <a href="<?php echo base_url('admin/branch_account_balances?' . http_build_query($today_params)); ?>" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-100 text-cyan-700 hover:bg-cyan-200">Today</a>
-          <a href="<?php echo base_url('admin/branch_account_balances?' . http_build_query($week_params)); ?>" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-100 text-cyan-700 hover:bg-cyan-200">This Week</a>
-          <a href="<?php echo base_url('admin/branch_account_balances?' . http_build_query($month_params)); ?>" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-100 text-cyan-700 hover:bg-cyan-200">This Month</a>
+          <span class="text-xs font-semibold text-gray-600 dark:text-gray-300"><?php echo $this->lang->line('quick_filter'); ?>:</span>
+          <a href="<?php echo base_url('admin/branch_account_balances?' . http_build_query($today_params)); ?>" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-100 text-cyan-700 hover:bg-cyan-200"><?php echo $this->lang->line('today'); ?></a>
+          <a href="<?php echo base_url('admin/branch_account_balances?' . http_build_query($week_params)); ?>" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-100 text-cyan-700 hover:bg-cyan-200"><?php echo $this->lang->line('this_week'); ?></a>
+          <a href="<?php echo base_url('admin/branch_account_balances?' . http_build_query($month_params)); ?>" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-100 text-cyan-700 hover:bg-cyan-200"><?php echo $this->lang->line('this_month'); ?></a>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">From</label>
+          <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1"><?php echo rtrim($this->lang->line('from'), ':'); ?></label>
           <input type="date" name="from" value="<?php echo htmlspecialchars($from ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">To</label>
+          <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1"><?php echo rtrim($this->lang->line('to'), ':'); ?></label>
           <input type="date" name="to" value="<?php echo htmlspecialchars($to ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Branch</label>
+          <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1"><?php echo rtrim($this->lang->line('branch'), ':'); ?></label>
           <select id="branchFilterSelect" name="blanch_id" class="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 select2">
-            <option value="">All Branches</option>
+            <option value=""><?php echo $this->lang->line('all_branches'); ?></option>
             <?php if (!empty($branches)): ?>
               <?php foreach ($branches as $branch): ?>
                 <option value="<?php echo $branch->blanch_id; ?>" <?php echo ((string)($blanch_id ?? '') === (string)$branch->blanch_id) ? 'selected' : ''; ?>>
@@ -71,7 +71,7 @@ include_once APPPATH . "views/partials/header.php";
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Account</label>
+          <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1"><?php echo $this->lang->line('account'); ?></label>
           <select id="accountFilterSelect" name="trans_id[]" multiple class="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 select2">
             <?php if (!empty($accounts)): ?>
               <?php foreach ($accounts as $account): ?>
@@ -83,8 +83,8 @@ include_once APPPATH . "views/partials/header.php";
           </select>
         </div>
         <div class="flex items-end gap-2">
-          <button type="submit" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-700">Filter</button>
-          <a href="<?php echo base_url('admin/branch_account_balances'); ?>" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">Reset</a>
+          <button type="submit" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-700"><?php echo $this->lang->line('filter'); ?></button>
+          <a href="<?php echo base_url('admin/branch_account_balances'); ?>" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"><?php echo $this->lang->line('reset'); ?></a>
         </div>
       </form>
 
@@ -114,15 +114,15 @@ include_once APPPATH . "views/partials/header.php";
                   <?php echo htmlspecialchars($branch_name, ENT_QUOTES, 'UTF-8'); ?>
                 </h3>
                 <span class="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
-                  Branch Total: <?php echo number_format($branch_data['subtotal']); ?>
+                  <?php echo $this->lang->line('branch_total'); ?>: <?php echo number_format($branch_data['subtotal']); ?>
                 </span>
               </div>
 
               <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-cyan-600 dark:bg-cyan-600">
                   <tr>
-                    <th class="px-4 py-3 text-start text-xs font-semibold uppercase text-white">Account Name</th>
-                    <th class="px-4 py-3 text-end text-xs font-semibold uppercase text-white">Balance</th>
+                    <th class="px-4 py-3 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('account_name'); ?></th>
+                    <th class="px-4 py-3 text-end text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('balance'); ?></th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
@@ -138,7 +138,7 @@ include_once APPPATH . "views/partials/header.php";
           <?php endforeach; ?>
         <?php else: ?>
           <div class="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-lg">
-            No account balances found.
+            <?php echo $this->lang->line('no_account_balances_found'); ?>
           </div>
         <?php endif; ?>
       </div>
@@ -270,7 +270,7 @@ $(document).ready(function () {
     containerCssClass: 'custom-select2-container'
   };
 
-  $('#branchFilterSelect').select2({...selectConfig, placeholder: "Select Branch"});
-  $('#accountFilterSelect').select2({...selectConfig, placeholder: "Select Account(s)", closeOnSelect: false});
+  $('#branchFilterSelect').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_branch'); ?>"});
+  $('#accountFilterSelect').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_accounts'); ?>", closeOnSelect: false});
 });
 </script>

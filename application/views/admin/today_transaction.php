@@ -54,15 +54,15 @@ include_once APPPATH . "views/partials/header.php";
   <div class="flex flex-wrap items-center gap-2 mb-4">
     <!-- Search Input -->
     <div class="relative w-full sm:w-auto">
-      <label for="shareholder-table-search" class="sr-only">Search</label>
+      <label for="shareholder-table-search" class="sr-only"><?php echo $this->lang->line('search'); ?></label>
       <input
         type="search"
         name="shareholder-table-search"
         id="shareholder-table-search"
         class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
-        placeholder="Search share holders..."
+        placeholder="<?php echo $this->lang->line('search'); ?>..."
         data-hs-datatable-search="#shareholder_table"
-        aria-label="Search share holders"
+        aria-label="<?php echo $this->lang->line('search'); ?>"
       />
       <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3">
         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -86,7 +86,7 @@ include_once APPPATH . "views/partials/header.php";
   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-3.586L3.293 6.707A1 1 0 013 6V4z"></path>
   </svg>
-  Filter Data
+  <?php echo $this->lang->line('filter_data'); ?>
 </button>
 
 
@@ -119,13 +119,13 @@ include_once APPPATH . "views/partials/header.php";
                       
                         
                           <th scope="col" class="px-4 py-3">S/No</th>
-                          <th scope="col" class="px-4 py-3">Jina La Mteja</th>
-                          <th scope="col" class="px-4 py-3">Rejesho</th>
-                          <th scope="col" class="px-4 py-3">Lipwa</th>
-                          <th scope="col" class="px-4 py-3">Laza</th>
-                          <th scope="col" class="px-4 py-3">Zidi</th>
-                          <th scope="col" class="px-4 py-3">Tarehe</th>
-                          <th scope="col" class="px-4 py-3">Action</th>
+                          <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('customer_name'); ?></th>
+                          <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('rejesho'); ?></th>
+                          <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('paid'); ?></th>
+                          <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('laza'); ?></th>
+                          <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('zidi'); ?></th>
+                          <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('date'); ?></th>
+                          <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('action'); ?></th>
                       </tr>
                   </thead>
                   <tbody>
@@ -183,7 +183,7 @@ include_once APPPATH . "views/partials/header.php";
   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0h8m-8 0a1 1 0 01-1-1V5a1 1 0 011-1h6a1 1 0 011 1v1"/>
   </svg>
-  Delete
+  <?php echo $this->lang->line('delete'); ?>
 </a>
 <?php } ?>
 
@@ -198,7 +198,7 @@ include_once APPPATH . "views/partials/header.php";
         <tr>
            
 
-            <th scope="col" class="px-4 py-3">JUMLA</th>
+            <th scope="col" class="px-4 py-3"><?php echo $this->lang->line('total'); ?></th>
                           <th scope="col" class="px-4 py-3 dark:text-white"></th>
                           <th scope="col" class="px-4 py-3 dark:text-white"><?php echo number_format($total_rejesho); ?></th>
                           <th scope="col" class="px-4 py-3 dark:text-white"><?php echo number_format($total_lipwa); ?></th>
@@ -269,10 +269,10 @@ include_once APPPATH . "views/partials/header.php";
       <!-- Modal Header -->
       <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
         <h3 id="hs-basic-modal-label" class="font-bold text-gray-800 dark:text-white">
-          Filter Data
+          <?php echo $this->lang->line('filter_data'); ?>
         </h3>
         <button type="button" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600" aria-label="Close" data-hs-overlay="#hs-basic-modal">
-          <span class="sr-only">Close</span>
+          <span class="sr-only"><?php echo $this->lang->line('close'); ?></span>
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18"></path>
             <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12"></path>
@@ -285,7 +285,7 @@ include_once APPPATH . "views/partials/header.php";
       <?php echo form_open("admin/prev_cashtransaction"); ?>
       <div class="p-4 sm:p-6 bg-gray-50/60 dark:bg-neutral-900/40 overflow-y-auto">
         <div class="mb-4">
-          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Chagua vigezo vya kuchuja taarifa za malipo kwa tawi, staff na tarehe.</p>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('filter_payment_note'); ?></p>
         </div>
         <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
           
@@ -295,7 +295,7 @@ include_once APPPATH . "views/partials/header.php";
           <!-- Payment Method -->
           <div class="sm:col-span-6">
             <label for="method" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-              Tawi
+              <?php echo rtrim($this->lang->line('branch'), ':'); ?>
             </label>
             <select id="blanch" name="blanch_id"
               class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm bg-white focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
@@ -308,12 +308,12 @@ include_once APPPATH . "views/partials/header.php";
 
           <div class="sm:col-span-6">
             <label for="method" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-              Staff
+              <?php echo $this->lang->line('staff'); ?>
             </label>
             <select name="empl_id" id="empl"
               class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm bg-white focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600">
-              <option value="">Select Employee</option>
-              <option value="all">ALL</option>
+              <option value=""><?php echo $this->lang->line('select_employee'); ?></option>
+              <option value="all"><?php echo $this->lang->line('all'); ?></option>
             </select>
           </div>
 
@@ -323,7 +323,7 @@ include_once APPPATH . "views/partials/header.php";
 
           <div class="sm:col-span-6">
             <label for="with_date" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-              Tarehe kuanzia
+              <?php echo $this->lang->line('from_date'); ?>
             </label>
             <input type="date" id="with_date" name="from" 
             value="<?php echo $date; ?>" 
@@ -333,7 +333,7 @@ include_once APPPATH . "views/partials/header.php";
 
           <div class="sm:col-span-6">
             <label for="with_date" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-              Tarehe hadi
+              <?php echo $this->lang->line('to_date'); ?>
             </label>
             <input type="date" id="with_date" name="to"
             value="<?php echo $date; ?>" 
@@ -350,15 +350,15 @@ include_once APPPATH . "views/partials/header.php";
       <!-- Modal Footer -->
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
         <a href="<?php echo base_url('admin/today_transaction'); ?>" class="py-2 px-3 inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
-          Reset
+          <?php echo $this->lang->line('reset'); ?>
         </a>
         <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700" data-hs-overlay="#hs-basic-modal">
-          Close
+          <?php echo $this->lang->line('close'); ?>
         </button>
 
         <!-- Submit Button -->
         <button type="submit" class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700 focus:outline-hidden focus:bg-cyan-700 disabled:opacity-50 disabled:pointer-events-none">
-          Chuja Taarifa
+          <?php echo $this->lang->line('filter'); ?>
         </button>
       </div>
       <?php echo form_close(); ?>
@@ -419,7 +419,7 @@ $('#empl').html(data);
 }
 else
 {
-$('#empl').html('<option value="">Select Employee</option>');
+$('#empl').html('<option value=""><?php echo $this->lang->line('select_employee'); ?></option>');
 //$('#district').html('<option value="">All</option>');
 }
 });

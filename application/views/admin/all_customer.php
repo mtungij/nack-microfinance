@@ -26,15 +26,15 @@ include_once APPPATH . "views/partials/header.php";
             <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div class="w-full md:w-1/2">
                     <form class="flex items-center">
-                        <label for="simple-search" class="sr-only">Search</label>
+                        <label for="simple-search" class="sr-only"><?php echo $this->lang->line('search'); ?></label>
                         <div class="relative w-full">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                               
                             </div>
                             <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" 
-							placeholder="tafuta staff hapa"
+                            placeholder="<?php echo $this->lang->line('search_customer_here'); ?>"
         data-hs-datatable-search="#shareholder_table"
-        aria-label="Search share holders"
+                            aria-label="<?php echo $this->lang->line('search'); ?>"
 							>
                         </div>
                     </form>
@@ -50,11 +50,11 @@ include_once APPPATH . "views/partials/header.php";
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
                         <tr>
                  <th scope="col" class="px-4 py-3 dark:text-white">S/No</th>
-							<th scope="col" class="px-4 py-3 dark:text-white">Customer Name</th>
-               <th scope="col" class="px-4 py-3 dark:text-white">Branch Name</th>
-               <th scope="col" class="px-4 py-3 dark:text-white">Phone Number</th>
-					 <th scope="col" class="px-4 py-3 dark:text-white">Status</th>
-							<th scope="col" class="px-4 py-3 dark:text-white">Action</th> 
+							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('customer_name'); ?></th>
+               <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
+               <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
+					 <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('status'); ?></th>
+							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th> 
                         </tr>
                     </thead>
 					<tbody>
@@ -72,44 +72,44 @@ include_once APPPATH . "views/partials/header.php";
             <td class="px-4 py-3 dark:text-white">
                   <?php if ($customers->customer_status == 'open') {
         ?>
-        <a href="#" class="badge badge-success">Active</a>
+                <a href="#" class="badge badge-success"><?php echo $this->lang->line('active'); ?></a>
        <?php }elseif ($customers->customer_status == 'close') {
         ?>
-        <a href="#" class="badge badge-primary">Done</a>
+                <a href="#" class="badge badge-primary"><?php echo $this->lang->line('done'); ?></a>
         <?php }elseif($customers->customer_status == 'pending'){
          ?>
-         <a href="#" class="badge badge-warning">Pending</a>
+                 <a href="#" class="badge badge-warning"><?php echo $this->lang->line('pending'); ?></a>
          <?php }elseif ($customers->customer_status == 'out') {
           ?>
-          <a href="#" class="badge badge-danger">Default</a>
+                    <a href="#" class="badge badge-danger"><?php echo $this->lang->line('default'); ?></a>
           <?php } ?>
             </td>
 
            <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
         <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
-            <button id="hs-table-action-sh-<?php echo $customers->id; ?>" type="button" class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">Action<svg class="hs-dropdown-open:rotate-180 size-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <button id="hs-table-action-sh-<?php echo $customers->id; ?>" type="button" class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700"><?php echo $this->lang->line('action'); ?><svg class="hs-dropdown-open:rotate-180 size-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
             <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden divide-y divide-gray-200 min-w-40 z-20 bg-white shadow-2xl rounded-lg p-2 mt-2 dark:divide-gray-700 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-table-action-sh-<?php echo $customers->id; ?>">
 
     <div class="py-2 first:pt-0 last:pb-0">
-        <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">Choose an option</span>
+        <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500"><?php echo $this->lang->line('choose_an_option'); ?></span>
         <a href="<?php echo base_url("admin/view_more_customer/{$customers->customer_id}") ?>" class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300">
     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
     </svg>
-    View More
+    <?php echo $this->lang->line('view_more'); ?>
 </a>
 
 
 
 <a href="<?php echo base_url("admin/delete_customerData/{$customers->customer_id}") ?>"
-   onclick="return confirm('Are you sure you want to delete this customer?')"
+    onclick="return confirm('<?php echo $this->lang->line('confirm_delete_customer'); ?>')"
    class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300">
     
     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4" />
     </svg>
-    Delete
+    <?php echo $this->lang->line('delete'); ?>
 </a>
 
     </div>

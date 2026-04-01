@@ -25,15 +25,15 @@ include_once APPPATH . "views/partials/header.php";
             <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div class="w-full md:w-1/2">
                     <form class="flex items-center">
-                        <label for="simple-search" class="sr-only">Search</label>
+                        <label for="simple-search" class="sr-only"><?php echo $this->lang->line('search'); ?></label>
                         <div class="relative w-full">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                               
                             </div>
                             <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" 
-							placeholder="tafuta mteja hapa"
+                            placeholder="<?php echo $this->lang->line('search_customer_here'); ?>"
         data-hs-datatable-search="#shareholder_table"
-        aria-label="Search share holders"
+                            aria-label="<?php echo $this->lang->line('search'); ?>"
 							>
                         </div>
                     </form>
@@ -44,7 +44,7 @@ include_once APPPATH . "views/partials/header.php";
     <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
     </svg>
-    Download Pdf
+    <?php echo $this->lang->line('download_pdf'); ?>
 </a>
 
 
@@ -57,16 +57,16 @@ include_once APPPATH . "views/partials/header.php";
             <tr>
                 <th scope="col" class="px-4 py-3 dark:text-white">S/No</th>
                 <th scope="col" class="uppercase px-4 py-3 dark:text-white">Customer Name</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Branch Name</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Phone Number</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Duration Type</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Loan Amount</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Collection</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Paid Total</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Remain Debt</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Remain Days</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">End Date</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Employee</th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('duration_type'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_amount'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('collection'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('paid_total'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('remain_debt'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('remain_days'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('end_date'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('employee_label'); ?></th>
             </tr>
         </thead>
         <tbody>
@@ -93,9 +93,9 @@ include_once APPPATH . "views/partials/header.php";
                     <td class="px-4 py-3 dark:text-white"><?= $today_recevables->phone_no; ?></td>
                     <td class="px-4 py-3 dark:text-white">
                         <?php 
-                            if ($today_recevables->day == 1) echo "Daily";
-                            elseif ($today_recevables->day == 7) echo "Weekly";
-                            elseif (in_array($today_recevables->day, [28,29,30,31])) echo "Monthly";
+                            if ($today_recevables->day == 1) echo $this->lang->line('daily');
+                            elseif ($today_recevables->day == 7) echo $this->lang->line('weekly');
+                            elseif (in_array($today_recevables->day, [28,29,30,31])) echo $this->lang->line('monthly');
                         ?>
                     </td>
                     <td class="px-4 py-3 dark:text-white"><?= number_format($today_recevables->loan_int); ?></td>
@@ -110,7 +110,7 @@ include_once APPPATH . "views/partials/header.php";
 
             <!-- Totals Row -->
             <tr class="bg-gray-100 dark:bg-gray-700 font-bold">
-                <td colspan="5" class="px-4 py-3 dark:text-white text-right">Total</td>
+                <td colspan="5" class="px-4 py-3 dark:text-white text-right"><?php echo $this->lang->line('total'); ?></td>
                 <td class="px-4 py-3 dark:text-white"><?= number_format($total_loan); ?></td>
                 <td class="px-4 py-3 dark:text-white"><?= number_format($total_collection); ?></td>
                 <td class="px-4 py-3 dark:text-white"><?= number_format($total_paid); ?></td>
@@ -154,7 +154,7 @@ $('#empl').html(data);
 }
 else
 {
-$('#empl').html('<option value="">Select Employee</option>');
+$('#empl').html('<option value=""><?php echo $this->lang->line('select_employee'); ?></option>');
 //$('#district').html('<option value="">All</option>');
 }
 });
@@ -206,7 +206,7 @@ document.getElementById('simple-search').addEventListener('keyup', function() {
 <script>
   $(document).ready(function() {
     $('#mySelect').select2({
-      placeholder: "Choose an option",
+    placeholder: "<?php echo $this->lang->line('select'); ?>",
       allowClear: true
     });
   });
@@ -292,22 +292,22 @@ window.addEventListener('load', () => {
 <script>
 $(document).ready(function () {
     const selectConfig = {
-        placeholder: "Select",
+        placeholder: "<?php echo $this->lang->line('select'); ?>",
         allowClear: true,
         width: '100%',
         dropdownCssClass: 'custom-select2-dropdown',
         containerCssClass: 'custom-select2-container'
     };
 
-    $('#branchSelect').select2({...selectConfig, placeholder: "Select Branch"});
-    $('#employeeSelect').select2({...selectConfig, placeholder: "Select Employee"});
+    $('#branchSelect').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_branch'); ?>"});
+    $('#employeeSelect').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_employee'); ?>"});
 
     $('#branchSelect').on('change', function () {
         const branchId = $(this).val();
 
         $.post('fetch_employee_blanch', { blanch_id: branchId }, function (data) {
             const employeeSelect = $('#employeeSelect');
-            employeeSelect.html(data).select2({...selectConfig, placeholder: "Select Employee"});
+            employeeSelect.html(data).select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_employee'); ?>"});
 
             // If using Preline's hsSelect
             const customSelect = $('[data-hs-select]');

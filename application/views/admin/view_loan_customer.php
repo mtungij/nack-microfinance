@@ -28,20 +28,20 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         <div class="bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500" role="alert">
             <div class="flex">
                 <div class="flex-shrink-0"><span class="inline-flex justify-center items-center size-8 rounded-full border-4 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-500"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg></span></div>
-                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white">Success</h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
-                <div class="ps-3 ms-auto"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only">Dismiss</span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div>
+                <div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('success'); ?></h3><p class="mt-2 text-sm text-gray-700 dark:text-gray-400"><?php echo $das;?></p></div>
+                    <div class="ps-3 ms-auto"><button type="button" class="inline-flex bg-teal-50 rounded-lg p-1.5 text-teal-500 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 focus:ring-teal-600 dark:bg-transparent dark:hover:bg-teal-800/50 dark:text-teal-600" data-hs-remove-element="[role=alert]"><span class="sr-only"><?php echo $this->lang->line('dismiss'); ?></span><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div>
             </div>
         </div>
         <?php endif; ?>
 
        <div class="bg-cyan-600 text-white p-4 rounded-lg shadow flex justify-between items-center">
-      <h2 class="text-lg font-semibold uppercase tracking-widest">Loan Application Form</h2>
+        <h2 class="text-lg font-semibold uppercase tracking-widest"><?php echo $this->lang->line('loan_application_form'); ?></h2>
       <a href="<?= base_url('admin/download_loan_application/' . $loan_form->loan_id); ?>" 
          class="inline-flex items-center gap-2 px-4 py-2 bg-white text-cyan-700 rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm">
          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
          </svg>
-         Pakua Maombi (PDF)
+            <?php echo $this->lang->line('download_application_pdf'); ?>
       </a>
     </div>
 
@@ -68,20 +68,20 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 
                 <ul class="mt-5 text-sm text-gray-700 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
                     <li class="py-2 flex justify-between items-center">
-                        <span>Status</span>
+                            <span><?php echo $this->lang->line('status'); ?></span>
                         <span class="bg-green-500 dark:bg-green-600 text-white text-xs px-2.5 py-1 rounded-full shadow-sm">
-                            <?= (count($customer_data) === 1) ? 'New Customer' : 'Existing Customer'; ?>
+                               <?= (count($customer_data) === 1) ? $this->lang->line('new_customer') : $this->lang->line('existing_customer'); ?>
                         </span>
                     </li>
                     <li class="py-2 flex justify-between">
-                        <span>Member Since</span>
+                            <span><?php echo $this->lang->line('member_since'); ?></span>
                         <span class="font-medium text-gray-800 dark:text-gray-200"><?= date('Y-m-d', strtotime($customer_profiles->customer_day)); ?></span>
                     </li>
                 </ul>
 
                 <!-- Documents -->
                 <div class="mt-5">
-                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">📎 Customer Documents:</h3>
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">📎 <?php echo $this->lang->line('customer_documents'); ?>:</h3>
                     <div class="flex flex-col gap-2 text-sm">
                         <a href="<?= base_url('assets/documents/barua_' . $customer_profiles->customer_id . '.pdf') ?>"
                            target="_blank"
@@ -128,18 +128,18 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 
                 <ul class="mt-5 text-sm text-gray-700 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
                     <li class="py-2 flex justify-between">
-                        <span>Uhusiano</span>
+                            <span><?php echo $this->lang->line('relationship'); ?></span>
                         <span class="font-medium text-gray-800 dark:text-gray-200"><?= ucfirst($sponser->sp_relation); ?></span>
                     </li>
                     <li class="py-2 flex justify-between">
-                        <span>Kazi / Biashara</span>
+                            <span><?php echo $this->lang->line('occupation_business'); ?></span>
                         <span class="font-medium text-gray-800 dark:text-gray-200"><?= ucfirst($sponser->nature); ?></span>
                     </li>
                 </ul>
 
                 <!-- Sponsor Documents -->
                 <div class="mt-5">
-                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">📎 Sponsor Documents:</h3>
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">📎 <?php echo $this->lang->line('sponsor_documents'); ?>:</h3>
                     <div class="flex flex-col gap-2 text-sm">
                         <?php if (!empty($sponser->barua_path)): ?>
                             <a href="<?= base_url('assets/sponser_documents/' . basename($sponser->barua_path)); ?>" 
@@ -230,7 +230,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         <div class="flex flex-col max-w-screen-xl px-4 mx-auto md:flex-row md:justify-between md:px-6 lg:px-8">
             <div class="p-2 flex flex-row items-center justify-between">
                 <a href="#" class="text-lg font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline">
-				Taarifa Za Dhamana Za Mkopo
+    				<?php echo $this->lang->line('loan_collateral_info'); ?>
                 </a>
             </div>
         </div>
@@ -247,10 +247,10 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
     <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
             <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">S/No.</th>
-            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Jina La Dhamana</th>
-            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Hali ya Dhamana</th>
-            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Thamani ya Dhamana</th>
-            <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Angalia Dhamana</th>
+                <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('collateral_name'); ?></th>
+                <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('collateral_condition'); ?></th>
+                <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('collateral_value'); ?></th>
+                <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('view_collateral'); ?></th>
         </tr>
     </thead>
     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -275,7 +275,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                                 data-file="<?= base_url('assets/dhamana/' . $item->file_name); ?>"
                                 onclick="loadDhamana(this)"
                                 class="text-blue-600 hover:text-blue-800 focus:outline-none"
-                                title="Tazama Dhamana"
+                                   title="<?php echo $this->lang->line('view_collateral'); ?>"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -283,7 +283,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                                 </svg>
                             </button>
                         <?php else: ?>
-                            <span class="text-gray-400">Hakuna dhamana</span>
+                               <span class="text-gray-400"><?php echo $this->lang->line('no_collateral'); ?></span>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -291,7 +291,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         <?php else: ?>
             <tr>
                 <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                    Taarifa za dhamana hazijajazwa.
+                    <?php echo $this->lang->line('no_collateral_records'); ?>
                 </td>
             </tr>
         <?php endif; ?>
@@ -299,7 +299,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
     <?php if (!empty($collateral) && is_array($collateral)): ?>
     <tfoot class="bg-gray-50 dark:bg-gray-800">
         <tr>
-            <td colspan="3" class="px-6 py-4 text-sm font-semibold text-right text-gray-700 dark:text-gray-200">Jumla:</td>
+                <td colspan="3" class="px-6 py-4 text-sm font-semibold text-right text-gray-700 dark:text-gray-200"><?php echo $this->lang->line('total'); ?>:</td>
             <td class="px-6 py-4 text-sm font-bold text-gray-800 dark:text-white"><?= number_format($total_value, 2); ?></td>
             <td></td>
         </tr>
@@ -314,7 +314,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
     <div class="relative bg-white rounded-lg shadow dark:bg-gray-700" style="width: 1200px; height: 500px;">
         <!-- Header -->
         <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Tazama Dhamana</h3>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white"><?php echo $this->lang->line('view_collateral'); ?></h3>
             <button type="button" data-modal-hide="default-modal"
                 class="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 14 14">
@@ -334,7 +334,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         <!-- Footer -->
         <div class="flex items-center justify-end p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
             <button data-modal-hide="default-modal" type="button"
-                class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg">Funga</button>
+                    class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg"><?php echo $this->lang->line('close'); ?></button>
         </div>
     </div>
 </div>
@@ -354,14 +354,14 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 		<div class="w-full bg-cyan-600 text-white p-4">
         <div class="flex justify-between items-center">
             <h2 class="text-lg font-semibold tracking-widest uppercase">
-		Historia Ya Mikopo ya Nyuma
+    		<?php echo $this->lang->line('loan_history'); ?>
             </h2>
             <a href="<?= base_url('admin/download_loan_history/' . $loan_form->customer_id); ?>" 
                class="inline-flex items-center gap-2 px-4 py-2 bg-white text-cyan-700 rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm">
                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                </svg>
-               Pakua Historia (PDF)
+                    <?php echo $this->lang->line('download_history_pdf'); ?>
             </a>
         </div>
     </div>
@@ -379,14 +379,14 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 
 
                                     <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">S/No.</th>
-                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Loan Product</th>
-                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Principal</th>
-                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Principal + Interest</th>
-                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Duration type</th>
-                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Disbured Date</th>
-                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">End Date</th>
-                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Last Payment</th>
-                                    <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold">Credit Score</th>
+                                        <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('loan_product'); ?></th>
+                                        <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('principal'); ?></th>
+                                        <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('principal_interest'); ?></th>
+                                        <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('duration_type'); ?></th>
+                                        <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('disburse_date'); ?></th>
+                                        <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('end_date'); ?></th>
+                                        <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('last_payment'); ?></th>
+                                        <th class="py-3 px-6 text-start text-gray-800 dark:text-gray-200 font-bold"><?php echo $this->lang->line('credit_score'); ?></th>
         </tr>
     </thead>
    <tbody class="divide-y divide-gray-200">
@@ -394,7 +394,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
     <?php if (empty($loan_history)): ?>
         <tr>
             <td colspan="9" class="px-4 py-3 text-center text-gray-500 italic">
-                Hana mkopo kwenye system
+                 <?php echo $this->lang->line('no_loan_history'); ?>
             </td>
         </tr>
     <?php else: ?>
@@ -414,11 +414,11 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                 <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 font-bold">
                     <?php 
                     if ($history->day == 1) {
-                        echo "Siku ({$history->session})";
+                            echo $this->lang->line('day_option') . " ({$history->session})";
                     } elseif ($history->day == 7) {
-                        echo "Wiki ({$history->session})";
+                            echo $this->lang->line('week_option') . " ({$history->session})";
                     } elseif (in_array($history->day, [28, 29, 30, 31])) {
-                        echo "Miezi ({$history->session})"; 
+                            echo $this->lang->line('month_option') . " ({$history->session})"; 
                     }
                     ?>
                 </td>
@@ -433,22 +433,22 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                     <?php 
                     $loan_end_date = strtotime(substr($history->loan_end_date, 0, 10));
                     $depost_day = strtotime($history->depost_day);
-                    $status = "Dabo";
+                        $status = $this->lang->line('score_default');
                     $badge_color = "bg-gray-100 text-gray-800";
                     $btn_color = "bg-green-100 hover:bg-green-200 text-green-800";
 
                     $url = base_url("admin/view_customer_statemnt/{$history->loan_id}");
 
                     if ($depost_day == $loan_end_date) {
-                        $status = "Imetimia vizuri";
+                            $status = $this->lang->line('score_excellent');
                         $badge_color = "bg-green-100 text-green-800";
                         $btn_color = "bg-green-100 hover:bg-green-200 text-green-800";
                     } elseif ($depost_day > $loan_end_date && ($depost_day - $loan_end_date) <= (15 * 86400)) {
-                        $status = "Inaridhisha kiasi";
+                            $status = $this->lang->line('score_fair');
                         $badge_color = "bg-yellow-100 text-yellow-800";
                         $btn_color = "bg-yellow-100 hover:bg-yellow-200 text-yellow-800";
                     } elseif ($depost_day > $loan_end_date && ($depost_day - $loan_end_date) > (15 * 86400)) {
-                        $status = "Umecheleweshwa";
+                            $status = $this->lang->line('score_overdue');
                         $badge_color = "bg-red-100 text-red-800";
                         $btn_color = "bg-red-100 hover:bg-red-200 text-red-800";
                     }
@@ -459,7 +459,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                             <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M15 12a3 3 0 11-6 0 3 3 0 016 0z\" />
                             <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z\" />
                         </svg>
-                        Loan Score
+                            " . $this->lang->line('loan_score') . "
                         <span class='ml-1 px-2 py-0.5 rounded-full text-[10px] font-medium $badge_color'>$status</span>
                     </a>";
                     ?>
@@ -478,7 +478,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
     <div class="relative bg-white rounded-lg shadow dark:bg-gray-700" style="width: 1200px; height: 500px;">
         <!-- Header -->
         <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Tazama Dhamana</h3>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white"><?php echo $this->lang->line('view_collateral'); ?></h3>
             <button type="button" data-modal-hide="default-modal"
                 class="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 14 14">
@@ -498,7 +498,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         <!-- Footer -->
         <div class="flex items-center justify-end p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
             <button data-modal-hide="default-modal" type="button"
-                class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg">Funga</button>
+                    class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg"><?php echo $this->lang->line('close'); ?></button>
         </div>
     </div>
 </div>
@@ -517,7 +517,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
         <div class="flex flex-col max-w-screen-xl px-4 mx-auto md:flex-row md:justify-between md:px-6 lg:px-8">
             <div class="p-2 flex flex-row items-center justify-between">
                 <a href="#" class="text-lg font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline">
-				Maombi ya mkopo Ulioombwa
+    				<?php echo $this->lang->line('loan_request_details'); ?>
                 </a>
             </div>
         </div>
@@ -534,7 +534,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 
                     
                         <div class="sm:col-span-4">
-                            <label for="f_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* Aina Ya Mkopo:</label>                                                                                                                                                                                                           
+                               <label for="f_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_type'); ?>:</label>
                             <input type="text" id="f_name" name="" readonly autocomplete="off" 
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"  
                                    value="<?php echo set_value('loan_name', isset($loan_form->loan_name) ? strtoupper(preg_replace('/[^a-zA-Z]/', '  ', $loan_form->loan_name)) : ''); ?>">
@@ -542,14 +542,14 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                         </div>
 
 						<div class="sm:col-span-4">
-                            <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* Kiasi Kilichoombwa:</label>
+                            <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('requested_amount'); ?>:</label>
                             <input type="text" id="how_loan" name="" readonly autocomplete="off" 
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
                                    value="<?php echo set_value('sp_lname', isset($loan_form->how_loan) ? number_format((float)$loan_form->how_loan, 0) : ''); ?>">
                         </div>
 
                         <div class="sm:col-span-4">
-                            <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* Kiasi Kinachopitishwa:</label>
+                               <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('approved_amount'); ?>:</label>
                             <input type="text" id="how_loan" name="loan_aprove" placeholder="Full name" autocomplete="off" 
                                    class="py-2.5 px-4 block w-full border-green-600 rounded-lg text-sm focus:border-green-500 focus:ring-green-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-green-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
                                    value="<?php echo set_value('sp_lname', isset($loan_form->how_loan) ? $loan_form->how_loan : ''); ?>"
@@ -560,17 +560,17 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                         
 
                         <div class="sm:col-span-4">
-    <label for="l_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* Marejesho Ya:</label>
+            <label for="l_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('repayment_of'); ?>:</label>
     <input type="text" id="l_name" name="" readonly autocomplete="off" 
         class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
         value="<?php
             if (isset($loan_form->day)) {
                 if ($loan_form->day == 1) {
-                    echo 'Siku';
+                        echo $this->lang->line('day_option');
                 } elseif ($loan_form->day == 7) {
-                    echo 'Week';
+                        echo $this->lang->line('week_option');
                 } elseif (in_array($loan_form->day, [28, 29, 30, 31])) {
-                    echo 'Mwezi';
+                        echo $this->lang->line('month_option');
                 }
             }
         ?>">
@@ -580,7 +580,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 
 
                         <div class="sm:col-span-4">
-                            <label for="phone_no" class="block text-sm font-medium mb-2 dark:text-gray-300">* Idadi Jumla Ya Marejesho:</label>
+                               <label for="phone_no" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('total_repayments'); ?>:</label>
                             <input type="number" id="phone_no" name="" readonly autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
                                    value="<?php echo set_value('session', isset($loan_form->session) ? $loan_form->session : ''); ?>">
@@ -588,7 +588,7 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                         </div>
 
                         <div class="sm:col-span-4">
-                            <label for="reason" class="block text-sm font-medium mb-2 dark:text-gray-300">* Biashara Ya Mkopaji:</label>
+                               <label for="reason" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('borrower_business'); ?>:</label>
                             <input type="text" id="reason" name="" readonly autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
                                    value="<?php echo set_value('reason', isset($loan_form->reason) ? $loan_form->reason : ''); ?>">
@@ -597,14 +597,14 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                         
 						
 <div class="sm:col-span-4">
-    <label for="age" class="block text-sm font-medium mb-2 dark:text-gray-300">* Tarehe Ya Maombi Ya Mkopo:</label>
+    <label for="age" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_application_date'); ?>:</label>
     <input type="text" readonly id="age" name="" autocomplete="off"
            class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
             value="<?php echo set_value('customer_day', isset($loan_form->loan_day) ? $loan_form->loan_day : ''); ?>">
 </div>
 
 <div class="sm:col-span-4">
-    <label class="block text-sm font-medium mb-2 dark:text-gray-300">* Afisa Aliyeomba Mkopo:</label>
+    <label class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_requesting_officer'); ?>:</label>
     <div class="flex items-center gap-3 py-2.5 px-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
         <?php if (!empty($loan_form->creator_passport)): ?>
             <img src="<?= base_url('assets/images/passport/' . basename($loan_form->creator_passport)); ?>" 
@@ -629,8 +629,8 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
                     </div>
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 border border-cyan-500 hover:bg-cyan-700 text-white">Approve</button>
-                            <a href="<?php echo base_url("admin/reject_loan/{$loan_form->loan_id}") ?>" class="py-2 px-4 bg-red-600 dark:bg-red-800 rounded border border-red-500 hover:bg-red-700 text-white">Reject</a>
+                               <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 border border-cyan-500 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('approve'); ?></button>
+                               <a href="<?php echo base_url("admin/reject_loan/{$loan_form->loan_id}") ?>" class="py-2 px-4 bg-red-600 dark:bg-red-800 rounded border border-red-500 hover:bg-red-700 text-white"><?php echo $this->lang->line('reject'); ?></a>
                         </div>
                     </div>
                 <?php echo form_close(); ?>

@@ -9,10 +9,10 @@ include_once APPPATH . "views/partials/officerheader.php";
         <!-- Page Title / Subheader -->
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-               Loan Application Form
+               <?php echo $this->lang->line('loan_application_form'); ?>
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Loan Application Form.
+            <?php echo $this->lang->line('loan_application_form_desc'); ?>
             </p>
         </div>
 
@@ -21,7 +21,7 @@ include_once APPPATH . "views/partials/officerheader.php";
                 <div id="hs-toast-solid-color-red-label" class="flex p-4">
                     <?= htmlspecialchars($this->session->flashdata('error'), ENT_QUOTES, 'UTF-8'); ?>
                     <div class="ms-auto">
-                        <button type="button" onclick="document.getElementById('flash-error-toast').style.display='none'" class="inline-flex shrink-0 justify-center items-center size-5 rounded-lg text-white hover:text-white opacity-50 hover:opacity-100 focus:outline-hidden focus:opacity-100" aria-label="Close">
+                        <button type="button" onclick="document.getElementById('flash-error-toast').style.display='none'" class="inline-flex shrink-0 justify-center items-center size-5 rounded-lg text-white hover:text-white opacity-50 hover:opacity-100 focus:outline-hidden focus:opacity-100" aria-label="<?php echo $this->lang->line('close'); ?>">
                             <span class="sr-only">Close</span>
                             <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 6 6 18"></path>
@@ -53,7 +53,7 @@ include_once APPPATH . "views/partials/officerheader.php";
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-                    Loan Application Form
+                    <?php echo $this->lang->line('loan_application_form'); ?>
                 </h3>
 
                <?php 
@@ -69,9 +69,9 @@ echo form_open($form_action, ['novalidate' => true]);
 
                     <!-- Loan Product -->
                     <div class="sm:col-span-4">
-                        <label for="branchSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Loan Product Name:</label>
+                        <label for="branchSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_product'); ?>:</label>
                         <select id="branchSelect" name="category_id" class="py-3 px-4 pe-9 block w-full  border-gray-200 rounded-lg text-sm select2">
-                            <option value="">Select Loan Product</option>
+                            <option value=""><?php echo $this->lang->line('select_loan_product'); ?></option>
                             <?php foreach ($loan_category as $loan_categorys): ?>
                                 <option value="<?= $loan_categorys->category_id; ?>"
                                     <?= isset($existing_loan) && $existing_loan->category_id == $loan_categorys->category_id
@@ -86,9 +86,9 @@ echo form_open($form_action, ['novalidate' => true]);
 
                     <!-- Employee -->
                     <div class="sm:col-span-4">
-                        <label for="StaffSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Select Employee:</label>
+                        <label for="StaffSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('select_officer'); ?>:</label>
                         <select id="StaffSelect" name="empl_id" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm">
-                            <option value="">Select Officer</option>
+                            <option value=""><?php echo $this->lang->line('select_officer'); ?></option>
                             <?php foreach ($empl_blanch as $empl_blanchs): ?>
                                 <option value="<?= $empl_blanchs->empl_id; ?>"
                                     <?= set_select('empl_id', $empl_blanchs->empl_id, 
@@ -110,12 +110,12 @@ echo form_open($form_action, ['novalidate' => true]);
 
                     <!-- Loan Amount -->
                     <div class="sm:col-span-4">
-                        <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* Loan Amount:</label>
+                        <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_amount'); ?>:</label>
                       <!-- Visible input with formatting -->
 <input
     type="text"
     id="how_loan_formatted"
-    placeholder="Kiasi cha mkopo kinachoombwa bila riba"
+    placeholder="<?php echo $this->lang->line('loan_amount_placeholder'); ?>"
     autocomplete="off"
     required
     class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
@@ -130,20 +130,20 @@ echo form_open($form_action, ['novalidate' => true]);
 
                     <!-- Loan Duration -->
                     <div class="sm:col-span-4">
-                        <label for="durationselect" class="block text-sm font-medium mb-2 dark:text-gray-300">* Loan Duration:</label>
+                        <label for="durationselect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('loan_duration'); ?>:</label>
                         <select id="durationselect" name="day" class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm select2">
-                            <option value="">Loan Duration</option>
-                            <option value="1" <?= (isset($existing_loan) && $existing_loan->day == 1) ? 'selected' : set_select('day', '1'); ?>>Siku</option>
-                            <option value="7" <?= (isset($existing_loan) && $existing_loan->day == 7) ? 'selected' : set_select('day', '7'); ?>>Wiki</option>
-                            <option value="30" <?= (isset($existing_loan) && $existing_loan->day == 30) ? 'selected' : set_select('day', '30'); ?>>Mwezi</option>
+                            <option value=""><?php echo $this->lang->line('loan_duration'); ?></option>
+                            <option value="1" <?= (isset($existing_loan) && $existing_loan->day == 1) ? 'selected' : set_select('day', '1'); ?>><?php echo $this->lang->line('day'); ?></option>
+                            <option value="7" <?= (isset($existing_loan) && $existing_loan->day == 7) ? 'selected' : set_select('day', '7'); ?>><?php echo $this->lang->line('week'); ?></option>
+                            <option value="30" <?= (isset($existing_loan) && $existing_loan->day == 30) ? 'selected' : set_select('day', '30'); ?>><?php echo $this->lang->line('month'); ?></option>
                         </select>
                         <?= form_error("day", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                     </div>
 
                     <!-- Repayment Sessions -->
                     <div class="sm:col-span-4">
-                        <label for="session" class="block text-sm font-medium mb-2 dark:text-gray-300">* Number of Repayment:</label>
-                        <input type="number" id="session" name="session" placeholder="Andika idadi ya marejesho"
+                        <label for="session" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('number_of_repayments'); ?>:</label>
+                        <input type="number" id="session" name="session" placeholder="<?php echo $this->lang->line('number_of_repayments_placeholder'); ?>"
                             value="<?= set_value('session', isset($existing_loan) ? $existing_loan->session : ''); ?>"
                             autocomplete="off" required
                             class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
@@ -152,8 +152,8 @@ echo form_open($form_action, ['novalidate' => true]);
 
                     <!-- Reason -->
                     <div class="sm:col-span-4">
-                        <label for="reason" class="block text-sm font-medium mb-2 dark:text-gray-300">* Biashara/Kazi ya mkopaji:</label>
-                        <input type="text" id="reason" name="reason" placeholder="Kazi au biashara ya mkopaji"
+                        <label for="reason" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('customer_business_work'); ?>:</label>
+                        <input type="text" id="reason" name="reason" placeholder="<?php echo $this->lang->line('customer_business_work_placeholder'); ?>"
                             value="<?= set_value('reason', isset($existing_loan) ? $existing_loan->reason : ''); ?>"
                             autocomplete="off" required
                             class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
@@ -162,9 +162,9 @@ echo form_open($form_action, ['novalidate' => true]);
 
                     <!-- Interest Formula -->
                         <div class="sm:col-span-4">
-										<label class="block text-sm font-medium mb-2 dark:text-gray-300"><b>*Interest Formular:</b></label>
+										<label class="block text-sm font-medium mb-2 dark:text-gray-300"><b>*<?php echo $this->lang->line('interest_formula'); ?>:</b></label>
 										<select type="number" name="rate" class="py-3 px-4 pe-9 block w-full  border-gray-200 rounded-lg text-sm select2" required>
-											<option value="">Select interest Formular</option>
+											<option value=""><?php echo $this->lang->line('select_interest_formula'); ?></option>
 											<?php foreach ($formular as $formulars): ?>	
 											<option value="<?php echo $formulars->formular_name; ?>"><?php if ($formulars->formular_name == 'SIMPLE') {
 												 ?>
@@ -185,7 +185,7 @@ echo form_open($form_action, ['novalidate' => true]);
 
                 <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex justify-center gap-x-2">
-                        <button type="button" onclick="showConfirmationModal()" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Next</button>
+                        <button type="button" onclick="showConfirmationModal()" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('next'); ?></button>
                     </div>
                 </div>
 
@@ -204,10 +204,10 @@ echo form_open($form_action, ['novalidate' => true]);
             <!-- Modal Header -->
             <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
                 <h3 id="confirmationModalLabel" class="font-bold text-gray-800 dark:text-white">
-                    Thibitisha Maelezo ya Ombi la Mkopo
+                    <?php echo $this->lang->line('confirm_loan_details'); ?>
                 </h3>
                 <button type="button" onclick="closeConfirmationModal()" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600">
-                    <span class="sr-only">Close</span>
+                    <span class="sr-only"><?php echo $this->lang->line('close'); ?></span>
                     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"></path>
                         <path d="m6 6 12 12"></path>
@@ -218,53 +218,53 @@ echo form_open($form_action, ['novalidate' => true]);
             <!-- Modal Body -->
             <div class="p-4 overflow-y-auto">
                 <p class="text-sm text-gray-600 dark:text-neutral-400 mb-4">
-                    Tafadhali kagua taarifa hizi kabla ya kuwasilisha ombi la mkopo:
+                    <?php echo $this->lang->line('review_loan_details_before_submit'); ?>
                 </p>
                 
                 <div class="space-y-3">
                     <!-- Customer Info -->
                     <div class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-3">
-                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2">Taarifa za Mteja</h4>
+                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2"><?php echo $this->lang->line('customer_information'); ?></h4>
                         <div class="text-sm text-gray-600 dark:text-neutral-400">
-                            <span class="font-medium">Jina:</span> <span id="confirm_customer_name"><?= isset($customer) ? $customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name : ''; ?></span>
+                            <span class="font-medium"><?php echo $this->lang->line('name_label'); ?>:</span> <span id="confirm_customer_name"><?= isset($customer) ? $customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name : ''; ?></span>
                         </div>
                     </div>
                     
                     <!-- Loan Details -->
                     <div class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-3">
-                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2">Maelezo ya Mkopo</h4>
+                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2"><?php echo $this->lang->line('loan_details'); ?></h4>
                         <div class="grid grid-cols-1 gap-2 text-sm">
                             <div class="text-gray-600 dark:text-neutral-400">
-                                <span class="font-medium">Aina ya Mkopo:</span> <span id="confirm_loan_product"></span>
+                                <span class="font-medium"><?php echo $this->lang->line('loan_product'); ?>:</span> <span id="confirm_loan_product"></span>
                             </div>
                             <div class="text-gray-600 dark:text-neutral-400">
-                                <span class="font-medium">Kiasi cha Mkopo:</span> <span id="confirm_loan_amount"></span>
+                                <span class="font-medium"><?php echo $this->lang->line('loan_amount'); ?>:</span> <span id="confirm_loan_amount"></span>
                             </div>
                             <div class="text-gray-600 dark:text-neutral-400">
-                                <span class="font-medium">Muda wa Mkopo:</span> <span id="confirm_loan_duration"></span>
+                                <span class="font-medium"><?php echo $this->lang->line('loan_duration'); ?>:</span> <span id="confirm_loan_duration"></span>
                             </div>
                             <div class="text-gray-600 dark:text-neutral-400">
-                                <span class="font-medium">Idadi ya Malipo:</span> <span id="confirm_repayment_sessions"></span>
+                                <span class="font-medium"><?php echo $this->lang->line('number_of_repayments'); ?>:</span> <span id="confirm_repayment_sessions"></span>
                             </div>
                             <div class="text-gray-600 dark:text-neutral-400">
-                                <span class="font-medium">Fomula ya Riba:</span> <span id="confirm_interest_formula"></span>
+                                <span class="font-medium"><?php echo $this->lang->line('interest_formula'); ?>:</span> <span id="confirm_interest_formula"></span>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Business/Work Info -->
                     <div class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-3">
-                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2">Taarifa za Biashara/Kazi</h4>
+                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2"><?php echo $this->lang->line('business_work_information'); ?></h4>
                         <div class="text-sm text-gray-600 dark:text-neutral-400">
-                            <span class="font-medium">Biashara/Kazi:</span> <span id="confirm_business"></span>
+                            <span class="font-medium"><?php echo $this->lang->line('customer_business_work'); ?>:</span> <span id="confirm_business"></span>
                         </div>
                     </div>
                     
                     <!-- Officer Info -->
                     <div class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-3">
-                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2">Afisa Kusimamia</h4>
+                        <h4 class="font-semibold text-sm text-gray-800 dark:text-white mb-2"><?php echo $this->lang->line('overseeing_officer'); ?></h4>
                         <div class="text-sm text-gray-600 dark:text-neutral-400">
-                            <span class="font-medium">Afisa:</span> <span id="confirm_officer"></span>
+                            <span class="font-medium"><?php echo $this->lang->line('officer'); ?>:</span> <span id="confirm_officer"></span>
                         </div>
                     </div>
                 </div>
@@ -273,10 +273,10 @@ echo form_open($form_action, ['novalidate' => true]);
             <!-- Modal Footer -->
             <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t dark:border-neutral-700">
                 <button type="button" onclick="closeConfirmationModal()" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:bg-gray-50 dark:bg-transparent dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
-                    Ghairi
+                    <?php echo $this->lang->line('cancel'); ?>
                 </button>
                 <button type="button" onclick="submitForm()" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-cyan-800 text-white hover:bg-cyan-700 focus:outline-none focus:bg-cyan-700 disabled:opacity-50 disabled:pointer-events-none">
-                    Thibitisha na Wasilisha
+                    <?php echo $this->lang->line('confirm_and_submit'); ?>
                 </button>
             </div>
         </div>
@@ -336,7 +336,7 @@ function showConfirmationModal() {
     
     // Check if required fields are filled
     if (!loanProduct.value || !officer.value || !loanAmount.value || !duration.value || !sessions.value || !business.value || !interestFormula.value) {
-        alert('Tafadhali jaza sehemu zote zinazohitajika kabla ya kuendelea.');
+        alert('<?php echo $this->lang->line('fill_all_required_fields'); ?>');
         return;
     }
     
@@ -345,12 +345,12 @@ function showConfirmationModal() {
     document.getElementById('confirm_loan_amount').textContent = 'TZS ' + document.getElementById('how_loan_formatted').value;
     
     let durationText = '';
-    if (duration.value == '1') durationText = 'Siku (Daily)';
-    else if (duration.value == '7') durationText = 'Wiki (Weekly)';
-    else if (duration.value == '30') durationText = 'Mwezi (Monthly)';
+    if (duration.value == '1') durationText = '<?php echo $this->lang->line('day'); ?> (Daily)';
+    else if (duration.value == '7') durationText = '<?php echo $this->lang->line('week'); ?> (Weekly)';
+    else if (duration.value == '30') durationText = '<?php echo $this->lang->line('month'); ?> (Monthly)';
     document.getElementById('confirm_loan_duration').textContent = durationText;
     
-    document.getElementById('confirm_repayment_sessions').textContent = sessions.value + ' sessions';
+    document.getElementById('confirm_repayment_sessions').textContent = sessions.value + ' <?php echo $this->lang->line('repayment_sessions'); ?>';
     
     let formulaText = interestFormula.options[interestFormula.selectedIndex].text;
     document.getElementById('confirm_interest_formula').textContent = formulaText;
