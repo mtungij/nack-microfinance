@@ -457,15 +457,15 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
               <p class="text-xs text-gray-500 dark:text-gray-400">Overall income generated</p>
             </div> -->
 
-            <!-- Total Expenses Card -->
-            <!-- <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
+             <!-- Total Expenses Card
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
               <div class="flex items-center justify-between mb-2">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expenses</h3>
               </div>
-              <div class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-1"><?php echo number_format($total_expenses_val); ?></div>
+              <div class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-1"></div>
               <p class="text-xs text-gray-500 dark:text-gray-400">Overall expenses incurred</p>
-            </div> -->
-            
+            </div>
+             -->
             <!-- Total Loan Outstanding Card -->
             <!-- <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
               <div class="flex items-center justify-between mb-2">

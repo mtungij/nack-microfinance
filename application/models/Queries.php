@@ -7757,9 +7757,19 @@ public function get_cashbook($comp_id){
 }
 
 
-public function get_empl_data_loan($comp_id){
-	$data = $this->db->query("SELECT * FROM tbl_employee WHERE comp_id = '$comp_id'");
-	return $data->result();
+public function get_empl_data_loan($comp_id, $blanch_id = null, $empl_id = null){
+	$this->db->from('tbl_employee');
+	$this->db->where('comp_id', $comp_id);
+
+	if (!empty($blanch_id)) {
+		$this->db->where('blanch_id', $blanch_id);
+	}
+
+	if (!empty($empl_id)) {
+		$this->db->where('empl_id', $empl_id);
+	}
+
+	return $this->db->get()->result();
 }
 
 public function get_empl_data_loan_blanch($blanch_id){
@@ -7767,10 +7777,32 @@ public function get_empl_data_loan_blanch($blanch_id){
 	return $data->result();
 }
 
-public function get_loan_empl_data($empl_id){
-	$today = date("Y-m-d");
-	$data = $this->db->query("SELECT SUM(pr.depost) AS total_received,SUM(withdraw) AS total_withdrawal,c.f_name,c.m_name,c.l_name,l.restration,c.phone_no,l.day,pr.prev_id,pr.trans_id,at.account_name AS depost_account,pr.with_trans,wa.account_name AS with_account FROM tbl_prev_lecod pr JOIN tbl_loans l ON l.loan_id = pr.loan_id JOIN tbl_customer c ON c.customer_id = pr.customer_id LEFT JOIN tbl_account_transaction at ON at.trans_id = pr.trans_id LEFT JOIN tbl_account_transaction wa ON wa.trans_id = pr.with_trans WHERE pr.empl_id = '$empl_id' AND pr.group_id = '0' AND pr.lecod_day = '$today' GROUP BY pr.prev_id ");
-	return $data->result();
+public function get_loan_empl_data($empl_id, $from = null, $to = null, $blanch_id = null){
+	if (empty($from)) {
+		$from = date('Y-m-d');
+	}
+
+	if (empty($to)) {
+		$to = date('Y-m-d');
+	}
+
+	$this->db->select('SUM(pr.depost) AS total_received,SUM(withdraw) AS total_withdrawal,c.f_name,c.m_name,c.l_name,l.restration,c.phone_no,l.day,pr.prev_id,pr.trans_id,at.account_name AS depost_account,pr.with_trans,wa.account_name AS with_account');
+	$this->db->from('tbl_prev_lecod pr');
+	$this->db->join('tbl_loans l', 'l.loan_id = pr.loan_id');
+	$this->db->join('tbl_customer c', 'c.customer_id = pr.customer_id');
+	$this->db->join('tbl_account_transaction at', 'at.trans_id = pr.trans_id', 'left');
+	$this->db->join('tbl_account_transaction wa', 'wa.trans_id = pr.with_trans', 'left');
+	$this->db->where('pr.empl_id', $empl_id);
+	$this->db->where('pr.group_id', '0');
+	$this->db->where('pr.lecod_day >=', $from);
+	$this->db->where('pr.lecod_day <=', $to);
+
+	if (!empty($blanch_id)) {
+		$this->db->where('pr.blanch_id', $blanch_id);
+	}
+
+	$this->db->group_by('pr.prev_id');
+	return $this->db->get()->result();
 }
 
 public function get_total_depost_individual($empl_id){

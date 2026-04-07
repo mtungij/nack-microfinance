@@ -32,77 +32,78 @@ include_once APPPATH . "views/partials/officerheader.php";
 
 
     <div class="container mx-auto my-3 p-4">
-        <div class="md:flex no-wrap md:-mx-2">
-            <!-- Left Side -->
-			<div class="w-full md:w-3/12 md:mx-2">
-    <div class="bg-white p-3 border-t-4 border-green-400">
-        <?php foreach ($customer_data as $customer_profiles): ?>
-            <div class="image overflow-hidden">
-                <img class="h-auto w-full mx-auto" src="<?= base_url('assets/img/customer21.png') ?>" alt="Customer Image">
+    <div class="md:flex justify-between md:-mx-2">
 
-                <h1 class="text-green-500 font-bold text-xl leading-8 my-1 dark:text-gray-900 text-center">
-                    <?= strtoupper($customer_profiles->f_name) . " " . strtoupper(substr($customer_profiles->m_name, 0, 1)) . " " . strtoupper($customer_profiles->l_name) ?>
-                </h1>
-                
-                <h1 class="text-center font-semibold">
-                    <?= $customer_profiles->phone_no; ?>
-                </h1>
+        <!-- Customer Card (LEFT) -->
+        <div class="w-full md:w-3/12 md:mx-2">
+            <div class="bg-white p-3 border-t-4 border-green-400">
+                <?php foreach ($customer_data as $customer_profiles): ?>
+                    <div class="image overflow-hidden">
+                        <?php
+                            $customer_image = !empty($customer_profiles->passport)
+                                ? base_url($customer_profiles->passport)
+                                : base_url('assets/img/customer21.png');
+                        ?>
+                        <img class="h-56 w-full object-cover rounded-md mx-auto" src="<?= $customer_image; ?>" alt="Customer Image">
 
-                <ul class="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
-                    <li class="flex items-center py-3">
-                        <span>Status</span>
-                        <span class="ml-auto">
-                            <span class="bg-green-500 py-1 px-2 rounded text-white text-sm">Active</span>
-                        </span>
-                    </li>
-                    <li class="flex items-center py-3">
-                        <span>Member since</span>
-                        <span class="ml-auto">
-                            <?= date('Y-m-d', strtotime($customer_profiles->customer_day)); ?>
-                        </span>
-                    </li>
-                </ul>
-            </div>
-        <?php endforeach; ?>
-    </div>
-</div>
+                        <h1 class="text-green-500 font-bold text-xl text-center my-1">
+                            <?= strtoupper($customer_profiles->f_name) . " " . strtoupper(substr($customer_profiles->m_name, 0, 1)) . " " . strtoupper($customer_profiles->l_name) ?>
+                        </h1>
 
+                        <h1 class="text-center font-semibold">
+                            <?= $customer_profiles->phone_no; ?>
+                        </h1>
 
-            <!-- Right Side -->
-            <div class="w-full md:w-9/12   md:mx-2 mt-4 md:mt-0">
-                <h2 class="text-xl font-semibold bg-cyan-600 uppercase rounded-sm text-white dark:text-gray-300 mb-4">Historia Ya Mikopo</h2>
-
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white border border-gray-200">
-                        <thead class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                            <tr>
-                                <th class="py-3 px-6 text-left">#</th>
-                                <th class="py-3 px-6 text-left">Full Name</th>
-                                <th class="py-3 px-6 text-left">Mobile</th>
-                                <th class="py-3 px-6 text-left">Email</th>
-                                <th class="py-3 px-6 text-left">Sex</th>
-                                <th class="py-3 px-6 text-left">DOB</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-700 text-sm">
-					
-							
-                           
-                                    <tr class="border-b border-gray-200 hover:bg-gray-100">
-                                        <td class="py-3 px-6">1</td>
-                                        <td class="py-3 px-6">jju</td>
-                                        <td class="py-3 px-6">jju</td>
-                                        <td class="py-3 px-6">jjuuuik</td>
-                                        <td class="py-3 px-6">llkk</td>
-                                        <td class="py-3 px-6">890000</td>
-                                    </tr>
-                              
-                        </tbody>
-                    </table>
-                </div>
-
+                        <ul class="bg-gray-100 py-2 px-3 mt-3 rounded shadow-sm">
+                            <li class="flex justify-between py-2">
+                                <span>Status</span>
+                                <span class="bg-green-500 px-2 text-white text-sm rounded">Loan Processing</span>
+                            </li>
+                            <li class="flex justify-between py-2">
+                                <span>Member since</span>
+                                <span><?= date('Y-m-d', strtotime($customer_profiles->customer_day)); ?></span>
+                            </li>
+                        </ul>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
+
+        <!-- Sponsor Card (RIGHT) -->
+        <div class="w-full md:w-3/12 md:mx-2">
+            <div class="bg-white p-3 border-t-4 border-cyan-400">
+                <?php foreach ($sponser_detail as $data): ?>
+                    <div class="image overflow-hidden">
+                        <?php
+                            $sponser_image = !empty($data->passport_path)
+                                ? base_url($data->passport_path)
+                                : base_url('assets/img/customer21.png');
+                        ?>
+                        <img class="h-56 w-full object-cover rounded-md mx-auto" src="<?= $sponser_image; ?>" alt="Sponsor Image">
+
+                        <h1 class="text-green-500 font-bold text-xl text-center my-1">
+                            <?= strtoupper($data->sp_name) . " " . strtoupper(substr($data->sp_mname, 0, 1)) . " " . strtoupper($data->sp_lname) ?>
+                        </h1>
+
+                        <h1 class="text-center font-semibold">
+                            <?= $data->sp_phone_no; ?>
+                        </h1>
+
+                        <ul class="bg-gray-100 py-2 px-3 mt-3 rounded shadow-sm">
+                            <li class="flex justify-between py-2">
+                                <span>Uhusiano</span>
+                                <span class="bg-green-500 px-2 text-white text-sm rounded"><?= ucfirst($data->sp_relation); ?></span>
+                            </li>
+                            <li class="flex justify-between py-2">
+                                <span>Biashara Ya Mkopaji</span>
+                                <span><?= ucfirst($data->nature); ?></span>
+                            </li>
+                        </ul>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -369,7 +370,7 @@ include_once APPPATH . "views/partials/officerheader.php";
                     </div>
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
-                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Idhinisha Mkopo</button>
+                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Tuma Maombi</button>
                             <a href="<?php echo base_url("admin/reject_loan/{$loan_form->loan_id}") ?>" class="py-2 px-4 btn-primary-sm dark:bg-red-800 hover:bg-cyan-700 text-white">Kataa</a>
                         </div>
                     </div>

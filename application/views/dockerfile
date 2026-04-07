@@ -1,14 +1,14 @@
 docker run -it -d \
-  --label traefik.http.routers.chironimicrofinance.rule=Host\(\`chironimicrofinance.online\`\) \
-  --label traefik.http.routers.chironimicrofinance.tls.certresolver=lets-encrypt \
-  --label traefik.http.routers.chironimicrofinance.tls=true \
-  --label traefik.http.routers.chironimicrofinance.service=chironimicrofinance-credit-http \
-  --label traefik.http.services.chironimicrofinance-credit-http.loadbalancer.server.port=80 \
-  --name chironimicrofinance \
+  --label traefik.http.routers.evercare.rule=Host\(\`evercare.phamasoft.com\`\) \
+  --label traefik.http.routers.evercare.tls.certresolver=lets-encrypt \
+  --label traefik.http.routers.evercare.tls=true \
+  --label traefik.http.routers.evercare.service=evercare-credit-http \
+  --label traefik.http.services.evercare-credit-http.loadbalancer.server.port=80 \
+  --name evercare \
   --network web \
   --restart always \
   --expose 80 \
-mikoposoft/nackcredit:12dec2025 
+mikoposoft/pharmacyci3:old
 
 
 

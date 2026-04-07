@@ -675,3 +675,20 @@ $lang['week'] = 'Week';
 $lang['month'] = 'Month';
 $lang['repayment_sessions'] = 'sessions';
 $lang['fill_all_required_fields'] = 'Please fill in all required fields before proceeding.';
+
+// Teller officer page
+$lang['collections_desk'] = 'Collections Desk';
+$lang['teller_officer_performance'] = 'Teller Officer Performance';
+$lang['teller_officer_desc'] = 'Daily view of customer collection, deposits and withdrawals per officer.';
+$lang['officer_count'] = 'Officer Count';
+$lang['assigned_customers_summary'] = 'Assigned customers and transaction summary';
+$lang['active_ledger'] = 'Active Ledger';
+$lang['receivable_label'] = 'Receivable';
+$lang['received_label'] = 'Received';
+$lang['deposit_account_label'] = 'Deposit Account';
+$lang['withdrawal_label'] = 'Withdrawal';
+$lang['withdraw_account_label'] = 'Withdraw Account';
+$lang['not_available_short'] = 'N/A';
+$lang['no_customer_records_officer'] = 'No customer records found for this officer.';
+$lang['no_officer_data_available'] = 'No officer data available';
+$lang['add_or_assign_officers_hint'] = 'Add or assign officers to see teller summaries here.';

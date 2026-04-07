@@ -17,6 +17,11 @@ class Oficer extends CI_Controller{
     $blanch_data = $this->queries->get_blanchData($blanch_id);
     $empl_data = $this->queries->get_employee_data($empl_id);
 
+
+    // echo "<pre>";
+    // print_r($empl_data);
+    // exit();
+
     $receivable_total = $this->queries->get_total_recevableBlanch($blanch_id);
     $total_received = $this->queries->get_sumReceived_amountBlanch($blanch_id);
     $total_loan_pending = $this->queries->get_sun_loanPendingBlanch($blanch_id);
@@ -3811,7 +3816,7 @@ $this->loan_application();
 
 
     public function loan_pending() {
-      // $position   = strtoupper($this->session->userdata('position_name'));
+    $position   = strtoupper($this->session->userdata('position_name'));
       $this->load->model('queries');
       $blanch_id = $this->session->userdata('blanch_id');
       $empl_id = $this->session->userdata('empl_id');
@@ -3823,7 +3828,9 @@ $this->loan_application();
   
       $privillage = $this->queries->get_position_empl($empl_id);
       $total_request = $this->queries->get_total_loanPendingBlanch($blanch_id);
-  
+            //  echo "<pre>";
+            // print_r($position);
+            //      exit();
       // if ($position === 'LOAN OFFICER') {
       //     $loan_pending = $this->queries->get_loanPendingByOfficer($empl_id);
       // } elseif ($position === 'BRANCH MANAGER') {
@@ -3998,7 +4005,7 @@ $this->loan_application();
       $data = array(
         'loan_aprove'   => $this->input->post('loan_aprove'),
         'penat_status'  => $this->input->post('penat_status'),
-        'loan_status'   => 'aproved',
+        'loan_status'   => 'manager_approved',
         'loan_day'      => $day,
         'code'          => random_string('numeric',4),
         'approved_by'   => $approved_by, // <== NEW LINE

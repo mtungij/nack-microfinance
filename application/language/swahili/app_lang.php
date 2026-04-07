@@ -675,3 +675,20 @@ $lang['week'] = 'Wiki';
 $lang['month'] = 'Mwezi';
 $lang['repayment_sessions'] = 'malipo';
 $lang['fill_all_required_fields'] = 'Tafadhali jaza sehemu zote zinazohitajika kabla ya kuendelea.';
+
+// Teller officer page
+$lang['collections_desk'] = 'Dawati la Makusanyo';
+$lang['teller_officer_performance'] = 'Utendaji wa Maafisa wa Teller';
+$lang['teller_officer_desc'] = 'Muonekano wa kila siku wa makusanyo ya wateja, amana na utoaji kwa kila afisa.';
+$lang['officer_count'] = 'Idadi ya Maafisa';
+$lang['assigned_customers_summary'] = 'Muhtasari wa wateja waliopangwa na miamala';
+$lang['active_ledger'] = 'Daftari Hai';
+$lang['receivable_label'] = 'Rejesho';
+$lang['received_label'] = 'Zilizopokelewa';
+$lang['deposit_account_label'] = 'Akaunti ya Amana';
+$lang['withdrawal_label'] = 'Utoaji';
+$lang['withdraw_account_label'] = 'Akaunti ya Utoaji';
+$lang['not_available_short'] = 'Haipo';
+$lang['no_customer_records_officer'] = 'Hakuna taarifa za wateja kwa afisa huyu.';
+$lang['no_officer_data_available'] = 'Hakuna taarifa za afisa zilizopatikana';
+$lang['add_or_assign_officers_hint'] = 'Ongeza au panga maafisa ili kuona muhtasari wa teller hapa.';
