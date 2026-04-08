@@ -4815,6 +4815,24 @@ public function get_branchwise_today_deposit($comp_id) {
     return $query->result();
 }
 
+public function get_top_10_branch_deposit_today($comp_id) {
+	$today = date("Y-m-d");
+
+	$query = $this->db->query(
+		"SELECT b.blanch_id, b.blanch_name, SUM(d.depost) AS total_deposit
+		 FROM tbl_depost d
+		 JOIN tbl_blanch b ON b.blanch_id = d.blanch_id
+		 WHERE d.comp_id = ?
+		   AND DATE(d.depost_day) = ?
+		 GROUP BY b.blanch_id, b.blanch_name
+		 ORDER BY total_deposit DESC
+		 LIMIT 10",
+		[$comp_id, $today]
+	);
+
+	return $query->result();
+}
+
 
 
 

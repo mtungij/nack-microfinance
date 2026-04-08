@@ -278,6 +278,7 @@ $lang['tt_today_loan_approved'] = 'Jumla ya mikopo iliyokubaliwa leo. Inapaswa k
 $lang['tt_today_loan_withdraw'] = 'Jumla ya mikopo iliyotolewa leo kwa wateja waliokopa mikopo mipya.';
 $lang['tt_today_penalty_paid'] = 'Jumla ya faini zilizolipwa leo kutoka kwa wateja wenye mikopo iliyochelewa.';
 $lang['top_5_employees_by_deposit'] = 'Wafanyakazi 5 Bora kwa Makusanyo';
+$lang['top_10_branches_by_deposit'] = 'Matawi 10 Bora kwa Makusanyo';
 $lang['total_deposit_tzs'] = 'Jumla ya Makusanyo (TZS)';
 $lang['user'] = 'Mtumiaji';
 

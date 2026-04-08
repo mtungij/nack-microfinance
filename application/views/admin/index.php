@@ -7,6 +7,7 @@ $lang_line = function ($key, $fallback) {
 };
 
 $txt_top_5_employees_by_deposit = $lang_line('top_5_employees_by_deposit', 'Top 5 Employees by Deposit');
+$txt_top_10_branches_by_deposit = $lang_line('top_10_branches_by_deposit', 'Top 10 Branches by Deposit');
 $txt_total_deposit_tzs = $lang_line('total_deposit_tzs', 'Total Deposit (TZS)');
 $txt_quick_overview = $lang_line('quick_overview', 'Quick Overview');
 $txt_branches_list = $lang_line('branches_list', 'Branches List');
@@ -34,6 +35,52 @@ $txt_tt_today_loan_approved = $lang_line('tt_today_loan_approved', 'Total loans 
 $txt_tt_today_loan_withdraw = $lang_line('tt_today_loan_withdraw', 'Total loans disbursed today to customers taking new loans.');
 $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penalties paid today from customers with overdue loans.');
 ?>
+
+<style>
+  .dashboard-loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: rgba(248, 250, 252, 0.96);
+    backdrop-filter: blur(2px);
+  }
+
+  .dark .dashboard-loading-overlay {
+    background: rgba(17, 24, 39, 0.92);
+  }
+
+  .dashboard-skeleton {
+    border-radius: 0.75rem;
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+    background-size: 400% 100%;
+    animation: dashboardShimmer 1.2s ease-in-out infinite;
+  }
+
+  .dark .dashboard-skeleton {
+    background: linear-gradient(90deg, #1f2937 25%, #374151 37%, #1f2937 63%);
+    background-size: 400% 100%;
+  }
+
+  @keyframes dashboardShimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+  }
+</style>
+
+<div id="dashboard-loading-placeholder" class="dashboard-loading-overlay">
+  <div class="w-full lg:ps-64">
+    <div class="p-4 sm:p-6 space-y-6">
+      <div class="dashboard-skeleton h-10 w-72"></div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div class="dashboard-skeleton h-36"></div>
+        <div class="dashboard-skeleton h-36"></div>
+        <div class="dashboard-skeleton h-36"></div>
+      </div>
+      <div class="dashboard-skeleton h-64"></div>
+      <div class="dashboard-skeleton h-80"></div>
+    </div>
+  </div>
+</div>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
 <div class="w-full lg:ps-64">
@@ -308,8 +355,17 @@ $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penaltie
   <canvas id="topDepositorsChart" height="120"></canvas>
 </div>
 
+<!-- 📈 Top 10 Branch Deposits Line Chart -->
+<div class="mt-6 bg-white rounded-2xl shadow-xl p-6">
+  <h2 class="text-xl font-bold text-gray-700 mb-4">📈 <?php echo $txt_top_10_branches_by_deposit; ?></h2>
+  <canvas id="topBranchDepositsChart" height="120"></canvas>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  const topBranchLabels = <?php echo json_encode(array_map(function($row){ return $row->blanch_name; }, $top_branch_deposits ?? [])); ?>;
+  const topBranchValues = <?php echo json_encode(array_map(function($row){ return (float) $row->total_deposit; }, $top_branch_deposits ?? [])); ?>;
+
   const ctx = document.getElementById('topDepositorsChart').getContext('2d');
   const topDepositorsChart = new Chart(ctx, {
     type: 'bar',
@@ -350,6 +406,57 @@ $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penaltie
           }
         }
       }
+    }
+  });
+
+  const branchCtx = document.getElementById('topBranchDepositsChart').getContext('2d');
+  const topBranchDepositsChart = new Chart(branchCtx, {
+    type: 'line',
+    data: {
+      labels: topBranchLabels,
+      datasets: [{
+        label: '<?php echo addslashes($txt_total_deposit_tzs); ?>',
+        data: topBranchValues,
+        borderColor: '#06b6d4',
+        backgroundColor: 'rgba(6, 182, 212, 0.18)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#0891b2'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.parsed.y.toLocaleString() + ' TZS';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value.toLocaleString();
+            }
+          }
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('load', function () {
+    var loadingPlaceholder = document.getElementById('dashboard-loading-placeholder');
+    if (loadingPlaceholder) {
+      loadingPlaceholder.style.display = 'none';
     }
   });
 </script>

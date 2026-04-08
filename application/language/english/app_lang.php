@@ -278,6 +278,7 @@ $lang['tt_today_loan_approved'] = 'Total loans approved today. This should be ze
 $lang['tt_today_loan_withdraw'] = 'Total loans disbursed today to customers taking new loans.';
 $lang['tt_today_penalty_paid'] = 'Total penalties paid today from customers with overdue loans.';
 $lang['top_5_employees_by_deposit'] = 'Top 5 Employees by Deposit';
+$lang['top_10_branches_by_deposit'] = 'Top 10 Branches by Deposit';
 $lang['total_deposit_tzs'] = 'Total Deposit (TZS)';
 $lang['user'] = 'User';
 

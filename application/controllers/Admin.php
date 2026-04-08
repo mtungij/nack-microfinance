@@ -80,6 +80,7 @@ class Admin extends CI_Controller {
 	 $branchwise_deposits = $this->queries->get_branchwise_today_deposit($comp_id);
 
 	 $top_depositors = $this->queries->get_top_5_deposit_employees($comp_id);
+     $top_branch_deposits = $this->queries->get_top_10_branch_deposit_today($comp_id);
 
 	 $disbursed_loans= $this->queries->get_sum_loanDisbursed($comp_id);
 
@@ -127,7 +128,7 @@ class Admin extends CI_Controller {
 	      // print_r($blanch_capital_circle);
 	      //         exit();
 	$this->load->view('admin/index',['receivable_total'=>$receivable_total,'total_deposit_monthly'=>$total_deposit_monthly,'total_deposit_weekly'=> $total_deposit_weekly,'total_deposit_daily'=> $total_deposit_daily,'deposit_daily'=> $deposit_daily,'done_customer_count'=>$done_customer_count,'all_customer_count'=>$all_customer_count,
-	'new_customer'=> $new_customer,'top_depositors'=> $top_depositors,
+    'new_customer'=> $new_customer,'top_depositors'=> $top_depositors,'top_branch_deposits' => $top_branch_deposits,
 	'total_deni'=> $total_deni,
 	'today_enddate_collection' => $today_enddate_collection,
 	'total_loanWithdrawal'=>$total_loanWithdrawal,
