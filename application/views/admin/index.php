@@ -38,15 +38,13 @@ $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penaltie
 
 <style>
   .dashboard-loading-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 80;
-    background: rgba(248, 250, 252, 0.96);
-    backdrop-filter: blur(2px);
+    width: 100%;
+    z-index: 1;
+    background: transparent;
   }
 
   .dark .dashboard-loading-overlay {
-    background: rgba(17, 24, 39, 0.92);
+    background: transparent;
   }
 
   .dashboard-skeleton {
@@ -83,7 +81,7 @@ $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penaltie
 </div>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
-<div class="w-full lg:ps-64">
+<div id="dashboard-main-content" class="w-full lg:ps-64 hidden">
     <div class="p-4 sm:p-6 space-y-6">
 
         <!-- Section 1: Page Title / Subheader -->
@@ -455,8 +453,12 @@ $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penaltie
 <script>
   window.addEventListener('load', function () {
     var loadingPlaceholder = document.getElementById('dashboard-loading-placeholder');
+    var mainContent = document.getElementById('dashboard-main-content');
     if (loadingPlaceholder) {
       loadingPlaceholder.style.display = 'none';
+    }
+    if (mainContent) {
+      mainContent.classList.remove('hidden');
     }
   });
 </script>
