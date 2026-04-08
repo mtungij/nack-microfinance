@@ -4570,7 +4570,7 @@ public function today_transactions(){
 	$sum_withdrawls = $this->queries->get_sumCashtransWithdrow($comp_id);
 	$blanch = $this->queries->get_blanch($comp_id);
 	//     echo "<pre>";
-	//    print_r($cash);
+	//    print_r($sum_depost);
 	//          exit();
 	$this->load->view('admin/today_transaction',['cash'=>$cash,'sum_depost'=>$sum_depost,'sum_withdrawls'=>$sum_withdrawls,'blanch'=>$blanch]);
 }
@@ -8603,10 +8603,12 @@ echo $this->queries->fetch_loancustomer($this->input->post('customer_id'));
       			$update_paid = $old_paid + $penart_paid;
       			$this->update_paidPenart($loan_id,$update_paid);
       			$this->insert_income($comp_id,$inc_id,$blanch_id,$customer_id,$username,$penart_paid,$penart_date,$loan_id,$group_id);
+                $this->add_penalty_to_cash_account($comp_id, $blanch_id, $loan_id, $customer_id, $penart_paid, $username, $group_id, $penart_date);
       			$this->session->set_flashdata('massage','Tsh. '.$penart_paid .' Paid successfully');
 			     	}elseif($penart == FALSE){
 			     $this->insert_income($comp_id,$inc_id,$blanch_id,$customer_id,$username,$penart_paid,$penart_date,$loan_id,$group_id);
                  $this->insert_penartPaid($loan_id,$inc_id,$blanch_id,$comp_id,$penart_paid,$username,$customer_id,$penart_date,$group_id);
+                 $this->add_penalty_to_cash_account($comp_id, $blanch_id, $loan_id, $customer_id, $penart_paid, $username, $group_id, $penart_date);
                  $this->session->set_flashdata('massage','Tsh. '.$penart_paid .' Paid successfully');
 			     		}
 			     
@@ -9906,10 +9908,13 @@ public function send_email(){
       			$update_paid = $old_paid + $penart_paid;
       			$this->update_paidPenart($loan_id,$update_paid);
       			$this->insert_income($comp_id,$inc_id,$blanch_id,$customer_id,$username,$penart_paid,$penart_date,$loan_id,$group_id);
+            $this->add_penalty_to_cash_account($comp_id, $blanch_id, $loan_id, $customer_id, $penart_paid, $username, $group_id, $penart_date);
       			$this->session->set_flashdata('massage','Penart '.$penart_paid .' Paid successfully');
       	 	}else{
          $this->insert_income($comp_id,$inc_id,$blanch_id,$customer_id,$username,$penart_paid,$penart_date,$loan_id,$group_id);
-         $this->insert_penartPaid($loan_id,$inc_id,$blanch_id,$comp_id,$penart_paid,$username,$customer_id,$penart_date,$group_id);      		}
+         $this->insert_penartPaid($loan_id,$inc_id,$blanch_id,$comp_id,$penart_paid,$username,$customer_id,$penart_date,$group_id);
+         $this->add_penalty_to_cash_account($comp_id, $blanch_id, $loan_id, $customer_id, $penart_paid, $username, $group_id, $penart_date);
+        }
       	 $this->session->set_flashdata('massage','Penart '.$penart_paid .'Paid successfully');	
       		}
       		return redirect('admin/loan_collection');
@@ -9922,6 +9927,39 @@ public function send_email(){
 
   public function insert_income($comp_id,$inc_id,$blanch_id,$customer_id,$username,$penart_paid,$penart_date,$loan_id,$group_id){
   	 $this->db->query("INSERT INTO tbl_receve (`comp_id`,`inc_id`,`blanch_id`,`customer_id`,`empl`,`receve_amount`,`receve_day`,`loan_id`,`group_id`) VALUES ('$comp_id','$inc_id','$blanch_id','$customer_id','$username','$penart_paid','$penart_date','$loan_id','$group_id')");
+  }
+
+  private function get_cash_account_id($comp_id){
+    $accounts = $this->queries->get_account_transaction($comp_id);
+    if (empty($accounts)) {
+        return null;
+    }
+
+    foreach ($accounts as $account) {
+        $name = isset($account->account_name) ? strtolower(trim($account->account_name)) : '';
+        if ($name === 'cash') {
+            return $account->trans_id;
+        }
+    }
+
+    return null;
+  }
+
+  private function add_penalty_to_cash_account($comp_id, $blanch_id, $loan_id, $customer_id, $amount, $username, $group_id, $penart_date){
+    $cash_trans_id = $this->get_cash_account_id($comp_id);
+    if (empty($cash_trans_id)) {
+        return;
+    }
+
+    $account_row = $this->queries->get_amount_remainAmountBlanch($blanch_id, $cash_trans_id);
+    if (!empty($account_row)) {
+        $new_balance = (float) $account_row->blanch_capital + (float) $amount;
+        $this->db->query("UPDATE tbl_blanch_account SET blanch_capital = '$new_balance' WHERE blanch_id = '$blanch_id' AND receive_trans_id = '$cash_trans_id'");
+    } else {
+        $this->db->query("INSERT INTO tbl_blanch_account (`comp_id`,`blanch_id`,`blanch_capital`,`receive_trans_id`) VALUES ('$comp_id','$blanch_id','$amount','$cash_trans_id')");
+    }
+
+    $this->db->query("INSERT INTO tbl_pay (`loan_id`,`blanch_id`,`comp_id`,`customer_id`,`depost`,`balance`,`description`,`pay_status`,`stat`,`date_pay`,`emply`,`group_id`,`date_data`,`p_method`) VALUES ('$loan_id','$blanch_id','$comp_id','$customer_id','$amount','0','PENALTY INCOME','1','1','$penart_date','$username','$group_id','$penart_date','$cash_trans_id')");
   }
 
   public function update_paidPenart($loan_id,$update_paid){
@@ -11137,60 +11175,313 @@ public function check_miamala($id){
 		$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
 		$blanch = $this->queries->get_blanch($comp_id);
-		$total_today_with = $this->queries->get_today_loan_withdrawalComp($comp_id);
-		$total_depost_comp = $this->queries->get_total_depost_comp($comp_id);
-		$total_deducted_comp = $this->queries->get_total_deducted_fee_todaycomp($comp_id);
 
-		$total_non_deducted = $this->queries->get_total_receive_nonDeducted_comp($comp_id);
-		$total_comp_expenses = $this->queries->get_expenses_total_compblanch($comp_id);
-		$restration_comp = $this->queries->get_today_receivable_comp($comp_id);
-		// echo "<pre>";
-		// print_r($total_comp_expenses);
-		//       exit();
-		$this->load->view('admin/daily_report',['blanch'=>$blanch,'total_today_with'=>$total_today_with,'total_depost_comp'=>$total_depost_comp,'total_deducted_comp'=>$total_deducted_comp,'total_non_deducted'=>$total_non_deducted,'total_comp_expenses'=>$total_comp_expenses,'restration_comp'=>$restration_comp]);
+        $selected_blanch_id = (int) $this->input->get('blanch_id');
+        $report_date_input = trim((string) $this->input->get('report_date'));
+        $report_date = $this->normalize_report_date($report_date_input);
+        $is_valid_branch_filter = false;
+        foreach ($blanch as $branch_row) {
+            if ((int) $branch_row->blanch_id === $selected_blanch_id) {
+                $is_valid_branch_filter = true;
+                break;
+            }
+        }
+
+        if (!$is_valid_branch_filter) {
+            $selected_blanch_id = 0;
+        }
+
+        $report_payload = $this->build_daily_report_payload($comp_id, $selected_blanch_id, $report_date);
+
+        $this->load->view('admin/daily_report',[
+            'blanch' => $blanch,
+            'selected_blanch_id' => $selected_blanch_id,
+            'selected_branch_name' => $report_payload['selected_branch_name'],
+            'report_date' => $report_date,
+            'total_today_with' => $report_payload['total_today_with'],
+            'total_received' => $report_payload['total_received'],
+            'received_by_account' => $report_payload['received_by_account'],
+            'payment_breakdown' => $report_payload['payment_breakdown'],
+            'account_payment_summary' => $report_payload['account_payment_summary'],
+            'today_expected' => $report_payload['today_expected'],
+            'penalty_today' => $report_payload['penalty_today'],
+            'processing_fee' => $report_payload['processing_fee'],
+        ]);
 	}
 
+    public function daily_report_pdf(){
+        $this->load->model('queries');
+        $this->lang->load('app', 'swahili');
+        $comp_id = $this->session->userdata('comp_id');
+        $blanch = $this->queries->get_blanch($comp_id);
 
-	public function filter_daily_report(){
-		$this->load->model('queries');
-		$comp_id = $this->session->userdata('comp_id');
-		$blanch = $this->queries->get_blanch($comp_id);
-		$from = $this->input->post('from');
-		$to = $this->input->post('to');
-        
-        $total_today_with = $this->queries->get_today_loan_withdrawalComp_prev($comp_id,$from,$to);
-		$total_depost_comp = $this->queries->get_total_depost_comp_prev($comp_id,$from,$to);
-		$total_deducted_comp = $this->queries->get_total_deducted_fee_todaycomp_prev($comp_id,$from,$to);
+        $selected_blanch_id = (int) $this->input->get('blanch_id');
+        $report_date_input = trim((string) $this->input->get('report_date'));
+        $report_date = $this->normalize_report_date($report_date_input);
 
-		$total_non_deducted = $this->queries->get_total_receive_nonDeducted_comp_prev($comp_id,$from,$to);
-		$total_comp_expenses = $this->queries->get_expenses_total_compblanch_prev($comp_id,$from,$to);
-		           //echo "<pre>";
-             // print_r($to);
-             //        exit();
+        $is_valid_branch_filter = false;
+        foreach ($blanch as $branch_row) {
+            if ((int) $branch_row->blanch_id === $selected_blanch_id) {
+                $is_valid_branch_filter = true;
+                break;
+            }
+        }
 
-		$this->load->view('admin/filter_daily_report',['total_today_with'=>$total_today_with,'total_depost_comp'=>$total_depost_comp,'total_deducted_comp'=>$total_deducted_comp,'total_non_deducted'=>$total_non_deducted,'total_comp_expenses'=>$total_comp_expenses,'from'=>$from,'to'=>$to,'blanch'=>$blanch]);
-	}
+        if (!$is_valid_branch_filter) {
+            $selected_blanch_id = 0;
+        }
 
-	public function print_daily_report($from,$to){
-	$this->load->model('queries');
-	$comp_id = $this->session->userdata('comp_id');
-	$blanch = $this->queries->get_blanch($comp_id);
-	$total_today_with = $this->queries->get_today_loan_withdrawalComp_prev($comp_id,$from,$to);
-	$total_depost_comp = $this->queries->get_total_depost_comp_prev($comp_id,$from,$to);
-	$total_deducted_comp = $this->queries->get_total_deducted_fee_todaycomp_prev($comp_id,$from,$to);
+        $report_payload = $this->build_daily_report_payload($comp_id, $selected_blanch_id, $report_date);
 
-	$total_non_deducted = $this->queries->get_total_receive_nonDeducted_comp_prev($comp_id,$from,$to);
-	$total_comp_expenses = $this->queries->get_expenses_total_compblanch_prev($comp_id,$from,$to);
-	$compdata = $this->queries->get_companyData($comp_id);
+        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4']);
+        $html = $this->load->view('admin/daily_report_pdf', [
+            'selected_branch_name' => $report_payload['selected_branch_name'],
+            'report_date' => $report_date,
+            'total_today_with' => $report_payload['total_today_with'],
+            'total_received' => $report_payload['total_received'],
+            'received_by_account' => $report_payload['received_by_account'],
+            'payment_breakdown' => $report_payload['payment_breakdown'],
+            'account_payment_summary' => $report_payload['account_payment_summary'],
+            'today_expected' => $report_payload['today_expected'],
+            'penalty_today' => $report_payload['penalty_today'],
+            'processing_fee' => $report_payload['processing_fee'],
+        ], true);
 
-	$mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
-    $html = $this->load->view('admin/daily_report_data',['compdata'=>$compdata,'total_today_with'=>$total_today_with,'total_depost_comp'=>$total_depost_comp,'total_deducted_comp'=>$total_deducted_comp,'total_non_deducted'=>$total_non_deducted,'total_comp_expenses'=>$total_comp_expenses,'blanch'=>$blanch,'from'=>$from,'to'=>$to],true);
-    $mpdf->SetFooter('Generated By Brainsoft Technology');
-    $mpdf->WriteHTML($html);
-    $mpdf->Output();	
-	}
+        $mpdf->SetFooter('Generated By Brainsoft Technology');
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('daily_report_' . $report_date . '.pdf', 'I');
+    }
+
+    private function build_daily_report_payload($comp_id, $selected_blanch_id, $report_date){
+        $selected_branch_name = 'All Branches';
+
+        if ($selected_blanch_id > 0) {
+            $selected_branch = $this->queries->get_blanchData($selected_blanch_id);
+            if (!empty($selected_branch) && !empty($selected_branch->blanch_name)) {
+                $selected_branch_name = $selected_branch->blanch_name;
+            }
+
+            $total_today_with_raw = $this->queries->get_today_loan_withdrawal($selected_blanch_id, $report_date);
+            $total_today_with = (object) array(
+                'total_loan_withcomp' => !empty($total_today_with_raw->total_loan_with) ? (float) $total_today_with_raw->total_loan_with : 0,
+            );
+            $total_received = $this->queries->get_total_deposit_blanch($selected_blanch_id, $report_date);
+            $received_by_account = $this->queries->get_totalaccount_transaction_blanch($selected_blanch_id, $report_date);
+            $payment_breakdown = $this->queries->get_daily_payment_breakdown_blanch($selected_blanch_id, $report_date);
+            $account_payment_summary = $this->queries->get_daily_account_payment_summary_blanch($selected_blanch_id, $report_date);
+            $today_expected = $this->queries->get_expected_collection_today_blanch($selected_blanch_id, $report_date);
+            $penalty_today = $this->queries->get_sum_incomeBlanchData($selected_blanch_id, $report_date);
+            $processing_fee = $this->queries->get_total_deducted_income_blanch_data($selected_blanch_id, $report_date);
+            $outside_contract_received = $this->queries->get_received_outside_contract_blanch($selected_blanch_id, $report_date);
+        } else {
+            $total_today_with = $this->queries->get_today_loan_withdrawalComp($comp_id, $report_date);
+            $total_received = $this->queries->get_total_deposit($comp_id, $report_date);
+            $received_by_account = $this->queries->get_totalaccount_transaction($comp_id, $report_date);
+            $payment_breakdown = $this->queries->get_daily_payment_breakdown($comp_id, $report_date);
+            $account_payment_summary = $this->queries->get_daily_account_payment_summary($comp_id, $report_date);
+            $today_expected = $this->queries->get_expected_collection_today($comp_id, $report_date);
+            $penalty_today = $this->queries->get_sum_income($comp_id, $report_date);
+            $processing_fee = $this->queries->get_total_deducted_income($comp_id, $report_date);
+            $outside_contract_received = $this->queries->get_received_outside_contract($comp_id, $report_date);
+        }
+
+        return array(
+            'selected_branch_name' => $selected_branch_name,
+            'total_today_with' => $total_today_with,
+            'total_received' => $total_received,
+            'received_by_account' => $received_by_account,
+            'payment_breakdown' => $payment_breakdown,
+            'account_payment_summary' => $account_payment_summary,
+            'today_expected' => $today_expected,
+            'penalty_today' => $penalty_today,
+            'processing_fee' => $processing_fee,
+            'outside_contract_received' => $outside_contract_received,
+        );
+    }
+
+    private function normalize_report_date($date_input){
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_input) && strtotime($date_input) !== false) {
+            return $date_input;
+        }
+
+        return date('Y-m-d');
+    }
+
+    public function outside_contract_report(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+
+        $report_date = $this->normalize_report_date($this->input->get('report_date'));
+        $selected_blanch_id = (int) $this->input->get('blanch_id');
+
+        $blanch = $this->queries->get_blanch($comp_id);
+
+        $selected_branch_name = 'All Branches';
+        if ($selected_blanch_id > 0) {
+            $branch = $this->queries->get_blanchData($selected_blanch_id);
+            if (!empty($branch) && !empty($branch->blanch_name)) {
+                $selected_branch_name = $branch->blanch_name;
+            }
+        }
+
+        $customers = $this->queries->get_outside_contract_customers(
+            $comp_id,
+            $report_date,
+            $selected_blanch_id > 0 ? $selected_blanch_id : null
+        );
+
+        $this->load->view('admin/outside_contract_report', array(
+            'blanch'               => $blanch,
+            'selected_blanch_id'   => $selected_blanch_id,
+            'selected_branch_name' => $selected_branch_name,
+            'report_date'          => $report_date,
+            'customers'            => $customers,
+        ));
+    }
+
+    public function outside_contract_report_pdf(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+
+        $report_date = $this->normalize_report_date($this->input->get('report_date'));
+        $selected_blanch_id = (int) $this->input->get('blanch_id');
+
+        $blanch = $this->queries->get_blanch($comp_id);
+        $is_valid_branch_filter = false;
+        foreach ($blanch as $branch_row) {
+            if ((int) $branch_row->blanch_id === $selected_blanch_id) {
+                $is_valid_branch_filter = true;
+                break;
+            }
+        }
+
+        if (!$is_valid_branch_filter) {
+            $selected_blanch_id = 0;
+        }
+
+        $selected_branch_name = 'All Branches';
+        if ($selected_blanch_id > 0) {
+            $branch = $this->queries->get_blanchData($selected_blanch_id);
+            if (!empty($branch) && !empty($branch->blanch_name)) {
+                $selected_branch_name = $branch->blanch_name;
+            }
+        }
+
+        $customers = $this->queries->get_outside_contract_customers(
+            $comp_id,
+            $report_date,
+            $selected_blanch_id > 0 ? $selected_blanch_id : null
+        );
+
+        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4']);
+        $html = $this->load->view('admin/outside_contract_report_pdf', array(
+            'selected_branch_name' => $selected_branch_name,
+            'report_date'          => $report_date,
+            'customers'            => $customers,
+        ), true);
+
+        $mpdf->SetFooter('Generated By Brainsoft Technology');
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('outside_contract_report_' . $report_date . '.pdf', 'I');
+    }
+
+    public function not_paid_today_report(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+
+        $report_date = $this->normalize_report_date($this->input->get('report_date'));
+        $selected_blanch_id = (int) $this->input->get('blanch_id');
+
+        $blanch = $this->queries->get_blanch($comp_id);
+
+        $is_valid_branch_filter = false;
+        foreach ($blanch as $branch_row) {
+            if ((int) $branch_row->blanch_id === $selected_blanch_id) {
+                $is_valid_branch_filter = true;
+                break;
+            }
+        }
+
+        if (!$is_valid_branch_filter) {
+            $selected_blanch_id = 0;
+        }
+
+        $selected_branch_name = 'All Branches';
+        if ($selected_blanch_id > 0) {
+            $branch = $this->queries->get_blanchData($selected_blanch_id);
+            if (!empty($branch) && !empty($branch->blanch_name)) {
+                $selected_branch_name = $branch->blanch_name;
+            }
+        }
+
+        $not_paid_list = $this->queries->get_not_paid_today_list(
+            $comp_id,
+            $report_date,
+            $selected_blanch_id > 0 ? $selected_blanch_id : null
+        );
+
+        $this->load->view('admin/not_paid_today_report', array(
+            'blanch'               => $blanch,
+            'selected_blanch_id'   => $selected_blanch_id,
+            'selected_branch_name' => $selected_branch_name,
+            'report_date'          => $report_date,
+            'not_paid_list'        => $not_paid_list,
+        ));
+    }
+
+    public function not_paid_today_report_pdf(){
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+
+        $report_date = $this->normalize_report_date($this->input->get('report_date'));
+        $selected_blanch_id = (int) $this->input->get('blanch_id');
+
+        $blanch = $this->queries->get_blanch($comp_id);
+        $company_data = $this->queries->get_companyData($comp_id);
+
+        $is_valid_branch_filter = false;
+        foreach ($blanch as $branch_row) {
+            if ((int) $branch_row->blanch_id === $selected_blanch_id) {
+                $is_valid_branch_filter = true;
+                break;
+            }
+        }
+
+        if (!$is_valid_branch_filter) {
+            $selected_blanch_id = 0;
+        }
+
+        $blanch_data = null;
+        $selected_branch_name = 'All Branches';
+        if ($selected_blanch_id > 0) {
+            $blanch_data = $this->queries->get_blanchData($selected_blanch_id);
+            if (!empty($blanch_data) && !empty($blanch_data->blanch_name)) {
+                $selected_branch_name = $blanch_data->blanch_name;
+            }
+        }
+
+        $not_paid_list = $this->queries->get_not_paid_today_list(
+            $comp_id,
+            $report_date,
+            $selected_blanch_id > 0 ? $selected_blanch_id : null
+        );
+
+        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'orientation' => 'L']);
+        $html = $this->load->view('admin/not_paid_today_report_pdf', array(
+            'company_data'         => $company_data,
+            'blanch_data'          => $blanch_data,
+            'selected_branch_name' => $selected_branch_name,
+            'report_date'          => $report_date,
+            'not_paid_list'        => $not_paid_list,
+        ), true);
+
+        $mpdf->SetFooter('Generated By Brainsoft Technology');
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('not_paid_today_report_' . $report_date . '.pdf', 'I');
+    }
 
 
+	
 
 
 

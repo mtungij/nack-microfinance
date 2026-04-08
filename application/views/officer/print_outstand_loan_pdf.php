@@ -2,7 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Outstand Loan Report</title>
+  <?php
+    $lang_line = function ($key, $fallback) {
+      $value = $this->lang->line($key);
+      return !empty($value) ? $value : $fallback;
+    };
+
+    $txt_outstand_loan_report = $lang_line('pdf_outstand_loan_report', 'Outstand Loan Report');
+    $txt_company_logo = $lang_line('company_logo', 'Company Logo');
+    $txt_branch_code = $lang_line('branch_code', 'Branch Code');
+    $txt_range = $lang_line('range', 'Range');
+    $txt_s_no = $lang_line('s_no', 'S/No');
+    $txt_branch_name = $lang_line('branch_name', 'Branch Name');
+    $txt_customer_name = $lang_line('customer_name', 'Customer Name');
+    $txt_phone_number = $lang_line('phone_number', 'Phone Number');
+    $txt_loan_amount = $lang_line('loan_amount', 'Loan Amount');
+    $txt_restoration = $lang_line('collection', 'Collection');
+    $txt_duration_type = $lang_line('duration_type', 'Duration Type');
+    $txt_number_of_repayment = $lang_line('number_of_repayment', 'Number of Repayment');
+    $txt_remain_amount = $lang_line('remain_amount', 'Remain Amount');
+    $txt_pending_day = $lang_line('pending_day', 'Pending Day');
+    $txt_start_date = $lang_line('start_date', 'Start Date');
+    $txt_end_date = $lang_line('end_date', 'End Date');
+    $txt_daily = $lang_line('daily', 'Daily');
+    $txt_weekly = $lang_line('weekly', 'Weekly');
+    $txt_monthly = $lang_line('monthly', 'Monthly');
+    $txt_total = $lang_line('total', 'TOTAL');
+  ?>
+  <title><?php echo $txt_outstand_loan_report; ?></title>
   <style>
     body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
     .header { text-align: center; margin-bottom: 10px; }
@@ -44,30 +71,30 @@
   <div><strong><?= htmlspecialchars($companyName); ?></strong></div>
   <div><?= htmlspecialchars($companyAddress); ?></div>
   <div><?= htmlspecialchars($companyEmail); ?> <?= !empty($companyPhone) ? ' | ' . htmlspecialchars($companyPhone) : ''; ?></div>
-  <div><strong>Outstand Loan Report</strong> - <?= $today; ?></div>
+  <div><strong><?= $txt_outstand_loan_report; ?></strong> - <?= $today; ?></div>
   <?php if (!empty($branchCode)): ?>
-    <div class="muted">Branch Code: <?= htmlspecialchars($branchCode); ?></div>
+    <div class="muted"><?= $txt_branch_code; ?>: <?= htmlspecialchars($branchCode); ?></div>
   <?php endif; ?>
   <?php if (!empty($range)): ?>
-    <div class="muted">Range: <?= htmlspecialchars($range); ?></div>
+    <div class="muted"><?= $txt_range; ?>: <?= htmlspecialchars($range); ?></div>
   <?php endif; ?>
 </div>
 
 <table>
   <thead>
     <tr>
-      <th>S/No</th>
-      <th>Branch Name</th>
-      <th>Customer Name</th>
-      <th>Phone Number</th>
-      <th>Loan Amount</th>
-      <th>Restoration</th>
-      <th>Duration Type</th>
-      <th>Number of Repayment</th>
-      <th>Remain Amount</th>
-      <th>Pending Day</th>
-      <th>Start date</th>
-      <th>End date</th>
+      <th><?= $txt_s_no; ?></th>
+      <th><?= $txt_branch_name; ?></th>
+      <th><?= $txt_customer_name; ?></th>
+      <th><?= $txt_phone_number; ?></th>
+      <th><?= $txt_loan_amount; ?></th>
+      <th><?= $txt_restoration; ?></th>
+      <th><?= $txt_duration_type; ?></th>
+      <th><?= $txt_number_of_repayment; ?></th>
+      <th><?= $txt_remain_amount; ?></th>
+      <th><?= $txt_pending_day; ?></th>
+      <th><?= $txt_start_date; ?></th>
+      <th><?= $txt_end_date; ?></th>
     </tr>
   </thead>
   <tbody>
@@ -77,11 +104,11 @@
         <?php
           $duration = '';
           if ($item->day == '1') {
-            $duration = 'Daily';
+            $duration = $txt_daily;
           } elseif ($item->day == '7') {
-            $duration = 'Weekly';
+            $duration = $txt_weekly;
           } elseif ($item->day == '30') {
-            $duration = 'Monthly';
+            $duration = $txt_monthly;
           }
 
           $endDateStr = substr($item->loan_end_date ?? '', 0, 10);
@@ -110,7 +137,7 @@
       <?php endforeach; ?>
     <?php endif; ?>
     <tr class="total-row">
-      <td>TOTAL</td>
+      <td><?= $txt_total; ?></td>
       <td></td>
       <td></td>
       <td></td>

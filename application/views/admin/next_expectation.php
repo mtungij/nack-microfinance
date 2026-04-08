@@ -35,7 +35,7 @@
 				<i class="kt-font-brand flaticon-list-2"></i>
 			</span>
 			<h3 class="kt-portlet__head-title">
-				Expected Receivable / 
+				Expected Collections / 
 				<?php if ($branch_data == FALSE) {
 				 ?>
 				 ALL BRANCH

@@ -3593,15 +3593,15 @@ public function remove_receved($receved_id){
 	return $this->db->delete('tbl_receve',['receved_id'=>$receved_id]);
 }
 
-public function get_sum_income($comp_id){
-	$date = date("Y-m-d");
-	$data = $this->db->query("SELECT SUM(receve_amount) AS total_receved FROM  tbl_receve WHERE comp_id = '$comp_id' AND receve_day = '$date'");
+public function get_sum_income($comp_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(receve_amount) AS total_receved FROM  tbl_receve WHERE comp_id = '$comp_id' AND receve_day = '$report_date'");
 	 return $data->row();
 }
 
-public function get_sum_incomeBlanchData($blanch_id){
-	$date = date("Y-m-d");
-	$data = $this->db->query("SELECT SUM(receve_amount) AS total_receved FROM  tbl_receve WHERE blanch_id = '$blanch_id' AND receve_day ='$date'");
+public function get_sum_incomeBlanchData($blanch_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(receve_amount) AS total_receved FROM  tbl_receve WHERE blanch_id = '$blanch_id' AND receve_day ='$report_date'");
 	 return $data->row();
 }
 
@@ -3976,6 +3976,81 @@ public function get_next7days_ending_loans_restriction($comp_id)
 	
 		return $query->result();
 	}
+
+
+	public function get_expected_collection_today($comp_id, $date = null)
+{
+	$report_date = empty($date) ? date('Y-m-d') : $date;
+
+	$sql = "SELECT IFNULL(SUM(l.restration), 0) as total_expected
+		FROM tbl_loans l
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		WHERE l.loan_status = 'withdrawal'
+			AND l.comp_id = ?
+			AND ? > o.loan_stat_date
+			AND ? <= o.loan_end_date
+			AND (
+				(l.day = 1 AND DATEDIFF(?, o.loan_stat_date) >= 1)
+				OR (
+					l.day = 7
+					AND DATEDIFF(?, o.loan_stat_date) >= 7
+					AND MOD(DATEDIFF(?, o.loan_stat_date), 7) = 0
+				)
+				OR (
+					l.day IN (28,29,30,31)
+					AND DATEDIFF(?, o.loan_stat_date) >= l.day
+					AND MOD(DATEDIFF(?, o.loan_stat_date), l.day) = 0
+				)
+			)";
+
+	return $this->db->query($sql, array(
+		$comp_id,
+		$report_date,
+		$report_date,
+		$report_date,
+		$report_date,
+		$report_date,
+		$report_date,
+		$report_date,
+	))->row();
+}
+
+	public function get_expected_collection_today_blanch($blanch_id, $date = null)
+{
+	$report_date = empty($date) ? date('Y-m-d') : $date;
+
+	$sql = "SELECT IFNULL(SUM(l.restration), 0) as total_expected
+		FROM tbl_loans l
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		WHERE l.loan_status = 'withdrawal'
+			AND l.blanch_id = ?
+			AND ? > o.loan_stat_date
+			AND ? <= o.loan_end_date
+			AND (
+				(l.day = 1 AND DATEDIFF(?, o.loan_stat_date) >= 1)
+				OR (
+					l.day = 7
+					AND DATEDIFF(?, o.loan_stat_date) >= 7
+					AND MOD(DATEDIFF(?, o.loan_stat_date), 7) = 0
+				)
+				OR (
+					l.day IN (28,29,30,31)
+					AND DATEDIFF(?, o.loan_stat_date) >= l.day
+					AND MOD(DATEDIFF(?, o.loan_stat_date), l.day) = 0
+				)
+			)";
+
+	return $this->db->query($sql, array(
+		$blanch_id,
+		$report_date,
+		$report_date,
+		$report_date,
+		$report_date,
+		$report_date,
+		$report_date,
+		$report_date,
+	))->row();
+}
 	
 
 
@@ -4412,9 +4487,9 @@ public function get_cash_transaction_blanch($blanch_id){
 }
 
 
-	  public function get_total_deducted_income_blanch_data($blanch_id){
- 	$today = date("Y-m-d");
- 	$data = $this->db->query("SELECT SUM(deducted_balance) AS total_deducted FROM tbl_deducted_fee WHERE blanch_id = '$blanch_id' AND deducted_date = '$today'");
+	  public function get_total_deducted_income_blanch_data($blanch_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(deducted_balance) AS total_deducted FROM tbl_deducted_fee WHERE blanch_id = '$blanch_id' AND deducted_date = '$report_date'");
  	return $data->row();
  }
 
@@ -6402,9 +6477,9 @@ public function get_deducted_blanch($blanch_id){
  }
 
 
- public function get_total_deducted_income($comp_id){
- 	$today = date("Y-m-d");
- 	$data = $this->db->query("SELECT SUM(deducted_balance) AS total_deducted FROM tbl_deducted_fee WHERE comp_id = '$comp_id' AND deducted_date = '$today'");
+public function get_total_deducted_income($comp_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(deducted_balance) AS total_deducted FROM tbl_deducted_fee WHERE comp_id = '$comp_id' AND deducted_date = '$report_date'");
  	return $data->row();
  }
 
@@ -7839,15 +7914,947 @@ public function get_total_empl_depost_data($empl_id){
 }
 
 
-public function get_total_deposit($comp_id){
-	$date = date("Y-m-d");
-	$data = $this->db->query("SELECT SUM(depost) AS total_depost_comp FROM tbl_prev_lecod WHERE comp_id = '$comp_id' AND lecod_day = '$date'");
+public function get_total_deposit($comp_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(depost) AS total_depost_comp FROM tbl_prev_lecod WHERE comp_id = '$comp_id' AND lecod_day = '$report_date'");
 	return $data->row();
 }
 
-public function get_total_deposit_blanch($blanch_id){
-	$date = date("Y-m-d");
-	$data = $this->db->query("SELECT SUM(depost) AS total_depost_comp FROM tbl_prev_lecod WHERE blanch_id = '$blanch_id' AND lecod_day = '$date'");
+public function get_daily_payment_breakdown($comp_id, $date = null){
+	$today = empty($date) ? date('Y-m-d') : $date;
+	$yesterday = date('Y-m-d', strtotime($today . ' -1 day'));
+
+	$sql = "
+		SELECT
+			l.loan_id,
+			l.day,
+			l.restration,
+			o.loan_stat_date,
+			o.loan_end_date,
+			COALESCE(SUM(CASE WHEN pr.lecod_day < ? THEN pr.depost ELSE 0 END), 0) AS paid_before_today,
+			COALESCE(SUM(CASE WHEN pr.lecod_day = ? THEN pr.depost ELSE 0 END), 0) AS paid_today
+		FROM tbl_loans l
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		LEFT JOIN tbl_prev_lecod pr ON pr.loan_id = l.loan_id
+		WHERE l.comp_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND o.loan_stat_date IS NOT NULL
+			AND l.restration IS NOT NULL
+		GROUP BY l.loan_id, l.day, l.restration, o.loan_stat_date, o.loan_end_date
+	";
+
+	$rows = $this->db->query($sql, array($today, $today, $comp_id))->result();
+
+	$totals = (object) array(
+		'past_due_paid' => 0.0,
+		'actual_paid' => 0.0,
+		'advance_paid' => 0.0,
+		'not_paid_today' => 0.0,
+		'total_received_today' => 0.0,
+	);
+
+	foreach ($rows as $row) {
+		$interval_days = (int) $row->day;
+		$restration = (float) $row->restration;
+
+		if ($interval_days <= 0 || $restration <= 0) {
+			continue;
+		}
+
+		$start_ts = strtotime((string) $row->loan_stat_date);
+		if ($start_ts === false) {
+			continue;
+		}
+
+		$end_ts = strtotime((string) $row->loan_end_date);
+		if ($end_ts === false) {
+			$end_ts = strtotime($today);
+		}
+
+		$due_before_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $yesterday);
+		$due_until_today_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $today);
+		$due_today_count = max($due_until_today_count - $due_before_count, 0);
+
+		$required_before = $due_before_count * $restration;
+		$paid_before = (float) $row->paid_before_today;
+		$today_paid = (float) $row->paid_today;
+
+		$backlog_before_today = max($required_before - $paid_before, 0);
+		$past_due_paid = min($today_paid, $backlog_before_today);
+
+		$remaining_after_past = max($today_paid - $past_due_paid, 0);
+		$today_due_amount = $due_today_count * $restration;
+		$actual_paid = min($remaining_after_past, $today_due_amount);
+		$advance_paid = max($remaining_after_past - $actual_paid, 0);
+
+		$not_paid_today = max($today_due_amount - $actual_paid, 0);
+
+		$totals->past_due_paid += $past_due_paid;
+		$totals->actual_paid += $actual_paid;
+		$totals->advance_paid += $advance_paid;
+		$totals->not_paid_today += $not_paid_today;
+		$totals->total_received_today += $today_paid;
+	}
+
+	return $totals;
+}
+
+public function get_daily_payment_breakdown_blanch($blanch_id, $date = null){
+	$today = empty($date) ? date('Y-m-d') : $date;
+	$yesterday = date('Y-m-d', strtotime($today . ' -1 day'));
+
+	$sql = "
+		SELECT
+			l.loan_id,
+			l.day,
+			l.restration,
+			o.loan_stat_date,
+			o.loan_end_date,
+			COALESCE(SUM(CASE WHEN pr.lecod_day < ? THEN pr.depost ELSE 0 END), 0) AS paid_before_today,
+			COALESCE(SUM(CASE WHEN pr.lecod_day = ? THEN pr.depost ELSE 0 END), 0) AS paid_today
+		FROM tbl_loans l
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		LEFT JOIN tbl_prev_lecod pr ON pr.loan_id = l.loan_id
+		WHERE l.blanch_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND o.loan_stat_date IS NOT NULL
+			AND l.restration IS NOT NULL
+		GROUP BY l.loan_id, l.day, l.restration, o.loan_stat_date, o.loan_end_date
+	";
+
+	$rows = $this->db->query($sql, array($today, $today, $blanch_id))->result();
+
+	$totals = (object) array(
+		'past_due_paid' => 0.0,
+		'actual_paid' => 0.0,
+		'advance_paid' => 0.0,
+		'not_paid_today' => 0.0,
+		'total_received_today' => 0.0,
+	);
+
+	foreach ($rows as $row) {
+		$interval_days = (int) $row->day;
+		$restration = (float) $row->restration;
+
+		if ($interval_days <= 0 || $restration <= 0) {
+			continue;
+		}
+
+		$start_ts = strtotime((string) $row->loan_stat_date);
+		if ($start_ts === false) {
+			continue;
+		}
+
+		$end_ts = strtotime((string) $row->loan_end_date);
+		if ($end_ts === false) {
+			$end_ts = strtotime($today);
+		}
+
+		$due_before_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $yesterday);
+		$due_until_today_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $today);
+		$due_today_count = max($due_until_today_count - $due_before_count, 0);
+
+		$required_before = $due_before_count * $restration;
+		$paid_before = (float) $row->paid_before_today;
+		$today_paid = (float) $row->paid_today;
+
+		$backlog_before_today = max($required_before - $paid_before, 0);
+		$past_due_paid = min($today_paid, $backlog_before_today);
+
+		$remaining_after_past = max($today_paid - $past_due_paid, 0);
+		$today_due_amount = $due_today_count * $restration;
+		$actual_paid = min($remaining_after_past, $today_due_amount);
+		$advance_paid = max($remaining_after_past - $actual_paid, 0);
+
+		$not_paid_today = max($today_due_amount - $actual_paid, 0);
+
+		$totals->past_due_paid += $past_due_paid;
+		$totals->actual_paid += $actual_paid;
+		$totals->advance_paid += $advance_paid;
+		$totals->not_paid_today += $not_paid_today;
+		$totals->total_received_today += $today_paid;
+	}
+
+	return $totals;
+}
+
+public function get_not_paid_today_list($comp_id, $date = null, $blanch_id = null){
+	$today = empty($date) ? date('Y-m-d') : $date;
+	$yesterday = date('Y-m-d', strtotime($today . ' -1 day'));
+
+	$blanch_filter = '';
+	$params = array($today, $today, $comp_id);
+	if (!empty($blanch_id)) {
+		$blanch_filter = ' AND l.blanch_id = ?';
+		$params[] = $blanch_id;
+	}
+
+	$sql = "
+		SELECT
+			l.loan_id,
+			l.day,
+			l.restration,
+			l.loan_int,
+			o.loan_stat_date,
+			o.loan_end_date,
+			c.f_name,
+			c.m_name,
+			c.l_name,
+			c.phone_no,
+			b.blanch_name,
+			COALESCE(SUM(CASE WHEN pr.lecod_day < ? THEN pr.depost ELSE 0 END), 0) AS paid_before_today,
+			COALESCE(SUM(CASE WHEN pr.lecod_day = ? THEN pr.depost ELSE 0 END), 0) AS paid_today
+		FROM tbl_loans l
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		JOIN tbl_customer c ON c.customer_id = l.customer_id
+		LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+		LEFT JOIN tbl_prev_lecod pr ON pr.loan_id = l.loan_id
+		WHERE l.comp_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND o.loan_stat_date IS NOT NULL
+			AND l.restration IS NOT NULL
+			" . $blanch_filter . "
+		GROUP BY l.loan_id, l.day, l.restration, l.loan_int, o.loan_stat_date, o.loan_end_date,
+			c.f_name, c.m_name, c.l_name, c.phone_no, b.blanch_name
+		ORDER BY b.blanch_name ASC, c.f_name ASC
+	";
+
+	$rows = $this->db->query($sql, $params)->result();
+	$result = array();
+
+	foreach ($rows as $row) {
+		$interval_days = (int) $row->day;
+		$restration = (float) $row->restration;
+
+		if ($interval_days <= 0 || $restration <= 0) {
+			continue;
+		}
+
+		$start_ts = strtotime((string) $row->loan_stat_date);
+		if ($start_ts === false) {
+			continue;
+		}
+
+		$end_ts = strtotime((string) $row->loan_end_date);
+		if ($end_ts === false) {
+			$end_ts = strtotime($today);
+		}
+
+		$due_before_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $yesterday);
+		$due_until_today_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $today);
+		$due_today_count = max($due_until_today_count - $due_before_count, 0);
+
+		$required_before = $due_before_count * $restration;
+		$paid_before = (float) $row->paid_before_today;
+		$today_paid = (float) $row->paid_today;
+
+		$backlog_before_today = max($required_before - $paid_before, 0);
+		$past_due_paid = min($today_paid, $backlog_before_today);
+		$remaining_after_past = max($today_paid - $past_due_paid, 0);
+		$expected_today = $due_today_count * $restration;
+		$actual_paid_today = min($remaining_after_past, $expected_today);
+		$not_paid_today = max($expected_today - $actual_paid_today, 0);
+
+		if ($expected_today <= 0 || $not_paid_today <= 0) {
+			continue;
+		}
+
+		$row->expected_today = $expected_today;
+		$row->actual_paid_today = $actual_paid_today;
+		$row->not_paid_today = $not_paid_today;
+		$result[] = $row;
+	}
+
+	return $result;
+}
+
+public function get_daily_account_payment_summary($comp_id, $date = null){
+	$today = empty($date) ? date('Y-m-d') : $date;
+
+	$account_rows = $this->db->query(
+		"SELECT
+			ba.receive_trans_id AS trans_id,
+			COALESCE(at.account_name, CONCAT('Account ', ba.receive_trans_id)) AS account_name,
+			COALESCE(SUM(ba.blanch_capital), 0) AS closing_balance
+		FROM tbl_blanch_account ba
+		LEFT JOIN tbl_account_transaction at ON at.trans_id = ba.receive_trans_id
+		WHERE ba.comp_id = ?
+		GROUP BY ba.receive_trans_id, at.account_name
+		ORDER BY at.account_name ASC",
+		array($comp_id)
+	)->result();
+
+	$deposit_rows = $this->db->query(
+		"SELECT
+			p.p_method AS trans_id,
+			COALESCE(SUM(p.depost), 0) AS total_deposit
+		FROM tbl_pay p
+		WHERE p.comp_id = ?
+			AND p.pay_status = '1'
+			AND p.date_pay = ?
+			AND p.p_method IS NOT NULL
+		GROUP BY p.p_method",
+		array($comp_id, $today)
+	)->result();
+
+	$withdraw_rows = $this->db->query(
+		"SELECT
+			p.p_method AS trans_id,
+			COALESCE(SUM(p.withdrow), 0) AS total_withdraw
+		FROM tbl_pay p
+		WHERE p.comp_id = ?
+			AND p.pay_status = '2'
+			AND p.date_pay = ?
+			AND p.p_method IS NOT NULL
+		GROUP BY p.p_method",
+		array($comp_id, $today)
+	)->result();
+
+	$payment_split = $this->get_daily_payment_split_by_account($comp_id, $today);
+
+	$account_map = array();
+	foreach ($account_rows as $row) {
+		$trans_id = (string) $row->trans_id;
+		$account_map[$trans_id] = (object) array(
+			'trans_id' => $row->trans_id,
+			'account_name' => $row->account_name,
+			'opening_balance' => 0.0,
+			'today_received' => 0.0,
+			'today_loan_withdraw' => 0.0,
+			'actual_payments' => 0.0,
+			'advance_payments' => 0.0,
+			'closing_balance' => (float) $row->closing_balance,
+		);
+	}
+
+	foreach ($deposit_rows as $row) {
+		$trans_id = (string) $row->trans_id;
+		if (!isset($account_map[$trans_id])) {
+			$account_map[$trans_id] = (object) array(
+				'trans_id' => $row->trans_id,
+				'account_name' => 'Account ' . $row->trans_id,
+				'opening_balance' => 0.0,
+				'today_received' => 0.0,
+				'today_loan_withdraw' => 0.0,
+				'actual_payments' => 0.0,
+				'advance_payments' => 0.0,
+				'closing_balance' => 0.0,
+			);
+		}
+		$account_map[$trans_id]->today_received = (float) $row->total_deposit;
+	}
+
+	foreach ($withdraw_rows as $row) {
+		$trans_id = (string) $row->trans_id;
+		if (!isset($account_map[$trans_id])) {
+			$account_map[$trans_id] = (object) array(
+				'trans_id' => $row->trans_id,
+				'account_name' => 'Account ' . $row->trans_id,
+				'opening_balance' => 0.0,
+				'today_received' => 0.0,
+				'today_loan_withdraw' => 0.0,
+				'actual_payments' => 0.0,
+				'advance_payments' => 0.0,
+				'closing_balance' => 0.0,
+			);
+		}
+		$account_map[$trans_id]->today_loan_withdraw = (float) $row->total_withdraw;
+	}
+
+	foreach ($payment_split as $trans_id => $split) {
+		if (!isset($account_map[$trans_id])) {
+			$account_map[$trans_id] = (object) array(
+				'trans_id' => $trans_id,
+				'account_name' => 'Account ' . $trans_id,
+				'opening_balance' => 0.0,
+				'today_received' => 0.0,
+				'today_loan_withdraw' => 0.0,
+				'actual_payments' => 0.0,
+				'advance_payments' => 0.0,
+				'closing_balance' => 0.0,
+			);
+		}
+		$account_map[$trans_id]->actual_payments = (float) $split['actual'];
+		$account_map[$trans_id]->advance_payments = (float) $split['advance'];
+	}
+
+	$this->add_missing_penalty_to_cash_account($account_map, 'comp_id', $comp_id, $today);
+
+	foreach ($account_map as $trans_id => $row) {
+		$row->opening_balance = $row->closing_balance - $row->today_received + $row->today_loan_withdraw;
+		if ($row->opening_balance < 0) {
+			$row->opening_balance = 0;
+		}
+	}
+
+	usort($account_map, function ($a, $b) {
+		return strcmp((string) $a->account_name, (string) $b->account_name);
+	});
+
+	return $account_map;
+}
+
+public function get_daily_account_payment_summary_blanch($blanch_id, $date = null){
+	$today = empty($date) ? date('Y-m-d') : $date;
+
+	$account_rows = $this->db->query(
+		"SELECT
+			ba.receive_trans_id AS trans_id,
+			COALESCE(at.account_name, CONCAT('Account ', ba.receive_trans_id)) AS account_name,
+			COALESCE(SUM(ba.blanch_capital), 0) AS closing_balance
+		FROM tbl_blanch_account ba
+		LEFT JOIN tbl_account_transaction at ON at.trans_id = ba.receive_trans_id
+		WHERE ba.blanch_id = ?
+		GROUP BY ba.receive_trans_id, at.account_name
+		ORDER BY at.account_name ASC",
+		array($blanch_id)
+	)->result();
+
+	$deposit_rows = $this->db->query(
+		"SELECT
+			p.p_method AS trans_id,
+			COALESCE(SUM(p.depost), 0) AS total_deposit
+		FROM tbl_pay p
+		WHERE p.blanch_id = ?
+			AND p.pay_status = '1'
+			AND p.date_pay = ?
+			AND p.p_method IS NOT NULL
+		GROUP BY p.p_method",
+		array($blanch_id, $today)
+	)->result();
+
+	$withdraw_rows = $this->db->query(
+		"SELECT
+			p.p_method AS trans_id,
+			COALESCE(SUM(p.withdrow), 0) AS total_withdraw
+		FROM tbl_pay p
+		WHERE p.blanch_id = ?
+			AND p.pay_status = '2'
+			AND p.date_pay = ?
+			AND p.p_method IS NOT NULL
+		GROUP BY p.p_method",
+		array($blanch_id, $today)
+	)->result();
+
+	$payment_split = $this->get_daily_payment_split_by_account_blanch($blanch_id, $today);
+
+	$account_map = array();
+	foreach ($account_rows as $row) {
+		$trans_id = (string) $row->trans_id;
+		$account_map[$trans_id] = (object) array(
+			'trans_id' => $row->trans_id,
+			'account_name' => $row->account_name,
+			'opening_balance' => 0.0,
+			'today_received' => 0.0,
+			'today_loan_withdraw' => 0.0,
+			'actual_payments' => 0.0,
+			'advance_payments' => 0.0,
+			'closing_balance' => (float) $row->closing_balance,
+		);
+	}
+
+	foreach ($deposit_rows as $row) {
+		$trans_id = (string) $row->trans_id;
+		if (!isset($account_map[$trans_id])) {
+			$account_map[$trans_id] = (object) array(
+				'trans_id' => $row->trans_id,
+				'account_name' => 'Account ' . $row->trans_id,
+				'opening_balance' => 0.0,
+				'today_received' => 0.0,
+				'today_loan_withdraw' => 0.0,
+				'actual_payments' => 0.0,
+				'advance_payments' => 0.0,
+				'closing_balance' => 0.0,
+			);
+		}
+		$account_map[$trans_id]->today_received = (float) $row->total_deposit;
+	}
+
+	foreach ($withdraw_rows as $row) {
+		$trans_id = (string) $row->trans_id;
+		if (!isset($account_map[$trans_id])) {
+			$account_map[$trans_id] = (object) array(
+				'trans_id' => $row->trans_id,
+				'account_name' => 'Account ' . $row->trans_id,
+				'opening_balance' => 0.0,
+				'today_received' => 0.0,
+				'today_loan_withdraw' => 0.0,
+				'actual_payments' => 0.0,
+				'advance_payments' => 0.0,
+				'closing_balance' => 0.0,
+			);
+		}
+		$account_map[$trans_id]->today_loan_withdraw = (float) $row->total_withdraw;
+	}
+
+	foreach ($payment_split as $trans_id => $split) {
+		if (!isset($account_map[$trans_id])) {
+			$account_map[$trans_id] = (object) array(
+				'trans_id' => $trans_id,
+				'account_name' => 'Account ' . $trans_id,
+				'opening_balance' => 0.0,
+				'today_received' => 0.0,
+				'today_loan_withdraw' => 0.0,
+				'actual_payments' => 0.0,
+				'advance_payments' => 0.0,
+				'closing_balance' => 0.0,
+			);
+		}
+		$account_map[$trans_id]->actual_payments = (float) $split['actual'];
+		$account_map[$trans_id]->advance_payments = (float) $split['advance'];
+	}
+
+	$this->add_missing_penalty_to_cash_account($account_map, 'blanch_id', $blanch_id, $today);
+
+	foreach ($account_map as $trans_id => $row) {
+		$row->opening_balance = $row->closing_balance - $row->today_received + $row->today_loan_withdraw;
+		if ($row->opening_balance < 0) {
+			$row->opening_balance = 0;
+		}
+	}
+
+	usort($account_map, function ($a, $b) {
+		return strcmp((string) $a->account_name, (string) $b->account_name);
+	});
+
+	return $account_map;
+}
+
+private function add_missing_penalty_to_cash_account(&$account_map, $scope_column, $scope_id, $today){
+	if (empty($scope_id)) {
+		return;
+	}
+
+	$allowed_scope_columns = array('comp_id', 'blanch_id');
+	if (!in_array($scope_column, $allowed_scope_columns, true)) {
+		return;
+	}
+
+	$cash_row = $this->db->query(
+		"SELECT
+			ba.receive_trans_id AS trans_id,
+			COALESCE(at.account_name, 'CASH') AS account_name,
+			COALESCE(SUM(ba.blanch_capital), 0) AS closing_balance
+		FROM tbl_blanch_account ba
+		LEFT JOIN tbl_account_transaction at ON at.trans_id = ba.receive_trans_id
+		WHERE ba." . $scope_column . " = ?
+			AND UPPER(TRIM(at.account_name)) = 'CASH'
+		GROUP BY ba.receive_trans_id, at.account_name
+		ORDER BY ba.receive_trans_id ASC
+		LIMIT 1",
+		array($scope_id)
+	)->row();
+
+	if (empty($cash_row) || empty($cash_row->trans_id)) {
+		return;
+	}
+
+	$penalty_total_row = $this->db->query(
+		"SELECT COALESCE(SUM(pn.penart_paid), 0) AS total_penalty
+		FROM tbl_pay_penart pn
+		WHERE pn." . $scope_column . " = ?
+			AND pn.penart_date = ?",
+		array($scope_id, $today)
+	)->row();
+
+	$posted_penalty_row = $this->db->query(
+		"SELECT COALESCE(SUM(p.depost), 0) AS posted_penalty
+		FROM tbl_pay p
+		WHERE p." . $scope_column . " = ?
+			AND p.date_pay = ?
+			AND p.pay_status = '1'
+			AND p.p_method = ?
+			AND UPPER(TRIM(p.description)) = 'PENALTY INCOME'",
+		array($scope_id, $today, $cash_row->trans_id)
+	)->row();
+
+	$total_penalty = !empty($penalty_total_row->total_penalty) ? (float) $penalty_total_row->total_penalty : 0.0;
+	$posted_penalty = !empty($posted_penalty_row->posted_penalty) ? (float) $posted_penalty_row->posted_penalty : 0.0;
+	$missing_penalty = $total_penalty - $posted_penalty;
+
+	if ($missing_penalty <= 0) {
+		return;
+	}
+
+	$trans_id = (string) $cash_row->trans_id;
+	if (!isset($account_map[$trans_id])) {
+		$account_map[$trans_id] = (object) array(
+			'trans_id' => $cash_row->trans_id,
+			'account_name' => $cash_row->account_name,
+			'opening_balance' => 0.0,
+			'today_received' => 0.0,
+			'today_loan_withdraw' => 0.0,
+			'actual_payments' => 0.0,
+			'advance_payments' => 0.0,
+			'closing_balance' => (float) $cash_row->closing_balance,
+		);
+	}
+
+	if (!isset($account_map[$trans_id]->penalty_added_to_cash)) {
+		$account_map[$trans_id]->penalty_added_to_cash = 0.0;
+	}
+
+	$account_map[$trans_id]->today_received += $missing_penalty;
+	$account_map[$trans_id]->penalty_added_to_cash += $missing_penalty;
+}
+
+private function get_daily_payment_split_by_account($comp_id, $today){
+	$yesterday = date('Y-m-d', strtotime($today . ' -1 day'));
+
+	$loan_rows = $this->db->query(
+		"SELECT
+			l.loan_id,
+			l.day,
+			l.restration,
+			o.loan_stat_date,
+			o.loan_end_date,
+			COALESCE(SUM(CASE WHEN pr.lecod_day < ? THEN pr.depost ELSE 0 END), 0) AS paid_before_today,
+			COALESCE(SUM(CASE WHEN pr.lecod_day = ? THEN pr.depost ELSE 0 END), 0) AS paid_today
+		FROM tbl_loans l
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		LEFT JOIN tbl_prev_lecod pr ON pr.loan_id = l.loan_id
+		WHERE l.comp_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND o.loan_stat_date IS NOT NULL
+			AND l.restration IS NOT NULL
+		GROUP BY l.loan_id, l.day, l.restration, o.loan_stat_date, o.loan_end_date",
+		array($today, $today, $comp_id)
+	)->result();
+
+	$account_rows = $this->db->query(
+		"SELECT
+			pr.loan_id,
+			pr.trans_id,
+			COALESCE(SUM(pr.depost), 0) AS paid_today
+		FROM tbl_prev_lecod pr
+		JOIN tbl_loans l ON l.loan_id = pr.loan_id
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		WHERE l.comp_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND o.loan_stat_date IS NOT NULL
+			AND l.restration IS NOT NULL
+			AND pr.lecod_day = ?
+			AND pr.trans_id IS NOT NULL
+		GROUP BY pr.loan_id, pr.trans_id",
+		array($comp_id, $today)
+	)->result();
+
+	$loan_account_map = array();
+	foreach ($account_rows as $row) {
+		$loan_id = (string) $row->loan_id;
+		if (!isset($loan_account_map[$loan_id])) {
+			$loan_account_map[$loan_id] = array();
+		}
+		$loan_account_map[$loan_id][(string) $row->trans_id] = (float) $row->paid_today;
+	}
+
+	$split = array();
+	foreach ($loan_rows as $row) {
+		$interval_days = (int) $row->day;
+		$restration = (float) $row->restration;
+		if ($interval_days <= 0 || $restration <= 0) {
+			continue;
+		}
+
+		$start_ts = strtotime((string) $row->loan_stat_date);
+		if ($start_ts === false) {
+			continue;
+		}
+
+		$end_ts = strtotime((string) $row->loan_end_date);
+		if ($end_ts === false) {
+			$end_ts = strtotime($today);
+		}
+
+		$due_before_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $yesterday);
+		$due_until_today_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $today);
+		$due_today_count = max($due_until_today_count - $due_before_count, 0);
+
+		$required_before = $due_before_count * $restration;
+		$paid_before = (float) $row->paid_before_today;
+		$today_paid = (float) $row->paid_today;
+		if ($today_paid <= 0) {
+			continue;
+		}
+
+		$backlog_before_today = max($required_before - $paid_before, 0);
+		$past_due_paid = min($today_paid, $backlog_before_today);
+		$remaining_after_past = max($today_paid - $past_due_paid, 0);
+		$today_due_amount = $due_today_count * $restration;
+		$actual_paid = min($remaining_after_past, $today_due_amount);
+		$advance_paid = max($remaining_after_past - $actual_paid, 0);
+
+		$loan_id = (string) $row->loan_id;
+		if (!isset($loan_account_map[$loan_id])) {
+			continue;
+		}
+
+		foreach ($loan_account_map[$loan_id] as $trans_id => $account_paid) {
+			if ($account_paid <= 0) {
+				continue;
+			}
+
+			$ratio = $account_paid / $today_paid;
+			if (!isset($split[$trans_id])) {
+				$split[$trans_id] = array('actual' => 0.0, 'advance' => 0.0);
+			}
+
+			$split[$trans_id]['actual'] += $actual_paid * $ratio;
+			$split[$trans_id]['advance'] += $advance_paid * $ratio;
+		}
+	}
+
+	return $split;
+}
+
+private function get_daily_payment_split_by_account_blanch($blanch_id, $today){
+	$yesterday = date('Y-m-d', strtotime($today . ' -1 day'));
+
+	$loan_rows = $this->db->query(
+		"SELECT
+			l.loan_id,
+			l.day,
+			l.restration,
+			o.loan_stat_date,
+			o.loan_end_date,
+			COALESCE(SUM(CASE WHEN pr.lecod_day < ? THEN pr.depost ELSE 0 END), 0) AS paid_before_today,
+			COALESCE(SUM(CASE WHEN pr.lecod_day = ? THEN pr.depost ELSE 0 END), 0) AS paid_today
+		FROM tbl_loans l
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		LEFT JOIN tbl_prev_lecod pr ON pr.loan_id = l.loan_id
+		WHERE l.blanch_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND o.loan_stat_date IS NOT NULL
+			AND l.restration IS NOT NULL
+		GROUP BY l.loan_id, l.day, l.restration, o.loan_stat_date, o.loan_end_date",
+		array($today, $today, $blanch_id)
+	)->result();
+
+	$account_rows = $this->db->query(
+		"SELECT
+			pr.loan_id,
+			pr.trans_id,
+			COALESCE(SUM(pr.depost), 0) AS paid_today
+		FROM tbl_prev_lecod pr
+		JOIN tbl_loans l ON l.loan_id = pr.loan_id
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		WHERE l.blanch_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND o.loan_stat_date IS NOT NULL
+			AND l.restration IS NOT NULL
+			AND pr.lecod_day = ?
+			AND pr.trans_id IS NOT NULL
+		GROUP BY pr.loan_id, pr.trans_id",
+		array($blanch_id, $today)
+	)->result();
+
+	$loan_account_map = array();
+	foreach ($account_rows as $row) {
+		$loan_id = (string) $row->loan_id;
+		if (!isset($loan_account_map[$loan_id])) {
+			$loan_account_map[$loan_id] = array();
+		}
+		$loan_account_map[$loan_id][(string) $row->trans_id] = (float) $row->paid_today;
+	}
+
+	$split = array();
+	foreach ($loan_rows as $row) {
+		$interval_days = (int) $row->day;
+		$restration = (float) $row->restration;
+		if ($interval_days <= 0 || $restration <= 0) {
+			continue;
+		}
+
+		$start_ts = strtotime((string) $row->loan_stat_date);
+		if ($start_ts === false) {
+			continue;
+		}
+
+		$end_ts = strtotime((string) $row->loan_end_date);
+		if ($end_ts === false) {
+			$end_ts = strtotime($today);
+		}
+
+		$due_before_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $yesterday);
+		$due_until_today_count = $this->count_due_installments($start_ts, $end_ts, $interval_days, $today);
+		$due_today_count = max($due_until_today_count - $due_before_count, 0);
+
+		$required_before = $due_before_count * $restration;
+		$paid_before = (float) $row->paid_before_today;
+		$today_paid = (float) $row->paid_today;
+		if ($today_paid <= 0) {
+			continue;
+		}
+
+		$backlog_before_today = max($required_before - $paid_before, 0);
+		$past_due_paid = min($today_paid, $backlog_before_today);
+		$remaining_after_past = max($today_paid - $past_due_paid, 0);
+		$today_due_amount = $due_today_count * $restration;
+		$actual_paid = min($remaining_after_past, $today_due_amount);
+		$advance_paid = max($remaining_after_past - $actual_paid, 0);
+
+		$loan_id = (string) $row->loan_id;
+		if (!isset($loan_account_map[$loan_id])) {
+			continue;
+		}
+
+		foreach ($loan_account_map[$loan_id] as $trans_id => $account_paid) {
+			if ($account_paid <= 0) {
+				continue;
+			}
+
+			$ratio = $account_paid / $today_paid;
+			if (!isset($split[$trans_id])) {
+				$split[$trans_id] = array('actual' => 0.0, 'advance' => 0.0);
+			}
+
+			$split[$trans_id]['actual'] += $actual_paid * $ratio;
+			$split[$trans_id]['advance'] += $advance_paid * $ratio;
+		}
+	}
+
+	return $split;
+}
+
+private function count_due_installments($start_ts, $end_ts, $interval_days, $as_of_date){
+	$as_of_ts = strtotime($as_of_date);
+	if ($as_of_ts === false || $interval_days <= 0) {
+		return 0;
+	}
+
+	$effective_end = min($end_ts, $as_of_ts);
+
+	if (in_array($interval_days, array(28, 29, 30, 31), true)) {
+		return $this->count_monthly_due_installments($start_ts, $effective_end);
+	}
+
+	$first_due_ts = strtotime('+' . $interval_days . ' day', $start_ts);
+
+	if ($effective_end < $first_due_ts) {
+		return 0;
+	}
+
+	$days_diff = (int) floor(($effective_end - $first_due_ts) / 86400);
+	return (int) floor($days_diff / $interval_days) + 1;
+}
+
+private function count_monthly_due_installments($start_ts, $effective_end_ts){
+	$start = new DateTimeImmutable(date('Y-m-d', $start_ts));
+	$effective_end = new DateTimeImmutable(date('Y-m-d', $effective_end_ts));
+	$anchor_day = (int) $start->format('d');
+
+	$due_date = $this->next_month_due_date($start, $anchor_day);
+	if ($due_date > $effective_end) {
+		return 0;
+	}
+
+	$count = 0;
+	while ($due_date <= $effective_end) {
+		$count++;
+		$due_date = $this->next_month_due_date($due_date, $anchor_day);
+	}
+
+	return $count;
+}
+
+private function next_month_due_date(DateTimeImmutable $date, $anchor_day){
+	$next_month = $date->modify('first day of next month');
+	$days_in_month = (int) $next_month->format('t');
+	$day = min((int) $anchor_day, $days_in_month);
+
+	return $next_month->setDate(
+		(int) $next_month->format('Y'),
+		(int) $next_month->format('m'),
+		$day
+	);
+}
+
+public function get_total_deposit_blanch($blanch_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(depost) AS total_depost_comp FROM tbl_prev_lecod WHERE blanch_id = '$blanch_id' AND lecod_day = '$report_date'");
+	return $data->row();
+}
+
+public function get_received_outside_contract($comp_id, $date = null){
+	$today = date("Y-m-d");
+	$data = $this->db->query(
+		"SELECT COALESCE(SUM(pr.depost), 0) AS total_outside_contract
+		FROM tbl_prev_lecod pr
+		JOIN tbl_loans l ON l.loan_id = pr.loan_id
+		WHERE l.comp_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND pr.lecod_day = ?
+			AND EXISTS (
+				SELECT 1 FROM tbl_outstand o
+				WHERE o.loan_id = l.loan_id
+				AND o.loan_end_date < ?
+			)",
+		array($comp_id, $today, $today)
+	);
+	return $data->row();
+}
+
+public function get_outside_contract_customers($comp_id, $date = null, $blanch_id = null){
+	$today = date("Y-m-d");
+	$params = array($today, $today);
+
+	$blanch_clause = '';
+	if (!empty($blanch_id)) {
+		$blanch_clause = 'AND l.blanch_id = ?';
+		$params[] = $blanch_id;
+		array_unshift($params, $comp_id);
+		// need comp_id check too
+	} else {
+		array_unshift($params, $comp_id);
+	}
+
+	$data = $this->db->query(
+		"SELECT
+			c.f_name, c.m_name, c.l_name, c.phone_no,
+			l.loan_id, l.restration, l.loan_aprove, l.loan_int, l.day, l.session,
+			o.loan_stat_date, o.loan_end_date,
+			b.blanch_name,
+			COALESCE(pt.paid_total, 0) AS paid_total,
+			COALESCE(SUM(pr.depost), 0) AS received_outside
+		FROM tbl_prev_lecod pr
+		JOIN tbl_loans l ON l.loan_id = pr.loan_id
+		JOIN tbl_customer c ON c.customer_id = l.customer_id
+		JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+		JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		LEFT JOIN (
+			SELECT loan_id, SUM(depost) AS paid_total
+			FROM tbl_prev_lecod
+			GROUP BY loan_id
+		) pt ON pt.loan_id = l.loan_id
+		WHERE l.comp_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND pr.lecod_day = ?
+			AND o.loan_end_date < ?
+			$blanch_clause
+		GROUP BY l.loan_id, c.f_name, c.m_name, c.l_name, c.phone_no,
+		         l.restration, l.loan_aprove, l.loan_int, l.day, l.session, o.loan_stat_date, o.loan_end_date, b.blanch_name, pt.paid_total
+		ORDER BY b.blanch_name, c.f_name",
+		$params
+	);
+	return $data->result();
+}
+
+public function get_received_outside_contract_blanch($blanch_id, $date = null){
+	$today = date("Y-m-d");
+	$data = $this->db->query(
+		"SELECT COALESCE(SUM(pr.depost), 0) AS total_outside_contract
+		FROM tbl_prev_lecod pr
+		JOIN tbl_loans l ON l.loan_id = pr.loan_id
+		WHERE l.blanch_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND pr.lecod_day = ?
+			AND EXISTS (
+				SELECT 1 FROM tbl_outstand o
+				WHERE o.loan_id = l.loan_id
+				AND o.loan_end_date < ?
+			)",
+		array($blanch_id, $today, $today)
+	);
 	return $data->row();
 }
 
@@ -7863,15 +8870,15 @@ public function get_total_withdrawal_blanch($blanch_id){
 	return $data->row();
 }
 
-public function get_totalaccount_transaction($comp_id){
-	$date = date("Y-m-d");
-	$data = $this->db->query("SELECT SUM(pr.depost) AS total_depost_account,at.account_name, count(depost) AS recept FROM tbl_prev_lecod pr JOIN tbl_account_transaction at ON at.trans_id = pr.trans_id  WHERE pr.comp_id = '$comp_id' AND pr.lecod_day = '$date' AND pr.trans_id IS NOT NULL GROUP BY pr.trans_id");
+public function get_totalaccount_transaction($comp_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(pr.depost) AS total_depost_account,at.account_name, count(depost) AS recept FROM tbl_prev_lecod pr JOIN tbl_account_transaction at ON at.trans_id = pr.trans_id  WHERE pr.comp_id = '$comp_id' AND pr.lecod_day = '$report_date' AND pr.trans_id IS NOT NULL GROUP BY pr.trans_id");
 	return $data->result();
 }
 
-public function get_totalaccount_transaction_blanch($blanch_id){
-	$date = date("Y-m-d");
-	$data = $this->db->query("SELECT SUM(pr.depost) AS total_depost_account,at.account_name, count(depost) AS recept FROM tbl_prev_lecod pr JOIN tbl_account_transaction at ON at.trans_id = pr.trans_id  WHERE pr.blanch_id = '$blanch_id' AND pr.lecod_day = '$date' AND pr.trans_id IS NOT NULL GROUP BY pr.trans_id");
+public function get_totalaccount_transaction_blanch($blanch_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(pr.depost) AS total_depost_account,at.account_name, count(depost) AS recept FROM tbl_prev_lecod pr JOIN tbl_account_transaction at ON at.trans_id = pr.trans_id  WHERE pr.blanch_id = '$blanch_id' AND pr.lecod_day = '$report_date' AND pr.trans_id IS NOT NULL GROUP BY pr.trans_id");
 	return $data->result();
 }
 
@@ -7889,9 +8896,9 @@ public function get_eploye_deposit($blanch_id){
 }
 
 
-  public function get_today_loan_withdrawal($blanch_id){
-  	$date = date("Y-m-d");
-  	$data = $this->db->query("SELECT SUM(l.loan_aprove) AS total_loan_with,l.blanch_id  FROM tbl_loans l WHERE l.blanch_id = '$blanch_id' AND l.loan_status = 'withdrawal' AND l.disburse_day = '$date' GROUP BY l.blanch_id");
+  public function get_today_loan_withdrawal($blanch_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(l.loan_aprove) AS total_loan_with,l.blanch_id  FROM tbl_loans l WHERE l.blanch_id = '$blanch_id' AND l.loan_status = 'withdrawal' AND l.disburse_day = '$report_date' GROUP BY l.blanch_id");
 
   	return $data = $data->row();
   }
@@ -7903,9 +8910,9 @@ public function get_eploye_deposit($blanch_id){
   	return $data = $data->row();
   }
 
-   public function get_today_loan_withdrawalComp($comp_id){
-  	$date = date("Y-m-d");
-  	$data = $this->db->query("SELECT SUM(l.loan_aprove) AS total_loan_withcomp  FROM tbl_loans l WHERE l.comp_id = '$comp_id' AND l.loan_status = 'withdrawal' AND l.disburse_day = '$date'");
+   public function get_today_loan_withdrawalComp($comp_id, $date = null){
+	$report_date = empty($date) ? date("Y-m-d") : $date;
+	$data = $this->db->query("SELECT SUM(l.loan_aprove) AS total_loan_withcomp  FROM tbl_loans l WHERE l.comp_id = '$comp_id' AND l.loan_status = 'withdrawal' AND l.disburse_day = '$report_date'");
 
   	return $data = $data->row();
   }
@@ -8025,9 +9032,9 @@ public function get_eploye_deposit($blanch_id){
   }
 
 
-  public function get_today_receivable_blanch($blanch_id){
-  	$date = date("Y-m-d");
-  	$data = $this->db->query("SELECT SUM(restration) AS total_restoration FROM tbl_loans WHERE blanch_id = '$blanch_id' AND date_show = '$date' AND loan_status = 'withdrawal'");
+  public function get_today_receivable_blanch($blanch_id, $date = null){
+  	$report_date = empty($date) ? date("Y-m-d") : $date;
+  	$data = $this->db->query("SELECT SUM(restration) AS total_restoration FROM tbl_loans WHERE blanch_id = '$blanch_id' AND date_show = '$report_date' AND loan_status = 'withdrawal'");
   	return $data->row();
   }
 

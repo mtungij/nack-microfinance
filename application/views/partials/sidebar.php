@@ -44,10 +44,13 @@ $loan_submenu_active = is_submenu_active(['loan_application', 'loan_pending', 'g
 $payment_submenu_active = is_submenu_active(['loan_application', 'loan_pending', 'get_loan_aproved', 'disburse_loan', 'loan_withdrawal', 'all_loan_lejected', 'loanpending_groups', 'parsonal_pending_loan']);
 $group_loan_submenu_active = is_submenu_active(['loanpending_groups', 'general_operation', 'group_list']); // Note: 'loanpending_groups' is repeated, which is fine if intended
 $teller_dashboard_active = is_active_link('admin/teller_dashboard');
-$report_submenu_active = is_submenu_active(['cash_transaction', 'blanchiwise_report', 'loan_pending_time', 'repaymant_data', 'get_outstand_loan', 'loan_collection', 'search_customer_loan_report', 'customer_account_statement', 'today_recevable_loan', 'today_receved_loan', 'teller_oficer', 'teller_trasior', 'daily_report', 'loan_oficer_expectation', 'next_expectation']);
+$report_submenu_active = is_submenu_active(['cash_transaction', 'blanchiwise_report', 'loan_pending_time', 'repaymant_data', 'get_outstand_loan', 'loan_collection', 'search_customer_loan_report', 'customer_account_statement', 'today_recevable_loan', 'today_receved_loan', 'teller_oficer', 'teller_trasior', 'daily_report', 'loan_oficer_expectation', 'next_expectation', 'outside_contract_report', 'not_paid_today_report']);
 $accounting_report_submenu_active = is_submenu_active(['loss_profit', 'cash_flow', 'saving_deposit']);
 $cash_book_active = is_active_link('admin/get_cashInHand_Data');
 $communication_submenu_active = is_submenu_active(['send_email']); //unication_submenu_active = is_submenu_active(['send_email']); // Assuming SMS link might be external or different
+$daily_report_active = is_active_link('admin/daily_report');
+$outside_contract_report_active = is_active_link('admin/outside_contract_report');
+$not_paid_today_report_active = is_active_link('admin/not_paid_today_report');
 
 ?>
 <!-- ========== SIDEBAR ========== -->
@@ -549,8 +552,8 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
 
            <?php if (has_permission('Ripoti ya Mikopo Kila Tawi')): ?>
                   <li>
-  <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/today_receved_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" 
-     href="<?php echo base_url("admin/today_receved_loan"); ?>">
+  <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $daily_report_active ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" 
+     href="<?php echo base_url("admin/daily_report"); ?>">
 
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
@@ -560,6 +563,29 @@ $communication_submenu_active = is_submenu_active(['send_email']); //unication_s
   </a>
 </li>
                   <?php endif; ?>
+
+                  <li>
+  <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $outside_contract_report_active ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
+     href="<?php echo base_url("admin/outside_contract_report"); ?>">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+    </svg>
+    <?php echo $this->lang->line('outside_contract_report'); ?>
+  </a>
+</li>
+
+                  <li>
+  <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $not_paid_today_report_active ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
+     href="<?php echo base_url("admin/not_paid_today_report"); ?>">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v5l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <?php echo $this->lang->line('daily_report_not_paid_today'); ?>
+  </a>
+</li>
+     
+                 
                   <?php if (has_permission('Report Ya Malazo Ya Wateja')): ?>
                   <li>
                     <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_pending_time') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_pending_time"); ?>">
