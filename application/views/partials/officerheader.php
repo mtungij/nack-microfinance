@@ -50,13 +50,71 @@ function promptInstall() {
 
 
   <script>
+    function getThemeFromCookie() {
+      var match = document.cookie.match(/(?:^|; )color-theme=(dark|light)(?:;|$)/);
+      return match ? match[1] : null;
+    }
+
+    function getSavedTheme() {
+      try {
+        var lsTheme = localStorage.getItem('color-theme');
+        if (lsTheme === 'dark' || lsTheme === 'light') return lsTheme;
+      } catch (e) {}
+
+      var cookieTheme = getThemeFromCookie();
+      if (cookieTheme === 'dark' || cookieTheme === 'light') return cookieTheme;
+      return null;
+    }
+
+    function saveTheme(theme) {
+      try {
+        localStorage.setItem('color-theme', theme);
+      } catch (e) {}
+      document.cookie = 'color-theme=' + theme + '; path=/; max-age=31536000; SameSite=Lax';
+    }
+
     (function () {
-      if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      var savedTheme = getSavedTheme();
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
       }
     })();
+
+    // Global theme toggle helpers for all pages that use this header.
+    function syncThemeToggleIcons() {
+      var darkIcon = document.getElementById('theme-toggle-dark-icon');
+      var lightIcon = document.getElementById('theme-toggle-light-icon');
+      if (!darkIcon || !lightIcon) return;
+
+      if (document.documentElement.classList.contains('dark')) {
+        lightIcon.classList.remove('hidden');
+        darkIcon.classList.add('hidden');
+      } else {
+        darkIcon.classList.remove('hidden');
+        lightIcon.classList.add('hidden');
+      }
+    }
+
+    function toggleColorTheme() {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        saveTheme('light');
+      } else {
+        document.documentElement.classList.add('dark');
+        saveTheme('dark');
+      }
+      syncThemeToggleIcons();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      syncThemeToggleIcons();
+    });
   </script>
  
 
@@ -74,7 +132,7 @@ function promptInstall() {
       <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
       <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-  <link rel="stylesheet" href="<?php echo base_url('public/css/output.css') ?>">
+  <link rel="stylesheet" href="<?php echo base_url('public/css/output.css?v=' . @filemtime(FCPATH . 'public/css/output.css')); ?>">
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900 font-poppins">

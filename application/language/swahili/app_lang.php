@@ -97,7 +97,7 @@ $lang['reports'] = 'Ripoti';
 $lang['dashboard'] = 'Dashibodi';
 $lang['manage_notifications'] = 'Simamia Taarifa';
 $lang['loan_calculator'] = 'Kikokotoo cha Mkopo';
-$lang['branch_account_balances'] = 'Mizania ya Akaunti za Matawi';
+$lang['branch_account_balances'] = 'Salio la Account matawini';
 $lang['branch_sw'] = 'Tawi';
 $lang['manage_branches'] = 'Simamia Matawi';
 $lang['manage_branches_desc'] = 'Ongeza, hariri na tazama matawi ya kampuni.';
@@ -654,8 +654,16 @@ $lang['branches_list'] = 'Orodha ya Matawi';
 $lang['new_loan_applications'] = 'Maombi Mapya ya Mkopo';
 $lang['approved_loans'] = 'Mikopo Iliyoidhinishwa';
 $lang['loans_awaiting_disbursement'] = 'Mikopo Inayosubiri Kutolewa';
-$lang['today_loan_pending'] = 'Mikopo Inayosubiri Leo';
+$lang['today_loan_pending'] = 'Malazo ya Mikopo';
 $lang['loan_payments_due_yesterday'] = 'Malipo ya Mkopo Yaliyopaswa Kulipwa Jana';
+$lang['employees'] = 'Wafanyakazi';
+$lang['customers'] = 'Wateja';
+$lang['total_registered_employees'] = 'Jumla ya wafanyakazi waliosajiliwa';
+$lang['pending'] = 'Inasubiri';
+$lang['closed'] = 'Imefungwa';
+$lang['expected_amount_today'] = 'Kiasi kinachotarajiwa leo';
+$lang['today_collected'] = 'Kilichokusanywa Leo';
+$lang['amount_collected_today'] = 'Kiasi kilichokusanywa leo';
 
 // Officer sidebar
 $lang['request_expenses'] = 'Omba Matumizi';

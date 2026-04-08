@@ -1,5 +1,38 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
+
+$lang_line = function ($key, $fallback) {
+  $value = $this->lang->line($key);
+  return !empty($value) ? $value : $fallback;
+};
+
+$txt_top_5_employees_by_deposit = $lang_line('top_5_employees_by_deposit', 'Top 5 Employees by Deposit');
+$txt_total_deposit_tzs = $lang_line('total_deposit_tzs', 'Total Deposit (TZS)');
+$txt_quick_overview = $lang_line('quick_overview', 'Quick Overview');
+$txt_branches_list = $lang_line('branches_list', 'Branches List');
+$txt_employees = $lang_line('employees', 'Employees');
+$txt_customers = $lang_line('customers', 'Customers');
+$txt_total_registered_employees = $lang_line('total_registered_employees', 'Total registered employees');
+$txt_total = $lang_line('ocr_total', 'Total');
+$txt_active = $lang_line('active', 'Active');
+$txt_pending = $lang_line('pending', 'Pending');
+$txt_closed = $lang_line('closed', 'Closed');
+$txt_loan_requests = $lang_line('loan_requests', 'Loan Requests');
+$txt_new_loan_applications = $lang_line('new_loan_applications', 'New loan applications');
+$txt_today_loan_pending = $lang_line('today_loan_pending', 'Today Loan Pending');
+$txt_loan_payments_due_yesterday = $lang_line('loan_payments_due_yesterday', 'Loan payments due yesterday');
+$txt_today_receivable = $lang_line('today_receivable', 'Today Receivable');
+$txt_expected_amount_today = $lang_line('expected_amount_today', 'Expected amount today');
+$txt_today_collected = $lang_line('today_collected', 'Today Collected');
+$txt_amount_collected_today = $lang_line('amount_collected_today', 'Amount collected today');
+$txt_loan_management_system = $lang_line('loan_management_system', 'Loan Management System');
+$txt_tt_today_expected_collection = $lang_line('tt_today_expected_collection', 'Expected collection today from customers with active loans within agreement period (not overdue).');
+$txt_tt_overdue_loans = $lang_line('tt_overdue_loans', 'Overdue payments from customers outside the agreed loan period.');
+$txt_tt_upcoming_loan_deadlines = $lang_line('tt_upcoming_loan_deadlines', 'Expected collections from customers whose loan agreements end within the next 7 days.');
+$txt_tt_paid_today = $lang_line('tt_paid_today', 'Total payments made today by customers on their loans.');
+$txt_tt_today_loan_approved = $lang_line('tt_today_loan_approved', 'Total loans approved today. This should be zero if all approved loans were already disbursed.');
+$txt_tt_today_loan_withdraw = $lang_line('tt_today_loan_withdraw', 'Total loans disbursed today to customers taking new loans.');
+$txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penalties paid today from customers with overdue loans.');
 ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
@@ -15,7 +48,7 @@ include_once APPPATH . "views/partials/header.php";
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
            
 
-               <?php echo !empty($this->session->userdata('comp_name')) ? htmlspecialchars($this->session->userdata('comp_name')) : 'Loan Management System'; ?>
+               <?php echo !empty($this->session->userdata('comp_name')) ? htmlspecialchars($this->session->userdata('comp_name')) : $txt_loan_management_system; ?>
 
                 </p>
             </div>
@@ -46,7 +79,7 @@ include_once APPPATH . "views/partials/header.php";
             <path d="M12 17h.01" />
           </svg>
           <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            Malipo yanayotarajiwa leo kutoka kwa wateja wenye mikopo hai ndani ya muda wa makubaliano (sio yaliyochelewa).
+            <?php echo $txt_tt_today_expected_collection; ?>
           </div>
         </div>
       </div>
@@ -72,7 +105,7 @@ include_once APPPATH . "views/partials/header.php";
             <path d="M12 17h.01" />
           </svg>
           <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            Malipo yaliyochelewa kutoka kwa wateja ambao wako nje ya muda wa makubaliano ya mikopo.
+            <?php echo $txt_tt_overdue_loans; ?>
           </div>
         </div>
       </div>
@@ -96,7 +129,7 @@ include_once APPPATH . "views/partials/header.php";
           <path d="M12 17h.01" />
         </svg>
         <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          Malipo yanayotarajiwa leo kutoka kwa wateja ambao makubaliano yao ya mikopo yanamalizika wiki hii ndani ya siku 7.
+          <?php echo $txt_tt_upcoming_loan_deadlines; ?>
         </div>
       </div>
     </div>
@@ -132,7 +165,7 @@ include_once APPPATH . "views/partials/header.php";
           <path d="M12 17h.01" />
         </svg>
         <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          Jumla ya malipo yaliyofanywa leo kutoka kwa wateja waliolipa mikopo yao.
+          <?php echo $txt_tt_paid_today; ?>
         </div>
       </div>
     </div>
@@ -167,8 +200,7 @@ include_once APPPATH . "views/partials/header.php";
         <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 
                     rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 
                     transition-opacity">
-          Jumla ya mikopo iliyopitishwa leo kwa wateja waliokopeshwa.inatakiwa kuwa 0 ikiwa mikopo
-          yote waliwithdraw
+          <?php echo $txt_tt_today_loan_approved; ?>
         </div>
       </div>
     </div>
@@ -197,7 +229,7 @@ include_once APPPATH . "views/partials/header.php";
           <path d="M12 17h.01" />
         </svg>
         <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          Jumla ya mikopo iliyotolewa leo kwa wateja waliochukua mikopo mipya.
+          <?php echo $txt_tt_today_loan_withdraw; ?>
         </div>
       </div>
     </div>
@@ -227,7 +259,7 @@ include_once APPPATH . "views/partials/header.php";
           <path d="M12 17h.01" />
         </svg>
         <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          Jumla ya faini zilizolipwa leo kutoka kwa wateja wenye mikopo iliyochelewa.
+          <?php echo $txt_tt_today_penalty_paid; ?>
         </div>
       </div>
     </div>
@@ -272,7 +304,7 @@ include_once APPPATH . "views/partials/header.php";
 
 <!-- 🚀 Top 5 Depositors Bar Chart -->
 <div class="mt-10 bg-white rounded-2xl shadow-xl p-6">
-  <h2 class="text-xl font-bold text-gray-700 mb-4">🏆 Top 5 Employees by Deposit</h2>
+  <h2 class="text-xl font-bold text-gray-700 mb-4">🏆 <?php echo $txt_top_5_employees_by_deposit; ?></h2>
   <canvas id="topDepositorsChart" height="120"></canvas>
 </div>
 
@@ -286,7 +318,7 @@ include_once APPPATH . "views/partials/header.php";
         <?php foreach($top_depositors as $row){ echo "'".$row->empl_name."',"; } ?>
       ],
       datasets: [{
-        label: 'Total Deposit (TZS)',
+        label: '<?php echo addslashes($txt_total_deposit_tzs); ?>',
         data: [
           <?php foreach($top_depositors as $row){ echo $row->total_deposit.","; } ?>
         ],
@@ -570,7 +602,7 @@ include_once APPPATH . "views/partials/header.php";
         <div class="bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                    Quick Overview
+                  <?php echo $txt_quick_overview; ?>
                 </h3>
                 <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
                     <button id="branches-dropdown-btn" type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
@@ -581,7 +613,7 @@ include_once APPPATH . "views/partials/header.php";
                     </button>
                     <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-40 z-20 bg-white shadow-md rounded-lg p-2 mt-2 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="branches-dropdown-btn">
                         <div class="py-2 first:pt-0 last:pb-0">
-                            <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">Branches List</span>
+                            <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500"><?php echo $txt_branches_list; ?></span>
                             <?php if (isset($blanch) && is_array($blanch)): ?>
                                 <?php foreach ($blanch as $blanchs): ?>
                                 <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
@@ -627,10 +659,10 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     <a href="<?php echo base_url("admin/all_employee"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/users.png'); ?>" class="size-10" alt="Employees"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Employees</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_employees; ?></h2>
                         </div>
                         <p class="text-2xl font-bold text-gray-800 dark:text-gray-200"><?php echo $employee_count; ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Total registered employees</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $txt_total_registered_employees; ?></p>
                     </a>
 
                     <!-- Stat Card: Customers -->
@@ -644,13 +676,13 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
 							$closed = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND customer_status = 'close'");
 							 ?>
                              <!-- <img src="</?php echo base_url('assets/img/users.png'); ?>" class="size-10" alt="Customers"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Customers</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_customers; ?></h2>
                         </div>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-1"><?php echo $all_customer_count ?? 0; ?> <span class="text-sm font-normal">Total</span></p>
+                          <p class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-1"><?php echo $all_customer_count ?? 0; ?> <span class="text-sm font-normal"><?php echo $txt_total; ?></span></p>
                         <div class="text-xs space-x-2"> 
-                            <span class="text-green-600 dark:text-green-400">Active: <?php echo $active->num_rows(); ?></span>
-                            <span class="text-orange-500 dark:text-orange-400">Pending: <?php echo $pendin->num_rows(); ?></span>
-                            <span class="text-red-600 dark:text-red-400">Closed: <?php echo $closed->num_rows(); ?></span>
+                            <span class="text-green-600 dark:text-green-400"><?php echo $txt_active; ?>: <?php echo $active->num_rows(); ?></span>
+                            <span class="text-orange-500 dark:text-orange-400"><?php echo $txt_pending; ?>: <?php echo $pendin->num_rows(); ?></span>
+                            <span class="text-red-600 dark:text-red-400"><?php echo $txt_closed; ?>: <?php echo $closed->num_rows(); ?></span>
                         </div>
                     </a>
                     
@@ -658,11 +690,11 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     <a href="<?php echo base_url("admin/loan_pending"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                              <!-- <img src="<//?php echo base_url('assets/img/hukumu.png'); ?>" class="size-10" alt="Loan Requests"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Loan Requests</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_loan_requests; ?></h2>
                         </div>
                         <?php $new_loan = $this->db->query("SELECT * FROM tbl_loans WHERE comp_id = '$comp_id' AND loan_status = 'open'"); ?>
                         <p class="text-2xl font-bold text-red-600 dark:text-red-400"><?php echo ($new_loan->num_rows());  ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">New loan applications</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $txt_new_loan_applications; ?></p>
                     </a>
 
          
@@ -672,33 +704,33 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                      <a href="<?php echo base_url("admin/loan_pending_time"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/penart.png'); ?>" class="size-10" alt="Today Pending"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Today Loan Pending</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_today_loan_pending; ?></h2>
                         </div>
                         <?php $laza = $this->db->query("SELECT * FROM tbl_pending_total WHERE comp_id = '$comp_id' AND total_pend IS NOT FALSE");
                
 							 ?>
                         <p class="text-2xl font-bold text-gray-800 dark:text-gray-200"><?php echo $laza->num_rows(); ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Loan payments due yesterday</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $txt_loan_payments_due_yesterday; ?></p>
                     </a>
 
                     <!-- Stat Card: Today Receivable -->
                     <a href="<?php echo base_url("admin/today_recevable_loan"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/money.png'); ?>" class="size-10" alt="Today Receivable"> -->
-                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Today Receivable</h2>
+                                <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_today_receivable; ?></h2>
                         </div>
                         <p class="text-2xl font-bold text-gray-800 dark:text-gray-200"><?php echo number_format($receivable_total->total_rejesho) ; ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Expected amount today</p>
+                              <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $txt_expected_amount_today; ?></p>
                     </a>
 
                     <!-- Stat Card: Today Received -->
                     <a href="<?php echo base_url("admin/today_receved_loan"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/money.png'); ?>" class="size-10" alt="Today Received"> -->
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Today Collected</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_today_collected; ?></h2>
                         </div>
                         <p class="text-2xl font-bold text-gray-800 dark:text-gray-200"><?php echo number_format($total_receved->total_depost); ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Amount collected today</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $txt_amount_collected_today; ?></p>
                     </a>
                     
                     <!-- Stat Card: Recommended Expenses -->

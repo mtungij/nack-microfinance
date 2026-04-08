@@ -2,6 +2,12 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
 
+$filter_from = !empty($from) ? $from : date('Y-m-d');
+$filter_to = !empty($to) ? $to : $filter_from;
+$selected_blanch_id = isset($selected_blanch_id) ? (string) $selected_blanch_id : 'all';
+$selected_branch_name = !empty($selected_branch_name) ? $selected_branch_name : 'All Branches';
+$total_filtered_income = !empty($total_receved->total_receved) ? (float) $total_receved->total_receved : 0;
+
 // --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
 // Controller should pass $share, an array of shareholder objects.
 // Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
@@ -192,7 +198,7 @@ include_once APPPATH . "views/partials/header.php";
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                               
                             </div>
-                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" 
+                            <input type="text" id="simple-search" class="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-cyan-500 dark:focus:border-cyan-500 placeholder-gray-400" 
 							placeholder="tafuta mteja hapa"
         data-hs-datatable-search="#shareholder_table"
         aria-label="Search share holders"
@@ -201,7 +207,7 @@ include_once APPPATH . "views/partials/header.php";
                     </form>
                 </div>
 				   <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-				<a href="<?php echo base_url(); ?>admin/print_todayIncome" class="flex items-center justify-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" target="_blank">
+        <a href="<?php echo base_url('admin/print_todayIncome?' . http_build_query(['from' => $filter_from, 'to' => $filter_to, 'blanch_id' => $selected_blanch_id])); ?>" class="flex items-center justify-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" target="_blank">
     <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
     </svg>
@@ -220,6 +226,15 @@ include_once APPPATH . "views/partials/header.php";
 
                   
                 </div>
+        <div class="w-full text-xs text-gray-600 dark:text-gray-300">
+          <span class="font-semibold">Branch:</span> <?php echo htmlspecialchars($selected_branch_name, ENT_QUOTES, 'UTF-8'); ?>
+          &nbsp;|&nbsp;
+          <span class="font-semibold">From:</span> <?php echo htmlspecialchars($filter_from, ENT_QUOTES, 'UTF-8'); ?>
+          &nbsp;|&nbsp;
+          <span class="font-semibold">To:</span> <?php echo htmlspecialchars($filter_to, ENT_QUOTES, 'UTF-8'); ?>
+          &nbsp;|&nbsp;
+          <span class="font-semibold">Total Income:</span> <?php echo number_format($total_filtered_income); ?>
+        </div>
             </div>
             <div class="overflow-x-auto">
                 <table id="shareholder_table"  class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -294,18 +309,17 @@ include_once APPPATH . "views/partials/header.php";
           </svg>
         </button>
       </div>
-	   <?php echo form_open("admin/previous_income"); ?>
+     <?php echo form_open("admin/income_dashboard", ['method' => 'get']); ?>
   <div class="p-4 overflow-y-auto space-y-4">
 
     <!-- Gender Dropdown -->
     <div>
       <label for="blanch" class="block text-sm font-medium text-gray-700 dark:text-white">Chagua Tawi</label>
-      <select  id="branchSelect" name="blanch_id"  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" data-live-search="true">
-	  <option value="">Chagua Tawi</option>
-			<?php foreach ($blanch as $blanchs): ?>
-		<option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?> </option>
-			<?php endforeach; ?>
-			  <option value="all">All</option>
+      <select id="filterBranchSelect" name="blanch_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" data-live-search="true">
+    <option value="all" <?php echo $selected_blanch_id === 'all' ? 'selected' : ''; ?>>All Branches</option>
+      <?php foreach ($blanch as $blanchs): ?>
+    <option value="<?php echo $blanchs->blanch_id; ?>" <?php echo $selected_blanch_id === (string) $blanchs->blanch_id ? 'selected' : ''; ?>><?php echo $blanchs->blanch_name; ?></option>
+      <?php endforeach; ?>
       </select>
     </div>
 
@@ -332,17 +346,17 @@ include_once APPPATH . "views/partials/header.php";
       </div> -->
 
       <!-- Company Name -->
-	  <?php $date = date("Y-m-d"); ?>  
+    <?php $date = $filter_from; ?>  
 
       <div>
         <label for="company" class="block text-sm font-medium text-gray-700 dark:text-white">Kwanzia Tarehe</label>
-		<input type="date" value="<?php echo $date; ?>" name="from"  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+    <input type="date" value="<?php echo htmlspecialchars($filter_from, ENT_QUOTES, 'UTF-8'); ?>" name="from"  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
 
       <!-- Address -->
       <div>
         <label for="address" class="block text-sm font-medium text-gray-700 dark:text-white">Mpaka Tarehe</label>
-		<input type="date" name="to" value="<?php echo $date; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+    <input type="date" name="to" value="<?php echo htmlspecialchars($filter_to, ENT_QUOTES, 'UTF-8'); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
     </div>
 
@@ -402,58 +416,86 @@ $(document).ready(function() {
 
 <style>
 .select2-container--default .select2-selection--single {
-    background-color: #1f2937;
-    border: 1px solid #374151;
-    border-radius: 0.5rem;
-    padding: 0.75rem 2.5rem 0.75rem 1rem;
-    height: auto;
-    color: #06b6d4; 
-    font-size: 0.875rem;
-    position: relative;
-}
-.select2-selection__rendered,
-.select2-selection__clear,
-.select2-selection__arrow {
-    color: #d1d5db;
-}
-.select2-selection__arrow {
-    right: 1rem;
-    top: 0;
-    width: 1.5rem;
-    position: absolute;
-}
-.select2-selection__clear {
-    right: 2.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    position: absolute;
-}
-.custom-select2-dropdown {
-    background-color: #1f2937;
-    color: #d1d5db;
-    border: 1px solid #374151;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-}
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #ffffff !important; /* Force white text */
-}
-.custom-select2-dropdown .select2-results__option--highlighted {
-    background-color: #06b6d4 !important; /* Tailwind cyan-400 */
-    color: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 2.5rem 0.75rem 1rem !important;
+  height: auto !important;
+  color: #111827 !important;
+  font-size: 0.875rem !important;
+  position: relative !important;
 }
 
-/* White text in the dropdown input if searchable */
-.select2-search__field {
-    color: #ffffff !important;
-    background-color: #1f2937 !important; /* match dark bg */
-    border: 1px solid #374151;
+.select2-selection__rendered {
+  color: #111827 !important;
 }
-.custom-select2-dropdown .select2-results__option--highlighted {
-    background-color: #06b6d4;
-    color: #ffffff;
+
+.select2-selection__clear,
+.select2-selection__arrow {
+  color: #374151 !important;
 }
-.custom-select2-container { margin: 0; }
+
+.select2-selection__arrow {
+  right: 1rem !important;
+  top: 0 !important;
+  width: 1.5rem !important;
+  position: absolute !important;
+}
+
+.select2-selection__clear {
+  right: 2.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  position: absolute !important;
+}
+
+.select2-dropdown {
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.select2-dropdown .select2-search__field {
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.select2-results__option--highlighted[aria-selected] {
+  background-color: #06b6d4 !important;
+  color: #ffffff !important;
+}
+
+/* Dark mode overrides */
+.dark .select2-container--default .select2-selection--single {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  color: #d1d5db !important;
+}
+
+.dark .select2-selection__rendered {
+  color: #ffffff !important;
+}
+
+.dark .select2-selection__clear,
+.dark .select2-selection__arrow {
+  color: #d1d5db !important;
+}
+
+.dark .select2-dropdown {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+}
+
+.dark .select2-dropdown .select2-search__field {
+  color: #ffffff !important;
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+}
+
+.dark .select2-results__option--highlighted[aria-selected] {
+  background-color: #06b6d4 !important;
+  color: #ffffff !important;
+}
 </style>
 
 <script>

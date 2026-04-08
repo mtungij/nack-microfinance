@@ -656,6 +656,14 @@ $lang['approved_loans'] = 'Approved Loans';
 $lang['loans_awaiting_disbursement'] = 'Loans Awaiting Disbursement';
 $lang['today_loan_pending'] = 'Today Loan Pending';
 $lang['loan_payments_due_yesterday'] = 'Loan Payments Due Yesterday';
+$lang['employees'] = 'Employees';
+$lang['customers'] = 'Customers';
+$lang['total_registered_employees'] = 'Total registered employees';
+$lang['pending'] = 'Pending';
+$lang['closed'] = 'Closed';
+$lang['expected_amount_today'] = 'Expected amount today';
+$lang['today_collected'] = 'Today Collected';
+$lang['amount_collected_today'] = 'Amount collected today';
 
 // Officer sidebar
 $lang['request_expenses'] = 'Request Expenses';
