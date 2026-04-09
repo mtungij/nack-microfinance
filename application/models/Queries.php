@@ -5429,7 +5429,7 @@ return $data->row();
  }
 
 
-public function outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $from = null, $to = null, $overdue_days = null, $overdue_days_max = null) {
+public function outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $from = null, $to = null, $overdue_days = null, $overdue_days_max = null, $exact_end_date = null) {
     $this->db->select('
         ot.*, 
         l.loan_int, l.restration, l.day, l.session, l.empl_id, l.blanch_id,
@@ -5458,7 +5458,9 @@ public function outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $fro
     if(!empty($from)){
         $this->db->where('o.loan_stat_date >=', $from);
     }
-    if(!empty($to)){
+	if(!empty($exact_end_date)){
+		$this->db->where('DATE(o.loan_end_date) =', $exact_end_date);
+	} elseif(!empty($to)){
         $this->db->where('o.loan_end_date <=', $to);
     }
 
@@ -5477,7 +5479,7 @@ public function outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $fro
 }
 
 
-public function total_outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $from = null, $to = null, $overdue_days = null, $overdue_days_max = null) {
+public function total_outstand_loan($comp_id, $blanch_id = null, $empl_id = null, $from = null, $to = null, $overdue_days = null, $overdue_days_max = null, $exact_end_date = null) {
     $this->db->select('SUM(l.loan_int) AS total_loan, SUM(COALESCE(d.depost,0)) AS total_paid, SUM(l.loan_int - COALESCE(d.depost,0)) AS total_remain');
     $this->db->from('tbl_outstand_loan ot');
     $this->db->join('tbl_loans l','l.loan_id = ot.loan_id','left');
@@ -5496,7 +5498,9 @@ public function total_outstand_loan($comp_id, $blanch_id = null, $empl_id = null
     if(!empty($from)){
         $this->db->where('o.loan_stat_date >=', $from);
     }
-    if(!empty($to)){
+	if(!empty($exact_end_date)){
+		$this->db->where('DATE(o.loan_end_date) =', $exact_end_date);
+	} elseif(!empty($to)){
         $this->db->where('o.loan_end_date <=', $to);
     }
 	if(!empty($overdue_days) && is_numeric($overdue_days)){

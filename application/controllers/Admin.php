@@ -9366,6 +9366,7 @@ public function print_prev_expences($from,$to,$blanch_id){
 public function get_outstand_loan() {
     $this->load->model('queries');
     $comp_id = $this->session->userdata('comp_id');
+    $yesterday = date('Y-m-d', strtotime('-1 day'));
 
     // Get filter inputs from POST first, then GET (for flexibility)
     $blanch_id = $this->input->post('blanch_id');
@@ -9395,6 +9396,20 @@ public function get_outstand_loan() {
 
     $selected_blanch_id = $blanch_id;
 
+    $has_active_filters = false;
+    if (!empty($blanch_id) && $blanch_id !== 'all') {
+        $has_active_filters = true;
+    }
+    if (!empty($empl_id) && $empl_id !== 'all') {
+        $has_active_filters = true;
+    }
+    if (!empty($from) || !empty($to) || !empty($overdue_days)) {
+        $has_active_filters = true;
+    }
+
+    $default_end_date_mode = !$has_active_filters;
+    $exact_end_date = $default_end_date_mode ? $yesterday : null;
+
     // Normalize "all" branch value to no branch filter.
     if ($blanch_id === 'all') {
         $blanch_id = null;
@@ -9421,14 +9436,14 @@ public function get_outstand_loan() {
     }
 
     // Fetch outstanding loans with filters (past due dataset)
-    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max);
+    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max, $exact_end_date);
 
     //          echo "<pre>";
     //  print_r($outstand);
     //             exit();
 
     // Totals
-    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max);
+    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max, $exact_end_date);
 
     // Employees and branches for filters
     $employee = $this->queries->get_Allemployee($comp_id);
@@ -9444,7 +9459,8 @@ public function get_outstand_loan() {
         'selected_empl_id' => $empl_id,
         'selected_from_date' => $from,
         'selected_to_date' => $to,
-        'selected_overdue_days' => $overdue_days
+        'selected_overdue_days' => $overdue_days,
+        'default_end_date_mode' => $default_end_date_mode
     ]);
 }
 

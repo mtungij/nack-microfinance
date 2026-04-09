@@ -12,8 +12,9 @@ $selected_empl_id = isset($selected_empl_id) && $selected_empl_id !== '' ? (stri
 $selected_from_date = isset($selected_from_date) ? $selected_from_date : '';
 $selected_to_date = isset($selected_to_date) ? $selected_to_date : '';
 $selected_overdue_days = isset($selected_overdue_days) ? $selected_overdue_days : '';
+$default_end_date_mode = !empty($default_end_date_mode);
 
-$selected_overdue_label = $lang_line('today', 'Today');
+$selected_overdue_label = $default_end_date_mode ? $lang_line('npt_yesterday', 'Yesterday') : $lang_line('today', 'Today');
 if ($selected_overdue_days === '3-30') {
     $selected_overdue_label = $lang_line('outstand_past_due_3_30', '3-30 Days Past Due');
 } elseif ($selected_overdue_days === '31-60') {
