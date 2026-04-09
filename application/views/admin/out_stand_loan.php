@@ -216,9 +216,9 @@ $branch_only_query = http_build_query([
 </tbody>
 
                 </table>
-				<div id="hs-basic-modal" class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none" role="dialog" tabindex="-1" aria-labelledby="hs-basic-modal-label">
-    <div class="w-full max-w-3xl mx-auto my-3 sm:my-6 px-2 sm:px-4">
-        <div class="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70 max-h-[92vh] overflow-hidden">
+				<div id="hs-basic-modal" class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 inset-s-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none" role="dialog" tabindex="-1" aria-labelledby="hs-basic-modal-label">
+        <div class="w-full max-w-3xl mx-auto my-0 sm:my-6 px-0 sm:px-4 min-h-screen sm:min-h-0 flex items-stretch sm:items-center">
+                <div class="w-full flex flex-col bg-white border-0 sm:border border-gray-200 shadow-2xs rounded-none sm:rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70 h-dvh sm:h-auto sm:max-h-[92vh] overflow-hidden">
       <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
                                 <h3 id="hs-basic-modal-label" class="font-bold text-gray-800 dark:text-white text-sm sm:text-base leading-snug pr-3">
                     <?= $lang_line('outstand_filter_defaulters_title', 'Filter Defaulters (Branch, Employee, Dates & Overdue Days)'); ?>
@@ -233,7 +233,7 @@ $branch_only_query = http_build_query([
       </div>
 	 
 	   <?php echo form_open("admin/get_outstand_loan"); ?>
-  <div class="p-4 sm:p-5 overflow-y-auto max-h-[70vh]">
+  <div class="p-4 sm:p-5 overflow-y-auto flex-1 min-h-0 sm:max-h-[70vh]">
 
    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="md:col-span-2">
@@ -287,11 +287,11 @@ $branch_only_query = http_build_query([
   </div>
 
   <!-- Modal Footer Buttons -->
-    <div class="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
-    <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700" data-hs-overlay="#hs-basic-modal">
+        <div class="sticky bottom-0 bg-white dark:bg-neutral-800 flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700">
+        <button type="button" class="w-full sm:w-auto py-2 px-3 inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700" data-hs-overlay="#hs-basic-modal">
             <?= $lang_line('close', 'Close'); ?>
     </button>
-    <button type="submit" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+        <button type="submit" class="w-full sm:w-auto py-2 px-3 inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700">
             <?= $lang_line('apply_filters', 'Apply Filters'); ?>
     </button>
   </div>
