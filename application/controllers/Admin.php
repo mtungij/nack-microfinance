@@ -9664,6 +9664,7 @@ public  function yesterday_defaulters_pdf ()
 {
     $this->load->model('queries');
     $comp_id = $this->session->userdata('comp_id');
+    $yesterday = date('Y-m-d', strtotime('-1 day'));
     
     // Get filter parameters from GET
     $blanch_id = $this->input->get('blanch_id');
@@ -9675,6 +9676,19 @@ public  function yesterday_defaulters_pdf ()
     if ($blanch_id === 'all') {
         $blanch_id = null;
     }
+
+    $has_active_filters = false;
+    if (!empty($blanch_id)) {
+        $has_active_filters = true;
+    }
+    if (!empty($empl_id) && $empl_id !== 'all') {
+        $has_active_filters = true;
+    }
+    if (!empty($from) || !empty($to) || !empty($overdue_days)) {
+        $has_active_filters = true;
+    }
+
+    $exact_end_date = $has_active_filters ? null : $yesterday;
     
     $overdue_min = null;
     $overdue_max = null;
@@ -9695,9 +9709,10 @@ public  function yesterday_defaulters_pdf ()
         }
     }
 
-    // Fetch outstanding loans with active filters from page
-    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max);
-    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max);
+    // Fetch outstanding loans with active filters from page.
+    // If no filters are selected, default to records whose end date is yesterday.
+    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max, $exact_end_date);
+    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max, $exact_end_date);
     
     $compdata = $this->queries->get_companyData($comp_id);
     

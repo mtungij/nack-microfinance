@@ -384,7 +384,7 @@ $lang['choose_branch'] = 'Chagua Tawi';
 $lang['from_date'] = 'Kuanzia Tarehe';
 $lang['to_date'] = 'Mpaka Tarehe';
 $lang['paid_today_label'] = 'Waliolipa Leo';
-$lang['apply_filters'] = 'Tumia Mchujo';
+$lang['apply_filters'] = 'Tafuta';
 $lang['select'] = 'Chagua';
 $lang['select_employee'] = 'Chagua Mfanyakazi';
 $lang['print_pdf'] = 'Chapisha PDF';
@@ -547,7 +547,7 @@ $lang['user_privileges'] = 'Mamlaka ya Mtumiaji';
 $lang['user_access'] = 'Ufikiaji wa Mtumiaji';
 $lang['created_at'] = 'Iliundwa';
 $lang['filter_data'] = 'Chuja Data';
-$lang['apply_filters'] = 'Tumia Vichujio';
+$lang['apply_filters'] = 'Tafuta';
 
 // Branch employee list page
 $lang['employee_branches'] = 'Matawi ya Wafanyakazi';

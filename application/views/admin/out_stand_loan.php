@@ -235,10 +235,10 @@ $branch_only_query = http_build_query([
 	   <?php echo form_open("admin/get_outstand_loan"); ?>
   <div class="p-4 sm:p-5 overflow-y-auto flex-1 min-h-0 sm:max-h-[70vh]">
 
-   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="md:col-span-2">
-        <label for="branchSelect" class="block mb-1 text-sm font-medium"><?= $lang_line('choose_branch', 'Choose Branch'); ?></label>
-        <select id="branchSelect" name="blanch_id" class="form-control">
+   <div class="grid grid-cols-1 gap-4">
+    <div>
+        <label for="branchSelect" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200"><?= $lang_line('choose_branch', 'Choose Branch'); ?></label>
+        <select id="branchSelect" name="blanch_id" class="form-control w-full bg-white text-gray-900 border-gray-300 dark:bg-neutral-700 dark:text-white dark:border-neutral-600">
             <option value=""><?= $lang_line('select_branch', 'Select Branch'); ?></option>
             <option value="all" <?php echo $selected_blanch_id === 'all' ? 'selected' : ''; ?>><?= $lang_line('all_branches', 'All Branches'); ?></option>
             <?php foreach ($blanch as $b): ?>
@@ -248,8 +248,8 @@ $branch_only_query = http_build_query([
     </div>
 
     <div class="hidden">
-        <label for="employeeSelect" class="block mb-1 text-sm font-medium"><?= $lang_line('select_employee', 'Select Employee'); ?></label>
-        <select id="employeeSelect" name="empl_id" class="form-control">
+        <label for="employeeSelect" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200"><?= $lang_line('select_employee', 'Select Employee'); ?></label>
+        <select id="employeeSelect" name="empl_id" class="form-control w-full bg-white text-gray-900 border-gray-300 dark:bg-neutral-700 dark:text-white dark:border-neutral-600">
                 <option value="all" <?php echo $selected_empl_id === 'all' ? 'selected' : ''; ?>><?= $lang_line('outstand_all_employees', 'All Employees'); ?></option>
             <?php if (isset($employee) && is_array($employee)): ?>
               <?php foreach ($employee as $emp): ?>
@@ -260,18 +260,18 @@ $branch_only_query = http_build_query([
     </div>
 
     <div>
-        <label for="from_date" class="block mb-1 text-sm font-medium"><?= $lang_line('from_date', 'From Date'); ?></label>
-        <input type="date" id="from_date" name="from_date" class="form-control" value="<?php echo htmlspecialchars($selected_from_date, ENT_QUOTES, 'UTF-8'); ?>">
+        <label for="from_date" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200"><?= $lang_line('from_date', 'From Date'); ?></label>
+        <input type="date" id="from_date" name="from_date" class="form-control w-full bg-white text-gray-900 border-gray-300 dark:bg-neutral-700 dark:text-white dark:border-neutral-600" value="<?php echo htmlspecialchars($selected_from_date, ENT_QUOTES, 'UTF-8'); ?>">
     </div>
 
     <div>
-        <label for="to_date" class="block mb-1 text-sm font-medium"><?= $lang_line('to_date', 'To Date'); ?></label>
-        <input type="date" id="to_date" name="to_date" class="form-control" value="<?php echo htmlspecialchars($selected_to_date, ENT_QUOTES, 'UTF-8'); ?>">
+        <label for="to_date" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200"><?= $lang_line('to_date', 'To Date'); ?></label>
+        <input type="date" id="to_date" name="to_date" class="form-control w-full bg-white text-gray-900 border-gray-300 dark:bg-neutral-700 dark:text-white dark:border-neutral-600" value="<?php echo htmlspecialchars($selected_to_date, ENT_QUOTES, 'UTF-8'); ?>">
     </div>
 
-    <div class="md:col-span-2">
-        <label for="overdue_days" class="block mb-1 text-sm font-medium"><?= $lang_line('outstand_past_due_range', 'Past Due Range'); ?></label>
-        <select id="overdue_days" name="overdue_days" class="form-control">
+    <div>
+        <label for="overdue_days" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200"><?= $lang_line('outstand_past_due_range', 'Past Due Range'); ?></label>
+        <select id="overdue_days" name="overdue_days" class="form-control w-full bg-white text-gray-900 border-gray-300 dark:bg-neutral-700 dark:text-white dark:border-neutral-600">
             <option value="" <?php echo $selected_overdue_days === '' ? 'selected' : ''; ?>><?= $lang_line('outstand_all_past_due', 'All Past Due'); ?></option>
             <option value="3-30" <?php echo $selected_overdue_days === '3-30' ? 'selected' : ''; ?>><?= $lang_line('outstand_past_due_3_30', '3-30 Days Past Due'); ?></option>
             <option value="31-60" <?php echo $selected_overdue_days === '31-60' ? 'selected' : ''; ?>><?= $lang_line('outstand_past_due_31_60', '31-60 Days Past Due'); ?></option>
@@ -386,19 +386,19 @@ document.getElementById('simple-search').addEventListener('keyup', function() {
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <style>
 .select2-container--default .select2-selection--single {
-    background-color: #1f2937;
-    border: 1px solid #374151;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
     border-radius: 0.5rem;
     padding: 0.75rem 2.5rem 0.75rem 1rem;
     height: auto;
-    color: #06b6d4; 
+    color: #111827;
     font-size: 0.875rem;
     position: relative;
 }
 .select2-selection__rendered,
 .select2-selection__clear,
 .select2-selection__arrow {
-    color: #d1d5db;
+    color: #4b5563;
 }
 .select2-selection__arrow {
     right: 1rem;
@@ -413,29 +413,53 @@ document.getElementById('simple-search').addEventListener('keyup', function() {
     position: absolute;
 }
 .custom-select2-dropdown {
-    background-color: #1f2937;
-    color: #d1d5db;
-    border: 1px solid #374151;
+    background-color: #ffffff;
+    color: #111827;
+    border: 1px solid #d1d5db;
     border-radius: 0.5rem;
     padding: 0.5rem;
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #ffffff !important; /* Force white text */
+    color: #111827 !important;
 }
 .custom-select2-dropdown .select2-results__option--highlighted {
     background-color: #06b6d4 !important; /* Tailwind cyan-400 */
     color: #ffffff !important;
 }
 
+.dark .select2-container--default .select2-selection--single {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    color: #ffffff;
+}
+.dark .select2-selection__rendered,
+.dark .select2-selection__clear,
+.dark .select2-selection__arrow {
+    color: #d1d5db;
+}
+.dark .custom-select2-dropdown {
+    background-color: #1f2937;
+    color: #d1d5db;
+    border: 1px solid #374151;
+}
+.dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #ffffff !important;
+}
+
 /* White text in the dropdown input if searchable */
 .select2-search__field {
-    color: #ffffff !important;
-    background-color: #1f2937 !important; /* match dark bg */
-    border: 1px solid #374151;
+    color: #111827 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d1d5db;
 }
 .custom-select2-dropdown .select2-results__option--highlighted {
     background-color: #06b6d4;
     color: #ffffff;
+}
+.dark .select2-search__field {
+    color: #ffffff !important;
+    background-color: #1f2937 !important;
+    border: 1px solid #374151;
 }
 .custom-select2-container { margin: 0; }
 </style>
