@@ -2,8 +2,60 @@
 include_once APPPATH . "views/partials/officerheader.php";
 ?>
 
+          <style>
+            .dashboard-loading-overlay {
+              width: 100%;
+              z-index: 1;
+              background: transparent;
+              opacity: 1;
+              transition: opacity 0.25s ease;
+            }
+
+            .dark .dashboard-loading-overlay {
+              background: transparent;
+            }
+
+            .dashboard-loading-overlay.is-hidden {
+              opacity: 0;
+              pointer-events: none;
+            }
+
+            .dashboard-skeleton {
+              border-radius: 0.75rem;
+              background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+              background-size: 400% 100%;
+              animation: dashboardShimmer 1.2s ease-in-out infinite;
+            }
+
+            .dark .dashboard-skeleton {
+              background: linear-gradient(90deg, #1f2937 25%, #374151 37%, #1f2937 63%);
+              background-size: 400% 100%;
+            }
+
+            @keyframes dashboardShimmer {
+              0% { background-position: 100% 0; }
+              100% { background-position: 0 0; }
+            }
+          </style>
+
+          <div id="dashboard-loading-placeholder" class="dashboard-loading-overlay">
+            <div class="w-full lg:ps-64">
+              <div class="p-4 sm:p-6 space-y-6">
+                <div class="dashboard-skeleton h-10 w-64"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div class="dashboard-skeleton h-24"></div>
+                  <div class="dashboard-skeleton h-24"></div>
+                  <div class="dashboard-skeleton h-24"></div>
+                  <div class="dashboard-skeleton h-24"></div>
+                </div>
+                <div class="dashboard-skeleton h-48"></div>
+                <div class="dashboard-skeleton h-64"></div>
+              </div>
+            </div>
+          </div>
+
 <!-- ========== MAIN CONTENT BODY ========== -->
-<div class="w-full lg:ps-64">
+          <div id="dashboard-main-content" class="w-full lg:ps-64 hidden">
     <div class="p-4 sm:p-6 space-y-6">
 
 
@@ -714,5 +766,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         observer.observe(document.documentElement, { attributes: true });
     }
+});
+</script>
+
+<script>
+window.addEventListener('load', function () {
+  var loadingPlaceholder = document.getElementById('dashboard-loading-placeholder');
+  var mainContent = document.getElementById('dashboard-main-content');
+
+  if (mainContent) {
+    mainContent.classList.remove('hidden');
+  }
+
+  if (loadingPlaceholder) {
+    setTimeout(function () {
+      loadingPlaceholder.classList.add('is-hidden');
+      setTimeout(function () {
+        loadingPlaceholder.style.display = 'none';
+      }, 260);
+    }, 180);
+  }
 });
 </script>

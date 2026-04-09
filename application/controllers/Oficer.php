@@ -7596,15 +7596,13 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
       $empl_id = $this->session->userdata('empl_id');
       $manager_data = $this->queries->get_manager_data($empl_id);
       $comp_id = $manager_data->comp_id;
-      $company_data = $this->queries->get_companyData($comp_id);
-      $blanch_data = $this->queries->get_blanchData($blanch_id);
+      $blanch_id = !empty($manager_data->blanch_id) ? $manager_data->blanch_id : $this->session->userdata('blanch_id');
       $empl_data = $this->queries->get_employee_data($empl_id);
       $privillage = $this->queries->get_position_empl($empl_id);
       $manager = $this->queries->get_position_manager($empl_id);
 
       $customer = $this->queries->get_allcutomerBlanch_Data($blanch_id);
-      $this->load->view('officer/search_loan_report',['customer'=>$customer,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);
-      
+      $this->load->view('officer/search_customer_loan_report',['customer'=>$customer,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);
     }
 
      public function manager_search_customer_loan_report(){
@@ -7701,6 +7699,231 @@ if($this->input->post('customer_id'))
 echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
 }
 }
+
+    public function payment_statement_search() {
+      $this->load->model('queries');
+      $empl_id = $this->session->userdata('empl_id');
+      $manager_data = $this->queries->get_manager_data($empl_id);
+      $blanch_id = !empty($manager_data->blanch_id) ? $manager_data->blanch_id : $this->session->userdata('blanch_id');
+
+      $customers = $this->queries->get_allcutomerBlanch_Data($blanch_id);
+      $this->load->view('officer/payment_statement_search', [
+        'customers' => $customers,
+      ]);
+    }
+
+    public function payment_statement_go() {
+      $loan_id = (int) $this->input->post('loan_id');
+      if (!$loan_id) {
+        return redirect('oficer/payment_statement_search');
+      }
+      return redirect('oficer/payment_statement_detail/' . $loan_id);
+    }
+
+    public function payment_statement_detail($loan_id) {
+      $this->load->model('queries');
+      $empl_id = $this->session->userdata('empl_id');
+      $manager_data = $this->queries->get_manager_data($empl_id);
+      $comp_id = $manager_data->comp_id;
+      $officer_blanch_id = !empty($manager_data->blanch_id) ? (int) $manager_data->blanch_id : (int) $this->session->userdata('blanch_id');
+      $loan_id = (int) $loan_id;
+
+      $loan = $this->queries->get_loan_statement_info($loan_id, $comp_id);
+      if (!$loan || ((int) ($loan->blanch_id ?? 0) !== $officer_blanch_id)) {
+        $this->session->set_flashdata('error', 'Mkopo haukupatikana');
+        return redirect('oficer/payment_statement_search');
+      }
+
+      $customer = $this->queries->search_CustomerID($loan->customer_id, $comp_id);
+      $compdata = $this->queries->get_companyData($comp_id);
+
+      $deposits_by_date  = $this->queries->get_deposits_by_date_for_loan($loan_id);
+      $penalties_by_date = $this->queries->get_penalties_by_date_for_loan($loan_id);
+
+      $schedule      = [];
+      $start_raw     = !empty($loan->loan_stat_date) ? $loan->loan_stat_date : $loan->disburse_day;
+      $end_raw       = !empty($loan->loan_end_date) ? $loan->loan_end_date : $loan->return_date;
+      $restoration   = (float) $loan->restration;
+      $day_interval  = max(1, (int) $loan->day);
+
+      if (!empty($start_raw) && !empty($end_raw)) {
+        $start   = new DateTime(date('Y-m-d', strtotime($start_raw)));
+        $end     = new DateTime(date('Y-m-d', strtotime($end_raw)));
+        $today   = new DateTime(date('Y-m-d'));
+        $current = clone $start;
+
+        if ($day_interval <= 1) {
+          $current->modify('+1 day');
+        } else {
+          $current->modify("+{$day_interval} days");
+        }
+
+        while ($current <= $end && $current <= $today) {
+          $date_key = $current->format('Y-m-d');
+          $paid     = isset($deposits_by_date[$date_key]) ? (float) $deposits_by_date[$date_key] : 0.0;
+          $penalty  = isset($penalties_by_date[$date_key]) ? (float) $penalties_by_date[$date_key] : 0.0;
+
+          if ($paid >= $restoration) {
+            $status       = 'paid';
+            $status_label = $this->lang->line('ps_paid_status') ?: 'Imelipwa';
+          } elseif ($paid > 0) {
+            $status       = 'partial';
+            $status_label = $this->lang->line('ps_partial_status') ?: 'Kidogo';
+          } else {
+            $status       = 'not_paid';
+            $status_label = $this->lang->line('ps_not_paid_status') ?: 'Haijalipwa';
+          }
+
+          $schedule[] = [
+            'date'         => $date_key,
+            'expected'     => $restoration,
+            'paid'         => $paid,
+            'penalty'      => $penalty,
+            'status'       => $status,
+            'status_label' => $status_label,
+          ];
+
+          $current->modify("+{$day_interval} days");
+        }
+      }
+
+      $scheduled_dates = array_column($schedule, 'date');
+      foreach ($deposits_by_date as $date_key => $paid) {
+        if (!in_array($date_key, $scheduled_dates)) {
+          $penalty = isset($penalties_by_date[$date_key]) ? (float) $penalties_by_date[$date_key] : 0.0;
+          $schedule[] = [
+            'date'         => $date_key,
+            'expected'     => 0.0,
+            'paid'         => (float) $paid,
+            'penalty'      => $penalty,
+            'status'       => 'paid',
+            'status_label' => $this->lang->line('ps_paid_status') ?: 'Imelipwa',
+          ];
+        }
+      }
+
+      usort($schedule, function($a, $b) { return strcmp($a['date'], $b['date']); });
+
+      $this->load->view('officer/payment_statement_detail', [
+        'loan'      => $loan,
+        'customer'  => $customer,
+        'compdata'  => $compdata,
+        'schedule'  => $schedule,
+      ]);
+    }
+
+    public function payment_statement_pdf($loan_id) {
+      $this->load->model('queries');
+      $empl_id = $this->session->userdata('empl_id');
+      $manager_data = $this->queries->get_manager_data($empl_id);
+      $comp_id = $manager_data->comp_id;
+      $officer_blanch_id = !empty($manager_data->blanch_id) ? (int) $manager_data->blanch_id : (int) $this->session->userdata('blanch_id');
+      $loan_id = (int) $loan_id;
+
+      $generated_by = 'System';
+      if (!empty($empl_id)) {
+        $empl_data = $this->queries->get_employee_data($empl_id);
+        if (!empty($empl_data) && !empty($empl_data->empl_name)) {
+          $generated_by = $empl_data->empl_name;
+        }
+      }
+      if ($generated_by === 'System') {
+        $generated_by = $this->session->userdata('username') ?: 'System';
+      }
+      $generated_date = date('d-m-Y H:i');
+
+      $loan = $this->queries->get_loan_statement_info($loan_id, $comp_id);
+      if (!$loan || ((int) ($loan->blanch_id ?? 0) !== $officer_blanch_id)) {
+        $this->session->set_flashdata('error', 'Mkopo haukupatikana');
+        return redirect('oficer/payment_statement_search');
+      }
+
+      $customer = $this->queries->search_CustomerID($loan->customer_id, $comp_id);
+      $compdata = $this->queries->get_companyData($comp_id);
+
+      $deposits_by_date  = $this->queries->get_deposits_by_date_for_loan($loan_id);
+      $penalties_by_date = $this->queries->get_penalties_by_date_for_loan($loan_id);
+
+      $schedule      = [];
+      $start_raw     = !empty($loan->loan_stat_date) ? $loan->loan_stat_date : $loan->disburse_day;
+      $end_raw       = !empty($loan->loan_end_date) ? $loan->loan_end_date : $loan->return_date;
+      $restoration   = (float) $loan->restration;
+      $day_interval  = max(1, (int) $loan->day);
+
+      if (!empty($start_raw) && !empty($end_raw)) {
+        $start   = new DateTime(date('Y-m-d', strtotime($start_raw)));
+        $end     = new DateTime(date('Y-m-d', strtotime($end_raw)));
+        $today   = new DateTime(date('Y-m-d'));
+        $current = clone $start;
+
+        if ($day_interval <= 1) {
+          $current->modify('+1 day');
+        } else {
+          $current->modify("+{$day_interval} days");
+        }
+
+        while ($current <= $end && $current <= $today) {
+          $date_key = $current->format('Y-m-d');
+          $paid     = isset($deposits_by_date[$date_key]) ? (float) $deposits_by_date[$date_key] : 0.0;
+          $penalty  = isset($penalties_by_date[$date_key]) ? (float) $penalties_by_date[$date_key] : 0.0;
+
+          if ($paid >= $restoration) {
+            $status       = 'paid';
+            $status_label = $this->lang->line('ps_paid_status') ?: 'Imelipwa';
+          } elseif ($paid > 0) {
+            $status       = 'partial';
+            $status_label = $this->lang->line('ps_partial_status') ?: 'Kidogo';
+          } else {
+            $status       = 'not_paid';
+            $status_label = $this->lang->line('ps_not_paid_status') ?: 'Haijalipwa';
+          }
+
+          $schedule[] = [
+            'date'         => $date_key,
+            'expected'     => $restoration,
+            'paid'         => $paid,
+            'penalty'      => $penalty,
+            'status'       => $status,
+            'status_label' => $status_label,
+          ];
+
+          $current->modify("+{$day_interval} days");
+        }
+      }
+
+      $scheduled_dates = array_column($schedule, 'date');
+      foreach ($deposits_by_date as $date_key => $paid) {
+        if (!in_array($date_key, $scheduled_dates)) {
+          $penalty = isset($penalties_by_date[$date_key]) ? (float) $penalties_by_date[$date_key] : 0.0;
+          $schedule[] = [
+            'date'         => $date_key,
+            'expected'     => 0.0,
+            'paid'         => (float) $paid,
+            'penalty'      => $penalty,
+            'status'       => 'paid',
+            'status_label' => $this->lang->line('ps_paid_status') ?: 'Imelipwa',
+          ];
+        }
+      }
+
+      usort($schedule, function($a, $b) { return strcmp($a['date'], $b['date']); });
+
+      $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'orientation' => 'L']);
+      $html = $this->load->view('admin/payment_statement_pdf', [
+        'loan'           => $loan,
+        'customer'       => $customer,
+        'compdata'       => $compdata,
+        'schedule'       => $schedule,
+        'generated_by'   => $generated_by,
+        'generated_date' => $generated_date,
+      ], true);
+
+      $mpdf->SetFooter('Generated By Brainsoft Technology');
+      $mpdf->WriteHTML($html);
+
+      $filename = (!empty($loan->loan_code) ? preg_replace('/[^a-zA-Z0-9_-]/', '_', $loan->loan_code) : 'loan_statement') . '_payment_statement.pdf';
+      $mpdf->Output($filename, 'I');
+    }
 
 public function customer_report(){
     $this->load->model('queries');

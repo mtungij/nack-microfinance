@@ -911,6 +911,7 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
       	  //  }
 
       	  $today = date("Y-m-d 23:59");
+          $today_date = date("Y-m-d");
       	  //$today = date("2023-02-16 23:59");
       	  @$loans = $this->queries->get_sum_depostLoan($loan_id);
       	  $depost_data = @$loans->depos;
@@ -926,6 +927,45 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
       	   $money_value = $penart_value;
       	   $restoration_loan = $loan_data->restration;
       	   $lejesho = $restoration_loan;
+
+           // Determine whether today is a scheduled repayment day based on outstand start/end dates and loan day interval.
+           $loan_start_date_raw = !empty($loan_data->loan_stat_date) ? $loan_data->loan_stat_date : null;
+           $loan_end_date_raw = !empty($loan_data->loan_end_date) ? $loan_data->loan_end_date : null;
+           $loan_start_date = $loan_start_date_raw ? date('Y-m-d', strtotime($loan_start_date_raw)) : null;
+           $loan_end_date_schedule = $loan_end_date_raw ? date('Y-m-d', strtotime($loan_end_date_raw)) : null;
+           $repayment_day_interval = (int)$day;
+
+           $is_due_repayment_today = false;
+           if (!empty($loan_start_date) && !empty($loan_end_date_schedule)) {
+           	if ($today_date > $loan_start_date && $today_date <= $loan_end_date_schedule) {
+           		$days_from_start = (int)((strtotime($today_date) - strtotime($loan_start_date)) / 86400);
+
+           		if ($repayment_day_interval <= 1) {
+           			$is_due_repayment_today = ($days_from_start >= 1);
+           		} else {
+           			$is_due_repayment_today = ($days_from_start >= $repayment_day_interval) && (($days_from_start % $repayment_day_interval) === 0);
+           		}
+           	}
+           }
+
+           // Check cash payments made today for this loan. Penalty applies only if required amount was not met.
+           $today_paid_data = $this->db
+           	->select('COALESCE(SUM(depost), 0) AS total_paid_today', false)
+           	->from('tbl_pay')
+           	->where('loan_id', $loan_id)
+           	->where('DATE(date_data)', $today_date)
+           	->where('description', 'CASH DEPOSIT')
+           	->get()
+           	->row();
+           $today_paid_amount = (float)($today_paid_data->total_paid_today ?? 0);
+           $is_payment_missing_today = ($today_paid_amount < (float)$loanreturn);
+
+           // Prevent duplicate penalty insertion for the same loan on the same day.
+           $has_penalty_today = $this->db
+	           ->from('tbl_store_penalt')
+	           ->where('loan_id', $loan_id)
+	           ->where('DATE(penart_day)', $today_date)
+	           ->count_all_results() > 0;
            
       	   //asilimia lejesho
       	   $percent_calc = $money_value / 100 * $lejesho;
@@ -966,11 +1006,13 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
                        	//echo"tayali";
                        }elseif($return_date == NULL){
                        	//echo "bado sana";
-                    }elseif($return_date <= $today){
-                    if($old_balance_data < $loanreturn and $penart_status == 'YES' and $action == 'MONEY VALUE'){ 
+                       }elseif($is_due_repayment_today){
+                       if($old_balance_data < $loanreturn and $penart_status == 'YES' and $action == 'MONEY VALUE' and $is_payment_missing_today){ 
                     	//insert penart money value
                     	//echo "penati ya hela";
+                   if (!$has_penalty_today) {
                    $this->insert_loanPenart_moneyValue($comp_id,$blanch_id,$customer_id,$loan_id,$money_value,$group_id);
+                   }
                    $this->witdrow_balanceAutoYote($loan_id,$comp_id,$blanch_id,$customer_id,$old_balance_data,$chukua_chote,$description,$group_id);
                        // insert pending loan
                    $this->insert_pending_data($comp_id,$blanch_id,$customer_id,$loan_id,$totalloan,$day,$loanreturn,$old_balance_data,$group_id);
@@ -983,10 +1025,12 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
                    $this->insert_loan_pending_report($comp_id,$blanch_id,$customer_id,$loan_id,$loanreturn,$sua,$money_value,$group_id);
                    //$this->update_shedure_notpaid($loan_id);
                        //echo "anadaiwa";
-                   }elseif($old_balance_data < $loanreturn and $penart_status == 'YES' and $action == 'PERCENTAGE VALUE'){
+                       }elseif($old_balance_data < $loanreturn and $penart_status == 'YES' and $action == 'PERCENTAGE VALUE' and $is_payment_missing_today){
                    //	echo "penati ya asilimia";
                    	//insert loanpenart percentage value
-                   $this->insert_loanPenart_percentage_Value($comp_id,$blanch_id,$customer_id,$loan_id,$percent_calc,$group_id);
+                  if (!$has_penalty_today) {
+                  $this->insert_loanPenart_percentage_Value($comp_id,$blanch_id,$customer_id,$loan_id,$percent_calc,$group_id);
+                  }
                    $this->witdrow_balanceAutoYote($loan_id,$comp_id,$blanch_id,$customer_id,$old_balance_data,$chukua_chote,$description,$group_id);
                    	   //insert pending loan
                    $this->insert_pending_data($comp_id,$blanch_id,$customer_id,$loan_id,$totalloan,$day,$loanreturn,$old_balance_data,$group_id);
@@ -999,7 +1043,7 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
                       //insert customer report percentage value
                    $this->insert_loan_pending_reportPercentage_value($comp_id,$blanch_id,$customer_id,$loan_id,$loanreturn,$sua,$percent_calc,$group_id);
                    //$this->update_shedure_notpaid($loan_id);
-                   }elseif($old_balance_data < $loanreturn and $penart_status == 'NO'){
+                       }elseif($old_balance_data < $loanreturn and $penart_status == 'NO' and $is_payment_missing_today){
                    	 //echo "hakuna penart";
                    	 //insert loan penart
                    $this->insert_pending_data($comp_id,$blanch_id,$customer_id,$loan_id,$totalloan,$day,$loanreturn,$old_balance_data,$group_id);

@@ -10805,4 +10805,82 @@ public function get_customer_all_loans($customer_id) {
 	return $schedule;
 }
 
+    // ============================================================
+    // PAYMENT & PENALTY STATEMENT QUERIES
+    // ============================================================
+
+    /**
+     * Get all loans for a customer (for the loan-selection dropdown)
+     */
+    public function get_customer_loans_for_statement($customer_id, $comp_id) {
+        $data = $this->db->query(
+            "SELECT l.loan_id, l.loan_code, l.loan_aprove, l.loan_int, l.loan_status,
+                    l.disburse_day, l.return_date, l.session, l.day, l.restration,
+                    lc.loan_name
+             FROM tbl_loans l
+             LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id
+             WHERE l.customer_id = ? AND l.comp_id = ?
+             ORDER BY l.loan_id DESC",
+            [(int)$customer_id, (int)$comp_id]
+        );
+        return $data->result();
+    }
+
+    /**
+     * Get full loan info for the statement header
+     */
+    public function get_loan_statement_info($loan_id, $comp_id) {
+        $data = $this->db->query(
+            "SELECT l.*, lc.loan_name, b.blanch_name,
+                    ot.loan_stat_date, ot.loan_end_date
+             FROM tbl_loans l
+             LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id
+             LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
+             LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id
+             WHERE l.loan_id = ? AND l.comp_id = ?
+             LIMIT 1",
+            [(int)$loan_id, (int)$comp_id]
+        );
+        return $data->row();
+    }
+
+    /**
+     * Returns deposits keyed by date: ['Y-m-d' => total_paid]
+     */
+    public function get_deposits_by_date_for_loan($loan_id) {
+        $data = $this->db->query(
+            "SELECT DATE(depost_day) AS pay_date, SUM(depost) AS total_paid
+             FROM tbl_depost
+             WHERE loan_id = ?
+             GROUP BY DATE(depost_day)
+             ORDER BY DATE(depost_day) ASC",
+            [(int)$loan_id]
+        );
+        $result = [];
+        foreach ($data->result() as $row) {
+            $result[$row->pay_date] = (float)$row->total_paid;
+        }
+        return $result;
+    }
+
+    /**
+     * Returns penalties keyed by date: ['Y-m-d' => total_penalty]
+     */
+    public function get_penalties_by_date_for_loan($loan_id) {
+        $data = $this->db->query(
+            "SELECT DATE(penart_day) AS pen_date, SUM(total_penart) AS total_penalty
+             FROM tbl_store_penalt
+             WHERE loan_id = ?
+             GROUP BY DATE(penart_day)
+             ORDER BY DATE(penart_day) ASC",
+            [(int)$loan_id]
+        );
+        $result = [];
+        foreach ($data->result() as $row) {
+            $result[$row->pen_date] = (float)$row->total_penalty;
+        }
+        return $result;
+    }
+
 }
+

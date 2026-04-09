@@ -3288,76 +3288,64 @@ public function delete_loan_fee($fee_id){
 public function disburse($loan_id){
 	$this->load->model('queries');
 	$comp_id = $this->session->userdata('comp_id');
-	$empl_id = $this->session->userdata('empl_id');
-    $empl_data = $this->queries->get_employee_data($empl_id);
 	$admin_data = $this->queries->get_admin_role($comp_id);
 	$loan_fee = $this->queries->get_loanfee($comp_id);
+  $fee_category = $this->queries->get_loanfee_categoryData($comp_id);
 	$loan_data = $this->queries->get_loanDisbarsed($loan_id);
 	$loan_data_interst = $this->queries->get_loanInterest($loan_id);
 	$loan_fee_sum = $this->queries->get_sumLoanFee($comp_id);
 	$total_loan_fee = $loan_fee_sum->total_fee;
+
+      // print_r($admin_data);
+      //       exit();
         
 	  $loan_id = $loan_data->loan_id;
 	  $blanch_id = $loan_data->blanch_id;
 	  $comp_id = $loan_data->comp_id;
 	  $customer_id = $loan_data->customer_id;
-	  $balance = $loan_data->loan_aprove;
+	  $balance = $loan_data->how_loan;
 	  $group_id = $loan_data->group_id;
 	  $loan_codeID = $loan_data->loan_code;
 	  $code = $loan_data->code;
 	  $comp_name = $loan_data->comp_name;
-	  $phone_no = $loan_data->phone_no;
+	  $phone = $loan_data->phone_no;
 	  $day = $loan_data->day;
 	  $session = $loan_data->session;
+    $category_fee = @$fee_category->fee_category;
 
 	  //admin data
-	  $role = $empl_data->empl_name;
-
+	  $role = $admin_data->role;
+// print_r($balance);
+// 	      exit();
       $interest_loan = $loan_data_interst->interest_formular;
-	//   echo "<pre>";
-	//   print_r($balance);
-	//     echo "<pre>";
-	//   exit();
 	  $interest = $interest_loan;
       $end_date = $day * $session;
-	    $interest_loan = $loan_data_interst->interest_formular; // mfano 20
-    $interest_type = $loan_data_interst->rate; // mfano FLAT RATE / REDUCING BALANCE
-         if($interest_type == 'FLAT RATE') {
-        // tafsiri session kuwa miezi kulingana na aina ya mkopo
-        if ($day == 1) { 
-            // daily loan
-            $loan_interest = $balance * ($interest_loan / 100) * $session;
+      if($loan_data_interst->rate == 'FLAT RATE') {
+      // $now = date("Y-m-d");
+      // $someDate = DateTime::createFromFormat("Y-m-d",$now);
+      // $someDate->add(new DateInterval('P'.$end_date.'D'));
+      // $return_data = $someDate->format("Y-m-d");
 
-        } elseif ($day == 7) { 
-              $weeks = $session;
-            $monthly_rate = $interest_loan / 100; // per month
-            $weekly_rate = $monthly_rate / 4; // rate per week
-            $loan_interest = $balance * $weekly_rate * $weeks;
-        } elseif (in_array($day, [28,29,30,31])) {
-              $months = $session;
-            $loan_interest = $balance * ($interest_loan / 100) * $months;
+      // $date1 = $now;
+      // $date2 = $return_data;
 
-        } else {
-               $loan_interest = 0; // default
-        }
+      // $ts1 = strtotime($date1);
+      // $ts2 = strtotime($date2);
 
+      // $year1 = date('Y', $ts1);
+      // $year2 = date('Y', $ts2);
+
+      // $month1 = date('m', $ts1);
+      // $month2 = date('m', $ts2);
+
+      // $diff = (($year2 - $year1) * 12) + ($month2 - $month1);
+      	$day_data = $end_date;
+	    $months = floor($day_data / 30);
+       
+      $loan_interest = $interest /100 * $balance * $months;
       $total_loan = $balance + $loan_interest;
 
-	//     echo "<pre>";
-	//   print_r($total_loan);
-	//     echo "<pre>";
-	//   exit();
-
-        // kwa test tuone matokeo
-        // echo "<pre>";
-        // echo "Balance (Principal): " . $balance . "\n";
-        // echo "Total Months: " . $total_months . "\n";
-        // echo "Effective Interest %: " . $effective_interest_percent . "%\n";
-        // echo "Loan Interest: " . $loan_interest . "\n";
-        // echo "Total Loan: " . $total_loan . "\n";
-        // echo "</pre>";
-        // exit();
-    }elseif($loan_data_interst->rate == 'SIMPLE'){
+      }elseif($loan_data_interst->rate == 'SIMPLE'){
       $loan_interest = $interest /100 * $balance;
       $total_loan = $balance + $loan_interest;
       }elseif($loan_data_interst->rate == 'REDUCING'){
@@ -3374,60 +3362,61 @@ public function disburse($loan_id){
       }
 
       // print_r($total_loan);
-   
+      //      echo "<br>";
+      //   print_r($loan_interest);
+      //      echo "<br>";
       //    print_r($res);
       //      exit();
       //data inorder to send sms
-    //   $sms_data = $total_loan_fee /100 * $balance;
-
-    //   $remain_balance = $balance - $sms_data;
+      $sms_data = $total_loan_fee /100 * $balance;
+      $remain_balance = $balance - $sms_data;
         
      
-       $massage = 'Taasisi ya '.$comp_name.' Imeingiza Mkopo Kiasi cha Tsh.'.$balance.' kwenye Acc Yako ' . $loan_codeID .' Namba yasiri ya kutolea mkopo ni '.$code;
-
-	  
+      // $sms = 'Taasisi ya '.$comp_name.' Imeingiza Mkopo Kiasi cha Tsh.'.$remain_balance.' kwenye Acc Yako ' . $loan_codeID .' Namba yasiri ya kutolea mkopo ni '.$code;
+      // $massage = $sms;
+      // $phone = $phones;
 
       $loan_fee_type = $this->queries->get_loanfee_type($comp_id);
-      $type = $loan_fee_type->type;
-
-	
-	// 	  echo "<pre>";
-	//   print_r(  $type);
-	//   echo "</pre>";
-	//   	 exit();
-
-      $this->insert_loan_aprovedDisburse($comp_id,$loan_id,$customer_id,$blanch_id,$balance,$role,$group_id);
+    $loan_category = $this->queries->get_loanproduct_fee($loan_id);
+      $type = @$loan_fee_type->type;
+      $pay_id = $this->insert_loan_aprovedDisburse($comp_id,$loan_id,$customer_id,$blanch_id,$balance,$role,$group_id);
 	  $unchangable_balance = $balance;
-	  
-
+        if ($category_fee == 'GENERAL') {
         if ($type == 'PERCENTAGE VALUE') {
-	  for ($i=0; $i<count($loan_fee); $i++) { 
-		$interest = $loan_fee[$i]->fee_interest;
-
-
-		$fee_description = $loan_fee[$i]->description;
-		$fee_number = $loan_fee[$i]->fee_interest;
-	  	$withdraw_balance = $unchangable_balance * ($interest / 100);
-
-	  	
-	  	$new_balance = $balance - $withdraw_balance;
+    for ($i=0; $i<count($loan_fee); $i++) { 
+    $interest = $loan_fee[$i]->fee_interest;
+    $withdraw_balance = $unchangable_balance * ($interest / 100);
+    $new_balance = $balance - $withdraw_balance;
         $pay_id = $this->insert_loanfee($loan_fee[$i]->fee_id,$loan_fee[$i]->fee_interest,$loan_fee[$i]->description,$loan_fee[$i]->fee_interest,$loan_id,$blanch_id,$comp_id,$customer_id,$new_balance, $withdraw_balance,$group_id);
-     //Update Balance in this Loop
         $balance = $new_balance;   
     }
    }elseif ($type == 'MONEY VALUE') {
-   	 for ($i=0; $i<count($loan_fee); $i++) { 
-		$interest = $loan_fee[$i]->fee_interest;
-		$fee_description = $loan_fee[$i]->description;
-		$fee_number = $loan_fee[$i]->fee_interest;
-	  	$withdraw_balance = $interest;
-
-	  	
-	  	$new_balance = $balance - $withdraw_balance;
+     	 for ($i=0; $i<count($loan_fee); $i++) { 
+    $interest = $loan_fee[$i]->fee_interest;
+    	$withdraw_balance = $interest;
+    $new_balance = $balance - $withdraw_balance;
         $pay_id = $this->insert_loanfee_money($loan_fee[$i]->fee_id,$loan_fee[$i]->fee_interest,$loan_fee[$i]->description,$loan_fee[$i]->fee_interest,$loan_id,$blanch_id,$comp_id,$customer_id,$new_balance, $withdraw_balance,$group_id);
-
-     //Update Balance in this Loop
         $balance = $new_balance;   
+    }
+   }
+   }elseif ($category_fee == 'LOAN PRODUCT') {
+    $fee_description = 'Loan Processing Fee';
+    $loan_fee_id = '0';
+    $fee_category_type = @$loan_category->fee_category_type;
+    $fee_value = (float) @$loan_category->fee_value;
+
+    if ($fee_category_type == 'PERCENTAGE' && $fee_value > 0) {
+      $symbol = '%';
+      $withdraw_balance = $unchangable_balance * ($fee_value / 100);
+      $new_balance = $balance - $withdraw_balance;
+      $pay_id = $this->insert_loanfee_money_feetype($loan_fee_id,$fee_description,$fee_value,$loan_id,$blanch_id,$comp_id,$customer_id,$new_balance,$group_id,$symbol,$withdraw_balance);
+      $balance = $new_balance;
+    } elseif ($fee_category_type == 'MONEY' && $fee_value > 0) {
+      $symbol = 'Tsh';
+      $withdraw_balance = $fee_value;
+      $new_balance = $balance - $withdraw_balance;
+      $pay_id = $this->insert_loanfee_money_feetype($loan_fee_id,$fee_description,$fee_value,$loan_id,$blanch_id,$comp_id,$customer_id,$new_balance,$group_id,$symbol,$withdraw_balance);
+      $balance = $new_balance;
     }
    }
 
@@ -3435,17 +3424,13 @@ public function disburse($loan_id){
            $this->insert_loan_lecord($comp_id,$customer_id,$loan_id,$blanch_id,$total_loan,$loan_interest,$group_id);
            $this->update_loaninterest($pay_id,$total_loan);
            //$this->sendsms($phone,$massage);
-		//            echo "<br>";
-        // print_r( $total_loan );
-        //    echo "<br>";
-		//    exit();
            $this->aprove_disbas_status($loan_id);
            
           return redirect('admin/get_loan_aproved');      
 	     
          }
 
-         
+        
         public function insert_loan_aprovedDisburse($comp_id,$loan_id,$customer_id,$blanch_id,$balance,$role,$group_id){
       	$day = date("Y-m-d");
       $this->db->query("INSERT INTO tbl_pay (`comp_id`,`loan_id`,`customer_id`,`blanch_id`,`balance`,`depost`,`emply`,`description`,`group_id`,`date_data`) VALUES ('$comp_id','$loan_id', '$customer_id','$blanch_id','$balance','$balance','$role','CASH DEPOST','$group_id','$day')");
@@ -12213,6 +12198,241 @@ $this->lang->load('app', $idiom);
 if (!$this->session->userdata("comp_id"))
 	return redirect("welcome/login");
 }
+
+    // ============================================================
+    // PAYMENT & PENALTY STATEMENT
+    // ============================================================
+
+    /**
+     * Step 1: Show customer search / loan selection form
+     */
+    public function payment_statement_search() {
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $customers = $this->queries->get_allcustomerData($comp_id);
+        $this->load->view('admin/payment_statement_search', [
+            'customers' => $customers,
+        ]);
+    }
+
+    /**
+     * Redirect helper: POST loan_id → GET detail page
+     */
+    public function payment_statement_go() {
+        $loan_id = (int) $this->input->post('loan_id');
+        if (!$loan_id) {
+            return redirect('admin/payment_statement_search');
+        }
+        return redirect('admin/payment_statement_detail/' . $loan_id);
+    }
+
+    /**
+     * Step 2: Show full payment + penalty statement for a loan
+     */
+    public function payment_statement_detail($loan_id) {
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $loan_id = (int) $loan_id;
+
+        $loan = $this->queries->get_loan_statement_info($loan_id, $comp_id);
+        if (!$loan) {
+            $this->session->set_flashdata('error', 'Mkopo haukupatikana');
+            return redirect('admin/payment_statement_search');
+        }
+
+        $customer = $this->queries->search_CustomerID($loan->customer_id, $comp_id);
+        $compdata = $this->queries->get_companyData($comp_id);
+
+        // Keyed by date string 'Y-m-d'
+        $deposits_by_date  = $this->queries->get_deposits_by_date_for_loan($loan_id);
+        $penalties_by_date = $this->queries->get_penalties_by_date_for_loan($loan_id);
+
+        // Build repayment schedule using loan logic (same as withdraw_automatic_loan)
+        $schedule      = [];
+        $start_raw     = !empty($loan->loan_stat_date) ? $loan->loan_stat_date : $loan->disburse_day;
+        $end_raw       = !empty($loan->loan_end_date)  ? $loan->loan_end_date  : $loan->return_date;
+        $restoration   = (float) $loan->restration;
+        $day_interval  = max(1, (int) $loan->day);
+
+        if (!empty($start_raw) && !empty($end_raw)) {
+            $start   = new DateTime(date('Y-m-d', strtotime($start_raw)));
+            $end     = new DateTime(date('Y-m-d', strtotime($end_raw)));
+            $today   = new DateTime(date('Y-m-d'));
+            $current = clone $start;
+
+            // Daily loans must start collection one day after start date.
+            if ($day_interval <= 1) {
+                $current->modify('+1 day');
+            } else {
+                $current->modify("+{$day_interval} days");
+            }
+
+            while ($current <= $end && $current <= $today) {
+                $date_key = $current->format('Y-m-d');
+                $paid     = isset($deposits_by_date[$date_key])  ? (float) $deposits_by_date[$date_key]  : 0.0;
+                $penalty  = isset($penalties_by_date[$date_key]) ? (float) $penalties_by_date[$date_key] : 0.0;
+
+                if ($paid >= $restoration) {
+                    $status       = 'paid';
+                    $status_label = $this->lang->line('ps_paid_status')    ?: 'Imelipwa';
+                } elseif ($paid > 0) {
+                    $status       = 'partial';
+                    $status_label = $this->lang->line('ps_partial_status')  ?: 'Kidogo';
+                } else {
+                    $status       = 'not_paid';
+                    $status_label = $this->lang->line('ps_not_paid_status') ?: 'Haijalipwa';
+                }
+
+                $schedule[] = [
+                    'date'         => $date_key,
+                    'expected'     => $restoration,
+                    'paid'         => $paid,
+                    'penalty'      => $penalty,
+                    'status'       => $status,
+                    'status_label' => $status_label,
+                ];
+
+                $current->modify("+{$day_interval} days");
+            }
+        }
+
+        // Include any extra deposit dates not in the generated schedule (e.g. topup, irregular)
+        $scheduled_dates = array_column($schedule, 'date');
+        foreach ($deposits_by_date as $date_key => $paid) {
+            if (!in_array($date_key, $scheduled_dates)) {
+                $penalty = isset($penalties_by_date[$date_key]) ? (float) $penalties_by_date[$date_key] : 0.0;
+                $schedule[] = [
+                    'date'         => $date_key,
+                    'expected'     => 0.0,
+                    'paid'         => (float) $paid,
+                    'penalty'      => $penalty,
+                    'status'       => 'paid',
+                    'status_label' => $this->lang->line('ps_paid_status') ?: 'Imelipwa',
+                ];
+            }
+        }
+        // Sort by date ascending
+        usort($schedule, function($a, $b) { return strcmp($a['date'], $b['date']); });
+
+        $this->load->view('admin/payment_statement_detail', [
+            'loan'             => $loan,
+            'customer'         => $customer,
+            'compdata'         => $compdata,
+            'schedule'         => $schedule,
+        ]);
+    }
+
+    public function payment_statement_pdf($loan_id) {
+        $this->load->model('queries');
+        $comp_id = $this->session->userdata('comp_id');
+        $loan_id = (int) $loan_id;
+
+        $generated_by = 'System';
+        $empl_id = $this->session->userdata('empl_id');
+        if (!empty($empl_id)) {
+            $empl_data = $this->queries->get_employee_data($empl_id);
+            if (!empty($empl_data) && !empty($empl_data->empl_name)) {
+                $generated_by = $empl_data->empl_name;
+            }
+        }
+        if ($generated_by === 'System') {
+            $generated_by = $this->session->userdata('username') ?: 'System';
+        }
+        $generated_date = date('d-m-Y H:i');
+
+        $loan = $this->queries->get_loan_statement_info($loan_id, $comp_id);
+        if (!$loan) {
+            $this->session->set_flashdata('error', 'Mkopo haukupatikana');
+            return redirect('admin/payment_statement_search');
+        }
+
+        $customer = $this->queries->search_CustomerID($loan->customer_id, $comp_id);
+        $compdata = $this->queries->get_companyData($comp_id);
+
+        $deposits_by_date  = $this->queries->get_deposits_by_date_for_loan($loan_id);
+        $penalties_by_date = $this->queries->get_penalties_by_date_for_loan($loan_id);
+
+        $schedule      = [];
+        $start_raw     = !empty($loan->loan_stat_date) ? $loan->loan_stat_date : $loan->disburse_day;
+        $end_raw       = !empty($loan->loan_end_date)  ? $loan->loan_end_date  : $loan->return_date;
+        $restoration   = (float) $loan->restration;
+        $day_interval  = max(1, (int) $loan->day);
+
+        if (!empty($start_raw) && !empty($end_raw)) {
+            $start   = new DateTime(date('Y-m-d', strtotime($start_raw)));
+            $end     = new DateTime(date('Y-m-d', strtotime($end_raw)));
+            $today   = new DateTime(date('Y-m-d'));
+            $current = clone $start;
+
+            // Daily loans must start collection one day after start date.
+            if ($day_interval <= 1) {
+                $current->modify('+1 day');
+            } else {
+                $current->modify("+{$day_interval} days");
+            }
+
+            while ($current <= $end && $current <= $today) {
+                $date_key = $current->format('Y-m-d');
+                $paid     = isset($deposits_by_date[$date_key])  ? (float) $deposits_by_date[$date_key]  : 0.0;
+                $penalty  = isset($penalties_by_date[$date_key]) ? (float) $penalties_by_date[$date_key] : 0.0;
+
+                if ($paid >= $restoration) {
+                    $status       = 'paid';
+                    $status_label = $this->lang->line('ps_paid_status') ?: 'Imelipwa';
+                } elseif ($paid > 0) {
+                    $status       = 'partial';
+                    $status_label = $this->lang->line('ps_partial_status') ?: 'Kidogo';
+                } else {
+                    $status       = 'not_paid';
+                    $status_label = $this->lang->line('ps_not_paid_status') ?: 'Haijalipwa';
+                }
+
+                $schedule[] = [
+                    'date'         => $date_key,
+                    'expected'     => $restoration,
+                    'paid'         => $paid,
+                    'penalty'      => $penalty,
+                    'status'       => $status,
+                    'status_label' => $status_label,
+                ];
+
+                $current->modify("+{$day_interval} days");
+            }
+        }
+
+        $scheduled_dates = array_column($schedule, 'date');
+        foreach ($deposits_by_date as $date_key => $paid) {
+            if (!in_array($date_key, $scheduled_dates)) {
+                $penalty = isset($penalties_by_date[$date_key]) ? (float) $penalties_by_date[$date_key] : 0.0;
+                $schedule[] = [
+                    'date'         => $date_key,
+                    'expected'     => 0.0,
+                    'paid'         => (float) $paid,
+                    'penalty'      => $penalty,
+                    'status'       => 'paid',
+                    'status_label' => $this->lang->line('ps_paid_status') ?: 'Imelipwa',
+                ];
+            }
+        }
+
+        usort($schedule, function($a, $b) { return strcmp($a['date'], $b['date']); });
+
+        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'orientation' => 'L']);
+        $html = $this->load->view('admin/payment_statement_pdf', [
+            'loan'     => $loan,
+            'customer' => $customer,
+            'compdata' => $compdata,
+            'schedule' => $schedule,
+            'generated_by' => $generated_by,
+            'generated_date' => $generated_date,
+        ], true);
+
+        $mpdf->SetFooter('Generated By Brainsoft Technology');
+        $mpdf->WriteHTML($html);
+
+        $filename = (!empty($loan->loan_code) ? preg_replace('/[^a-zA-Z0-9_-]/', '_', $loan->loan_code) : 'loan_statement') . '_payment_statement.pdf';
+        $mpdf->Output($filename, 'I');
+    }
 
   
 

@@ -2,7 +2,56 @@
 include_once APPPATH . "views/partials/header.php";
 ?>
 
-<div class="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 sm:p-6">
+<style>
+    .dashboard-loading-overlay {
+        width: 100%;
+        z-index: 1;
+        background: transparent;
+        opacity: 1;
+        transition: opacity 0.25s ease;
+    }
+
+    .dark .dashboard-loading-overlay {
+        background: transparent;
+    }
+
+    .dashboard-loading-overlay.is-hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .dashboard-skeleton {
+        border-radius: 0.75rem;
+        background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+        background-size: 400% 100%;
+        animation: dashboardShimmer 1.2s ease-in-out infinite;
+    }
+
+    .dark .dashboard-skeleton {
+        background: linear-gradient(90deg, #1f2937 25%, #374151 37%, #1f2937 63%);
+        background-size: 400% 100%;
+    }
+
+    @keyframes dashboardShimmer {
+        0% { background-position: 100% 0; }
+        100% { background-position: 0 0; }
+    }
+</style>
+
+<div id="dashboard-loading-placeholder" class="dashboard-loading-overlay">
+    <div class="w-full max-w-4xl mx-auto p-4 sm:p-6">
+        <div class="space-y-4">
+            <div class="dashboard-skeleton h-10 w-56"></div>
+            <div class="dashboard-skeleton h-12"></div>
+            <div class="dashboard-skeleton h-12"></div>
+            <div class="dashboard-skeleton h-12"></div>
+            <div class="dashboard-skeleton h-12"></div>
+            <div class="dashboard-skeleton h-40"></div>
+        </div>
+    </div>
+</div>
+
+<div id="dashboard-main-content" class="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 sm:p-6 hidden">
     <h2 class="text-lg sm:text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 text-center">Kalkuleta ya Mkopo</h2>
     
     <form id="loanForm" class="space-y-4">
@@ -144,6 +193,24 @@ function calculateLoan() {
         amortizationBody.innerHTML += row;
     }
 }
+
+window.addEventListener('load', function () {
+    var loadingPlaceholder = document.getElementById('dashboard-loading-placeholder');
+    var mainContent = document.getElementById('dashboard-main-content');
+
+    if (mainContent) {
+        mainContent.classList.remove('hidden');
+    }
+
+    if (loadingPlaceholder) {
+        setTimeout(function () {
+            loadingPlaceholder.classList.add('is-hidden');
+            setTimeout(function () {
+                loadingPlaceholder.style.display = 'none';
+            }, 260);
+        }, 180);
+    }
+});
 </script>
 
 <?php
