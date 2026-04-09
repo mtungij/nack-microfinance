@@ -1,6 +1,41 @@
 
 <?php
 include_once APPPATH . "views/partials/officerheader.php";
+
+$resolve_image_src = function ($value, $default_rel = 'assets/img/customer21.png') {
+  $default_src = base_url($default_rel);
+
+  if (empty($value)) {
+    return $default_src;
+  }
+
+  $raw = trim((string) $value);
+  if ($raw === '') {
+    return $default_src;
+  }
+
+  if (preg_match('#^(https?://|data:image/)#i', $raw)) {
+    return $raw;
+  }
+
+  $candidates = [$raw];
+  if (strpos($raw, 'assets/') !== 0) {
+    $candidates[] = 'assets/img/' . $raw;
+    $candidates[] = 'assets/passport/' . $raw;
+  }
+
+  foreach ($candidates as $candidate) {
+    $relative = ltrim($candidate, '/');
+    if (file_exists(FCPATH . $relative)) {
+      return base_url($relative);
+    }
+  }
+
+  return $default_src;
+};
+
+$customer_passport_src = $resolve_image_src($customer->passport ?? '', 'assets/img/customer21.png');
+$sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'assets/img/customer21.png');
 ?>
 <!-- ========== MAIN CONTENT BODY ========== -->
 <div class="w-full lg:ps-64">
@@ -37,11 +72,7 @@ include_once APPPATH . "views/partials/officerheader.php";
 
       <div class="bg-white p-4 border-t-4 border-green-500 rounded-lg shadow-md">
         <div class="image overflow-hidden mb-4 text-center">
-          <?php if (!empty($customer->passport)): ?>
-            <img class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= base_url($customer->passport) ?>" alt="Customer Passport">
-          <?php else: ?>
-            <img class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= base_url('assets/img/customer21.png') ?>" alt="Customer Image">
-          <?php endif; ?>
+          <img class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= $customer_passport_src ?>" alt="Customer Passport">
         </div>
         <h1 class="text-green-600 font-bold text-xl text-center uppercase whitespace-nowrap overflow-hidden truncate">
           <?= strtoupper($customer->f_name) . " " . strtoupper($customer->m_name) . " " . strtoupper($customer->l_name) ?>
@@ -143,11 +174,7 @@ include_once APPPATH . "views/partials/officerheader.php";
 
       <div class="bg-white p-4 border-t-4 border-green-500 rounded-lg shadow-md">
         <div class="image overflow-hidden mb-4 text-center">
-          <?php if (!empty($customer->passport_path)): ?>
-            <img class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= base_url($customer->passport_path) ?>" alt="Sponsor Passport">
-          <?php else: ?>
-            <img class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= base_url('assets/img/customer21.png') ?>" alt="Default Image">
-          <?php endif; ?>
+          <img class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= $sponsor_passport_src ?>" alt="Sponsor Passport">
         </div>
         <h1 class="text-green-600 font-bold text-xl text-center uppercase whitespace-nowrap overflow-hidden truncate">
           <?= strtoupper($customer->sp_name) . " " . strtoupper($customer->sp_mname) . " " . strtoupper($customer->sp_lname) ?>
