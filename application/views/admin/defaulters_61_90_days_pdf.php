@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <?php
+    $lang_line = function ($key, $fallback = '') {
+      $line = $this->lang->line($key);
+      return ($line !== false && $line !== '') ? $line : $fallback;
+    };
+  ?>
   <title><?= htmlspecialchars($compdata->comp_name) ?> | DEFAULTERS REPORT</title>
   <style>
     body { font-family: Arial, sans-serif; font-size: 12px; color: #333; }
@@ -27,8 +33,8 @@
     <?php endif; ?>
     <h2><?= htmlspecialchars($compdata->comp_name) ?></h2>
     <p><?= htmlspecialchars($compdata->adress) ?></p>
-    <p><strong>Defaulters Report (61–90 Days Past Due)</strong></p>
-    <p>Date: <?= date("d-m-Y") ?></p>
+    <p><strong><?= $lang_line('pdf_defaulters_61_90_report', 'Defaulters Report (61-90 Days Past Due)') ?></strong></p>
+    <p><?= $lang_line('date', 'Date') ?>: <?= date("d-m-Y") ?></p>
   
   </div>
 
@@ -50,22 +56,22 @@
     ?>
     <?php foreach ($branches as $branch_name => $branch_rows): ?>
       <div class="branch-header">
-        <?= $branch_no++ ?>. Branch: <b><?= htmlspecialchars($branch_name) ?></b>
+        <?= $branch_no++ ?>. <?= $lang_line('branch', 'Branch') ?>: <b><?= htmlspecialchars($branch_name) ?></b>
       </div>
       <table>
         <thead>
           <tr>
-            <th>S/No.</th>
-            <th>Customer Name</th>
-            <th>Phone Number</th>
-            <th>Loan Amount</th>
-            <th>Restoration</th>
-            <th>Duration</th>
-            <th>Paid Amount</th>
-            <th>Remain Amount</th>
-            <th>Overdue Days</th>
-            <th>Start Date</th>
-            <th>End Date</th>
+            <th><?= $lang_line('s_no', 'S/No') ?></th>
+            <th><?= $lang_line('customer_name', 'Customer Name') ?></th>
+            <th><?= $lang_line('phone_number', 'Phone Number') ?></th>
+            <th><?= $lang_line('loan_amount', 'Loan Amount') ?></th>
+            <th><?= $lang_line('outstand_restoration', 'Restoration') ?></th>
+            <th><?= $lang_line('duration_type', 'Duration Type') ?></th>
+            <th><?= $lang_line('amount_paid', 'Amount Paid') ?></th>
+            <th><?= $lang_line('remain_amount', 'Remain Amount') ?></th>
+            <th><?= $lang_line('overdue_days', 'Overdue Days') ?></th>
+            <th><?= $lang_line('start_date', 'Start Date') ?></th>
+            <th><?= $lang_line('end_date', 'End Date') ?></th>
           </tr>
         </thead>
         <tbody>
@@ -86,9 +92,9 @@
             <td><?= number_format($outstands->restration) ?></td>
             <td>
               <?php 
-                if ($outstands->day == 1) $duration = "Daily";
-                elseif ($outstands->day == 7) $duration = "Weekly";
-                elseif (in_array($outstands->day, [28,29,30,31])) $duration = "Monthly";
+                if ($outstands->day == 1) $duration = $lang_line('daily', 'Daily');
+                elseif ($outstands->day == 7) $duration = $lang_line('weekly', 'Weekly');
+                elseif (in_array($outstands->day, [28,29,30,31])) $duration = $lang_line('monthly', 'Monthly');
                 else $duration = "-";
                 echo $duration . ' (' . number_format($outstands->session) . ')';
               ?>
@@ -103,7 +109,7 @@
 
           <!-- Branch Subtotals -->
           <tr class="total-row">
-            <td colspan="3" style="text-align:right;">Branch Total:</td>
+            <td colspan="3" style="text-align:right;"><?= $lang_line('branch_total', 'Branch Total') ?>:</td>
             <td><?= number_format($b_loan) ?></td>
             <td><?= number_format($b_restoration) ?></td>
             <td></td>
@@ -122,16 +128,16 @@
     <?php endforeach; ?>
 
     <!-- Grand Totals -->
-    <div class="grand-total">Grand Totals</div>
+    <div class="grand-total"><?= $lang_line('grand_totals', 'Grand Totals') ?></div>
     <div class="grand-total-body">
-      <div class="grand-total-item"><b>Total Loan Amount:</b> <?= number_format($grand_loan) ?></div>
-      <div class="grand-total-item"><b>Total Restoration:</b> <?= number_format($grand_restoration) ?></div>
-      <div class="grand-total-item"><b>Total Paid:</b> <?= number_format($grand_paid) ?></div>
-      <div class="grand-total-item"><b>Total Remain:</b> <?= number_format($grand_remain) ?></div>
+      <div class="grand-total-item"><b><?= $lang_line('pdf_total_loan_amount', 'Total Loan Amount') ?>:</b> <?= number_format($grand_loan) ?></div>
+      <div class="grand-total-item"><b><?= $lang_line('pdf_total_restoration', 'Total Restoration') ?>:</b> <?= number_format($grand_restoration) ?></div>
+      <div class="grand-total-item"><b><?= $lang_line('pdf_total_paid', 'Total Paid') ?>:</b> <?= number_format($grand_paid) ?></div>
+      <div class="grand-total-item"><b><?= $lang_line('pdf_total_remain', 'Total Remain') ?>:</b> <?= number_format($grand_remain) ?></div>
     </div>
 
   <?php else: ?>
-    <div class="no-data">No defaulters found for the selected criteria.</div>
+    <div class="no-data"><?= $lang_line('pdf_no_defaulters_selected', 'No defaulters found for the selected criteria.') ?></div>
   <?php endif; ?>
 
 </body>

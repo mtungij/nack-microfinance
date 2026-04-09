@@ -8593,7 +8593,7 @@ public function download_yesterday_defaulters_pdf()
         'compdata'    => $compdata,
         'blanch_data' => $blanch_data,
         'outstand'    => $outstand,
-        'title'       => "Yesterday's Defaulters Report"
+        'title'       => $this->lang->line('pdf_yesterday_defaulters_report') ?: "Yesterday's Defaulters Report"
     ];
 
     // Clear any previous output
@@ -8637,7 +8637,7 @@ exit();
             'compdata'    => $compdata,
             'blanch_data' => $blanch_data,
             'outstand'    => $outstand,
-            'title'       => "Defaulters Report (3–30 Days Past Due)"
+            'title'       => $this->lang->line('pdf_defaulters_3_30_report') ?: 'Defaulters Report (3-30 Days Past Due)'
         ];
 
         // Clear previous output

@@ -9367,22 +9367,68 @@ public function get_outstand_loan() {
     $this->load->model('queries');
     $comp_id = $this->session->userdata('comp_id');
 
-    // Get filter inputs (if any)
+    // Get filter inputs from POST first, then GET (for flexibility)
     $blanch_id = $this->input->post('blanch_id');
-    $empl_id   = $this->input->post('empl_id');
-    $from      = $this->input->post('from_date');
-    $to        = $this->input->post('to_date');
-    $overdue_days = $this->input->post('overdue_days');
+    if ($blanch_id === null || $blanch_id === '') {
+        $blanch_id = $this->input->get('blanch_id');
+    }
 
-    // Fetch outstanding loans with filters
-    $outstand = $this->queries->get_outstand_loan_yesterday($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
+    $empl_id = $this->input->post('empl_id');
+    if ($empl_id === null || $empl_id === '') {
+        $empl_id = $this->input->get('empl_id');
+    }
+
+    $from = $this->input->post('from_date');
+    if ($from === null || $from === '') {
+        $from = $this->input->get('from_date');
+    }
+
+    $to = $this->input->post('to_date');
+    if ($to === null || $to === '') {
+        $to = $this->input->get('to_date');
+    }
+
+    $overdue_days = $this->input->post('overdue_days');
+    if ($overdue_days === null || $overdue_days === '') {
+        $overdue_days = $this->input->get('overdue_days');
+    }
+
+    $selected_blanch_id = $blanch_id;
+
+    // Normalize "all" branch value to no branch filter.
+    if ($blanch_id === 'all') {
+        $blanch_id = null;
+    }
+
+    // Parse overdue filter which can be a range value like 3-30, 31-60, 61-90, 91-plus.
+    $overdue_min = null;
+    $overdue_max = null;
+    if (!empty($overdue_days)) {
+        if ($overdue_days === '3-30') {
+            $overdue_min = 3;
+            $overdue_max = 30;
+        } elseif ($overdue_days === '31-60') {
+            $overdue_min = 31;
+            $overdue_max = 60;
+        } elseif ($overdue_days === '61-90') {
+            $overdue_min = 61;
+            $overdue_max = 90;
+        } elseif ($overdue_days === '91-plus') {
+            $overdue_min = 91;
+        } elseif (is_numeric($overdue_days)) {
+            $overdue_min = (int) $overdue_days;
+        }
+    }
+
+    // Fetch outstanding loans with filters (past due dataset)
+    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max);
 
     //          echo "<pre>";
     //  print_r($outstand);
     //             exit();
 
     // Totals
-    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
+    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max);
 
     // Employees and branches for filters
     $employee = $this->queries->get_Allemployee($comp_id);
@@ -9393,7 +9439,12 @@ public function get_outstand_loan() {
         'outstand' => $outstand,
         'total_remain' => $total_remain,
         'employee' => $employee,
-        'blanch' => $blanch
+        'blanch' => $blanch,
+        'selected_blanch_id' => $selected_blanch_id,
+        'selected_empl_id' => $empl_id,
+        'selected_from_date' => $from,
+        'selected_to_date' => $to,
+        'selected_overdue_days' => $overdue_days
     ]);
 }
 
@@ -9424,12 +9475,13 @@ public function defaulters_3_30_days_pdf()
 
     // Get company ID
     $comp_id = $this->session->userdata('comp_id');
+    $blanch_id = $this->input->get('blanch_id');
 
     // Get branch data (optional, if needed in the view)
     $blanch_data = $this->queries->get_blanch($comp_id);
 
     // Get defaulters 3–30 days
-    $outstand = $this->queries->get_defaulters_3_30_days($comp_id);
+    $outstand = $this->queries->get_defaulters_3_30_days($comp_id, $blanch_id);
      $compdata = $this->queries->get_companyData($comp_id);
 
     // Prepare data array for view
@@ -9437,7 +9489,7 @@ public function defaulters_3_30_days_pdf()
         'compdata'   => $compdata, // make sure you have this function
         'blanch_data'=> $blanch_data,
         'outstand'   => $outstand,
-        'title'      => "Defaulters Report (3–30 Days Past Due)"
+        'title'      => $this->lang->line('pdf_defaulters_3_30_report') ?: 'Defaulters Report (3-30 Days Past Due)'
     ];
 
     // Load mPDF library
@@ -9468,12 +9520,13 @@ public function defaulters_31_60_days_pdf()
     $this->load->model('queries');
 
     $comp_id = $this->session->userdata('comp_id');
+    $blanch_id = $this->input->get('blanch_id');
 
     // Get branch info (optional)
     $blanch_data = $this->queries->get_blanch($comp_id);
 
     // Get defaulters 31–60 days
-    $outstand = $this->queries->get_defaulters_31_60_days($comp_id);
+    $outstand = $this->queries->get_defaulters_31_60_days($comp_id, $blanch_id);
        $compdata = $this->queries->get_companyData($comp_id);
 
     // Prepare data for view
@@ -9481,7 +9534,7 @@ public function defaulters_31_60_days_pdf()
         'compdata'    => $compdata, // make sure you have this function
         'blanch_data' => $blanch_data,
         'outstand'    => $outstand,
-        'title'       => "Defaulters Report (31–60 Days Past Due)"
+        'title'       => $this->lang->line('pdf_defaulters_31_60_report') ?: 'Defaulters Report (31-60 Days Past Due)'
     ];
 
     // Load mPDF
@@ -9510,12 +9563,13 @@ public function defaulters_61_90_days_pdf()
     $this->load->model('queries');
 
     $comp_id = $this->session->userdata('comp_id');
+    $blanch_id = $this->input->get('blanch_id');
 
     // Branch info (optional, for view)
     $blanch_data = $this->queries->get_blanch($comp_id);
 
     // Get defaulters 61–90 days
-    $outstand = $this->queries->get_defaulters_61_90_days($comp_id);
+    $outstand = $this->queries->get_defaulters_61_90_days($comp_id, $blanch_id);
      $compdata = $this->queries->get_companyData($comp_id);
 
     // Prepare data for view
@@ -9523,7 +9577,7 @@ public function defaulters_61_90_days_pdf()
         'compdata'    => $compdata, // make sure this exists
         'blanch_data' => $blanch_data,
         'outstand'    => $outstand,
-        'title'       => "Defaulters Report (61–90 Days Past Due)"
+        'title'       => $this->lang->line('pdf_defaulters_61_90_report') ?: 'Defaulters Report (61-90 Days Past Due)'
     ];
 
     // Load mPDF
@@ -9553,19 +9607,20 @@ public function defaulters_91_plus_days_pdf()
     $this->load->model('queries');
 
     $comp_id = $this->session->userdata('comp_id');
+    $blanch_id = $this->input->get('blanch_id');
 
     // Optional: branch info for header
     $blanch_data = $this->queries->get_blanch($comp_id);
 
     // Get defaulters 91+ days
-    $outstand = $this->queries->get_defaulters_91_plus_days($comp_id);
+    $outstand = $this->queries->get_defaulters_91_plus_days($comp_id, $blanch_id);
 
     // Prepare data for view
     $data = [
         'compdata'    => $this->queries->get_companyData($comp_id), // ensure this method exists
         'blanch_data' => $blanch_data,
         'outstand'    => $outstand,
-        'title'       => "Defaulters Report (91+ Days Past Due)"
+        'title'       => $this->lang->line('pdf_defaulters_91_plus_report') ?: 'Defaulters Report (91+ Days Past Due)'
     ];
 
     // Load mPDF
@@ -9600,19 +9655,43 @@ public  function yesterday_defaulters_pdf ()
     $from = $this->input->get('from_date');
     $to = $this->input->get('to_date');
     $overdue_days = $this->input->get('overdue_days');
+
+    if ($blanch_id === 'all') {
+        $blanch_id = null;
+    }
     
-    // Fetch outstanding loans with filters
-    $outstand = $this->queries->get_outstand_loan_yesterday($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_days);
+    $overdue_min = null;
+    $overdue_max = null;
+    if (!empty($overdue_days)) {
+        if ($overdue_days === '3-30') {
+            $overdue_min = 3;
+            $overdue_max = 30;
+        } elseif ($overdue_days === '31-60') {
+            $overdue_min = 31;
+            $overdue_max = 60;
+        } elseif ($overdue_days === '61-90') {
+            $overdue_min = 61;
+            $overdue_max = 90;
+        } elseif ($overdue_days === '91-plus') {
+            $overdue_min = 91;
+        } elseif (is_numeric($overdue_days)) {
+            $overdue_min = (int) $overdue_days;
+        }
+    }
+
+    // Fetch outstanding loans with active filters from page
+    $outstand = $this->queries->outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max);
+    $total_remain = $this->queries->total_outstand_loan($comp_id, $blanch_id, $empl_id, $from, $to, $overdue_min, $overdue_max);
     
     $compdata = $this->queries->get_companyData($comp_id);
     
     // Get branch and employee data if filtered
     $blanch_data = null;
     $empl_data = null;
-    if ($blanch_id) {
+    if (!empty($blanch_id)) {
         $blanch_data = $this->queries->get_blanch_data($blanch_id);
     }
-    if ($empl_id) {
+    if (!empty($empl_id) && $empl_id !== 'all') {
         $empl_data = $this->queries->get_employee_data($empl_id);
     }
     
