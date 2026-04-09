@@ -217,8 +217,8 @@ $branch_only_query = http_build_query([
 
                 </table>
 				<div id="hs-basic-modal" class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 inset-s-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none" role="dialog" tabindex="-1" aria-labelledby="hs-basic-modal-label">
-        <div class="w-full max-w-3xl mx-auto my-0 sm:my-6 px-0 sm:px-4 min-h-screen sm:min-h-0 flex items-stretch sm:items-center">
-                <div class="w-full flex flex-col bg-white border-0 sm:border border-gray-200 shadow-2xs rounded-none sm:rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70 h-dvh sm:h-auto sm:max-h-[92vh] overflow-hidden">
+                <div class="w-full max-w-3xl mx-auto px-2 sm:px-4 min-h-screen flex items-center justify-center py-3 sm:py-6">
+                                <div class="w-full flex flex-col bg-white border sm:border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70 max-h-[92vh] overflow-hidden">
       <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
                                 <h3 id="hs-basic-modal-label" class="font-bold text-gray-800 dark:text-white text-sm sm:text-base leading-snug pr-3">
                     <?= $lang_line('outstand_filter_defaulters_title', 'Filter Defaulters (Branch, Employee, Dates & Overdue Days)'); ?>
@@ -237,7 +237,7 @@ $branch_only_query = http_build_query([
 
    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="md:col-span-2">
-        <label for="branchSelect"><?= $lang_line('choose_branch', 'Choose Branch'); ?></label>
+        <label for="branchSelect" class="block mb-1 text-sm font-medium"><?= $lang_line('choose_branch', 'Choose Branch'); ?></label>
         <select id="branchSelect" name="blanch_id" class="form-control">
             <option value=""><?= $lang_line('select_branch', 'Select Branch'); ?></option>
             <option value="all" <?php echo $selected_blanch_id === 'all' ? 'selected' : ''; ?>><?= $lang_line('all_branches', 'All Branches'); ?></option>
@@ -248,7 +248,7 @@ $branch_only_query = http_build_query([
     </div>
 
     <div class="hidden">
-        <label for="employeeSelect"><?= $lang_line('select_employee', 'Select Employee'); ?></label>
+        <label for="employeeSelect" class="block mb-1 text-sm font-medium"><?= $lang_line('select_employee', 'Select Employee'); ?></label>
         <select id="employeeSelect" name="empl_id" class="form-control">
                 <option value="all" <?php echo $selected_empl_id === 'all' ? 'selected' : ''; ?>><?= $lang_line('outstand_all_employees', 'All Employees'); ?></option>
             <?php if (isset($employee) && is_array($employee)): ?>
@@ -260,17 +260,17 @@ $branch_only_query = http_build_query([
     </div>
 
     <div>
-        <label for="from_date"><?= $lang_line('from_date', 'From Date'); ?></label>
+        <label for="from_date" class="block mb-1 text-sm font-medium"><?= $lang_line('from_date', 'From Date'); ?></label>
         <input type="date" id="from_date" name="from_date" class="form-control" value="<?php echo htmlspecialchars($selected_from_date, ENT_QUOTES, 'UTF-8'); ?>">
     </div>
 
     <div>
-        <label for="to_date"><?= $lang_line('to_date', 'To Date'); ?></label>
+        <label for="to_date" class="block mb-1 text-sm font-medium"><?= $lang_line('to_date', 'To Date'); ?></label>
         <input type="date" id="to_date" name="to_date" class="form-control" value="<?php echo htmlspecialchars($selected_to_date, ENT_QUOTES, 'UTF-8'); ?>">
     </div>
 
     <div class="md:col-span-2">
-        <label for="overdue_days"><?= $lang_line('outstand_past_due_range', 'Past Due Range'); ?></label>
+        <label for="overdue_days" class="block mb-1 text-sm font-medium"><?= $lang_line('outstand_past_due_range', 'Past Due Range'); ?></label>
         <select id="overdue_days" name="overdue_days" class="form-control">
             <option value="" <?php echo $selected_overdue_days === '' ? 'selected' : ''; ?>><?= $lang_line('outstand_all_past_due', 'All Past Due'); ?></option>
             <option value="3-30" <?php echo $selected_overdue_days === '3-30' ? 'selected' : ''; ?>><?= $lang_line('outstand_past_due_3_30', '3-30 Days Past Due'); ?></option>
