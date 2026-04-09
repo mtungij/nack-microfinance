@@ -4,6 +4,9 @@ include_once APPPATH . "views/partials/officerheader.php";
 $schedule  = !empty($schedule) ? $schedule : [];
 $loan      = !empty($loan) ? $loan : null;
 $customer  = !empty($customer) ? $customer : null;
+$customers = !empty($customers) ? $customers : [];
+$selected_customer_id = !empty($selected_customer_id) ? (int) $selected_customer_id : 0;
+$selected_loan_id = !empty($selected_loan_id) ? (int) $selected_loan_id : 0;
 
 $lang_line = function ($key, $fallback) {
     $value = $this->lang->line($key);
@@ -36,10 +39,37 @@ $loan_status_label_map = [
     'done'       => 'umelipwa wote',
 ];
 $loan_status_label = $loan_status_label_map[$loan_status_value] ?? ($loan->loan_status ?? '—');
+
+$default_passport = base_url('assets/img/user.png');
+$passport_src = $default_passport;
+if (!empty($customer) && !empty($customer->passport)) {
+  $passport_value = trim((string) $customer->passport);
+  if (preg_match('#^(https?://|data:image/)#i', $passport_value)) {
+    $passport_src = $passport_value;
+  } else {
+    $candidates = [$passport_value];
+    if (strpos($passport_value, 'assets/') !== 0) {
+      $candidates[] = 'assets/img/' . $passport_value;
+      $candidates[] = 'assets/passport/' . $passport_value;
+    }
+
+    foreach ($candidates as $candidate) {
+      $relative = ltrim($candidate, '/');
+      if (file_exists(FCPATH . $relative)) {
+        $passport_src = base_url($relative);
+        break;
+      }
+    }
+  }
+}
 ?>
 
 <div class="w-full lg:ps-64 min-h-screen">
   <div class="p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <div class="mb-2">
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">Njee ya Payment &amp; Penalty Statement</h2>
+    </div>
 
     <div class="flex items-center justify-between gap-3 flex-wrap">
       <a href="<?php echo base_url('oficer/payment_statement_search'); ?>"
@@ -51,6 +81,53 @@ $loan_status_label = $loan_status_label_map[$loan_status_value] ?? ($loan->loan_
       </a>
     </div>
 
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
+      <div class="p-4 md:p-6">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
+          <?php echo $lang_line('ps_search_customer', 'Tafuta Mteja na Mkopo'); ?>
+        </h3>
+
+        <?php echo form_open('oficer/payment_statement_go'); ?>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="customer" class="block text-sm font-medium mb-2 text-gray-200">
+                <?php echo $this->lang->line('customer'); ?> *:
+              </label>
+              <select id="customer" name="customer_id" required
+                class="w-full h-14 text-base font-semibold py-2 px-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white select2">
+                <option value=""><?php echo $this->lang->line('select_customer') ?: 'Select customer'; ?></option>
+                <?php foreach ($customers as $c): ?>
+                  <option value="<?php echo (int) $c->customer_id; ?>" <?php echo ((int) $c->customer_id === $selected_customer_id) ? 'selected' : ''; ?>>
+                    <?php echo strtoupper(trim($c->f_name . ' ' . $c->m_name . ' ' . $c->l_name)); ?> /
+                    <?php echo strtoupper($c->customer_code ?? ''); ?> /
+                    <?php echo strtoupper($c->blanch_name ?? ''); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+
+            <div>
+              <label for="loan" class="block text-sm font-medium mb-2 text-gray-200">
+                <?php echo $this->lang->line('ps_select_loan') ?: 'Chagua Mkopo'; ?> *:
+              </label>
+              <select id="loan" name="loan_id" required
+                class="w-full h-14 text-base font-semibold py-2 px-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white select2">
+                <option value=""><?php echo $this->lang->line('select_loan') ?: 'Select loan'; ?></option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 dark:border-gray-700">
+            <div class="flex justify-center gap-x-2">
+              <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">
+                <?php echo $lang_line('ps_view_statement', 'Angalia Taarifa'); ?>
+              </button>
+            </div>
+          </div>
+        <?php echo form_close(); ?>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
         <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
@@ -58,11 +135,7 @@ $loan_status_label = $loan_status_label_map[$loan_status_value] ?? ($loan->loan_
         </h3>
         <?php if ($customer): ?>
         <div class="mb-4">
-          <?php if (!empty($customer->passport)): ?>
-            <img class="w-24 h-24 mx-auto rounded-full object-cover border-4 border-green-400" src="<?php echo base_url($customer->passport); ?>" alt="Customer Passport">
-          <?php else: ?>
-            <img class="w-24 h-24 mx-auto rounded-full object-cover border-4 border-green-400" src="<?php echo base_url(); ?>assets/img/user.png" alt="Customer Image">
-          <?php endif; ?>
+          <img class="w-24 h-24 mx-auto rounded-full object-cover border-4 border-green-400" src="<?php echo $passport_src; ?>" alt="Customer Passport">
         </div>
         <p class="text-lg font-bold text-gray-800 dark:text-white">
           <?php echo htmlspecialchars(trim($customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name)); ?>
@@ -223,3 +296,51 @@ $loan_status_label = $loan_status_label_map[$loan_status_value] ?? ($loan->loan_
 </div>
 
 <?php include_once APPPATH . "views/partials/footer.php"; ?>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  var selectedLoanId = '<?php echo (int) $selected_loan_id; ?>';
+  var selectConfig = {
+    allowClear: true,
+    width: '100%',
+    dropdownCssClass: 'custom-select2-dropdown',
+    containerCssClass: 'custom-select2-container'
+  };
+
+  $('#customer').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_customer') ?: 'Select customer'; ?>"});
+  $('#loan').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_loan') ?: 'Select loan'; ?>"});
+
+  function loadLoans(customerId, selectedId) {
+    if (!customerId) {
+      $('#loan').html('<option value=""><?php echo $this->lang->line('select_loan') ?: 'Select loan'; ?></option>').trigger('change');
+      return;
+    }
+
+    $.ajax({
+      url: "<?php echo base_url('oficer/fetch_data_loanActive'); ?>",
+      method: "POST",
+      data: { customer_id: customerId },
+      success: function(data) {
+        $('#loan').html(data);
+        if (selectedId) {
+          $('#loan').val(selectedId);
+        }
+        $('#loan').trigger('change');
+      }
+    });
+  }
+
+  var initialCustomer = $('#customer').val();
+  if (initialCustomer) {
+    loadLoans(initialCustomer, selectedLoanId);
+  }
+
+  $('#customer').on('change', function() {
+    loadLoans($(this).val(), '');
+  });
+});
+</script>

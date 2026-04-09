@@ -38,6 +38,29 @@ $loan_status_label_map = [
   'done'       => 'umelipwa wote',
 ];
 $loan_status_label = $loan_status_label_map[$loan_status_value] ?? ($loan->loan_status ?? '—');
+
+$default_passport = base_url('assets/img/user.png');
+$passport_src = $default_passport;
+if (!empty($customer) && !empty($customer->passport)) {
+  $passport_value = trim((string) $customer->passport);
+  if (preg_match('#^(https?://|data:image/)#i', $passport_value)) {
+    $passport_src = $passport_value;
+  } else {
+    $candidates = [$passport_value];
+    if (strpos($passport_value, 'assets/') !== 0) {
+      $candidates[] = 'assets/img/' . $passport_value;
+      $candidates[] = 'assets/passport/' . $passport_value;
+    }
+
+    foreach ($candidates as $candidate) {
+      $relative = ltrim($candidate, '/');
+      if (file_exists(FCPATH . $relative)) {
+        $passport_src = base_url($relative);
+        break;
+      }
+    }
+  }
+}
 ?>
 
 <div class="w-full lg:ps-64 min-h-screen">
@@ -64,11 +87,7 @@ $loan_status_label = $loan_status_label_map[$loan_status_value] ?? ($loan->loan_
         </h3>
         <?php if ($customer): ?>
         <div class="mb-4">
-          <?php if (!empty($customer->passport)): ?>
-            <img class="w-24 h-24 mx-auto rounded-full object-cover border-4 border-green-400" src="<?php echo base_url($customer->passport); ?>" alt="Customer Passport">
-          <?php else: ?>
-            <img class="w-24 h-24 mx-auto rounded-full object-cover border-4 border-green-400" src="<?php echo base_url(); ?>assets/img/user.png" alt="Customer Image">
-          <?php endif; ?>
+          <img class="w-24 h-24 mx-auto rounded-full object-cover border-4 border-green-400" src="<?php echo $passport_src; ?>" alt="Customer Passport">
         </div>
         <p class="text-lg font-bold text-gray-800 dark:text-white">
           <?php echo htmlspecialchars(trim($customer->f_name . ' ' . $customer->m_name . ' ' . $customer->l_name)); ?>

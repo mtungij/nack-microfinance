@@ -7727,6 +7727,7 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
       $comp_id = $manager_data->comp_id;
       $officer_blanch_id = !empty($manager_data->blanch_id) ? (int) $manager_data->blanch_id : (int) $this->session->userdata('blanch_id');
       $loan_id = (int) $loan_id;
+      $customers = $this->queries->get_allcutomerBlanch_Data($officer_blanch_id);
 
       $loan = $this->queries->get_loan_statement_info($loan_id, $comp_id);
       if (!$loan || ((int) ($loan->blanch_id ?? 0) !== $officer_blanch_id)) {
@@ -7805,10 +7806,13 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
       usort($schedule, function($a, $b) { return strcmp($a['date'], $b['date']); });
 
       $this->load->view('officer/payment_statement_detail', [
-        'loan'      => $loan,
-        'customer'  => $customer,
-        'compdata'  => $compdata,
-        'schedule'  => $schedule,
+        'loan'                 => $loan,
+        'customer'             => $customer,
+        'compdata'             => $compdata,
+        'schedule'             => $schedule,
+        'customers'            => $customers,
+        'selected_customer_id' => (int) ($loan->customer_id ?? 0),
+        'selected_loan_id'     => $loan_id,
       ]);
     }
 
