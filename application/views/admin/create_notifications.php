@@ -2,8 +2,54 @@
 include_once APPPATH . "views/partials/header.php";
 ?>
 
+<style>
+  .dashboard-loading-overlay {
+    width: 100%;
+    z-index: 1;
+    background: transparent;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+  }
+
+  .dark .dashboard-loading-overlay {
+    background: transparent;
+  }
+
+  .dashboard-loading-overlay.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .dashboard-skeleton {
+    border-radius: 0.75rem;
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+    background-size: 400% 100%;
+    animation: dashboardShimmer 1.2s ease-in-out infinite;
+  }
+
+  .dark .dashboard-skeleton {
+    background: linear-gradient(90deg, #1f2937 25%, #374151 37%, #1f2937 63%);
+    background-size: 400% 100%;
+  }
+
+  @keyframes dashboardShimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+  }
+</style>
+
+<div id="dashboard-loading-placeholder" class="dashboard-loading-overlay">
+  <div class="w-full lg:ps-64 p-4 sm:p-6">
+    <div class="space-y-6">
+      <div class="dashboard-skeleton h-10 w-72"></div>
+      <div class="dashboard-skeleton h-56"></div>
+      <div class="dashboard-skeleton h-80"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Parent div with Alpine.js data -->
-<div class="w-full lg:ps-64 p-4 sm:p-6" x-data="{ openEditId: null, openDeleteId: null, showDeleteModal: false, selectedId: null }">
+<div id="dashboard-main-content" class="w-full lg:ps-64 p-4 sm:p-6 hidden" x-data="{ openEditId: null, openDeleteId: null, showDeleteModal: false, selectedId: null }">
 
   <!-- Page Title -->
   <div class="mb-6">
@@ -154,4 +200,22 @@ $(document).ready(function() {
         }
     });
 });
+</script>
+
+<script>
+  window.addEventListener('load', function () {
+    var loadingPlaceholder = document.getElementById('dashboard-loading-placeholder');
+    var mainContent = document.getElementById('dashboard-main-content');
+    if (mainContent) {
+      mainContent.classList.remove('hidden');
+    }
+    if (loadingPlaceholder) {
+      setTimeout(function () {
+        loadingPlaceholder.classList.add('is-hidden');
+        setTimeout(function () {
+          loadingPlaceholder.style.display = 'none';
+        }, 260);
+      }, 180);
+    }
+  });
 </script>

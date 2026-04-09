@@ -66,10 +66,19 @@
             <b><?php echo $compdata->adress; ?></b> <br>
           </p>
        <p style="font-size:12px;text-align:center;" class="c">
-    <strong>Customers who completed their loan yesterday</strong>
+    <strong><?php echo $this->lang->line('pdf_yesterday_defaulters_report') ?: "Yesterday's Defaulters Report"; ?></strong>
     <br>
-    Date: <?php echo date("d-m-Y"); ?>
+    <?php echo $this->lang->line('date') ?: 'Date'; ?>: <?php echo date("d-m-Y"); ?>
 </p>
+
+          <?php if (!empty($default_yesterday_applied)): ?>
+            <p style="font-size:11px;text-align:center;color:#c62828;font-weight:700;">
+              <?php
+                $defaultDateText = !empty($default_end_date_value) ? date('d-m-Y', strtotime($default_end_date_value)) : date('d-m-Y', strtotime('-1 day'));
+                echo ($this->lang->line('npt_yesterday') ?: 'Yesterday') . ': ' . $defaultDateText;
+              ?>
+            </p>
+          <?php endif; ?>
           
           <?php if ($blanch_data): ?>
             <p style="font-size:11px;text-align:center;">
