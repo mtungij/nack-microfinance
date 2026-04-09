@@ -208,13 +208,25 @@ $to_data_uri = function ($path_or_url) {
     return '';
 };
 
-$passport_candidate = !empty($customer->passport)
-    ? (string)$customer->passport
-    : $default_passport_rel;
+$passport_candidates = [];
+if (!empty($customer->passport)) {
+    $passport_value = trim((string)$customer->passport);
+    if ($passport_value !== '') {
+        $passport_candidates[] = $passport_value;
+        if (strpos($passport_value, 'assets/') !== 0) {
+            $passport_candidates[] = 'assets/img/' . $passport_value;
+            $passport_candidates[] = 'assets/passport/' . $passport_value;
+        }
+    }
+}
+$passport_candidates[] = $default_passport_rel;
 
-$passport_src = $to_data_uri($passport_candidate);
-if ($passport_src === '') {
-    $passport_src = $to_data_uri($default_passport_rel);
+$passport_src = '';
+foreach ($passport_candidates as $candidate) {
+    $passport_src = $to_data_uri($candidate);
+    if ($passport_src !== '') {
+        break;
+    }
 }
 
 $logo_candidate = '';
