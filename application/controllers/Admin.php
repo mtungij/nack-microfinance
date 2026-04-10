@@ -3492,7 +3492,7 @@ public function disburse($loan_id){
       	$day = $loan_data->day;
       	$end_date = $day * $session_loan;
 		//    echo "<pre>";
-      	// print_r($loan_data);
+      	// print_r($loan_aproved);
       	//             exit();
 
        if($loan_data->rate === 'FLAT RATE') {
@@ -3573,7 +3573,12 @@ public function disburse($loan_id){
         $remain_balance = $loan_aproved - $sms_data;
        }
 
-      $massage = $comp_name . ' inakutakia mafanikio mema kupitia mkopo uliopokea wa Tsh ' . $remain_balance . '. Tunakukumbusha kuwa urejeshaji mzuri wa mkopo huongeza uaminifu na nafasi ya kuendelea kukopesheka. Kwa msaada au maelezo zaidi, wasiliana nasi kupitia namba ' . $comp_phone . '.';
+            //  echo "<pre>";
+            // print_r( $remain_balance);
+            //  echo "</pre>";
+            //   exit();
+
+      $massage = $comp_name . ' inakutakia mafanikio mema kupitia mkopo uliopokea wa Tsh ' . $loan_aproveds . '. Tunakukumbusha kuwa urejeshaji mzuri wa mkopo huongeza uaminifu na nafasi ya kuendelea kukopesheka. Kwa msaada au maelezo zaidi, wasiliana nasi kupitia namba ' . $comp_phone . '.';
 
       
             //   echo "<pre>";

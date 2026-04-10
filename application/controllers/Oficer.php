@@ -5846,7 +5846,7 @@ $massage = 'Ndugu ' . $first_name . ' ' . $last_name .
         ' yaliyofanyika tarehe ' . date("d/m/Y") . 
         ' kupitia ' . $comp_name . '-' .$branch_name.
         '. Malipo yako yamepokelewa na ' . $role . 
-        '. Deni lililosalia kulipwa ni TZS ' . number_format($left_loan) . '.';
+        '. Deni lilobaki kulipwa ni TZS ' . number_format($left_loan) . '.';
 }
 
     
