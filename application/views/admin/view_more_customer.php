@@ -3,7 +3,7 @@ include_once APPPATH . "views/partials/header.php";
 ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
-<div class="w-full lg:ps-64">
+<div class="w-full lg:ps-64 bg-gray-50 dark:bg-gray-900">
   <div class="p-4 sm:p-6 space-y-6">
 
     <div class="relative overflow-hidden rounded-3xl border border-cyan-100 bg-gradient-to-br from-cyan-50 via-white to-blue-50 p-6 shadow-sm dark:border-cyan-900 dark:from-gray-900 dark:via-gray-800 dark:to-slate-900">
@@ -20,8 +20,8 @@ include_once APPPATH . "views/partials/header.php";
           </div>
         </div>
         <div class="inline-flex items-center rounded-2xl border border-cyan-200 bg-white/80 p-1 shadow-sm dark:border-cyan-700 dark:bg-gray-800">
-          <button class="tab-btn rounded-xl px-4 py-2 text-sm font-semibold text-blue-700 transition-colors data-[active=true]:bg-cyan-600 data-[active=true]:text-white" data-active="true" data-tab="profile">Personal Information</button>
-          <button class="tab-btn rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-blue-700 dark:text-slate-300" data-tab="experience">All Loans</button>
+          <button class="tab-btn rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-blue-700 dark:text-slate-300 dark:hover:text-cyan-300 data-[active=true]:bg-cyan-600 data-[active=true]:text-white" data-active="true" data-tab="profile">Personal Information</button>
+          <button class="tab-btn rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-blue-700 dark:text-slate-300 dark:hover:text-cyan-300" data-tab="experience">All Loans</button>
         </div>
       </div>
     </div>
@@ -334,11 +334,11 @@ $('#empl').html('<option value="">Select Employee</option>');
       tabButtons.forEach(btn => {
         btn.setAttribute("data-active", "false");
         btn.classList.remove("bg-cyan-600", "text-white", "shadow-sm");
-        btn.classList.add("text-slate-600");
+        btn.classList.add("text-slate-600", "dark:text-slate-300", "hover:text-blue-700", "dark:hover:text-cyan-300");
       });
 
       activeButton.setAttribute("data-active", "true");
-      activeButton.classList.remove("text-slate-600");
+      activeButton.classList.remove("text-slate-600", "dark:text-slate-300", "hover:text-blue-700", "dark:hover:text-cyan-300");
       activeButton.classList.add("bg-cyan-600", "text-white", "shadow-sm");
     }
 
