@@ -14,6 +14,58 @@ include_once APPPATH . "views/partials/header.php";
 // --- END DUMMY DATA ---header.php
 ?>
 
+<link rel="stylesheet" href="<?php echo base_url('assets/css/ select2.min.css'); ?>">
+<style>
+    .select2-container {
+        min-width: 220px;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 42px;
+        border: 1px solid rgb(209 213 219);
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        background-color: rgb(249 250 251);
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: rgb(17 24 39);
+        line-height: 40px;
+        padding-left: 12px;
+        padding-right: 32px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px;
+        right: 8px;
+    }
+
+    .select2-dropdown {
+        border: 1px solid rgb(34 211 238);
+        border-radius: 0.5rem;
+        background-color: #ffffff !important;
+        color: rgb(17 24 39) !important;
+    }
+
+    .select2-search__field {
+        border: 1px solid rgb(209 213 219) !important;
+        border-radius: 0.375rem !important;
+        padding: 6px 8px !important;
+        background-color: #ffffff !important;
+        color: rgb(17 24 39) !important;
+    }
+
+    .select2-container--default .select2-results > .select2-results__options {
+        background-color: #ffffff !important;
+        color: rgb(17 24 39) !important;
+    }
+
+    .select2-results__option--highlighted {
+        background-color: rgb(8 145 178) !important;
+    }
+</style>
+
 
 <div class="w-full lg:ps-64">
   <div class="= overflow-x-auto">
@@ -40,28 +92,58 @@ include_once APPPATH . "views/partials/header.php";
                     </form>
                 </div>
                 <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-	
 
-                  
+                  <!-- Branch filter -->
+                  <select id="filter-branch" class="select2-branch-filter bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-cyan-500">
+                    <option value=""><?php echo $this->lang->line('all_branches'); ?></option>
+                    <?php foreach ($blanch as $b): ?>
+                      <option value="<?php echo htmlspecialchars($b->blanch_name, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php echo htmlspecialchars($b->blanch_name, ENT_QUOTES, 'UTF-8'); ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+
+                  <!-- Status filter -->
+                  <select id="filter-status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-cyan-500">
+                    <option value=""><?php echo $this->lang->line('all_statuses'); ?></option>
+                    <option value="open"><?php echo $this->lang->line('active'); ?></option>
+                    <option value="close"><?php echo $this->lang->line('done'); ?></option>
+                    <option value="pending"><?php echo $this->lang->line('pending'); ?></option>
+                    <option value="out"><?php echo $this->lang->line('default'); ?></option>
+                  </select>
+
+                  <!-- PDF export -->
+                  <a id="pdf-export-btn"
+                     href="<?php echo base_url('admin/export_all_customer_pdf'); ?>"
+                     target="_blank"
+                     class="inline-flex items-center gap-x-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586L7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"/>
+                    </svg>
+                    <?php echo $this->lang->line('download_pdf'); ?>
+                  </a>
+
                 </div>
             </div>
             <div class="overflow-x-auto">
                 <table id="shareholder_table"  class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
+                    <thead class="border-y border-cyan-200 bg-cyan-50 text-xs uppercase text-cyan-900 dark:border-cyan-500 dark:bg-cyan-600 dark:text-white">
                         <tr>
-                 <th scope="col" class="px-4 py-3 dark:text-white">S/No</th>
-							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('customer_name'); ?></th>
-               <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
-               <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
-					 <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('status'); ?></th>
-							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th> 
+                 <th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500">S/No</th>
+							<th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('customer_name'); ?></th>
+               <th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('branch_name'); ?></th>
+               <th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('phone_number'); ?></th>
+					 <th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('status'); ?></th>
+							<th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('action'); ?></th> 
                         </tr>
                     </thead>
 					<tbody>
   <?php $no = 1; ?>
                                     <?php if (isset($customer ) && is_array($customer ) && !empty($customer )): ?>
                                         <?php foreach ($customer  as $customers): ?>
-        <tr class="border-b dark:border-gray-700">
+        <tr class="border-b dark:border-gray-700"
+            data-branch="<?php echo htmlspecialchars($customers->blanch_name, ENT_QUOTES, 'UTF-8'); ?>"
+            data-status="<?php echo htmlspecialchars($customers->customer_status, ENT_QUOTES, 'UTF-8'); ?>">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></th>
             <td class="uppercase px-4 py-3 dark:text-white">
             <?php echo htmlspecialchars($customers->f_name, ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars($customers->m_name, ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars($customers->l_name, ENT_QUOTES, 'UTF-8'); ?>
@@ -218,8 +300,18 @@ include_once APPPATH . "views/partials/header.php";
   include_once APPPATH . "views/partials/footer.php";
   ?>
 
+<script src="<?php echo base_url('assets/js/select2.min.js'); ?>"></script>
+
 <script>
 $(document).ready(function(){
+if ($.fn.select2) {
+    $('#filter-branch').select2({
+        placeholder: '<?php echo $this->lang->line('all_branches'); ?>',
+        allowClear: true,
+        width: '220px'
+    });
+}
+
 $('#blanch').change(function(){
 var blanch_id = $('#blanch').val();
 //alert(blanch_id)
@@ -232,6 +324,7 @@ data:{blanch_id:blanch_id},
 success:function(data)
 {
 $('#empl').html(data);
+
 //$('#district').html('<option value="">All</option>');
 }
 });
@@ -246,6 +339,38 @@ $('#empl').html('<option value="">Select Employee</option>');
 });
 </script>
 
+
+  <script>
+  (function () {
+    var branchSel = document.getElementById('filter-branch');
+    var statusSel = document.getElementById('filter-status');
+    var pdfBtn    = document.getElementById('pdf-export-btn');
+    var baseUrl   = '<?php echo base_url('admin/export_all_customer_pdf'); ?>';
+
+    function buildPdfUrl() {
+      var params = [];
+      if (branchSel.value) params.push('blanch_name=' + encodeURIComponent(branchSel.value));
+      if (statusSel.value) params.push('status='      + encodeURIComponent(statusSel.value));
+      pdfBtn.href = baseUrl + (params.length ? '?' + params.join('&') : '');
+    }
+
+    function applyFilters() {
+      var branch = branchSel.value.toLowerCase();
+      var status = statusSel.value.toLowerCase();
+      var rows   = document.querySelectorAll('#shareholder_table tbody tr');
+      rows.forEach(function (row) {
+        var rowBranch = (row.getAttribute('data-branch') || '').toLowerCase();
+        var rowStatus = (row.getAttribute('data-status') || '').toLowerCase();
+        var show = (!branch || rowBranch === branch) && (!status || rowStatus === status);
+        row.style.display = show ? '' : 'none';
+      });
+      buildPdfUrl();
+    }
+
+    branchSel.addEventListener('change', applyFilters);
+    statusSel.addEventListener('change', applyFilters);
+  })();
+  </script>
 
   <?php // Script for cmd+a fix for DataTables search input (if used) ?>
   <script>

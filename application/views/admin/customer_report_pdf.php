@@ -3,124 +3,198 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title><?php echo $compdata->comp_name; ?> | ALL CUSTOMER REPORT </title>
-</head>
-<body>
-
-<div id="container">
+  <title><?php echo $compdata->comp_name; ?> | ALL CUSTOMER REPORT</title>
   <style>
-    .display{
-      display: flex;
-      
+    body {
+      font-family: DejaVu Sans, sans-serif;
+      font-size: 11px;
+      color: #0f172a;
+    }
+
+    .page {
+      border: 1.5px solid #06b6d4;
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .header-table,
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .header-table td {
+      vertical-align: middle;
+      border: none;
+    }
+
+    .logo-box {
+      width: 110px;
+    }
+
+    .logo {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      border: 1px solid #a5f3fc;
+      border-radius: 8px;
+      padding: 6px;
+      background: #ecfeff;
+    }
+
+    .report-title {
+      color: #0891b2;
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+
+    .company-name {
+      font-size: 16px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 0 0 4px;
+    }
+
+    .company-address,
+    .filter-label,
+    .report-date {
+      font-size: 11px;
+      color: #334155;
+      margin: 0;
+    }
+
+    .divider {
+      border-top: 2px solid #06b6d4;
+      margin: 14px 0 16px;
+    }
+
+    .report-table th {
+      background: #0891b2;
+      color: #ffffff;
+      border: 1px solid #06b6d4;
+      padding: 8px 6px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .report-table td {
+      border: 1px solid #a5f3fc;
+      padding: 7px 6px;
+      vertical-align: top;
+    }
+
+    .report-table tbody tr:nth-child(even) {
+      background: #ecfeff;
+    }
+
+    .uppercase {
+      text-transform: uppercase;
+    }
+
+    .status {
+      font-weight: bold;
+      color: #155e75;
+    }
+
+    .empty-state {
+      margin-top: 18px;
+      padding: 12px;
+      border: 1px solid #a5f3fc;
+      background: #ecfeff;
+      color: #155e75;
+      text-align: center;
+      font-weight: bold;
     }
   </style>
-     <style>
-             .c {
-               text-transform: uppercase;
-               }
-                
-      </style>
-<table  style="border: none">
-<tr style="border: none">
-<td style="border: none">
-
-
-<div style="width: 20%;">
-<img src="<?php echo base_url().'assets/img/'.$compdata->comp_logo ?>" style="width: 100px;height: 80px;">
-</div> 
-
-</td>
-<td style="border: none">
-<div class="pull">
-<p style="font-size:14px;" class="c"><b> <?php echo $compdata->comp_name; ?></b><br>
-<b><?php echo $compdata->adress; ?></b> <br>
-<?php //$day = date("d-m-Y"); ?>
-</p>
-<p style="font-size:12px;text-align:center;" class="c">All customer Report <?php //echo $day; ?></p>
-
-</div>
-</td>
-</tr>
-</table>
-
-    
- 
-  <div id="body">
-  <style> 
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 5px;
-}
-
-tr:nth-child(even) {
-  background-color: ;
-}
-
-</style>
 </head>
 <body>
- <hr>
+<?php
+  $logo_path = '';
+  if (!empty($compdata->comp_logo) && file_exists(FCPATH . 'assets/img/' . $compdata->comp_logo)) {
+      $logo_path = base_url('assets/img/' . $compdata->comp_logo);
+  }
+?>
 
-
-<table>
-  <tr>
-    <th style="font-size:12px;border: none;">S/No.</th>
-    <th style="font-size:12px;border: none;">Customer ID</th>
-    <th style="font-size:12px;border: none;">Customer Name</th>
-    <th style="font-size:12px;border: none;">Phone Number</th>
-    <th style="font-size:12px;border: none;">Date Of Birth</th>
-    <th style="font-size:12px;border: none;">Sex</th>
-    <th style="font-size:12px;border: none;">Branch</th>
-    <th style="font-size:12px;border: none;">Region</th>
-    <th style="font-size:12px;border: none;">District</th>
-    <th style="font-size:12px;border: none;">Ward</th>
-    <th style="font-size:12px;border: none;">Street</th>
-    <th style="font-size:12px;border: none;">Status</th>
-  </tr>
-   <?php $no = 1; ?>
-  <?php foreach ($customer as $customers): ?>
-    
- 
- <tr>
-    <td style="font-size:13px;border: none;" class="c"><?php echo $no++; ?>.</td>
-    <td style="font-size:13px;border: none;" class="c"><?php echo $customers->customer_code; ?></td>
-    <td style="font-size:13px;border: none;" class="c">
-      <?php echo $customers->f_name; ?> <?php echo $customers->m_name; ?> <?php echo $customers->l_name; ?> 
+<div class="page">
+  <table class="header-table">
+    <tr>
+      <td class="logo-box">
+        <?php if (!empty($logo_path)): ?>
+          <img src="<?php echo $logo_path; ?>" class="logo" alt="Company Logo">
+        <?php endif; ?>
       </td>
-    <td style="font-size:13px;border: none;" class="c"><?php echo $customers->phone_no; ?></td>
-    <td style="font-size:13px;border: none;"><?php echo $customers->date_birth; ?></td>
-    <td style="font-size:13px;border: none;"><?php echo $customers->gender; ?></td>
-    <td style="font-size:13px;border: none;"><?php echo $customers->blanch_name; ?></td>
-    <td style="font-size:13px;border: none;"><?php echo $customers->region_name; ?></td>
-    <td style="font-size:13px;border: none;"><?php echo $customers->district; ?></td>
-    <td style="font-size:13px;border: none;"><?php echo $customers->ward; ?></td>
-    <td style="font-size:13px;border: none;"><?php echo $customers->street; ?></td>
-    <td style="font-size:13px;border: none;">
-      <?php if ($customers->customer_status == 'open') {
-         ?>
-         Active
-        <?php }elseif ($customers->customer_status == 'close') {
-         ?>
-         Closed
-         <?php }elseif($customers->customer_status == 'pending'){
-          ?>
-          Pending
-          <?php } ?></td> 
-  </tr>
- <?php endforeach; ?>
- 
+      <td>
+        <p class="report-title">All Customer Report</p>
+        <p class="company-name"><?php echo $compdata->comp_name; ?></p>
+        <p class="company-address"><?php echo $compdata->adress; ?></p>
+        <?php if (!empty($filter_label)): ?>
+          <p class="filter-label"><?php echo $filter_label; ?></p>
+        <?php endif; ?>
+        <p class="report-date">Generated: <?php echo date('d M Y'); ?></p>
+      </td>
+    </tr>
+  </table>
 
-</table>
+  <div class="divider"></div>
 
-  </div>
-
+  <?php if (!empty($customer)): ?>
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>S/No.</th>
+          <th>Customer ID</th>
+          <th>Customer Name</th>
+          <th>Phone Number</th>
+          <th>Date Of Birth</th>
+          <th>Sex</th>
+          <th>Branch</th>
+          <th>Region</th>
+          <th>District</th>
+          <th>Ward</th>
+          <th>Street</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php $no = 1; ?>
+        <?php foreach ($customer as $customers): ?>
+          <tr>
+            <td class="uppercase"><?php echo $no++; ?>.</td>
+            <td class="uppercase"><?php echo $customers->customer_code; ?></td>
+            <td class="uppercase"><?php echo trim($customers->f_name . ' ' . $customers->m_name . ' ' . $customers->l_name); ?></td>
+            <td class="uppercase"><?php echo $customers->phone_no; ?></td>
+            <td><?php echo $customers->date_birth; ?></td>
+            <td><?php echo $customers->gender; ?></td>
+            <td><?php echo $customers->blanch_name; ?></td>
+            <td><?php echo !empty($customers->region_name) ? $customers->region_name : '-'; ?></td>
+            <td><?php echo !empty($customers->district) ? $customers->district : '-'; ?></td>
+            <td><?php echo !empty($customers->ward) ? $customers->ward : '-'; ?></td>
+            <td><?php echo !empty($customers->street) ? $customers->street : '-'; ?></td>
+            <td class="status">
+              <?php
+                if ($customers->customer_status == 'open') {
+                    echo 'Active';
+                } elseif ($customers->customer_status == 'close') {
+                    echo 'Closed';
+                } elseif ($customers->customer_status == 'pending') {
+                    echo 'Pending';
+                } elseif ($customers->customer_status == 'out') {
+                    echo 'Default';
+                } else {
+                    echo ucfirst($customers->customer_status);
+                }
+              ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  <?php else: ?>
+    <div class="empty-state">No customers found for the selected filter.</div>
+  <?php endif; ?>
 </div>
 
 </body>

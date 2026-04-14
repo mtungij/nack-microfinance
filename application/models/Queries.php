@@ -332,6 +332,22 @@ public function get_allcutomer($comp_id){
 	  return $customer->result(); 
 	}
 
+	public function get_allcutomer_filtered($comp_id, $blanch_name = '', $status = '') {
+		$this->db->select('c.*, b.blanch_name, b.blanch_id, r.region_name');
+		$this->db->from('tbl_customer c');
+		$this->db->join('tbl_blanch b', 'b.blanch_id = c.blanch_id', 'left');
+		$this->db->join('tbl_region r', 'r.region_id = c.region_id', 'left');
+		$this->db->where('c.comp_id', $comp_id);
+		if (!empty($blanch_name)) {
+			$this->db->where('b.blanch_name', $blanch_name);
+		}
+		if (!empty($status)) {
+			$this->db->where('c.customer_status', $status);
+		}
+		$this->db->order_by('c.customer_id', 'DESC');
+		return $this->db->get()->result();
+	}
+
 	public function get_cutomerBlanchData($blanch_id){
 	$customer = $this->db->query("SELECT * FROM tbl_customer c JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id JOIN tbl_account_type at ON at.account_id = sc.account_id JOIN tbl_blanch b ON b.blanch_id = c.blanch_id WHERE c.blanch_id = '$blanch_id' ORDER BY c.customer_id DESC");
 	  return $customer->result(); 
@@ -9319,7 +9335,7 @@ public function fetch_employee($blanch_id)
 
 
   public function get_loan_collection_customer($customer_id){
- 	$loan_data = $this->db->query("SELECT pn.penart_paid,SUM(d.depost) AS total_depost,c.f_name,c.m_name,c.l_name,b.blanch_name,l.loan_id,l.loan_int,l.restration,l.loan_status,ot.loan_end_date,l.loan_aprove,e.username,e.empl_name,ot.loan_stat_date,l.session,l.day,at.oficer,at.phone_oficer,at.region_oficer,at.district_oficer,at.ward_oficer,at.street_oficer,at.oficer_position,r.region_name,at.attach_id,at.cont_attachment,c.customer_id  FROM tbl_loans l 
+ 	$loan_data = $this->db->query("SELECT pn.penart_paid,SUM(d.depost) AS total_depost,c.f_name,c.m_name,c.l_name,b.blanch_name,l.loan_id,l.loan_int,l.restration,l.loan_status,ot.loan_end_date,l.loan_aprove,e.username,e.empl_name,ot.loan_stat_date,l.session,l.day,at.oficer,at.phone_oficer,at.region_oficer,at.district_oficer,at.ward_oficer,at.street_oficer,at.oficer_position,r.region_name,at.attach_id,at.cont_attachment,c.customer_id,s.sp_name,s.sp_mname,s.sp_lname,s.sp_phone_no,s.sp_relation,s.sp_id  FROM tbl_loans l 
 	 LEFT JOIN tbl_pay_penart pn ON pn.loan_id = l.loan_id  
 	 LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id 
 	 JOIN tbl_customer c ON c.customer_id = l.customer_id 
@@ -9327,7 +9343,8 @@ public function fetch_employee($blanch_id)
 	 LEFT JOIN tbl_employee e ON e.empl_id = l.empl_id 
 	 LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id 
 	 LEFT JOIN tbl_attachment at ON at.loan_id = l.loan_id
-	 LEFT JOIN tbl_region r ON r.region_id = at.region_oficer  
+	 LEFT JOIN tbl_region r ON r.region_id = at.region_oficer
+	 LEFT JOIN tbl_sponser s ON s.customer_id = l.customer_id  
 	 WHERE  l.customer_id = '$customer_id' GROUP BY l.loan_id");
  	foreach($loan_data->result() as $r){
  		$r->total_penart_amount = $this->get_total_penartData($r->loan_id);

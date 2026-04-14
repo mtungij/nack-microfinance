@@ -34,6 +34,9 @@ $txt_tt_paid_today = $lang_line('tt_paid_today', 'Total payments made today by c
 $txt_tt_today_loan_approved = $lang_line('tt_today_loan_approved', 'Total loans approved today. This should be zero if all approved loans were already disbursed.');
 $txt_tt_today_loan_withdraw = $lang_line('tt_today_loan_withdraw', 'Total loans disbursed today to customers taking new loans.');
 $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penalties paid today from customers with overdue loans.');
+$txt_expected_vs_paid_today = $lang_line('expected_vs_paid_today', 'Expected vs Paid Today');
+$txt_expected_collection = $lang_line('expected_collection', 'Expected Collection');
+$txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 ?>
 
 <style>
@@ -189,6 +192,14 @@ $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penaltie
   <!-- 4️⃣ Expired Agreements -->
 
 
+</div>
+
+<!-- Expected vs Paid Today Pie Chart -->
+<div class="mt-4 bg-white rounded-2xl shadow-xl p-6">
+  <h2 class="text-xl font-bold text-gray-700 mb-4">📊 <?php echo $txt_expected_vs_paid_today; ?></h2>
+  <div class="max-w-md mx-auto">
+    <canvas id="expectedVsPaidPieChart" height="140"></canvas>
+  </div>
 </div>
 
 <!-- ====================== -->
@@ -448,6 +459,40 @@ $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penaltie
       }
     }
   });
+
+  const expectedVsPaidCanvas = document.getElementById('expectedVsPaidPieChart');
+  if (expectedVsPaidCanvas) {
+    const expectedToday = <?php echo (float)($receivable_total->total_rejesho ?? 0); ?>;
+    const paidToday = <?php echo (float)($total_receved->total_depost ?? 0); ?>;
+
+    new Chart(expectedVsPaidCanvas.getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['<?php echo addslashes($txt_expected_collection); ?>', '<?php echo addslashes($txt_total_paid_today); ?>'],
+        datasets: [{
+          data: [expectedToday, paidToday],
+          backgroundColor: ['#0891b2', '#10b981'],
+          borderColor: ['#ffffff', '#ffffff'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + Number(context.raw).toLocaleString() + ' TZS';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 </script>
 
 <script>
