@@ -132,6 +132,9 @@ $lang['capital'] = 'Mtaji';
 
 $lang['admin_dashboard'] = 'Dashibodi ya Admin';
 $lang['today_expected_collection'] = 'Makusanyo Yanayotarajiwa Leo';
+$lang['expected_vs_paid_today'] = 'Inayotarajiwa dhidi ya Iliyolipwa Leo';
+$lang['expected_collection'] = 'Makusanyo Yanayotarajiwa';
+$lang['total_paid_today'] = 'Jumla Iliyolipwa Leo';
 $lang['overdue_loans'] = 'Mikopo Iliyochelewa';
 $lang['upcoming_loan_deadlines'] = 'Mikopo Inayokaribia Mwisho';
 $lang['paid_today'] = 'Yaliyolipwa Leo';

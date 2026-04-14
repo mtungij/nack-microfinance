@@ -132,6 +132,9 @@ $lang['capital'] = 'Capital';
 
 $lang['admin_dashboard'] = 'Admin Dashboard';
 $lang['today_expected_collection'] = 'Today Expected Collection';
+$lang['expected_vs_paid_today'] = 'Expected vs Paid Today';
+$lang['expected_collection'] = 'Expected Collection';
+$lang['total_paid_today'] = 'Total Paid Today';
 $lang['overdue_loans'] = 'Overdue Loans';
 $lang['upcoming_loan_deadlines'] = 'Upcoming Loan Deadlines';
 $lang['paid_today'] = 'Paid Today';
