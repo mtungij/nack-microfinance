@@ -1,5 +1,40 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
+
+$resolve_customer_passport = function ($value, $default_rel = 'assets/img/customer21.png') {
+  $default_src = base_url($default_rel);
+
+  if (empty($value)) {
+    return $default_src;
+  }
+
+  $raw = trim((string) $value);
+  if ($raw === '') {
+    return $default_src;
+  }
+
+  if (preg_match('#^(https?://|data:image/)#i', $raw)) {
+    return $raw;
+  }
+
+  $candidates = [$raw];
+  if (strpos($raw, 'assets/') !== 0) {
+    $candidates[] = 'assets/img/' . $raw;
+    $candidates[] = 'assets/passport/' . $raw;
+    $candidates[] = 'assets/images/passport/' . $raw;
+  }
+
+  foreach ($candidates as $candidate) {
+    $relative = ltrim($candidate, '/');
+    if (file_exists(FCPATH . $relative)) {
+      return base_url($relative);
+    }
+  }
+
+  return $default_src;
+};
+
+$customer_passport_src = $resolve_customer_passport($customer_profile->passport ?? '', 'assets/img/customer21.png');
 ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
@@ -12,7 +47,7 @@ include_once APPPATH . "views/partials/header.php";
       <div class="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-4">
           <div class="h-16 w-16 overflow-hidden rounded-2xl border-2 border-white bg-white shadow-md dark:border-gray-700 dark:bg-gray-700">
-            <img class="h-full w-full object-cover" src="<?= base_url('assets/img/customer21.png') ?>" alt="Customer image">
+            <img class="h-full w-full object-cover" src="<?= $customer_passport_src ?>" alt="Customer image">
           </div>
           <div>
             <h2 class="text-2xl font-bold uppercase tracking-wide text-slate-900 dark:text-white"><?= $customer_profile->f_name ." ". $customer_profile->m_name ." ". $customer_profile->l_name ?></h2>
@@ -172,7 +207,7 @@ include_once APPPATH . "views/partials/header.php";
                     $sponsor_passport_path = !empty($sponsor_passport_files) ? 'assets/sponser_passport/' . basename($sponsor_passport_files[0]) : '';
                   }
                   ?>
-                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                  <tr class="hover:bg-cyan-50 dark:hover:bg-gray-700/70">
                     <td class="px-4 py-3 font-semibold text-gray-800 dark:text-gray-200"><?php echo $i++; ?></td>
                     <td class="px-4 py-3">
                       <span class="font-semibold text-gray-900 dark:text-white"><?php echo !empty($loan_collections->loan_id) ? 'LN-' . $loan_collections->loan_id : $this->lang->line('loan'); ?></span>
