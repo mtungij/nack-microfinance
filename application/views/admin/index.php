@@ -371,9 +371,14 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
   const topBranchLabels = <?php echo json_encode(array_map(function($row){ return $row->blanch_name; }, $top_branch_deposits ?? [])); ?>;
   const topBranchValues = <?php echo json_encode(array_map(function($row){ return (float) $row->total_deposit; }, $top_branch_deposits ?? [])); ?>;
+
+  if (window.Chart && window.ChartDataLabels) {
+    Chart.register(ChartDataLabels);
+  }
 
   const ctx = document.getElementById('topDepositorsChart').getContext('2d');
   const topDepositorsChart = new Chart(ctx, {
@@ -481,6 +486,16 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
         plugins: {
           legend: {
             position: 'bottom'
+          },
+          datalabels: {
+            color: '#ffffff',
+            font: {
+              weight: 'bold',
+              size: 12
+            },
+            formatter: function(value) {
+              return Number(value).toLocaleString();
+            }
           },
           tooltip: {
             callbacks: {
