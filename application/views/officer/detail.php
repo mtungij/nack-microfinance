@@ -46,6 +46,8 @@ include_once APPPATH . "views/partials/officerheader.php";
         </div>
         <?php endif; ?>
 
+     
+
         <!-- Card: Penalty Setting Form -->
         <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">

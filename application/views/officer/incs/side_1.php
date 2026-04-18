@@ -888,14 +888,14 @@
                                    </a>
                             </li>
 
-                              <!-- <li class="kt-menu__item " aria-haspopup="true" > -->
-                                   <!-- <a  href="</?php echo base_url("oficer/customer_update"); ?>" class="kt-menu__link ">
+                            <li class="kt-menu__item " aria-haspopup="true" >
+                                   <a  href="<?php echo base_url("oficer/customer_update"); ?>" class="kt-menu__link ">
                                           <i class="kt-menu__link-bullet kt-menu__link-bullet--dot">
                                                  <span></span>
                                           </i>
-                                          <span class="kt-menu__link-text">Update Customer Information</span>
+                                          <span class="kt-menu__link-text">Sasisha Taarifa za Mteja</span>
                                    </a>
-                            </li> -->
+                            </li>
                             <li class="kt-menu__item " aria-haspopup="true" >
                                    <a  href="<?php echo base_url("oficer/all_customer"); ?>" class="kt-menu__link ">
                                           <i class="kt-menu__link-bullet kt-menu__link-bullet--dot">

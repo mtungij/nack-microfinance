@@ -92,12 +92,47 @@ $comp_id = $comp_id ?? null;
             <!-- Left Side -->
             <div class="w-full md:w-3/12 md:mx-2">
                 <div class="bg-white p-3 border-t-4 border-green-400">
-                    <div class="image overflow-hidden">
-                    <!-- <?php if (!empty($customer->passport)): ?>
-    <img class="h-auto w-full mx-auto rounded-full" src="<?= base_url($customer->passport) ?>" alt="Customer Passport">
-<?php else: ?>
-    <img class="h-auto w-full mx-auto rounded-full" src="<?= base_url('assets/img/customer21.png') ?>" alt="Customer Image">
-<?php endif; ?> -->
+                    <div class="image overflow-hidden mb-4 text-center">
+                    <?php
+                    $customer_passport = isset($existing_passport) && !empty($existing_passport)
+                        ? trim((string) $existing_passport)
+                        : (isset($customer->passport) ? trim((string) $customer->passport) : '');
+                    if ($customer_passport !== '') {
+                        if (preg_match('#^(https?://|data:image/)#i', $customer_passport)) {
+                            $customer_passport_src = $customer_passport;
+                        } else {
+                            $candidates = [
+                                ltrim($customer_passport, '/'),
+                                'uploads/' . ltrim($customer_passport, '/'),
+                                'assets/uploads/' . ltrim($customer_passport, '/'),
+                                'assets/img/' . ltrim($customer_passport, '/'),
+                                'assets/passport/' . ltrim($customer_passport, '/'),
+                            ];
+
+                            $customer_passport_src = base_url('assets/img/customer21.png');
+                            foreach ($candidates as $candidate) {
+                                $relative = ltrim($candidate, '/');
+                                if (file_exists(FCPATH . $relative)) {
+                                    $customer_passport_src = base_url($candidate);
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        $customer_passport_src = base_url('assets/img/customer21.png');
+                    }
+                    ?>
+                    <img id="customerPassportPreview" class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= $customer_passport_src ?>" alt="Customer Passport">
+                    <?php if (!empty($customer) && !empty($customer->customer_id)): ?>
+                    <div class="mt-3 text-center">
+                        <input type="file" id="customerPassportInput" accept="image/*" capture="environment" class="hidden">
+                        <button type="button" id="customerPassportTrigger"
+                           class="inline-flex items-center justify-center py-2 px-3 text-xs font-semibold rounded-md bg-cyan-600 hover:bg-cyan-700 text-white transition">
+                            Update/Upload Passport
+                        </button>
+                        <p id="customerPassportMessage" class="mt-2 text-xs text-cyan-700"></p>
+                    </div>
+                    <?php endif; ?>
 
 
                     </div>
@@ -267,14 +302,14 @@ $comp_id = $comp_id ?? null;
     <!-- Passport Size Photo -->
     <div class="sm:col-span-4">
         <label class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('passport_size_photo'); ?>:</label>
-        <input type="file" id="passportInput" accept="image/*"   required
+        <input type="file" id="sponsorPassportInput" accept="image/*"   required
        capture="environment"
                class="block w-full text-sm text-gray-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-md 
                       file:border-0 file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 
                       dark:file:bg-gray-700 dark:file:text-gray-300">
         <input type="hidden" name="passport_cropped" id="passportCropped">
         <div class="mt-3">
-            <img id="previewImage" class="rounded border shadow w-32 h-32 object-cover"
+            <img id="sponsorPreviewImage" class="rounded border shadow w-32 h-32 object-cover"
                  src="<?= isset($sponser->passport_path) && !empty($sponser->passport_path) 
                           ? base_url($sponser->passport_path) 
                           : base_url('assets/img/customer21.png') ?>"
@@ -400,28 +435,6 @@ $comp_id = $comp_id ?? null;
 
 
 
-<!-- Passport Upload Modal -->
-<div id="passportModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
-        <h3 class="text-lg font-semibold mb-4">Upload Passport Photo</h3>
-        <form id="passportForm" enctype="multipart/form-data">
-            <input type="hidden" name="customer_id" value="<?= $customer->customer_id ?>">
-           <input type="hidden" name="comp_id" value="<?= htmlspecialchars($comp_id, ENT_QUOTES, 'UTF-8'); ?>">
-
-
-            <input type="file" id="passportInput" name="passport_photo" accept="image/*" capture="environment" class="block w-full mb-4">
-            <img id="previewImage" src="<?= base_url('assets/img/customer21.png') ?>" class="rounded w-32 h-32 mb-4 object-cover">
-
-            <div class="flex justify-end gap-2">
-                <button type="button" id="closeModal" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700">Upload</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-
 </div>
 
 
@@ -437,53 +450,6 @@ $comp_id = $comp_id ?? null;
 <?php
 include_once APPPATH . "views/partials/footer.php";
 ?>
-
-<script>
-
-    // 1️⃣ Fungua modal moja kwa moja kama flashdata ime-set
-<?php if($this->session->flashdata('show_passport_modal')): ?>
-document.getElementById('passportModal').classList.remove('hidden');
-<?php endif; ?>
-
-// 2️⃣ Close modal
-document.getElementById('closeModal').addEventListener('click', function(){
-    document.getElementById('passportModal').classList.add('hidden');
-});
-
-// 3️⃣ Live preview ya image
-document.getElementById('passportInput').addEventListener('change', function(e){
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev){
-        document.getElementById('previewImage').src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-});
-
-// 4️⃣ AJAX upload bila ku-refresh
-document.getElementById('passportForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    const formData = new FormData(this);
-
-    fetch("<?= base_url('oficer/upload_passport') ?>", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === 'success'){
-            alert('Passport photo uploaded successfully!');
-            document.getElementById('passportModal').classList.add('hidden');
-        } else {
-            alert(data.message || 'Upload failed');
-        }
-    })
-    .catch(err => console.error(err));
-});
-
-</script>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -565,49 +531,115 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script>
 let cropper;
-const passportInput = document.getElementById('passportInput');
+let activePassportTarget = null;
+let activePassportInput = null;
 const cropperModal = document.getElementById('cropperModal');
 const cropperImage = document.getElementById('cropperImage');
-const previewImage = document.getElementById('previewImage');
+const sponsorPassportInput = document.getElementById('sponsorPassportInput');
+const customerPassportInput = document.getElementById('customerPassportInput');
+const sponsorPreviewImage = document.getElementById('sponsorPreviewImage');
+const customerPassportPreview = document.getElementById('customerPassportPreview');
+const customerPassportTrigger = document.getElementById('customerPassportTrigger');
+const customerPassportMessage = document.getElementById('customerPassportMessage');
 const passportCropped = document.getElementById('passportCropped');
+const customerId = "<?= htmlspecialchars($customer->customer_id ?? '', ENT_QUOTES, 'UTF-8'); ?>";
 
-passportInput.addEventListener('change', function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
+function openCropperForInput(input, target) {
+    if (!input) return;
 
-    const reader = new FileReader();
-    reader.onload = function (event) {
-        cropperImage.src = event.target.result;
-        cropperModal.classList.remove('hidden');
-        if (cropper) cropper.destroy();
-        cropper = new Cropper(cropperImage, {
-            aspectRatio: 3 / 4,
-            viewMode: 1,
-        });
-    };
-    reader.readAsDataURL(file);
-});
+    input.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        activePassportTarget = target;
+        activePassportInput = input;
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            cropperImage.src = event.target.result;
+            cropperModal.classList.remove('hidden');
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(cropperImage, {
+                aspectRatio: 3 / 4,
+                viewMode: 1,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+openCropperForInput(sponsorPassportInput, 'sponsor');
+openCropperForInput(customerPassportInput, 'customer');
+
+if (customerPassportTrigger && customerPassportInput) {
+    customerPassportTrigger.addEventListener('click', function () {
+        customerPassportInput.click();
+    });
+}
 
 document.getElementById('cancelCrop').addEventListener('click', () => {
     cropperModal.classList.add('hidden');
-    passportInput.value = ''; // reset input
+    if (activePassportInput) {
+        activePassportInput.value = '';
+    }
     if (cropper) cropper.destroy();
+    activePassportTarget = null;
+    activePassportInput = null;
 });
 
-document.getElementById('cropImage').addEventListener('click', () => {
+document.getElementById('cropImage').addEventListener('click', async () => {
     const canvas = cropper.getCroppedCanvas({
         width: 300,
         height: 400,
     });
 
-    // Show cropped preview
-    previewImage.src = canvas.toDataURL('image/jpeg');
+    const croppedDataUrl = canvas.toDataURL('image/jpeg');
 
-    // Set hidden input for form
-    passportCropped.value = canvas.toDataURL('image/jpeg');
+    if (activePassportTarget === 'sponsor') {
+        sponsorPreviewImage.src = croppedDataUrl;
+        passportCropped.value = croppedDataUrl;
+    }
+
+    if (activePassportTarget === 'customer') {
+        customerPassportPreview.src = croppedDataUrl;
+        if (customerPassportMessage) {
+            customerPassportMessage.textContent = 'Uploading passport...';
+        }
+
+        try {
+            const response = await fetch("<?= base_url('oficer/upload_passport') ?>", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: new URLSearchParams({
+                    image: croppedDataUrl,
+                    customer_id: customerId
+                }).toString()
+            });
+
+            const text = await response.text();
+            if (response.ok && /successfully/i.test(text)) {
+                if (customerPassportMessage) {
+                    customerPassportMessage.textContent = 'Passport uploaded successfully.';
+                }
+            } else {
+                throw new Error(text || 'Upload failed');
+            }
+        } catch (error) {
+            if (customerPassportMessage) {
+                customerPassportMessage.textContent = 'Upload failed. Please try again.';
+            }
+            console.error(error);
+        }
+    }
 
     cropperModal.classList.add('hidden');
     if (cropper) cropper.destroy();
+    if (activePassportInput) {
+        activePassportInput.value = '';
+    }
+    activePassportTarget = null;
+    activePassportInput = null;
 });
 </script>
-

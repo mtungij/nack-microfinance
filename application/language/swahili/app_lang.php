@@ -577,6 +577,36 @@ $lang['place_of_business'] = 'Mahali pa Biashara';
 $lang['place_of_business_placeholder'] = 'Ingiza mahali pa biashara';
 $lang['place_of_business_hint'] = 'Ingiza mahali pa biashara (mfano, soko, duka).';
 
+// Update last customer detail page
+$lang['update_customer_detail_title'] = 'Sasisha Taarifa za Mteja';
+$lang['update_customer_detail_desc'] = 'Kamilisha taarifa za wasifu kwa kutumia viingizo vilivyopo vya usajili wa mteja.';
+$lang['update_customer_detail_form'] = 'Sasisha Taarifa za Mteja';
+$lang['add_customer_detail_form'] = 'Ongeza Taarifa za Mteja';
+$lang['martial_status'] = 'Hali ya Ndoa';
+$lang['account_type'] = 'Aina ya Akaunti';
+$lang['national_identity_number'] = 'Namba ya Kitambulisho cha Taifa';
+$lang['working_status'] = 'Hali ya Kazi';
+$lang['business_type'] = 'Aina ya Biashara';
+$lang['place_employment_business'] = 'Mahali pa Kazi/Biashara';
+$lang['number_of_dependents'] = 'Idadi ya Wanaomtegemea';
+$lang['monthly_income'] = 'Mapato ya Kila Mwezi';
+$lang['married'] = 'Ameoa/Ameolewa';
+$lang['single'] = 'Hajaoa/Hajaolewa';
+$lang['widow'] = 'Mjane';
+$lang['separated'] = 'Ametengana';
+$lang['divorced'] = 'Ameachika';
+$lang['select'] = 'Chagua';
+$lang['select_work_status'] = 'Chagua Hali ya Kazi';
+$lang['employee'] = 'Mwajiriwa';
+$lang['government_employee'] = 'Mwajiriwa wa Serikali';
+$lang['private_sector_employee'] = 'Mwajiriwa wa Sekta Binafsi';
+$lang['business_owner'] = 'Mmiliki wa Biashara';
+$lang['student'] = 'Mwanafunzi';
+$lang['overseas_worker'] = 'Mfanyakazi wa Nje ya Nchi';
+$lang['pensioner'] = 'Mstaafu';
+$lang['unemployed'] = 'Hana Ajira';
+$lang['self_employed'] = 'Kujiajiri';
+
 // Loan application page
 $lang['select_client_loan'] = 'Chagua Mteja wa Kuomba Mkopo';
 $lang['loan_application_desc'] = 'Kumbuka: kama mteja hajamaliza mkopo wake, mfumo utakataa ombi la mkopo mpya.';

@@ -833,7 +833,7 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
      //begin withdrawal function
 	//withdrow auto matic time
 	public function get_autodata(){
-      $data = $this->db->query("SELECT * FROM tbl_loans WHERE loan_status = 'withdrawal'");
+    $data = $this->db->query("SELECT * FROM tbl_loans WHERE loan_status IN ('withdrawal','out')");
       $all_loans = $data->result();
         foreach($all_loans as $loan){
         	  //  echo "<br>";
@@ -966,6 +966,28 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
 	           ->where('loan_id', $loan_id)
 	           ->where('DATE(penart_day)', $today_date)
 	           ->count_all_results() > 0;
+
+           // Grace period rule for expired loans (based on tbl_outstand.loan_end_date):
+           // if overdue for more than 3 days, add daily 1% penalty of restration.
+           $grace_period_days = 3;
+           $daily_overdue_penalty_rate = 1;
+           $is_grace_penalty_due_today = false;
+           $grace_penalty_amount = 0;
+
+           if (!empty($loan_end_date_schedule)) {
+            	$days_since_end = (int)((strtotime($today_date) - strtotime($loan_end_date_schedule)) / 86400);
+            	if ($days_since_end > $grace_period_days) {
+            		$grace_penalty_amount = round(((float)$lejesho * $daily_overdue_penalty_rate) / 100, 2);
+            		if ($grace_penalty_amount > 0 && !$has_penalty_today && ($loan_status === 'withdrawal' || $loan_status === 'out')) {
+            			$is_grace_penalty_due_today = true;
+            		}
+            	}
+           }
+
+           if ($is_grace_penalty_due_today) {
+            	$this->insert_loanPenart_moneyValue($comp_id, $blanch_id, $customer_id, $loan_id, $grace_penalty_amount, $group_id);
+            	$has_penalty_today = true;
+           }
            
       	   //asilimia lejesho
       	   $percent_calc = $money_value / 100 * $lejesho;

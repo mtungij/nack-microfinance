@@ -20,6 +20,7 @@ $resolve_image_src = function ($value, $default_rel = 'assets/img/customer21.png
 
   $candidates = [$raw];
   if (strpos($raw, 'assets/') !== 0) {
+    $candidates[] = 'assets/uploads/' . $raw;
     $candidates[] = 'assets/img/' . $raw;
     $candidates[] = 'assets/passport/' . $raw;
   }

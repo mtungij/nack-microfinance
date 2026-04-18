@@ -924,8 +924,8 @@ public function get_total_pay_description_acount_statement($loan_id)
     //     }
 
         public function search_CustomerID($customer_id,$comp_id){
-        	$data = $this->db->query("SELECT * FROM tbl_customer c LEFT JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id LEFT JOIN tbl_blanch b ON b.blanch_id = c.blanch_id LEFT JOIN tbl_account_type at ON at.account_id = sc.account_id LEFT JOIN tbl_company ca ON ca.comp_id = c.comp_id LEFT JOIN tbl_employee e ON e.empl_id = c.empl_id WHERE c.customer_id = '$customer_id' AND c.comp_id = '$comp_id'");
-        	return $data->row();
+	        	$data = $this->db->query("SELECT * FROM tbl_customer c LEFT JOIN tbl_sub_customer sc ON sc.id = (SELECT MAX(sc2.id) FROM tbl_sub_customer sc2 WHERE sc2.customer_id = c.customer_id) LEFT JOIN tbl_blanch b ON b.blanch_id = c.blanch_id LEFT JOIN tbl_account_type at ON at.account_id = sc.account_id LEFT JOIN tbl_company ca ON ca.comp_id = c.comp_id LEFT JOIN tbl_employee e ON e.empl_id = c.empl_id WHERE c.customer_id = '$customer_id' AND c.comp_id = '$comp_id'");
+	        	return $data->row();
         }
 
 		public function get_loansms($loan_id) {
@@ -1782,7 +1782,7 @@ public function get_DisbarsedLoanBlanch_today($blanch_id) {
 					SELECT * 
 					FROM tbl_customer c 
 					LEFT JOIN tbl_sponser s ON s.customer_id = c.customer_id
-					LEFT JOIN tbl_sub_customer b ON b.customer_id= c.customer_id
+					LEFT JOIN tbl_sub_customer b ON b.id = (SELECT MAX(b2.id) FROM tbl_sub_customer b2 WHERE b2.customer_id = c.customer_id)
 					WHERE c.customer_id = '$customer_id'
 				");
 				return $data->row();
@@ -5653,6 +5653,16 @@ public function defaulters_customer($blanch_id){
  	  return $customer->result();
  }
 
+ public function get_all_customer_incomplete($comp_id){
+	$customer = $this->db->query("SELECT c.*
+		FROM tbl_customer c
+		LEFT JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id
+		WHERE c.comp_id = '$comp_id'
+		AND (sc.customer_id IS NULL OR c.customer_status = 'open')
+		ORDER BY c.customer_id DESC");
+	  return $customer->result();
+ }
+
 
  public function get_employee_email($comp_id){
  	$empl = $this->db->query("SELECT * FROM tbl_employee e JOIN tbl_blanch b ON b.blanch_id =  e.blanch_id WHERE e.comp_id = '$comp_id'");
@@ -6136,29 +6146,91 @@ public function defaulters_customer($blanch_id){
 
 
    public function get_all_customerBlanch($blanch_id){
- 	$customer = $this->db->query("SELECT * FROM tbl_customer WHERE blanch_id = '$blanch_id' ORDER BY customer_id DESC");
- 	  return $customer->result();
+	$customer = $this->db->query("SELECT c.*
+		FROM tbl_customer c
+		LEFT JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id
+		WHERE c.blanch_id = '$blanch_id'
+		AND (sc.customer_id IS NULL OR c.customer_status = 'open')
+		ORDER BY c.customer_id DESC");
+	  return $customer->result();
  }
 
 
  public function get_customerInfor($customer_id){
- 	$data = $this->db->query("SELECT * FROM tbl_customer c JOIN tbl_region r ON r.region_id = c.region_id WHERE c.customer_id = '$customer_id'");
+	$data = $this->db->query("SELECT * FROM tbl_customer c LEFT JOIN tbl_region r ON r.region_id = c.region_id WHERE c.customer_id = '$customer_id'");
  	  return $data->row();
  }
 
 
  public function update_customerData($customer_id,$data){
- 	return $this->db->where('customer_id',$customer_id)->update('tbl_customer',$data);
+	$current_customer = $this->db
+		->where('customer_id', $customer_id)
+		->get('tbl_customer')
+		->row();
+
+	$old_phone = $current_customer ? trim((string) $current_customer->phone_no) : '';
+	$new_phone = isset($data['phone_no']) ? trim((string) $data['phone_no']) : '';
+
+	if ($old_phone !== '' && $new_phone !== '' && $old_phone !== $new_phone) {
+		$this->ensure_customer_phone_history_table();
+		$this->db->insert('tbl_customer_phone_history', [
+			'customer_id' => $customer_id,
+			'comp_id' => $data['comp_id'] ?? ($current_customer->comp_id ?? null),
+			'blanch_id' => $data['blanch_id'] ?? ($current_customer->blanch_id ?? null),
+			'old_phone_no' => $old_phone,
+			'new_phone_no' => $new_phone,
+			'updated_by_empl_id' => $data['empl_id'] ?? null,
+			'updated_day' => date('Y-m-d H:i:s'),
+		]);
+	}
+
+	return $this->db->where('customer_id',$customer_id)->update('tbl_customer',$data);
  }
 
+	private function ensure_customer_phone_history_table(){
+		$this->db->query("CREATE TABLE IF NOT EXISTS `tbl_customer_phone_history` (
+			`history_id` int(11) NOT NULL AUTO_INCREMENT,
+			`customer_id` int(11) NOT NULL,
+			`comp_id` int(11) DEFAULT NULL,
+			`blanch_id` int(11) DEFAULT NULL,
+			`old_phone_no` text DEFAULT NULL,
+			`new_phone_no` text DEFAULT NULL,
+			`updated_by_empl_id` int(11) DEFAULT NULL,
+			`updated_day` datetime DEFAULT NULL,
+			PRIMARY KEY (`history_id`),
+			KEY `idx_customer_phone_history_customer` (`customer_id`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+	}
+
+	public function get_customer_phone_history($customer_id){
+		$this->ensure_customer_phone_history_table();
+		return $this->db
+			->where('customer_id', $customer_id)
+			->order_by('history_id', 'DESC')
+			->get('tbl_customer_phone_history')
+			->result();
+	}
+
  public function get_lastdata($customer_id){
- 	$data = $this->db->query("SELECT * FROM tbl_sub_customer sc JOIN tbl_account_type at ON at.account_id = sc.account_id  WHERE sc.customer_id = '$customer_id'");
+	$data = $this->db->query("SELECT * FROM tbl_sub_customer sc JOIN tbl_account_type at ON at.account_id = sc.account_id WHERE sc.customer_id = '$customer_id' ORDER BY sc.id DESC LIMIT 1");
  	 return $data->row();
  }
 
 
  public function update_lastCustomerData($customer_id,$data){
- 	return $this->db->where('customer_id',$customer_id)->update('tbl_sub_customer',$data);
+	$latest_row = $this->db
+		->select('id')
+		->where('customer_id', $customer_id)
+		->order_by('id', 'DESC')
+		->limit(1)
+		->get('tbl_sub_customer')
+		->row();
+
+	if (empty($latest_row)) {
+		return false;
+	}
+
+	return $this->db->where('id', $latest_row->id)->update('tbl_sub_customer',$data);
  }
 
 

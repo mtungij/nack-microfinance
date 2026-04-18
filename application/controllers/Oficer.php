@@ -2147,10 +2147,7 @@ public function customer(){
         }
 
         // Process the phone number
-        $phone_no = $data['phone_no'];
-        if (substr($phone_no, 0, 1) === '0') {
-            $phone_no = '255' . substr($phone_no, 1);
-        }
+        $phone_no = $this->normalize_phone_number($data['phone_no']);
         $data['phone_no'] = $phone_no;
 
         // Extract other fields
@@ -2192,6 +2189,21 @@ public function customer(){
 }
 
 
+  private function normalize_phone_number($phone_no){
+    $phone_no = preg_replace('/\D+/', '', (string) $phone_no);
+
+    if ($phone_no === '') {
+      return '';
+    }
+
+    if (substr($phone_no, 0, 1) === '0') {
+      return '255' . substr($phone_no, 1);
+    }
+
+    return $phone_no;
+  }
+
+
   public function sendsms($phone,$massage){
   
     $api_key = '';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
@@ -2227,12 +2239,13 @@ public function customer(){
             $blanch_data = $this->queries->get_blanchData($blanch_id);
             $empl_data = $this->queries->get_employee_data($empl_id);
             $customer = $this->queries->get_customer_data($customer_id);
+            $phone_history = $this->queries->get_customer_phone_history($customer_id);
             $account = $this->queries->get_accountTYpe();
             $privillage = $this->queries->get_position_empl($empl_id);
             $manager = $this->queries->get_position_manager($empl_id);
               // print_r($account);
               //    exit();
-            $this->load->view('officer/detail',['customer'=>$customer,'account'=>$account,'privillage'=>$privillage,'manager'=>$manager]);
+            $this->load->view('officer/detail',['customer'=>$customer,'phone_history'=>$phone_history,'account'=>$account,'privillage'=>$privillage,'manager'=>$manager]);
         }
 
 
@@ -2371,11 +2384,51 @@ public function validate_pdf_upload($str, $field_name)
             $empl_data = $this->queries->get_employee_data($empl_id);
             $privillage = $this->queries->get_position_empl($empl_id);
           $data_customer = $this->queries->get_customer_data($customer_id);
+          $phone_history = $this->queries->get_customer_phone_history($customer_id);
           $manager = $this->queries->get_position_manager($empl_id);
            // print_r($data_customer);
            //           exit();
-        $this->load->view('officer/customer_Id',['empl_data'=>$empl_data,'privillage'=>$privillage,'data_customer'=>$data_customer,'manager'=>$manager]);
+        $this->load->view('officer/customer_Id',['empl_data'=>$empl_data,'privillage'=>$privillage,'data_customer'=>$data_customer,'phone_history'=>$phone_history,'manager'=>$manager]);
     }
+
+      public function update_customer_passport($customer_id){
+        $this->load->model('queries');
+        $blanch_id = $this->session->userdata('blanch_id');
+        $empl_id = $this->session->userdata('empl_id');
+        $manager_data = $this->queries->get_manager_data($empl_id);
+        $comp_id = $manager_data->comp_id;
+        $company_data = $this->queries->get_companyData($comp_id);
+        $blanch_data = $this->queries->get_blanchData($blanch_id);
+        $empl_data = $this->queries->get_employee_data($empl_id);
+        $privillage = $this->queries->get_position_empl($empl_id);
+        $data_customer = $this->queries->get_customer_data($customer_id);
+        $passport_row = $this->db->select('passport')
+          ->where('customer_id', $customer_id)
+          ->get('tbl_sub_customer')
+          ->row();
+        $existing_passport = ($passport_row && !empty($passport_row->passport)) ? $passport_row->passport : null;
+        $manager = $this->queries->get_position_manager($empl_id);
+
+        $this->load->view('officer/update_customer_passport', [
+          'empl_data' => $empl_data,
+          'privillage' => $privillage,
+          'data_customer' => $data_customer,
+          'existing_passport' => $existing_passport,
+          'manager' => $manager,
+        ]);
+      }
+
+      private function get_latest_customer_passport($customer_id)
+      {
+        $passport_row = $this->db->select('passport')
+          ->where('customer_id', $customer_id)
+          ->order_by('id', 'DESC')
+          ->limit(1)
+          ->get('tbl_sub_customer')
+          ->row();
+
+        return ($passport_row && !empty($passport_row->passport)) ? $passport_row->passport : null;
+      }
 
 
 
@@ -2759,6 +2812,7 @@ public function search_customer()
     if ($open_loan) {
         return $this->load->view('officer/search_customer', [
             'customer'      => $customer,
+        'existing_passport' => $this->get_latest_customer_passport($customer_id),
             'sponser'       => $this->queries->get_sponser($customer_id),
             'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
             'region'        => $this->queries->get_region(),
@@ -2812,6 +2866,7 @@ public function search_customer()
     ================================*/
     return $this->load->view('officer/search_customer', [
         'customer'      => $customer,
+      'existing_passport' => $this->get_latest_customer_passport($customer_id),
         'comp_id'       => $comp_id,
         'sponser'       => $sponser,
         'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
@@ -2859,6 +2914,7 @@ public function handle_sponser_confirmation()
     // Load view without askReplace
     return $this->load->view('officer/search_customer', [
         'customer'      => $customer,
+      'existing_passport' => $this->get_latest_customer_passport($customer_id),
         'comp_id'       => $comp_id,
         'sponser'       => $this->queries->get_sponser($customer_id),
         'sponsers_data' => $this->queries->get_sponserCustomer($customer_id),
@@ -3056,6 +3112,7 @@ public function create_sponser($customer_id = null, $comp_id = null)
         $sponser = (object) $this->input->post();
         $this->load->view('officer/search_customer', [
             'customer' => $customer,
+        'existing_passport' => $this->get_latest_customer_passport($customer_id),
             'sponser'  => $sponser
         ]);
         return;
@@ -8957,14 +9014,14 @@ exit();
         $company_data = $this->queries->get_companyData($comp_id);
         $blanch_data = $this->queries->get_blanchData($blanch_id);
         $empl_data = $this->queries->get_employee_data($empl_id);
-        $customer = $this->queries->get_all_customer($comp_id);
+        $customer = $this->queries->get_all_customer_incomplete($comp_id);
         $privillage = $this->queries->get_position_empl($empl_id);
         $manager = $this->queries->get_position_manager($empl_id);
         $this->load->view('officer/customer_update',['privillage'=>$privillage,'customer'=>$customer,'empl_data'=>$empl_data,'manager'=>$manager]);  
     }
 
 
-    public function edit_customer(){
+    public function edit_customer($customer_id = null){
         $this->load->model('queries');
          $blanch_id = $this->session->userdata('blanch_id');
         $empl_id = $this->session->userdata('empl_id');
@@ -8974,8 +9031,22 @@ exit();
         $blanch_data = $this->queries->get_blanchData($blanch_id);
         $empl_data = $this->queries->get_employee_data($empl_id);
         $privillage = $this->queries->get_position_empl($empl_id);
-        $customer_id = $this->input->post('customer_id');
+        if (empty($customer_id)) {
+          $customer_id = $this->input->post('customer_id');
+        }
+
+        if (empty($customer_id)) {
+          $this->session->set_flashdata('error', 'Please select a customer first.');
+          return redirect('oficer/customer_update');
+        }
+
         $data = $this->queries->get_customerInfor($customer_id);
+
+        if (empty($data) || !is_object($data)) {
+          $this->session->set_flashdata('error', 'Customer not found. Please search again.');
+          return redirect('oficer/customer_update');
+        }
+
         $region = $this->queries->get_region();
         $manager = $this->queries->get_position_manager($empl_id);
         // print_r($data);
@@ -8994,23 +9065,91 @@ exit();
         $this->form_validation->set_rules('gender','gender','required');
         $this->form_validation->set_rules('date_birth','date_birth','required');
         $this->form_validation->set_rules('phone_no','phone number','required');
-        $this->form_validation->set_rules('region_id','region','required');
-        $this->form_validation->set_rules('district','district','required');
-        $this->form_validation->set_rules('ward','ward','required');
-        $this->form_validation->set_rules('street','street','required');
+
+        if ($this->input->post('region_id') !== null && $this->input->post('region_id') !== '') {
+          $this->form_validation->set_rules('region_id','region','required');
+        }
+
+        if ($this->input->post('district') !== null && $this->input->post('district') !== '') {
+          $this->form_validation->set_rules('district','district','required');
+        }
+
+        if ($this->input->post('ward') !== null && $this->input->post('ward') !== '') {
+          $this->form_validation->set_rules('ward','ward','required');
+        }
+
+        if ($this->input->post('street') !== null && $this->input->post('street') !== '') {
+          $this->form_validation->set_rules('street','street','required');
+        }
+
+        if (!empty($_FILES['barua_utambulisho']['name'])) {
+          $this->form_validation->set_rules(
+            'barua_utambulisho',
+            'Barua ya Utambulisho',
+            'callback_validate_pdf_upload[barua_utambulisho]'
+          );
+        }
+
+        if (!empty($_FILES['kitambulisho']['name'])) {
+          $this->form_validation->set_rules(
+            'kitambulisho',
+            'Kitambulisho',
+            'callback_validate_pdf_upload[kitambulisho]'
+          );
+        }
+
         $this->form_validation->set_error_delimiters('<div class="text-danger">','</div>');
         if ($this->form_validation->run()) {
              $data = $this->input->post();
+             if (isset($data['gender'])) {
+               $data['gender'] = strtolower(trim($data['gender']));
+             }
+             $data['phone_no'] = $this->normalize_phone_number($data['phone_no']);
              // print_r($data);
              //        exit();
              $this->load->model('queries');
              if ($this->queries->update_customerData($customer_id,$data)) {
+                  if (!empty($_FILES['barua_utambulisho']['name'])) {
+                    if (!$this->upload_customer_pdf('barua_utambulisho', 'barua', $customer_id)) {
+                        $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+                        return redirect('oficer/edit_customer/' . $customer_id);
+                    }
+                  }
+
+                  if (!empty($_FILES['kitambulisho']['name'])) {
+                    if (!$this->upload_customer_pdf('kitambulisho', 'kitambulisho', $customer_id)) {
+                        $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+                        return redirect('oficer/edit_customer/' . $customer_id);
+                    }
+                  }
+
                   $this->session->set_flashdata('massage','Customer detail Updated successfully');
              }else{
                $this->session->set_flashdata('error','Failed');  
              }
            return redirect('oficer/AfterUpdate/'.$customer_id);  
         }
+
+        return redirect('oficer/edit_customer/' . $customer_id);
+    }
+
+    private function upload_customer_pdf($field_name, $file_prefix, $customer_id)
+    {
+        $upload_path = './assets/documents/';
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0755, true);
+        }
+
+        $config['upload_path'] = $upload_path;
+        $config['allowed_types'] = 'pdf';
+        $config['max_size'] = 2048;
+        $config['file_name'] = $file_prefix . '_' . $customer_id . '.pdf';
+        $config['overwrite'] = true;
+
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+
+        return $this->upload->do_upload($field_name);
     }
 
 
@@ -9027,7 +9166,7 @@ exit();
         $data = $this->queries->get_customerInfor($customer_id);
         $region = $this->queries->get_region();
         $manager = $this->queries->get_position_manager($empl_id);
-        $this->load->view('officer/update_customer',['empl_data'=>$empl_data,'privillage'=>$privillage,'data'=>$data,'region'=>$region,'manager'=>$manager]);
+        $this->load->view('officer/edit_customer',['empl_data'=>$empl_data,'privillage'=>$privillage,'data'=>$data,'region'=>$region,'manager'=>$manager]);
     }
 
 
@@ -9042,7 +9181,14 @@ exit();
         $empl_data = $this->queries->get_employee_data($empl_id);
         $privillage = $this->queries->get_position_empl($empl_id);
         $last = $this->queries->get_lastdata($customer_id);
-        $customer = $this->queries->get_customer_data($customer_id);
+        $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
+        if (empty($customer)) {
+          $customer = $this->queries->get_customerInfor($customer_id);
+        }
+        if (empty($customer)) {
+          $this->session->set_flashdata('error', 'Customer not found. Please search again.');
+          return redirect('oficer/customer_update');
+        }
         $account = $this->queries->get_accountTYpe();
         $manager = $this->queries->get_position_manager($empl_id);
          // print_r($last);
@@ -9051,13 +9197,40 @@ exit();
     }
 
 
-    public function create_update_lastData($customer_id){
+    public function create_update_lastData($customer_id = null){
+        $this->load->model('queries');
+
+        if (empty($customer_id)) {
+          $customer_id = $this->input->post('customer_id');
+        }
+
+        if (empty($customer_id)) {
+          $customer_id = $this->uri->segment(3);
+        }
+
+        if (empty($customer_id)) {
+          $posted_code = (string) $this->input->post('code');
+          if (preg_match('/(\d+)$/', $posted_code, $m)) {
+            $customer_id = $m[1];
+          }
+        }
+
+        if (!empty($customer_id) && empty($this->queries->get_customerInfor($customer_id))) {
+          $customer_id = null;
+        }
+
+        if (empty($customer_id)) {
+          $this->session->set_flashdata('error', 'Customer not found. Please try again.');
+          return redirect('oficer/customer_update');
+        }
+
          //Prepare array of user data
+        $posted_customer_id = $this->input->post('customer_id');
             $data = array(
-            'customer_id'=> $this->input->post('customer_id'),
+        'customer_id'=> !empty($posted_customer_id) ? $posted_customer_id : $customer_id,
             'famous_area'=> $this->input->post('famous_area'),
             'martial_status'=> $this->input->post('martial_status'),
-            'natinal_identity'=> $this->input->post('natinal_identity'),
+          
             'bussiness_type'=> $this->input->post('bussiness_type'),
             'work_status'=> $this->input->post('work_status'),
             'number_dependents'=> $this->input->post('number_dependents'),
@@ -9072,33 +9245,59 @@ exit();
 
             //Pass user data to model
             $customer_code = $data['code'];
-            $customer_id = $data['customer_id'];
-            $natinal_identity = $data['natinal_identity'];
+            if (!empty($data['customer_id'])) {
+              $customer_id = $data['customer_id'];
+            }
+           
                   
-           $this->load->model('queries'); 
-           $check_nation_id = $this->queries->check_national_Id($natinal_identity);
-             if ($check_nation_id == TRUE) {
-            $this->session->set_flashdata('error','National Identity Number Aledy Registered'); 
-            return redirect('oficer/update_lsatDetailCustomer/'.$customer_id);
-            }elseif ($check_nation_id == FALSE) {
-            $data = $this->queries->insert_customerData($data);
-            //Storing insertion status message.
-            if($data){
+           $existing_last_data = $this->queries->get_lastdata($customer_id);
+           if (!empty($existing_last_data)) {
+             $result = $this->queries->update_lastCustomerData($customer_id, $data);
+           } else {
+             $result = $this->queries->insert_customerData($data);
+           }
+           if ($result) {
                 $this->update_code($customer_id,$customer_code);
                 $this->update_customer_pendData($customer_id);
                 $this->session->set_flashdata('massage','Customer Data Updated successfully');
-             }else{
+           } else {
                 $this->session->set_flashdata('error','Data failed!!');
-            }
-            }
-            return redirect('oficer/update_lsatDetailCustomer/'.$customer_id);
+           }
+           return redirect('oficer/update_lsatDetailCustomer/'.$customer_id);
         }
 
 
-         public function modify_update_lastData($customer_id){
+         public function modify_update_lastData($customer_id = null){
+          $this->load->model('queries');
+
+          if (empty($customer_id)) {
+            $customer_id = $this->input->post('customer_id');
+          }
+
+          if (empty($customer_id)) {
+            $customer_id = $this->uri->segment(3);
+          }
+
+          if (empty($customer_id)) {
+            $posted_code = (string) $this->input->post('code');
+            if (preg_match('/(\d+)$/', $posted_code, $m)) {
+              $customer_id = $m[1];
+            }
+          }
+
+          if (!empty($customer_id) && empty($this->queries->get_customerInfor($customer_id))) {
+            $customer_id = null;
+          }
+
+          if (empty($customer_id)) {
+            $this->session->set_flashdata('error', 'Customer not found. Please try again.');
+            return redirect('oficer/customer_update');
+          }
+
          //Prepare array of user data
+          $posted_customer_id = $this->input->post('customer_id');
             $data = array(
-            'customer_id'=> $this->input->post('customer_id'),
+          'customer_id'=> !empty($posted_customer_id) ? $posted_customer_id : $customer_id,
             'famous_area'=> $this->input->post('famous_area'),
             'martial_status'=> $this->input->post('martial_status'),
             'natinal_identity'=> $this->input->post('natinal_identity'),
@@ -9116,10 +9315,11 @@ exit();
 
             //Pass user data to model
             $customer_code = $data['code'];
-            $customer_id = $data['customer_id'];
+            if (!empty($data['customer_id'])) {
+              $customer_id = $data['customer_id'];
+            }
             $natinal_identity = $data['natinal_identity'];
                   
-           $this->load->model('queries'); 
             if($data){
                 $this->queries->update_lastCustomerData($customer_id,$data);
                 $this->update_code($customer_id,$customer_code);

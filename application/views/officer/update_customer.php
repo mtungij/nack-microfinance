@@ -1,6 +1,6 @@
-<?php include('incs/header_1.php'); ?>
-<?php include('incs/side_1.php'); ?>
-<?php include('incs/subheader.php'); ?>
+<?php
+include_once APPPATH . "views/partials/officerheader.php";
+?>
 	
 
 
@@ -92,7 +92,7 @@
 								</div> -->
 									<div class="col-lg-4 form-group-sub">
 									<label class="form-control-label">*Phone Number:</label>
-							<input type="number" name="phone_no" value="<?php echo $data->phone_no; ?>" placeholder="Eg,7538, 6283" readonly autocomplete="off" class="form-control input-sm" required >
+							<input type="text" name="phone_no" value="<?php echo $data->phone_no; ?>" placeholder="Eg, 07XXXXXXXX or 255XXXXXXXXX" autocomplete="off" class="form-control input-sm" required >
 								</div>
 									<div class="col-lg-6 form-group-sub">
 									<label class="form-control-label">*Region:</label>
@@ -126,6 +126,7 @@
 								<div class="text-center">
 								<button type="submit" class="btn btn-brand  btn-elevate btn-pill btn-sm">Update</button>
 								<a href="<?php echo base_url("oficer/update_lsatDetailCustomer/{$data->customer_id}") ?>" class="btn btn-info btn-elevate btn-pill btn-sm">Skip</a>
+								<a href="<?php echo base_url("oficer/update_customer_passport/{$data->customer_id}") ?>" class="btn btn-primary btn-elevate btn-pill btn-sm">Update Passport</a>
 								</div>
 							</div>
 						</div>
@@ -143,7 +144,9 @@
 <!-- end:: Content -->
 				</div>				
 				
-<?php include('incs/footer_1.php') ?>
+<?php
+include_once APPPATH . "views/partials/footer.php";
+?>
 
 
 <script>

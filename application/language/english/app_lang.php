@@ -577,6 +577,36 @@ $lang['place_of_business'] = 'Place of Business';
 $lang['place_of_business_placeholder'] = 'Enter place of business';
 $lang['place_of_business_hint'] = 'Enter the place of business (e.g., market, shop).';
 
+// Update last customer detail page
+$lang['update_customer_detail_title'] = 'Update Customer Detail';
+$lang['update_customer_detail_desc'] = 'Complete profile details using the existing customer registration inputs.';
+$lang['update_customer_detail_form'] = 'Update Customer Detail';
+$lang['add_customer_detail_form'] = 'Add Customer Detail';
+$lang['martial_status'] = 'Marital Status';
+$lang['account_type'] = 'Account Type';
+$lang['national_identity_number'] = 'National Identity Number';
+$lang['working_status'] = 'Working Status';
+$lang['business_type'] = 'Business Type';
+$lang['place_employment_business'] = 'Place Employment/Business';
+$lang['number_of_dependents'] = 'Number of Dependents';
+$lang['monthly_income'] = 'Monthly Income';
+$lang['married'] = 'Married';
+$lang['single'] = 'Single';
+$lang['widow'] = 'Widow';
+$lang['separated'] = 'Separated';
+$lang['divorced'] = 'Divorced';
+$lang['select'] = 'Select';
+$lang['select_work_status'] = 'Select Work Status';
+$lang['employee'] = 'Employee';
+$lang['government_employee'] = 'Government Employee';
+$lang['private_sector_employee'] = 'Private Sector Employee';
+$lang['business_owner'] = 'Business Owner';
+$lang['student'] = 'Student';
+$lang['overseas_worker'] = 'Overseas Worker';
+$lang['pensioner'] = 'Pensioner';
+$lang['unemployed'] = 'Unemployed';
+$lang['self_employed'] = 'Self Employed';
+
 // Loan application page
 $lang['select_client_loan'] = 'Select Client to Request Loan';
 $lang['loan_application_desc'] = 'Note: if the client has an unfinished loan, the system will reject the new loan request.';

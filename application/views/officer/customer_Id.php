@@ -3,6 +3,8 @@
 <div class="w-full lg:ps-64">
   <div class="p-4 sm:p-6 space-y-6">
 
+   
+
     <!-- Skip Button -->
     <!-- <div class="text-right mb-4">
       <a href="<?= base_url('oficer/loan_application') ?>" class="inline-flex items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 sm:px-5 sm:py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
