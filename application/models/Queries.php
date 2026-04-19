@@ -1367,18 +1367,13 @@ public function get_total_pay_description_acount_statement($loan_id)
     $this->db->join('tbl_outstand ot', 'ot.loan_id = l.loan_id', 'left');
     $this->db->join('tbl_account_transaction at', 'at.trans_id = l.method', 'left');
 
-    $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
+	$this->db->where('l.comp_id', $comp_id);
 
-    // Date logic
-    if (!empty($filters['from']) && !empty($filters['to'])) {
-        $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
-        $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
-    } else {
-        $today = date('Y-m-d');
-        $this->db->where('ot.loan_stat_date >=', $today . ' 00:00:00');
-        $this->db->where('ot.loan_stat_date <=', $today . ' 23:59:59');
-    }
+	// Date logic: Only filter by date if both from and to are provided
+	if (!empty($filters['from']) && !empty($filters['to'])) {
+		$this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
+		$this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
+	}
 
     if (!empty($filters['blanch_id'])) {
         $this->db->where('l.blanch_id', $filters['blanch_id']);

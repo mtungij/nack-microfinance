@@ -1,7 +1,47 @@
 
+
 <?php
 include_once APPPATH . "views/partials/header.php";
 ?>
+
+<style>
+    .dashboard-loading-overlay {
+        width: 100%;
+        z-index: 1;
+        background: transparent;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+    }
+    .dashboard-skeleton {
+        border-radius: 0.75rem;
+        background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+        background-size: 400% 100%;
+        animation: dashboardShimmer 1.2s ease-in-out infinite;
+        height: 3rem;
+        margin-bottom: 0.5rem;
+    }
+    @keyframes dashboardShimmer {
+        0% { background-position: 100% 0; }
+        100% { background-position: 0 0; }
+    }
+</style>
+
+<div id="loan-loader" class="dashboard-loading-overlay" style="display:none;">
+    <div class="w-full max-w-4xl">
+        <div class="dashboard-skeleton"></div>
+        <div class="dashboard-skeleton"></div>
+        <div class="dashboard-skeleton"></div>
+        <div class="dashboard-skeleton"></div>
+        <div class="dashboard-skeleton"></div>
+    </div>
+</div>
 
 
 <div class="w-full lg:ps-64">
@@ -56,7 +96,7 @@ include_once APPPATH . "views/partials/header.php";
                   
                 </div>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto relative">
                 <table id="shareholder_table"  class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
                         <tr>
@@ -65,7 +105,7 @@ include_once APPPATH . "views/partials/header.php";
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
-                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('principal'); ?></th>
+                            <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('principal'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_amount'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('duration_type'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('collection'); ?></th>
@@ -73,6 +113,7 @@ include_once APPPATH . "views/partials/header.php";
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('method'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('withdraw_date'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_end_date'); ?></th>
+                            <th scope="col" class="px-4 py-3 dark:text-white">Loan Status</th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('amount_paid'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('remain_debt'); ?></th>
 
@@ -88,7 +129,22 @@ include_once APPPATH . "views/partials/header.php";
     $total_paid_all = 0;
     $total_remain_all = 0;
     ?>
-    <?php foreach($disburse as $loan_aproveds): 
+        <script>
+            // Show loader on page load, hide when table is ready
+            document.addEventListener('DOMContentLoaded', function() {
+                var loader = document.getElementById('loan-loader');
+                var table = document.getElementById('shareholder_table');
+                if (loader && table) {
+                    loader.style.display = '';
+                    table.style.visibility = 'hidden';
+                    setTimeout(function() {
+                        loader.style.display = 'none';
+                        table.style.visibility = 'visible';
+                    }, 800); // Simulate loading, adjust as needed
+                }
+            });
+        </script>
+        <?php foreach($disburse as $loan_aproveds):
         $total_loan_aprove += $loan_aproveds->loan_aprove;
         $total_loan_int += $loan_aproveds->loan_int;
         $total_restoration += $loan_aproveds->restration;
@@ -114,7 +170,7 @@ include_once APPPATH . "views/partials/header.php";
 
             <!-- Session -->
             <td class="px-4 py-3 dark:text-white">
-                <?php 
+                <?php
                     if ($loan_aproveds->day == 1) {
                         echo $this->lang->line('daily');
                     } elseif ($loan_aproveds->day == 7) {
@@ -122,9 +178,12 @@ include_once APPPATH . "views/partials/header.php";
                     } elseif (in_array($loan_aproveds->day, [28,29,30,31])) {
                         echo $this->lang->line('monthly');
                     }
-                    echo " (" . $loan_aproveds->session . ")";
+                    if (!empty($loan_aproveds->session)) {
+                        echo " (" . htmlspecialchars($loan_aproveds->session) . ")";
+                    }
                 ?>
             </td>
+         
 
             <!-- Collection -->
             <td class="px-4 py-3 dark:text-white"><?= number_format($loan_aproveds->restration); ?></td>
@@ -134,7 +193,7 @@ include_once APPPATH . "views/partials/header.php";
             <td class="px-4 py-3 dark:text-white"><?= substr($loan_aproveds->loan_stat_date, 0,10); ?></td>
             <td class="px-4 py-3 dark:text-white"><?= substr($loan_aproveds->loan_end_date, 0,10); ?></td>
             <!-- Amount Paid -->
-            <td class="px-4 py-3 text-green-600 dark:text-green-400"><?= number_format($row_paid); ?></td>
+               <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->loan_status; ?></td>
             <!-- Remaining Debt -->
             <td class="px-4 py-3 <?= $row_remain > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'; ?>"><?= number_format($row_remain); ?></td>
 <td class="px-4 py-3 dark:text-white">
@@ -200,18 +259,18 @@ include_once APPPATH . "views/partials/header.php";
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Phone -->
       
-
-      <!-- Email -->
-    
-
-      <!-- Company Name -->
-	  <?php $date = date("Y-m-d"); ?>  
-
-      <div>
-        <label for="company" class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('from_date'); ?></label>
-		<input type="date" value="<?php echo $date; ?>" name="from"  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-      </div>
-
+                <?php
+                    if ($loan_aproveds->day == 1) {
+                        echo $this->lang->line('daily');
+                    } elseif ($loan_aproveds->day == 7) {
+                        echo $this->lang->line('weekly');
+                    } elseif (in_array($loan_aproveds->day, [28,29,30,31])) {
+                        echo $this->lang->line('monthly');
+                    }
+                    if (!empty($loan_aproveds->session)) {
+                        echo " (" . htmlspecialchars($loan_aproveds->session) . ")";
+                    }
+                ?>
       <!-- Address -->
       <div>
         <label for="address" class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('to_date'); ?></label>

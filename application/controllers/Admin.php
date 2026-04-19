@@ -3953,7 +3953,8 @@ public function loan_withdrawal()
     $formular = $this->queries->get_interestFormular($comp_id);
     $loan_fee_category = $this->queries->get_loanfee_categoryData($comp_id);
     $loan_category = $this->queries->get_loancategory($comp_id);
-
+//   print_r( $disburse);
+// 		       exit();
     // Load view
     $this->load->view('admin/loan_withdrawal', [
         'disburse'             => $disburse,
