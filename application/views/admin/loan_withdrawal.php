@@ -64,7 +64,6 @@ include_once APPPATH . "views/partials/header.php";
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('customer_name'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
-                            <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
                              <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('principal'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_amount'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('duration_type'); ?></th>
@@ -104,7 +103,6 @@ include_once APPPATH . "views/partials/header.php";
             </td>
             <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->phone_no; ?></td>
             <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->blanch_name; ?></td>
-            <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->phone_no; ?></td>
 
             <!-- Principal -->
             <td class="px-4 py-3 dark:text-white"><?= number_format($loan_aproveds->loan_aprove); ?></td>
@@ -153,14 +151,13 @@ include_once APPPATH . "views/partials/header.php";
     <?php endforeach; ?>
 
     <!-- Totals Row -->
- <!-- Totals Row -->
 <tr class="bg-gray-200 dark:bg-gray-800 font-extrabold text-lg">
-    <td colspan="5" class="px-4 py-3 dark:text-white text-right"><?php echo $this->lang->line('total'); ?></td>
+    <td colspan="4" class="px-4 py-3 dark:text-white text-right"><?php echo $this->lang->line('total'); ?></td>
     <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_loan_aprove); ?></td>
     <td class="px-4 py-3 text-blue-700 dark:text-blue-400"><?= number_format($total_loan_int); ?></td>
     <td></td>
     <td class="px-4 py-3 text-purple-700 dark:text-purple-400"><?= number_format($total_restoration); ?></td>
-    <td colspan="3"></td>
+    <td colspan="4"></td>
     <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_paid_all); ?></td>
     <td class="px-4 py-3 text-red-700 dark:text-red-400"><?= number_format($total_remain_all); ?></td>
     <td></td>
