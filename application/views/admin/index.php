@@ -191,6 +191,36 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 
   <!-- 4️⃣ Expired Agreements -->
 
+<a href="<?= base_url('admin/get_expences_notAcceptable'); ?>" class="block">
+  <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
+          🧾 Expenses Request
+        </p>
+      </div>
+      <div class="mt-6 flex items-center justify-between">
+        <h3 class="text-3xl font-bold"><?= number_format(isset($pending_expenses_requests) ? count($pending_expenses_requests) : 0); ?></h3>
+        <span class="flex items-center gap-1 text-green-100 font-medium text-sm">OPEN</span>
+      </div>
+      <p class="mt-3 text-xs text-cyan-100">Click to review requests and accept or refuse.</p>
+  </div>
+</a>
+
+<a href="<?= base_url('admin/get_recomended_request'); ?>" class="block">
+  <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
+          ✅ Accepted Expenses
+        </p>
+      </div>
+      <div class="mt-6 flex items-center justify-between">
+        <h3 class="text-3xl font-bold"><?= number_format(isset($accepted_expenses_requests) ? count($accepted_expenses_requests) : 0); ?></h3>
+        <span class="flex items-center gap-1 text-green-100 font-medium text-sm">ACCEPTED</span>
+      </div>
+      <p class="mt-3 text-xs text-cyan-100">View accepted expenses requests history.</p>
+  </div>
+</a>
+
 
 </div>
 

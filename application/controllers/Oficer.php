@@ -63,6 +63,7 @@ class Oficer extends CI_Controller{
     $comp_recevable = $this->queries->get_total_recevableComp($comp_id);
     $receved = $this->queries->get_sumReceived_amount($comp_id);
     $recomended = $this->queries->get_recomended_expencesnumber($comp_id);
+    $accepted_expences_total = $this->queries->get_sum_requestExpences($comp_id);
     $branch = $this->queries->get_blanchd($comp_id);
 
     $loan_feeClose = $this->queries->get_total_loanFeeCloseBlanch($blanch_id);
@@ -185,7 +186,7 @@ class Oficer extends CI_Controller{
     'total_loan_request'=>$total_loan_request,
     'loan_aproved'=>$loan_aproved,
     'loan_pend'=>$loan_pend,'comp_recevable'=>$comp_recevable,
-    'receved'=>$receved,'recomended'=>$recomended,'branch'=>$branch,
+    'receved'=>$receved,'recomended'=>$recomended,'accepted_expences_total'=>$accepted_expences_total,'branch'=>$branch,
     'loan_feeClose'=>$loan_feeClose,'outstand_loan'=>$outstand_loan,
     'blanch_outstand'=>$blanch_outstand,'loan_aproveClose'=>$loan_aproveClose,
     'withdrawalclose'=>$withdrawalclose,'loan_depostClose'=>$loan_depostClose,
@@ -639,6 +640,8 @@ $this->load->model('queries');
 
 public function create_requstion_form(){
 $this->load->model('queries');
+$empl_id = $this->session->userdata('empl_id');
+$empl_data = $this->queries->get_employee_data($empl_id);
     $this->form_validation->set_rules('blanch_id','Blanch','required');
     $this->form_validation->set_rules('ex_id','Expenses','required');
     $this->form_validation->set_rules('req_amount','Request Amount','required');
@@ -650,8 +653,9 @@ $this->load->model('queries');
     if ($this->form_validation->run()) {
         $data = $this->input->post();
         // echo "<pre>";
-        //  print_r($data);
+        //  print_r($empl_data);
         //        exit();
+        $empl_id = $empl_data->empl_id;
         $blanch_id = $data['blanch_id'];
         $ex_id = $data['ex_id'];
         $req_amount = $data['req_amount'];
@@ -661,14 +665,13 @@ $this->load->model('queries');
 
         $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
         $balance_blanch = $blanch_account->blanch_capital;
-        $remain_blanch_remain = $balance_blanch - $req_amount; 
+
         if ($req_amount > $balance_blanch) {
        $this->session->set_flashdata("error",'Blanch Account Blance is Not Enough');
        return redirect("oficer/expnses_requisition_form");
         }else{
-        $this->insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id);
-        $this->update_blanch_account_balance($comp_id,$blanch_id,$trans_id,$remain_blanch_remain);
-       $this->session->set_flashdata("massage",'Successfully');
+        $this->insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id,$empl_id);
+         $this->session->set_flashdata("massage",'Expenses request submitted and is waiting for manager approval');
        
             }
         return redirect("oficer/expnses_requisition_form");
@@ -677,9 +680,9 @@ $this->load->model('queries');
     }
 
 
-  public function insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id){
+  public function insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id,$empl_id = null){
    $date = date("Y-m-d");
-  $this->db->query("INSERT INTO tbl_request_exp (`comp_id`,`blanch_id`,`ex_id`,`req_description`,`req_amount`,`req_date`,`trans_id`) VALUES ('$comp_id','$blanch_id','$ex_id','$req_description','$req_amount','$date','$trans_id')");  
+  $this->db->query("INSERT INTO tbl_request_exp (`comp_id`,`blanch_id`,`ex_id`,`req_description`,`req_amount`,`req_date`,`trans_id`,`empl_id`) VALUES ('$comp_id','$blanch_id','$ex_id','$req_description','$req_amount','$date','$trans_id','$empl_id')");  
   }
 
   public function update_blanch_account_balance($comp_id,$blanch_id,$trans_id,$remain_blanch_remain){
@@ -694,20 +697,25 @@ $this->load->model('queries');
   public function delete_expences($req_id){
         $this->load->model('queries');
         $rejected = $this->queries->get_expenses_reject($req_id);
+
+      if (empty($rejected)) {
+        $this->session->set_flashdata('error','Request not found');
+        return redirect('oficer/expnses_requisition_form');
+      }
+
         $blanch_id = $rejected->blanch_id;
         $req_amount = $rejected->req_amount;
         $trans_id = $rejected->trans_id;
         $comp_id = $rejected->comp_id;
-       
-       $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
-       $blanch_capital = $blanch_account->blanch_capital;
 
-       $return_balance = $blanch_capital + $req_amount;
+      // Refund only if this request had already been accepted (and deducted).
+      if ($rejected->req_status === 'accept') {
+        $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
+        $blanch_capital = $blanch_account->blanch_capital;
+        $return_balance = $blanch_capital + $req_amount;
+        $this->update_account_balance_remain_data($comp_id,$blanch_id,$trans_id,$return_balance);
+      }
 
-        // echo "<pre>";
-        // print_r($return_balance);
-        //      exit();
-         $this->update_account_balance_remain_data($comp_id,$blanch_id,$trans_id,$return_balance);
         if($this->queries->remove_expences($req_id));
         $this->session->set_flashdata('massage','Expenses rejected successfully');
         return redirect('oficer/expnses_requisition_form');
@@ -746,31 +754,56 @@ $this->load->model('queries');
 
 
     public function expenses_request_accept($req_id){
-          //Prepare array of user data
-        $day = date('Y-m-d');
-            $data = array(
-            'req_comment'=> $this->input->post('req_comment'),
-            'req_amount'=> $this->input->post('req_amount'),
-            'req_status'=> 'accept',
-            'req_date' => $day,
-           
-            );
-            //   echo "<pre>";
-            // print_r($data);
-            //  echo "</pre>";
-            //   exit();
-            
-            //Pass user data to model
-           $this->load->model('queries'); 
-            $data = $this->queries->update_requet_status($req_id,$data);
-            
-            //Storing insertion status message.
-            if($data){
-                $this->session->set_flashdata('massage','Expenses Accepted successfully');
-            }else{
-                $this->session->set_flashdata('error','Data failed!!');
-            }
-            return redirect('oficer/get_recomended_request');
+      $this->load->model('queries');
+      $req = $this->queries->get_get_updated_request($req_id);
+
+      if (empty($req)) {
+        $this->session->set_flashdata('error','Request not found');
+        return redirect('oficer/get_recomended_request');
+      }
+
+      if ($req->req_status === 'accept') {
+        $this->session->set_flashdata('error','This request has already been accepted');
+        return redirect('oficer/get_recomended_request');
+      }
+
+      $day = date('Y-m-d');
+      $approved_amount = (float) $this->input->post('req_amount');
+      $blanch_id = $req->blanch_id;
+      $trans_id = $req->trans_id;
+
+      $accept_balance = $this->queries->get_blanch_accountExpenses($blanch_id, $trans_id);
+      $blanch_balance = !empty($accept_balance) ? (float) $accept_balance->blanch_capital : 0;
+
+      if (empty($accept_balance)) {
+        $this->session->set_flashdata('error','Selected account does not exist');
+        return redirect('oficer/get_recomended_request');
+      }
+
+      if ($approved_amount > $blanch_balance) {
+        $this->session->set_flashdata('error','Balance amount is not enough');
+        return redirect('oficer/get_recomended_request');
+      }
+
+      $removed_expences = $blanch_balance - $approved_amount;
+
+      $data = array(
+        'req_comment' => $this->input->post('req_comment'),
+        'req_amount' => $approved_amount,
+        'req_status' => 'accept',
+        'req_date' => $day,
+      );
+
+      $updated = $this->queries->update_requet_status($req_id, $data);
+
+      if ($updated) {
+        $this->update_blanch_account_balance($req->comp_id, $blanch_id, $trans_id, $removed_expences);
+        $this->session->set_flashdata('massage','Expenses accepted successfully');
+      } else {
+        $this->session->set_flashdata('error','Data failed!!');
+      }
+
+      return redirect('oficer/get_recomended_request');
     }
 
 

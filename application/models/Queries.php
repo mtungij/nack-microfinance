@@ -3502,10 +3502,19 @@ public function get_expences_requestAccepted($comp_id){
 	$expences = $this->db->query("SELECT * FROM tbl_request_exp re LEFT JOIN tbl_expenses e ON e.ex_id = re.ex_id LEFT JOIN tbl_blanch b ON b.blanch_id = re.blanch_id LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id WHERE re.comp_id = '$comp_id' ORDER BY re.req_id DESC");
 	 return $expences->result();
 }
-
 public function get_expences_requestNotDone($comp_id){
-	$expences = $this->db->query("SELECT * FROM tbl_request_exp re LEFT JOIN tbl_expenses e ON e.ex_id = re.ex_id LEFT JOIN tbl_blanch b ON b.blanch_id = re.blanch_id LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id WHERE re.comp_id = '$comp_id' AND re.req_status = 'open' ORDER BY re.req_id DESC");
-	 return $expences->result();
+    $this->db->select('*');
+    $this->db->from('tbl_request_exp re');
+    $this->db->join('tbl_expenses e', 'e.ex_id = re.ex_id', 'left');
+    $this->db->join('tbl_blanch b', 'b.blanch_id = re.blanch_id', 'left');
+    $this->db->join('tbl_account_transaction at', 'at.trans_id = re.trans_id', 'left');
+    $this->db->join('tbl_employee emp', 'emp.empl_id = re.empl_id', 'left');
+
+    $this->db->where('re.comp_id', $comp_id);
+    $this->db->where('re.req_status', 'open');
+    $this->db->order_by('re.req_id', 'DESC');
+
+    return $this->db->get()->result();
 }
 
 public function get_expences_requestBlanch($blanch_id){

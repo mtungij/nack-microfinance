@@ -54,6 +54,8 @@ class Admin extends CI_Controller {
      $receive_Amount = $this->queries->get_sumReceve($comp_id);
      $loan_fee = $this->queries->get_total_loanFee($comp_id);
      $request_expences = $this->queries->get_expencesData($comp_id);
+    $pending_expenses_requests = $this->queries->get_expences_requestNotDone($comp_id);
+    $accepted_expenses_requests = $this->queries->get_expences_requestAccepted($comp_id);
 
      $sum_comp_capital = $this->queries->get_sum_companyBalance($comp_id);
 
@@ -141,7 +143,7 @@ class Admin extends CI_Controller {
 	'total_default_paid'=> $total_default_paid,
 	'total_withdrawal_daily'=> $total_withdrawal_daily,'total_withdrawal_weekly'=> $total_withdrawal_weekly,'total_withdrawal_monthly'=>$total_withdrawal_monthly,
 	'total_overdue'=> $total_overdue,
-	 'employee_count'=> $employee_count,'top_employees'=>$top_employees,'default_customer_count'=>$default_customer_count,'manager_data' => $manager_data,'total_received'=>$total_received,'total_loan_pending'=>$total_loan_pending,'total_loanWithdrawal'=>$total_loanWithdrawal,'today_penart'=>$today_penart,'prepaid_today'=>$prepaid_today,'total_received'=>$total_received,'prepaid_today'=>$prepaid_today,'total_loan_fee'=>$total_loan_fee,'today_income'=>$today_income,'toay_expences'=>$toay_expences,'total_capital'=>$total_capital,'out_float'=>$out_float,'cash_bank'=>$cash_bank,'principal_loan'=>$principal_loan,'done_loan'=>$done_loan,'total_expect'=>$total_expect,'total_receved'=>$total_receved,'cash_depost'=>$cash_depost,'cash_income'=>$cash_income,'cash_expences'=>$cash_expences,'blanch'=>$blanch,'total_remain'=>$total_remain,'today_total_loan_pend'=>$today_total_loan_pend,'loanAprove'=>$loanAprove,'withdrawal'=>$withdrawal,'loan_depost'=>$loan_depost,'receive_Amount'=>$receive_Amount,'loan_fee'=>$loan_fee,'request_expences'=>$request_expences,'sum_comp_capital'=>$sum_comp_capital,'total_deducted_balance'=>$total_deducted_balance,'total_non'=>$total_non,'blanch_capital_circle'=>$blanch_capital_circle]);
+     'employee_count'=> $employee_count,'top_employees'=>$top_employees,'default_customer_count'=>$default_customer_count,'manager_data' => $manager_data,'total_received'=>$total_received,'total_loan_pending'=>$total_loan_pending,'total_loanWithdrawal'=>$total_loanWithdrawal,'today_penart'=>$today_penart,'prepaid_today'=>$prepaid_today,'total_received'=>$total_received,'prepaid_today'=>$prepaid_today,'total_loan_fee'=>$total_loan_fee,'today_income'=>$today_income,'toay_expences'=>$toay_expences,'total_capital'=>$total_capital,'out_float'=>$out_float,'cash_bank'=>$cash_bank,'principal_loan'=>$principal_loan,'done_loan'=>$done_loan,'total_expect'=>$total_expect,'total_receved'=>$total_receved,'cash_depost'=>$cash_depost,'cash_income'=>$cash_income,'cash_expences'=>$cash_expences,'blanch'=>$blanch,'total_remain'=>$total_remain,'today_total_loan_pend'=>$today_total_loan_pend,'loanAprove'=>$loanAprove,'withdrawal'=>$withdrawal,'loan_depost'=>$loan_depost,'receive_Amount'=>$receive_Amount,'loan_fee'=>$loan_fee,'request_expences'=>$request_expences,'pending_expenses_requests'=>$pending_expenses_requests,'accepted_expenses_requests'=>$accepted_expenses_requests,'sum_comp_capital'=>$sum_comp_capital,'total_deducted_balance'=>$total_deducted_balance,'total_non'=>$total_non,'blanch_capital_circle'=>$blanch_capital_circle]);
 	}
 
 
@@ -8258,7 +8260,7 @@ public function create_requstion_form(){
 		
 		//   $blanc_capital_remain = $this->queries->get_blanch_capital_balance($blanch_id,$payment_method);
     	//      echo "<pre>";
-    	//   print_r($account);
+    	//   print_r($data);
     	//          exit();
     	$this->load->view('admin/recomended_request',['data'=>$data,'blanch'=>$blanch,'tota_exp'=>$tota_exp,'account'=>$account]);
     }
@@ -8315,53 +8317,43 @@ $data_exp_category = $this->queries->get_expenses_category_total($comp_id);
 
 
    public function expenses_request_accept($req_id){
-   	$this->load->model('queries');
-   	$req = $this->queries->get_get_updated_request($req_id);
-   	 $blanch_id = $req->blanch_id;
-   	 $comp_id = $req->comp_id;
-   	    // print_r($blanch_id);
-   	    //         exit();
-          //Prepare array of user data
-    	$day = date('Y-m-d');
-            $data = array(
+        $this->load->model('queries');
+        $req = $this->queries->get_get_updated_request($req_id);
+        $blanch_id = $req->blanch_id;
+        $comp_id = $req->comp_id;
+        $day = date('Y-m-d');
+        $data = array(
             'req_comment'=> $this->input->post('req_comment'),
             'req_amount'=> $this->input->post('req_amount'),
             'trans_id'=> $this->input->post('trans_id'),
             'req_status'=> 'accept',
             'req_date' => $day,
-           
-            );
+        );
 
-            $req_amount = $data['req_amount'];
-            $trans_id = $data['trans_id'];
-          
-            //Pass user data to model
-           $this->load->model('queries');
-           $accept_balance = $this->queries->get_blanch_accountExpenses($blanch_id,$trans_id);
-           $blanch_balance = @$accept_balance->blanch_capital;
+        $req_amount = $data['req_amount'];
+        $trans_id = $data['trans_id'];
 
-           $removed_expences = $blanch_balance - $req_amount;
-
-              // print_r($removed_expences);
-              //  exit();
-              if ($blanch_balance == TRUE) {
-               if ($blanch_balance < $req_amount) {
-               	$this->session->set_flashdata("error",'Balance Amount is not Enough');
-               }else{
-            $data = $this->queries->update_requet_status($req_id,$data);
-            //Storing insertion status message.
-            if($data){
-            	$this->withdraw_expences($blanch_id,$trans_id,$removed_expences);
-            	//$this->withdraw_expencesCompbalance($comp_id,$req_amount);
-                $this->session->set_flashdata('massage','Expenses Accepted successfully');
+        // Update request status
+        $update = $this->queries->update_requet_status($req_id, $data);
+        if ($update) {
+            $accept_balance = $this->queries->get_blanch_accountExpenses($blanch_id, $trans_id);
+            $blanch_balance = @$accept_balance->blanch_capital;
+            $removed_expences = $blanch_balance - $req_amount;
+            if ($blanch_balance == TRUE) {
+                if ($blanch_balance < $req_amount) {
+                    $this->session->set_flashdata("error",'Balance Amount is not Enough');
+                } else {
+                    $this->withdraw_expences($blanch_id, $trans_id, $removed_expences);
+                    $this->session->set_flashdata('massage','Expenses Accepted successfully');
+                }
+            } elseif ($blanch_balance == FALSE) {
+                $this->session->set_flashdata("error",'Selected Account Doesnot Exist');
             }
-            }
-        }elseif ($blanch_balance == FALSE) {
-         $this->session->set_flashdata("error",'Selected Account Doesnot Exist');	
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update request status.');
         }
-              
-            return redirect('admin/get_expences_notAcceptable');
-	     }
+        return redirect('admin/get_expences_notAcceptable');
+    }
 
 	public function withdraw_expences($blanch_id,$trans_id,$removed_expences){
   $sqldata="UPDATE `tbl_blanch_account` SET `blanch_capital`= '$removed_expences' WHERE `blanch_id`= '$blanch_id' AND `receive_trans_id`='$trans_id'";

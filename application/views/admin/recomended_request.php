@@ -20,36 +20,8 @@ include_once APPPATH . "views/partials/header.php";
 
 
 <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
-    <div class="w-full">
-        <!-- Start coding here -->
-        <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-            <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-                <div class="w-full md:w-1/2">
-                    <form class="flex items-center">
-                        <label for="simple-search" class="sr-only">Search</label>
-                        <div class="relative w-full">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                              
-                            </div>
-                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" 
-							placeholder="tafuta mteja hapa"
-        data-hs-datatable-search="#shareholder_table"
-        aria-label="Search share holders"
-							>
-                        </div>
-                    </form>
-                </div>
-                <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-				<button type="button" class="flex items-center justify-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-basic-modal">
-    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V4z" clip-rule="evenodd" />
-    </svg>
-    Filter Data
-</button>
+  
 
-                  
-                </div>
-            </div>
             <div class="overflow-x-auto">
                 <table id="shareholder_table"  class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
@@ -63,11 +35,11 @@ include_once APPPATH . "views/partials/header.php";
 							<th scope="col" class="px-4 py-3 dark:text-white">Amount</th>
                             <th scope="col" class="px-4 py-3 dark:text-white">From Account</th>
                            
-							 <!-- <th scope="col" class="px-4 py-3 dark:text-white"></th> -->
+						
                             <th scope="col" class="px-4 py-3 dark:text-white">Date</th>
-							<!-- <th scope="col" class="px-4 py-3 dark:text-white">Loan End Date</th> -->
 
-							<th scope="col" class="px-4 py-3 dark:text-white">Action</th> 
+
+					
                         </tr>
                     </thead>
 					<tbody>
@@ -78,7 +50,7 @@ include_once APPPATH . "views/partials/header.php";
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></th>
             <td class="px-4 py-3 text-gray-900 dark:text-white"><?= $datas->blanch_name; ?></td>
 			 <td class="uppercase text-gray-900 px-4 py-3 dark:text-white">
-               <?= $datas->req_description; ?>
+               <?= $datas->ex_name; ?>
             </td>
             <td class="px-4 py-3 text-gray-900 dark:text-white"><?= $datas->req_amount; ?></td>
             <td class="px-4 py-3 text-gray-900 dark:text-white"><?= $datas->account_name; ?></td>
@@ -87,61 +59,7 @@ include_once APPPATH . "views/partials/header.php";
             <td class="px-4 py-3 dark:text-white"><?php echo $datas->req_date; ?></td>
             
           
-    <td class="px-4 py-3 dark:text-white">
-               <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
-    <!-- dropdown trigger -->
-    <button id="hs-table-action-sh-<?= $datas->req_id; ?>" type="button"
-      class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
-      Action
-      <svg class="hs-dropdown-open:rotate-180 size-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none"
-           xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </button>
-
-    <!-- dropdown menu -->
-    <div
-      class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden divide-y divide-gray-200 min-w-40 z-20 bg-white shadow-2xl rounded-lg p-2 mt-2 dark:divide-gray-700 dark:bg-gray-800 dark:border dark:border-gray-700"
-      aria-labelledby="hs-table-action-sh-<?= $datas->req_id; ?>">
-
-      <!-- view option -->
-      <div class="py-2 first:pt-0 last:pb-0">
-        <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">
-          Choose an option
-        </span>
-        <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-           href="#"
-           data-hs-overlay="#hs-edit-shareholder-modal-<?= $datas->ex_id; ?>">
-          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-          </svg>
-          Accept
-        </a>
-      </div>
-
-
-      <div class="py-2 first:pt-0 last:pb-0">
-        <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
-        href="<?php echo base_url("admin/delete_employee/{$datas->empl_id}") ?>">
-          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="1.5"
-               stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="7.5" cy="6.5" r="3"/>
-            <path d="M2 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/>
-            <rect x="14" y="11" width="8" height="8" rx="1.5"/>
-            <path d="M16 11v-2a3 3 0 0 1 6 0v2"/>
-            <circle cx="18" cy="15" r="1"/>f
-          </svg>
-          Reject
-        </a>
-      </div>
-
-    </div><!-- /.dropdown menu -->
-  </div>
-            </td>
+    
         </tr>
     <?php endforeach; ?>
 

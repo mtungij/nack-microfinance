@@ -1,265 +1,117 @@
-<?php include('incs/header_1.php'); ?>
-<?php include('incs/side_1.php'); ?>
-<?php include('incs/subheader.php'); ?>
-	
 
-
-<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor">					
-<!-- begin:: Subheader -->
-<div class="kt-subheader   kt-grid__item" id="kt_subheader">
-   
-</div>
-<!-- end:: Subheader -->										
-<!-- begin:: Content -->
-<!-- begin:: Content -->
-
-
-<div class="kt-content  kt-grid__item kt-grid__item--fluid" id="kt_content">
-	<!--begin::Portlet-->
-	<?php if ($das = $this->session->flashdata('massage')): ?>
-	  <div class="alert alert-success fade show alert-success" role="alert">
-                            <div class="alert-icon"><i class="flaticon2-check-mark"></i></div>
-                            <div class="alert-text"><?php echo $das;?></div>
-                            <div class="alert-close">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true"><i class="la la-close"></i></span>
-                                </button>
-                            </div>
-                  </div>
-         <?php endif; ?>
-
-         <?php if ($das = $this->session->flashdata('error')): ?>
-	  <div class="alert alert-danger fade show alert-danger" role="alert">
-                            <div class="alert-icon"><i class="flaticon2-delete"></i></div>
-                            <div class="alert-text"><?php echo $das;?></div>
-                            <div class="alert-close">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true"><i class="la la-close"></i></span>
-                                </button>
-                            </div>
-                  </div>
-         <?php endif; ?>
-
-
-
-<div class="kt-portlet kt-portlet--mobile">
-	<div class="kt-portlet__head kt-portlet__head--lg">
-		<?php echo form_open("admin/get_expnces_blanch"); ?>
-		<div class="kt-portlet__head-label">
-			<span class="kt-portlet__head-icon">
-				<i class="kt-font-brand flaticon-list-2"></i>
-			</span>
-			<h3 class="kt-portlet__head-title">
-				Recomended Expences list
-			</h3>
-			
-			&nbsp;&nbsp;&nbsp;
-			<h3 class="kt-portlet__head-title">
-				<span>Select Branch</span>
-				<select type="blanch_id" name="blanch_id" class="form-control">
-					<option value="">Select Branch</option>
-					<?php foreach ($blanch as $blanchs): ?>
-					<option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?></option>
-					<?php endforeach; ?>
-				</select>
-
-			</h3>
-			    <h3 class="kt-portlet__head-title">
-				<br>
-				<button type="submit" class="btn btn-primary">Get Data</button>
-			</h3>
+<?php
+include_once APPPATH . "views/partials/header.php";
+?>
+<div class="w-full min-h-screen bg-gray-50 lg:ps-64">
+	<div class="p-4 sm:p-8 max-w-7xl mx-auto">
+		<div class="mb-8">
+			<h1 class="text-2xl font-bold text-gray-800">Today's Expenses Requests</h1>
+			<p class="text-gray-500 mt-1">Below are all expense requests submitted today.</p>
 		</div>
-		<?php echo form_close(); ?>
-		<div class="kt-portlet__head-toolbar">
-            <div class="kt-portlet__head-wrapper">
-	<div class="kt-portlet__head-actions">
 
-	
-		&nbsp;
-		
-		<a href="" class="btn btn-info" class="kt-nav__link" data-toggle="modal" data-target="#kt_modal_4"><i class="kt-menu__link-icon flaticon2-search-1"></i>Filter</a>
-
-		&nbsp;
-		<a href="<?php echo base_url("admin/print_all_request"); ?>" class="btn btn-brand btn-elevate btn-icon-sm" target="_blank">
-			<i class="flaticon-technology"></i>
-			print All  Expences
-		</a>
-	</div>	
-</div>		</div>
-	</div>
-
-	<div class="kt-portlet__body">
-		<!--begin: Datatable -->
-		<table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
-									     <thead>
-			  						          <tr>
-			  						          	<th>Branch</th>
-				  							    <th>Expenses</th>
-				  							    <th>Amount</th>
-												<th>Descrption </th>
-												<th>Comment</th>
-												<th>Date</th>
-												<th>status</th>
-												<th>Action</th>
-				  									
-				  									
-				  						         </tr>
-						                  </thead>
-			
-								    <tbody>
-                                          <?php $no = 1; ?>
-									<?php foreach ($data as $datas): ?>
-									          <tr>
-				  					<td><?php echo $datas->blanch_name; ?></td>
-				  					<td><?php echo $datas->ex_name; ?></td>
-				  					<td><?php echo number_format($datas->req_amount); ?></td>
-				  					<td><?php echo $datas->req_description; ?></td>
-				  					 <td><?php echo $datas->req_comment; ?></td>
-				  					 <td><?php echo $datas->req_date; ?></td>
-				  					<td>
-				  						<?php if($datas->req_status == 'open'){ ?>
-				  				<a href="#" class="badge badge-danger ">Not Accepted</a>
-				  			<?php }elseif ($datas->req_status == 'accept') {
-				  			 ?>
-				  			 <a href="#" class="badge badge-success ">Accepted</a>
-				  			 <?php } ?>
-				  					</td>
-				  					
-				  				<td>	
-	<div class="dropdown dropdown-inline">
-			<button type="button" class="btn btn-info  btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<i class=""></i> Action  	
-			</button>
-			<div class="dropdown-menu dropdown-menu-right">
-				<ul class="kt-nav">
-					<li class="kt-nav__section kt-nav__section--first">
-						<span class="kt-nav__section-text">Choose an option</span>
-					</li>
-					<li class="kt-nav__item">
-						<a href="#" class="kt-nav__link" data-toggle="modal" data-target="#kt_modal_1<?php echo $datas->req_id; ?>">
-							<i class="kt-nav__link-icon flaticon2-check-mark" ></i>
-							<span class="kt-nav__link-text">Accept</span>
-						</a>
-					</li>
-					<li class="kt-nav__item">
-						<a href="<?php echo base_url("admin/delete_expences/{$datas->req_id}") ?>" class="kt-nav__link">
-							<i class="kt-nav__link-icon flaticon-close" ></i>
-							<span class="kt-nav__link-text" onclick="return confirm('Are you sure?')">Reject</span>
-						</a>
-					</li>
-				</ul>
-			</div>
-	</div>
-</td>			  											  							
-</tr>
-
-<div class="modal fade" id="kt_modal_1<?php echo $datas->req_id; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Expences Accept Comment</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <?php echo form_open("admin/expenses_request_accept/{$datas->req_id}"); ?>
-                    <div class="form-group">
-                        <label for="recipient-name" class="form-control-label">*Comment:</label>
-                        <textarea type="text" class="form-control" rows="4" autocomplete="off" name="req_comment" value="<?php //echo $blanchs->blanch_name; ?>"></textarea>
-                         <label for="recipient-name" class="form-control-label">*Amount:</label>
-                        <input type="number" class="form-control" required autocomplete="off" name="req_amount" value="<?php echo $datas->req_amount; ?>">
-                        <label>Branch Account</label>
-                        <select type="number" class="form-control" name="trans_id" required>
-                        	<option value="">Select Branch Account</option>
-                        	<?php foreach ($account as $accounts): ?>
-                        	<option value="<?php echo $accounts->trans_id; ?>"><?php echo $accounts->account_name; ?></option>
-                        	<?php endforeach; ?>
-                        </select>
-                    </div>  
-            </div>
-            <div class="modal-footer">
-               
-                <button type="submit" class="btn btn-primary">Accept</button>
-
-            </div>
-            <?php echo form_close(); ?>
-        </div>
-    </div>
-</div>
-<!--end::Modal-->
-
-<?php endforeach; ?>
-									
-	                </tbody>
-	                <tfoot>
-                    <tr>
-                   	<th>TOTAL</th>
-				    <th></th>
-				    <th><?php echo number_format($tota_exp->total_expences); ?></th>
-				    <th></th>
-				    <th></th>
-				    <th></th>
-				     <th></th>
-				     <th></th>
-                    </tr>
-                   </tfoot>
-                   </table>
-		<!--end: Datatable -->
+		<?php if (!empty($data)): ?>
+		<div class="overflow-x-auto bg-white shadow rounded-lg">
+			<table class="min-w-full divide-y divide-gray-200">
+				<thead class="bg-gray-100">
+					<tr>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Branch</th>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Employee</th>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Expense</th>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Amount</th>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Description</th>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Comment</th>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+						<th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Action</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-100">
+					<?php foreach ($data as $row): ?>
+						<?php if ($row->req_status !== 'open') continue; ?>
+					<tr>
+						<td class="px-4 py-2 whitespace-nowrap"> <?php echo $row->blanch_name; ?> </td>
+						<td class="px-4 py-2 whitespace-nowrap"> <?php echo isset($row->empl_name) ? $row->empl_name : '-'; ?> </td>
+						<td class="px-4 py-2 whitespace-nowrap"> <?php echo $row->ex_name; ?> </td>
+						<td class="px-4 py-2 whitespace-nowrap"> <?php echo number_format($row->req_amount); ?> </td>
+						<td class="px-4 py-2">
+							<?php
+								$desc = $row->req_description;
+								$desc_short = mb_strimwidth($desc, 0, 40, '...');
+								$desc_id = 'descModal_' . $row->req_id;
+							?>
+							<span><?php echo htmlspecialchars($desc_short); ?></span>
+							<?php if (mb_strlen($desc) > 40): ?>
+								<button type="button" class="ml-2 text-blue-600 hover:underline text-xs" onclick="document.getElementById('<?php echo $desc_id; ?>').classList.remove('hidden')">View More</button>
+								<!-- Modal for full description -->
+								<div id="<?php echo $desc_id; ?>" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-modal="true" role="dialog">
+									<div class="flex items-center justify-center min-h-screen px-4">
+										<div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
+											<div class="flex justify-between items-center mb-4">
+												<h3 class="text-lg font-semibold text-gray-800">Full Description</h3>
+												<button type="button" class="text-gray-500 hover:text-gray-700 text-2xl leading-none" onclick="document.getElementById('<?php echo $desc_id; ?>').classList.add('hidden')">&times;</button>
+											</div>
+											<div class="text-gray-700 whitespace-pre-line"><?php echo nl2br(htmlspecialchars($desc)); ?></div>
+										</div>
+									</div>
+								</div>
+							<?php endif; ?>
+						</td>
+						<td class="px-4 py-2"> <?php echo $row->req_comment; ?> </td>
+						<td class="px-4 py-2"> <?php echo $row->req_date; ?> </td>
+						<td class="px-4 py-2">
+							<?php if($row->req_status == 'open'): ?>
+								<span class="inline-block px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded">Not Accepted</span>
+							<?php elseif($row->req_status == 'accept'): ?>
+								<span class="inline-block px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded">Accepted</span>
+							<?php endif; ?>
+						</td>
+						<td class="px-4 py-2">
+							<!-- Example action: Accept/Reject buttons (customize as needed) -->
+							<div class="flex gap-2">
+								<button type="button" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition" onclick="document.getElementById('acceptModal_<?php echo $row->req_id; ?>').classList.remove('hidden')">Accept</button>
+																<!-- Accept Modal -->
+																<div id="acceptModal_<?php echo $row->req_id; ?>" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-modal="true" role="dialog">
+																	<div class="flex items-center justify-center min-h-screen px-4">
+																		<div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+																			<div class="flex justify-between items-center mb-4">
+																				<h3 class="text-lg font-semibold text-gray-800">Accept or Reduce Amount</h3>
+																				<button type="button" class="text-gray-500 hover:text-gray-700 text-2xl leading-none" onclick="document.getElementById('acceptModal_<?php echo $row->req_id; ?>').classList.add('hidden')">&times;</button>
+																			</div>
+																			<?php echo form_open('admin/expenses_request_accept/' . $row->req_id); ?>
+																				<div class="mb-4">
+																					<label for="accept_amount_<?php echo $row->req_id; ?>" class="block text-sm font-medium mb-2 text-gray-700">Amount to Approve</label>
+																					<input id="accept_amount_<?php echo $row->req_id; ?>" name="req_amount" type="number" min="0" max="<?php echo $row->req_amount; ?>" value="<?php echo $row->req_amount; ?>" required class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 bg-white">
+																					<p class="text-xs text-gray-500 mt-1">Original request: <span class="font-semibold"><?php echo number_format($row->req_amount); ?></span></p>
+																				</div>
+																				<!-- Branch Account field removed as requested -->
+																				<div class="mb-4">
+																					<label for="accept_comment_<?php echo $row->req_id; ?>" class="block text-sm font-medium mb-2 text-gray-700">Comment (optional)</label>
+																					<textarea id="accept_comment_<?php echo $row->req_id; ?>" name="req_comment" rows="2" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 bg-white"></textarea>
+																				</div>
+																				<div class="flex justify-end gap-2">
+																					<button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" onclick="document.getElementById('acceptModal_<?php echo $row->req_id; ?>').classList.add('hidden')">Cancel</button>
+																					<button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Accept</button>
+																				</div>
+																			<?php echo form_close(); ?>
+																		</div>
+																	</div>
+																</div>
+								<a href="#" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition">Reject</a>
+							</div>
+						</td>
+					</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+		<?php else: ?>
+		<div class="flex flex-col items-center justify-center py-24">
+			<svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v2M9 17v2a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4v-2M9 17H7a4 4 0 0 1-4-4v-2a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v2"></path></svg>
+			<p class="text-gray-500 text-lg">No expenses requests found for today.</p>
+		</div>
+		<?php endif; ?>
 	</div>
 </div>
-</div>
-<!-- end:: Content -->
-<!-- end:: Content -->
-				</div>				
-				
-<?php include('incs/footer_1.php') ?>
 
+<?php include_once APPPATH . "views/partials/footer.php"; ?>
 
-<div class="modal fade" id="kt_modal_4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xs" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Filter cash transaction By</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <?php echo form_open("admin/previous_expences"); ?>
-
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-lg-12">
-                            <label class="form-control-label">*Select Branch:</label>
-                            <select class="form-control kt-selectpicker" name="blanch_id" required data-live-search="true">
-                                   <option value="">Select Branch</option>
-                                    <?php foreach ($blanch as $blanchs): ?>
-                                <option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?> </option>
-                                    <?php endforeach; ?>
-                                </select>
-                               
-                        </div>
-                         
-                          <input type="hidden" name="comp_id" value="<?php echo $_SESSION['comp_id']; ?>">  
-                        <?php $date = date("Y-m-d"); ?>
-                      <div class="col-lg-6">
-                          <label class="form-control-label">*From:</label>
-                            <input type="date" name="from" value="<?php echo $date; ?>" class="form-control">
-                        </div>
-                         <div class="col-lg-6">
-                          <label class="form-control-label">*To:</label>
-                            <input type="date" name="to" value="<?php echo $date; ?>" class="form-control">
-                        </div>
-                    </div>  
-                 </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Filter Data</button>
-            </div>
-            <?php echo form_close(); ?>
-        </div>
-    </div>
-</div>
-<!--end::Modal-->
-</div>
-
-
-<!--end::Modal-->

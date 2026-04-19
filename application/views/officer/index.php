@@ -579,7 +579,7 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                 </div>
             </div>
             <div class="p-4 md:p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
                     <?php
                     // --- DUMMY DATA for quick stats - REMOVE and use controller data ---
                     // TODO: !! IMPORTANT, COMMENTED THESE BECAUSE OF TABLE MISSING ERROR, SHOULD BE UNCOMMENTED
@@ -615,28 +615,33 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                         <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('new_loan_applications'); ?></p>
                     </a>
 
-                    <!-- Stat Card: Approved Loans -->
-                    <!-- <a href="<?php echo base_url("oficer/get_loan_aproved"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div class="flex items-center gap-x-3 mb-3">
-                        <?php
-							$ap = $this->db->query("SELECT * FROM tbl_loans WHERE comp_id = '$comp_id' AND loan_status = 'aproved'");
-							 ?>
-                         
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('approved_loans'); ?></h2>
-                        </div>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400"> <?= count($approved_customer) ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('loans_awaiting_disbursement'); ?></p>
-                    </a> -->
-
-					<a href="<?php echo base_url("oficer/disburse_loan"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+					<a href="<?php echo base_url("oficer/get_loan_aproved"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                        
                             <!-- <img src="</?php echo base_url('assets/img/aproved.png'); ?>" class="size-10" alt="Approved Loans"> -->
               <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('approved_loans'); ?></h2>
                         </div>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400"> <?= $disbursed_customer ?></p>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400"><?= is_array($approved_customer) ? count($approved_customer) : 0; ?></p>
             <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('loans_awaiting_disbursement'); ?></p>
                     </a>
+
+                      <!-- Stat Card: Expenses Request -->
+                      <a href="<?php echo base_url("oficer/get_recomended_request"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div class="flex items-center gap-x-3 mb-3">
+                          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Expenses Request</h2>
+                        </div>
+                        <p class="text-2xl font-bold text-orange-600 dark:text-orange-400"><?php echo isset($recomended->expences_request) ? (int) $recomended->expences_request : 0; ?></p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Pending expense approvals</p>
+                      </a>
+
+                      <!-- Stat Card: Accepted Expenses Amount -->
+                      <a href="<?php echo base_url("oficer/get_accepted_expencess"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div class="flex items-center gap-x-3 mb-3">
+                          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Accepted Expenses</h2>
+                        </div>
+                        <p class="text-2xl font-bold text-cyan-600 dark:text-cyan-400"><?php echo number_format(isset($accepted_expences_total->total_request) ? $accepted_expences_total->total_request : 0); ?></p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Total accepted expenses amount</p>
+                      </a>
 
                     <!-- Stat Card: Today Loan Pending -->
                      <a href="<?php echo base_url("oficer/loan_pending_time"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
