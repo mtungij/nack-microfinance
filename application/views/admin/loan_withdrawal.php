@@ -64,7 +64,7 @@ include_once APPPATH . "views/partials/header.php";
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('customer_name'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
-                            <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
+                            <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('ps_loan_code'); ?></th>
                              <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('principal'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_amount'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('duration_type'); ?></th>
@@ -104,7 +104,7 @@ include_once APPPATH . "views/partials/header.php";
             </td>
             <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->phone_no; ?></td>
             <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->blanch_name; ?></td>
-            <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->phone_no; ?></td>
+            <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->loan_code; ?></td>
 
             <!-- Principal -->
             <td class="px-4 py-3 dark:text-white"><?= number_format($loan_aproveds->loan_aprove); ?></td>
