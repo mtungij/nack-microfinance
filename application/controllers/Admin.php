@@ -3935,10 +3935,11 @@ public function loan_withdrawal()
 
     // Collect filters safely
     $filters = [
-        'blanch_id' => $this->input->post('blanch_id', true),
-        'from'      => $this->input->post('from', true),
-        'to'        => $this->input->post('to', true),
-        'loan_name' => $this->input->post('loan_name', true),
+        'blanch_id'   => $this->input->post('blanch_id', true),
+        'from'        => $this->input->post('from', true),
+        'to'          => $this->input->post('to', true),
+        'loan_name'   => $this->input->post('loan_name', true),
+        'loan_status' => $this->input->post('loan_status', true),
     ];
 
     // Fetch filtered data
@@ -4051,10 +4052,11 @@ public function get_blanch_withdraw()
 
     // Get POSTed filter values
     $filters = [
-        'blanch_id'  => $this->input->post('blanch_id'),
-        'from'       => $this->input->post('from'),
-        'to'         => $this->input->post('to'),
-        'paid_today' => $this->input->post('paid_today'),
+        'blanch_id'   => $this->input->post('blanch_id'),
+        'from'        => $this->input->post('from'),
+        'to'          => $this->input->post('to'),
+        'paid_today'  => $this->input->post('paid_today'),
+        'loan_status' => $this->input->post('loan_status'),
     ];
 
     // Fetch filtered loans

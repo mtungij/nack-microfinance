@@ -937,3 +937,9 @@ $lang['ps_total_deficit'] = 'Jumla ya Upungufu';
 $lang['ps_no_schedule'] = 'Hakuna data ya ratiba kwa mkopo huu.';
 $lang['ps_select_customer_first'] = 'Chagua mteja kuona mikopo yake.';
 $lang['ps_no_loans'] = 'Hakuna mikopo iliyopatikana kwa mteja huyu.';
+
+$lang['status_active'] = 'Inaendelea';
+$lang['status_full_paid'] = 'Imelipwa';
+$lang['status_expired'] = 'Imeisha';
+$lang['all_loans'] = 'Mikopo Yote';
+$lang['loan_withdrawal_subtitle'] = 'Mikopo yote iliyotolewa na hali zao za sasa.';
