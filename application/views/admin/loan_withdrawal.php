@@ -89,18 +89,19 @@ include_once APPPATH . "views/partials/header.php";
                     </thead>
 					<tbody id="loan-table-body">
     <!-- Skeleton loader rows (shown while page loads) -->
+    <?php $skeleton_cols = 17; // matches total number of table columns ?>
     <tr id="skeleton-loader">
-        <?php for ($s = 0; $s < 17; $s++): ?>
+        <?php for ($s = 0; $s < $skeleton_cols; $s++): ?>
         <td class="px-4 py-3"><div class="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse"></div></td>
         <?php endfor; ?>
     </tr>
     <tr class="skeleton-row">
-        <?php for ($s = 0; $s < 17; $s++): ?>
+        <?php for ($s = 0; $s < $skeleton_cols; $s++): ?>
         <td class="px-4 py-3"><div class="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-3/4"></div></td>
         <?php endfor; ?>
     </tr>
     <tr class="skeleton-row">
-        <?php for ($s = 0; $s < 17; $s++): ?>
+        <?php for ($s = 0; $s < $skeleton_cols; $s++): ?>
         <td class="px-4 py-3"><div class="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-2/3"></div></td>
         <?php endfor; ?>
     </tr>
