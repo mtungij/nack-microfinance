@@ -5,8 +5,16 @@ include_once APPPATH . "views/partials/header.php";
 
 
 <div class="w-full lg:ps-64">
-  <div class="= overflow-x-auto">
+  <div class="overflow-x-auto">
 
+   <div class="mb-6 mr-1.5 px-3 pt-4">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
+            <?php echo $this->lang->line('loan_withdrawal'); ?>
+        </h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <?php echo $this->lang->line('loan_withdrawal_subtitle'); ?>
+        </p>
+    </div>
 
 <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
     <div class="w-full">
@@ -75,11 +83,29 @@ include_once APPPATH . "views/partials/header.php";
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_end_date'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('amount_paid'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('remain_debt'); ?></th>
-
+                            <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_status'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th> 
                         </tr>
                     </thead>
-					<tbody>
+					<tbody id="loan-table-body">
+    <!-- Skeleton loader rows (shown while page loads) -->
+    <?php $skeleton_cols = 17; // matches total number of table columns ?>
+    <tr id="skeleton-loader">
+        <?php for ($s = 0; $s < $skeleton_cols; $s++): ?>
+        <td class="px-4 py-3"><div class="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse"></div></td>
+        <?php endfor; ?>
+    </tr>
+    <tr class="skeleton-row">
+        <?php for ($s = 0; $s < $skeleton_cols; $s++): ?>
+        <td class="px-4 py-3"><div class="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-3/4"></div></td>
+        <?php endfor; ?>
+    </tr>
+    <tr class="skeleton-row">
+        <?php for ($s = 0; $s < $skeleton_cols; $s++): ?>
+        <td class="px-4 py-3"><div class="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-2/3"></div></td>
+        <?php endfor; ?>
+    </tr>
+    
     <?php
     $no = 1;
     $total_loan_aprove = 0;
@@ -137,6 +163,19 @@ include_once APPPATH . "views/partials/header.php";
             <td class="px-4 py-3 text-green-600 dark:text-green-400"><?= number_format($row_paid); ?></td>
             <!-- Remaining Debt -->
             <td class="px-4 py-3 <?= $row_remain > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'; ?>"><?= number_format($row_remain); ?></td>
+            <!-- Loan Status Badge -->
+            <td class="px-4 py-3">
+                <?php
+                    $ls = $loan_aproveds->loan_status ?? '';
+                    if ($ls === 'withdrawal') {
+                        echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300">' . $this->lang->line('status_active') . '</span>';
+                    } elseif ($ls === 'done') {
+                        echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">' . $this->lang->line('status_full_paid') . '</span>';
+                    } elseif ($ls === 'out') {
+                        echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">' . $this->lang->line('status_expired') . '</span>';
+                    }
+                ?>
+            </td>
 <td class="px-4 py-3 dark:text-white">
     <a href="<?= base_url("admin/delete_loanwith/{$loan_aproveds->loan_id}") ?>" 
        class="text-red-600 hover:text-red-900 flex items-center gap-1" 
@@ -164,6 +203,7 @@ include_once APPPATH . "views/partials/header.php";
     <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_paid_all); ?></td>
     <td class="px-4 py-3 text-red-700 dark:text-red-400"><?= number_format($total_remain_all); ?></td>
     <td></td>
+    <td></td>
 </tr>
 
 
@@ -188,6 +228,17 @@ include_once APPPATH . "views/partials/header.php";
       </div>
 	  <?php echo form_open("admin/get_blanch_withdraw"); ?>
   <div class="p-4 overflow-y-auto space-y-4">
+
+    <!-- Loan Status Filter -->
+    <div>
+      <label for="loan_status" class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('loan_status'); ?></label>
+      <select name="loan_status" id="loan_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <option value=""><?php echo $this->lang->line('all_statuses'); ?></option>
+        <option value="withdrawal" <?php echo (isset($filters['loan_status']) && $filters['loan_status'] === 'withdrawal') ? 'selected' : ''; ?>><?php echo $this->lang->line('status_active'); ?></option>
+        <option value="done" <?php echo (isset($filters['loan_status']) && $filters['loan_status'] === 'done') ? 'selected' : ''; ?>><?php echo $this->lang->line('status_full_paid'); ?></option>
+        <option value="out" <?php echo (isset($filters['loan_status']) && $filters['loan_status'] === 'out') ? 'selected' : ''; ?>><?php echo $this->lang->line('status_expired'); ?></option>
+      </select>
+    </div>
 
     <!-- Gender Dropdown -->
     <div>
@@ -289,6 +340,14 @@ $('#empl').html('<option value="">Select Employee</option>');
 });
 </script>
 
+
+  <script>
+// Hide skeleton loader rows once the real data rows are available
+document.addEventListener('DOMContentLoaded', function() {
+    var skeletonRows = document.querySelectorAll('#skeleton-loader, .skeleton-row');
+    skeletonRows.forEach(function(row) { row.style.display = 'none'; });
+});
+</script>
 
   <?php // Script for cmd+a fix for DataTables search input (if used) ?>
   <script>

@@ -1368,16 +1368,18 @@ public function get_total_pay_description_acount_statement($loan_id)
     $this->db->join('tbl_account_transaction at', 'at.trans_id = l.method', 'left');
 
     $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
 
-    // Date logic
+    // Filter by loan_status if specified, otherwise show all disbursed statuses
+    if (!empty($filters['loan_status'])) {
+        $this->db->where('l.loan_status', $filters['loan_status']);
+    } else {
+        $this->db->where_in('l.loan_status', ['withdrawal', 'done', 'out']);
+    }
+
+    // Apply date filter only if explicitly provided
     if (!empty($filters['from']) && !empty($filters['to'])) {
         $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
         $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
-    } else {
-        $today = date('Y-m-d');
-        $this->db->where('ot.loan_stat_date >=', $today . ' 00:00:00');
-        $this->db->where('ot.loan_stat_date <=', $today . ' 23:59:59');
     }
 
     if (!empty($filters['blanch_id'])) {
@@ -1474,7 +1476,13 @@ public function get_sum_loanwithdrawal_data_filtered($comp_id, $filters = [])
     $this->db->from('tbl_loans l');
     $this->db->join('tbl_outstand ot', 'ot.loan_id = l.loan_id', 'left');
     $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
+
+    // Filter by loan_status if specified, otherwise sum all disbursed statuses
+    if (!empty($filters['loan_status'])) {
+        $this->db->where('l.loan_status', $filters['loan_status']);
+    } else {
+        $this->db->where_in('l.loan_status', ['withdrawal', 'done', 'out']);
+    }
 
     // Filter by branch
     if (!empty($filters['blanch_id'])) {
@@ -1485,10 +1493,6 @@ public function get_sum_loanwithdrawal_data_filtered($comp_id, $filters = [])
     if (!empty($filters['from']) && !empty($filters['to'])) {
         $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
         $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
-    } else {
-        // Default: today
-        $today = date("Y-m-d");
-        $this->db->where('DATE(ot.loan_stat_date)', $today);
     }
 
     return $this->db->get()->row()->loan_aprove ?? 0;
@@ -1509,7 +1513,13 @@ public function get_withdrawal_Loan_filtered($comp_id, $filters = [])
     $this->db->join('tbl_account_transaction at', 'at.trans_id = l.method', 'left');
 
     $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
+
+    // Filter by loan_status if specified, otherwise show all disbursed statuses
+    if (!empty($filters['loan_status'])) {
+        $this->db->where('l.loan_status', $filters['loan_status']);
+    } else {
+        $this->db->where_in('l.loan_status', ['withdrawal', 'done', 'out']);
+    }
 
     // Apply filters if provided
     if (!empty($filters['blanch_id'])) {
@@ -1544,7 +1554,13 @@ public function get_sum_loanwithdrawal_interest_filtered($comp_id, $filters = []
     $this->db->join('tbl_outstand ot', 'ot.loan_id = l.loan_id', 'left');
 
     $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
+
+    // Filter by loan_status if specified, otherwise sum all disbursed statuses
+    if (!empty($filters['loan_status'])) {
+        $this->db->where('l.loan_status', $filters['loan_status']);
+    } else {
+        $this->db->where_in('l.loan_status', ['withdrawal', 'done', 'out']);
+    }
 
     // Apply filters if provided
     if (!empty($filters['blanch_id'])) {

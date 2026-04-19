@@ -937,3 +937,9 @@ $lang['ps_total_deficit'] = 'Total Deficit';
 $lang['ps_no_schedule'] = 'No schedule data available for this loan.';
 $lang['ps_select_customer_first'] = 'Select a customer to view their loans.';
 $lang['ps_no_loans'] = 'No loans found for this customer.';
+
+$lang['status_active'] = 'Active';
+$lang['status_full_paid'] = 'Full Paid';
+$lang['status_expired'] = 'Expired';
+$lang['all_loans'] = 'All Loans';
+$lang['loan_withdrawal_subtitle'] = 'All disbursed loans with their current status.';
