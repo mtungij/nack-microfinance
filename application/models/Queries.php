@@ -3055,16 +3055,17 @@ public function update_account($account_id,$data){
 
    public function get_loan_customer($customer_id) {
     $data = $this->db->query("
-        SELECT * 
+        SELECT l.*, c.f_name, c.m_name, c.l_name, c.phone_no, c.customer_code, c.passport,
+               b.blanch_name, lc.loan_name, at.account_name
         FROM tbl_loans l
         JOIN tbl_customer c ON c.customer_id = l.customer_id
         JOIN tbl_blanch b ON b.blanch_id = l.blanch_id
-        JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id
-        JOIN tbl_account_type at ON at.account_id = sc.account_id
+        LEFT JOIN tbl_sub_customer sc ON sc.customer_id = c.customer_id
+        LEFT JOIN tbl_account_type at ON at.account_id = sc.account_id
         JOIN tbl_loan_category lc ON lc.category_id = l.category_id
-        LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
-        LEFT JOIN tbl_depost d ON d.loan_id = l.loan_id
         WHERE l.customer_id = ?
+        GROUP BY l.loan_id
+        ORDER BY l.loan_id DESC
     ", array($customer_id));
 
     return $data->result();

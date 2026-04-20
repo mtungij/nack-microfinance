@@ -12530,9 +12530,13 @@ if (!$this->session->userdata("comp_id"))
     /**
      * Step 2: Show full payment + penalty statement for a loan
      */
-    public function payment_statement_detail($loan_id) {
+    public function payment_statement_detail($loan_id = null) {
         $this->load->model('queries');
         $comp_id = $this->session->userdata('comp_id');
+        if (empty($loan_id)) {
+            $this->session->set_flashdata('error', 'Loan ID is required');
+            return redirect('admin/payment_statement_search');
+        }
         $loan_id = (int) $loan_id;
 
         $loan = $this->queries->get_loan_statement_info($loan_id, $comp_id);
