@@ -2668,6 +2668,9 @@ $comp_phone = $compdata->comp_number;
     	 $loan_form = $this->queries->get_loanform($customer_id,$comp_id);
     	 $loan_id = $loan_form->loan_id;
     	 $sponser_detail = $this->queries->get_sponser_by_loan($loan_id);
+    	 if (empty($sponser_detail)) {
+    	     $sponser_detail = $this->queries->get_sponser_data($customer_id, $comp_id);
+    	 }
     	 $collateral = $this->queries->get_colateral_data($loan_id);
          $local_oficer = $this->queries->get_loacagovment_data($loan_id);
     	 $group = $this->queries->get_groupLoan_detail($loan_id);
@@ -2687,6 +2690,9 @@ $comp_phone = $compdata->comp_number;
     	 $loan_form = $this->queries->get_formloanData($customer_id,$comp_id);
     	 $loan_id = $loan_form->loan_id;
     	 $sponser_detail = $this->queries->get_sponser_by_loan($loan_id);
+    	 if (empty($sponser_detail)) {
+    	     $sponser_detail = $this->queries->get_sponser_data($customer_id, $comp_id);
+    	 }
     	 $collateral = $this->queries->get_colateral_data($loan_id);
          $local_oficer = $this->queries->get_loacagovment_data($loan_id);
          $inc_history = $this->queries->get_loanIncomeHistory($loan_id);
@@ -12641,6 +12647,9 @@ if (!$this->session->userdata("comp_id"))
 
         // Sponsors & Collateral for tabs
         $sponsors   = $this->queries->get_sponser_by_loan($loan_id);
+        if (empty($sponsors)) {
+            $sponsors = $this->queries->get_sponser_data($loan->customer_id, $comp_id);
+        }
         $collateral = $this->queries->get_colateral_data($loan_id);
 
         $this->load->view('admin/payment_statement_detail', [
