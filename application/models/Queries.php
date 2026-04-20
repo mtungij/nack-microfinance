@@ -3055,7 +3055,7 @@ public function update_account($account_id,$data){
 
    public function get_loan_customer($customer_id) {
     $data = $this->db->query("
-        SELECT l.*, c.f_name, c.m_name, c.l_name, c.phone_no, c.customer_code, c.passport,
+        SELECT l.*, c.f_name, c.m_name, c.l_name, c.phone_no, c.customer_code,
                b.blanch_name, lc.loan_name, at.account_name
         FROM tbl_loans l
         JOIN tbl_customer c ON c.customer_id = l.customer_id
