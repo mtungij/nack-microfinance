@@ -151,7 +151,7 @@ public function get_position(){
 	 return $pos->result();
 }
 
-public function update_employee_links($employee_id, $link_ids)
+public function update_employee_links($employee_id, $link_ids, $actions = [])
 {
     // Clear current permissions
     $this->db->where('employee_id', $employee_id);
@@ -162,7 +162,10 @@ public function update_employee_links($employee_id, $link_ids)
         foreach ($link_ids as $link_id) {
             $this->db->insert('tbl_permission', [
                 'employee_id' => $employee_id,
-                'link_id'     => $link_id
+                'link_id'     => $link_id,
+                'can_view'    => isset($actions[$link_id]['can_view']) ? 1 : (empty($actions[$link_id]) ? 1 : 0),
+                'can_edit'    => isset($actions[$link_id]['can_edit']) ? 1 : 0,
+                'can_delete'  => isset($actions[$link_id]['can_delete']) ? 1 : 0,
             ]);
         }
     }
@@ -177,6 +180,24 @@ public function get_employee_link_ids($employee_id)
     $query = $this->db->get()->result();
 
     return array_column($query, 'link_id'); // returns array of IDs
+}
+
+public function get_employee_permissions_full($employee_id)
+{
+    $this->db->select('link_id, can_view, can_edit, can_delete');
+    $this->db->from('tbl_permission');
+    $this->db->where('employee_id', $employee_id);
+    $rows = $this->db->get()->result();
+
+    $perms = [];
+    foreach ($rows as $row) {
+        $perms[$row->link_id] = [
+            'can_view'   => (int)$row->can_view,
+            'can_edit'   => (int)$row->can_edit,
+            'can_delete' => (int)$row->can_delete,
+        ];
+    }
+    return $perms;
 }
 
 
@@ -1185,6 +1206,18 @@ public function get_total_pay_description_acount_statement($loan_id)
        public function get_sponser_data($customer_id,$comp_id){
        	$sponser = $this->db->query("SELECT * FROM tbl_sponser WHERE customer_id = '$customer_id' AND comp_id = '$comp_id'");
        	  return $sponser->result();
+       }
+
+       public function get_sponser_by_loan($loan_id){
+       	$sponser = $this->db->query("SELECT * FROM tbl_sponser WHERE loan_id = ?", [$loan_id]);
+       	  return $sponser->result();
+       }
+
+       public function link_sponsors_to_loan($customer_id, $comp_id, $loan_id){
+       	$this->db->where('customer_id', $customer_id);
+       	$this->db->where('comp_id', $comp_id);
+       	$this->db->where('loan_id IS NULL', NULL, FALSE);
+       	return $this->db->update('tbl_sponser', ['loan_id' => $loan_id]);
        }
 
 
@@ -2627,17 +2660,20 @@ public function get_account_by_transid($trans_id) {
 }
 
 
-	public function update_employee_permissions($employee_id, $new_permissions)
+	public function update_employee_permissions($employee_id, $new_permissions, $actions = [])
 {
     // Delete all old permissions for employee
     $this->db->where('employee_id', $employee_id);
     $this->db->delete('tbl_permission');
 
-    // Insert new permissions
+    // Insert new permissions with action flags
     foreach ($new_permissions as $link_id) {
         $this->db->insert('tbl_permission', [
             'employee_id' => $employee_id,
-            'link_id' => $link_id,
+            'link_id'     => $link_id,
+            'can_view'    => isset($actions[$link_id]['can_view']) ? 1 : (empty($actions[$link_id]) ? 1 : 0),
+            'can_edit'    => isset($actions[$link_id]['can_edit']) ? 1 : 0,
+            'can_delete'  => isset($actions[$link_id]['can_delete']) ? 1 : 0,
         ]);
     }
 }
@@ -10586,14 +10622,22 @@ public function get_today_offficerexpected_collections($blanch_id, $empl_id)
        //Admin login
 	   public function get_employee_links($empl_id)
 	   {
-		   $this->db->select('system_links.link_name');  // Only select link_name
+		   $this->db->select('system_links.link_name, tbl_permission.can_view, tbl_permission.can_edit, tbl_permission.can_delete');
 		   $this->db->from('tbl_permission');
 		   $this->db->join('system_links', 'system_links.id = tbl_permission.link_id');
 		   $this->db->where('tbl_permission.employee_id', $empl_id);
 		   $query = $this->db->get()->result();
 	   
-		   // Extract only link_name strings from result
-		   return array_map(fn($row) => $row->link_name, $query);
+		   // Return associative array: link_name => [can_view, can_edit, can_delete]
+		   $permissions = [];
+		   foreach ($query as $row) {
+			   $permissions[$row->link_name] = [
+				   'can_view'   => (int)$row->can_view,
+				   'can_edit'   => (int)$row->can_edit,
+				   'can_delete' => (int)$row->can_delete,
+			   ];
+		   }
+		   return $permissions;
 	   }
 	   
 

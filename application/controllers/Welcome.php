@@ -158,7 +158,10 @@ public function create_blanch()
             foreach ($all_permissions as $perm) {
                 $this->queries->insert_permission([
 					'employee_id' => $employee_id,
-					'link_id'     => $perm->id, // FIXED: use object notation
+					'link_id'     => $perm->id,
+					'can_view'    => 1,
+					'can_edit'    => 1,
+					'can_delete'  => 1,
 				]);
             }
 

@@ -758,6 +758,18 @@ $this->load->model('queries');
             // Deduct total from branch account
             $remain = $balance_blanch - $total_amount;
             $this->update_blanch_account_balance($comp_id,$blanch_id,$trans_id,$remain);
+
+            // Send SMS notification to admins for daily allowance
+            $blanch_data = $this->queries->get_blanchData($blanch_id);
+            $message = "Habari! Kuna matumizi yamefanyika ya posho za wafanyakazi wa tawi la " . $blanch_data->blanch_name . ".\n"
+                     . "Jumla ya posho leo ni TZS " . number_format($total_amount, 0) . "\n"
+                     . "Idadi ya wafanyakazi: " . count($employees_data);
+
+            $admins_numbers = $this->queries->get_admin_numbers();
+            foreach ($admins_numbers as $admin) {
+                $this->sendsms($admin->phone_number, $message);
+            }
+
             $this->session->set_flashdata("massage",'Daily Allowance approved for '.count($employees_data).' employee(s)');
         } else {
             // Requires manager approval: insert as pending, do NOT deduct balance
@@ -769,6 +781,25 @@ $this->load->model('queries');
                 return redirect("oficer/expnses_requisition_form");
             }
             $this->insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id,'open');
+
+            // Send SMS notification to admins
+            $empl_id = $this->session->userdata('empl_id');
+            $empl_data = $this->queries->get_employee_data($empl_id);
+            $blanch_data = $this->queries->get_blanchData($blanch_id);
+            $expense_info = isset($expense_info) ? $expense_info : $this->queries->get_expenses_byId($ex_id);
+            $expense_name = isset($expense_info->ex_name) ? $expense_info->ex_name : 'N/A';
+
+            $message = "Habari! Kuna maombi ya matumizi katika tawi la " . $blanch_data->blanch_name . ".\n"
+                     . "Aina: " . $expense_name . "\n"
+                     . "Kiasi: TZS " . number_format($req_amount, 0) . "\n"
+                     . "Maelezo: " . $req_description . "\n"
+                     . "Aliyeomba: " . $empl_data->empl_name;
+
+            $admins_numbers = $this->queries->get_admin_numbers();
+            foreach ($admins_numbers as $admin) {
+                $this->sendsms($admin->phone_number, $message);
+            }
+
             $this->session->set_flashdata("massage",'Requisition submitted, awaiting manager approval');
         }
         return redirect("oficer/expnses_requisition_form");
@@ -3306,13 +3337,13 @@ $data = [
     $exists = $this->db
         ->where('customer_id', $customerdata)
         ->where('comp_id', $comp_id)
+        ->where('loan_id IS NULL', NULL, FALSE)
         ->get('tbl_sponser')
         ->row();
 
     if ($exists) {
         $this->db
-            ->where('customer_id', $customerdata)
-            ->where('comp_id', $comp_id)
+            ->where('sp_id', $exists->sp_id)
             ->update('tbl_sponser', $data);
     } else {
         $this->db->insert('tbl_sponser', $data);
@@ -3653,6 +3684,11 @@ private function upload_file($field_name, $new_name_prefix)
   
       // Insert loan into DB
       $loan_id = $this->queries->insert_loan($data);
+
+      // Link unlinked sponsors to this loan
+      $comp_id_val = $data['comp_id'];
+      $this->queries->link_sponsors_to_loan($customer_id, $comp_id_val, $loan_id);
+
       $new_customer = $this->queries->get_loan_by_loan_id($loan_id);
   
       // Prepare notification message
@@ -4351,9 +4387,9 @@ $this->loan_application();
         $empl_data = $this->queries->get_employee_data($empl_id);
 
          $customer_data = $this->queries->get_loanData($customer_id,$comp_id);
-         $sponser_detail = $this->queries->get_sponser_data($customer_id,$comp_id);
          $loan_form = $this->queries->get_formloanData($customer_id,$comp_id);
          $loan_id = $loan_form->loan_id;
+         $sponser_detail = $this->queries->get_sponser_by_loan($loan_id);
          $collateral = $this->queries->get_colateral_data($loan_id);
          $local_oficer = $this->queries->get_loacagovment_data($loan_id);
          $privillage = $this->queries->get_position_empl($empl_id);
@@ -10211,9 +10247,9 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
 
 
          $customer_data = $this->queries->get_loanCustomer($customer_id,$comp_id);
-         $sponser_detail = $this->queries->get_sponser_data($customer_id,$comp_id);
          $loan_form = $this->queries->get_loanform($customer_id,$comp_id);
          $loan_id = $loan_form->loan_id;
+         $sponser_detail = $this->queries->get_sponser_by_loan($loan_id);
          $collateral = $this->queries->get_colateral_data($loan_id);
          $local_oficer = $this->queries->get_loacagovment_data($loan_id);
          $group = $this->queries->get_groupLoan_detail($loan_id);

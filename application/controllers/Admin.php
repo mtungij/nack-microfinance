@@ -1176,11 +1176,15 @@ public function create_employee()
     $employee_id = $this->queries->insert_employee($empData);
 
     // ── INSERT permissions ─────────────────────
+    $actions = $this->input->post('actions') ?? [];
     if ($permissions && is_array($permissions)) {
         foreach ($permissions as $link_id) {
             $this->queries->insert_permission([
                 'employee_id' => $employee_id,
                 'link_id'     => $link_id,
+                'can_view'    => isset($actions[$link_id]['can_view']) ? 1 : (empty($actions[$link_id]) ? 1 : 0),
+                'can_edit'    => isset($actions[$link_id]['can_edit']) ? 1 : 0,
+                'can_delete'  => isset($actions[$link_id]['can_delete']) ? 1 : 0,
             ]);
         }
     }
@@ -1345,20 +1349,32 @@ public function save_permissions($employee_id)
 
     // Get posted permissions (array of link ids)
     $new_permissions = $this->input->post('permissions') ?? [];
+    $actions = $this->input->post('actions') ?? [];
 
     // Update employee permissions in DB (delete old and insert new)
-    $this->queries->update_employee_permissions($employee_id, $new_permissions);
+    $this->queries->update_employee_permissions($employee_id, $new_permissions, $actions);
 
     $this->session->set_flashdata('success', 'Permissions updated successfully!');
     redirect('admin/manage/' . $employee_id);
 }
 
-public function manage($employee_id) {
+public function manage($employee_id = null) {
+    if (!$employee_id) {
+        $this->session->set_flashdata('error', 'Employee ID is required');
+        return redirect('admin/employee');
+    }
+
     $this->load->model('queries');
 
     $employee = $this->queries->get_employee_by_id($employee_id);
+
+    if (!$employee) {
+        $this->session->set_flashdata('error', 'Employee not found');
+        return redirect('admin/employee');
+    }
     $all_links = $this->queries->get_all_links();
     $employee_links = $this->queries->get_employee_link_ids($employee_id);
+    $employee_actions = $this->queries->get_employee_permissions_full($employee_id);
 
     // Group links by group_name
     $grouped_links = [];
@@ -1368,10 +1384,11 @@ public function manage($employee_id) {
     }
 
     $data = [
-        'employee_id'     => $employee_id,
-        'employee'        => $employee,
-        'employee_links'  => $employee_links,
-        'grouped_links'   => $grouped_links,
+        'employee_id'      => $employee_id,
+        'employee'         => $employee,
+        'employee_links'   => $employee_links,
+        'employee_actions'  => $employee_actions,
+        'grouped_links'    => $grouped_links,
     ];
 
     $this->load->view('admin/manage_permissions', $data);
@@ -2543,7 +2560,10 @@ $comp_phone = $compdata->comp_number;
 			} else {
 				$data['created_by'] = $this->session->userdata('user_id');
 				$loan_id = $this->queries->insert_loan($data);
-	
+
+				// Link unlinked sponsors to this loan
+				$this->queries->link_sponsors_to_loan($customer_id, $data['comp_id'], $loan_id);
+
 				$this->session->set_flashdata('massage', 'Loan application created successfully!');
 				$this->db->where('loan_id', $loan_id);
                $this->db->delete('tbl_collelateral');
@@ -2645,9 +2665,9 @@ $comp_phone = $compdata->comp_number;
     	 $this->load->model('queries');
     	 $comp_id = $this->session->userdata('comp_id');
     	 $customer_data = $this->queries->get_loanCustomer($customer_id,$comp_id);
-    	 $sponser_detail = $this->queries->get_sponser_data($customer_id,$comp_id);
     	 $loan_form = $this->queries->get_loanform($customer_id,$comp_id);
     	 $loan_id = $loan_form->loan_id;
+    	 $sponser_detail = $this->queries->get_sponser_by_loan($loan_id);
     	 $collateral = $this->queries->get_colateral_data($loan_id);
          $local_oficer = $this->queries->get_loacagovment_data($loan_id);
     	 $group = $this->queries->get_groupLoan_detail($loan_id);
@@ -2664,9 +2684,9 @@ $comp_phone = $compdata->comp_number;
     	 $this->load->model('queries');
     	 $comp_id = $this->session->userdata('comp_id');
     	 $customer_data = $this->queries->get_loanData($customer_id,$comp_id);
-    	 $sponser_detail = $this->queries->get_sponser_data($customer_id,$comp_id);
     	 $loan_form = $this->queries->get_formloanData($customer_id,$comp_id);
     	 $loan_id = $loan_form->loan_id;
+    	 $sponser_detail = $this->queries->get_sponser_by_loan($loan_id);
     	 $collateral = $this->queries->get_colateral_data($loan_id);
          $local_oficer = $this->queries->get_loacagovment_data($loan_id);
          $inc_history = $this->queries->get_loanIncomeHistory($loan_id);
@@ -12619,11 +12639,17 @@ if (!$this->session->userdata("comp_id"))
         // Sort by date ascending
         usort($schedule, function($a, $b) { return strcmp($a['date'], $b['date']); });
 
+        // Sponsors & Collateral for tabs
+        $sponsors   = $this->queries->get_sponser_by_loan($loan_id);
+        $collateral = $this->queries->get_colateral_data($loan_id);
+
         $this->load->view('admin/payment_statement_detail', [
             'loan'             => $loan,
             'customer'         => $customer,
             'compdata'         => $compdata,
             'schedule'         => $schedule,
+            'sponsors'         => $sponsors,
+            'collateral'       => $collateral,
         ]);
     }
 

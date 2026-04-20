@@ -25,7 +25,7 @@ include_once APPPATH . "views/partials/header.php";
         </div>
         <div>
         <h3 class="uppercase text-xl text-slate-900 font-bold leading-6 dark:text-white">
-  <?= htmlspecialchars($employee->empl_name, ENT_QUOTES, 'UTF-8') ?>
+  <?= htmlspecialchars($employee->empl_name ?? '', ENT_QUOTES, 'UTF-8') ?>
 </h3>
 
           <p class="text-sm text-gray-600  dark:text-white">@daddasoft</p>
@@ -81,33 +81,68 @@ include_once APPPATH . "views/partials/header.php";
           <!-- Table / Permissions Grid -->
 
 
+<?php
+$employee_actions = $employee_actions ?? [];
+?>
+
 <form method="post" action="<?= base_url('admin/save_permissions/' . $employee_id); ?>">
   <input type="hidden" name="employee_id" value="<?= $employee_id ?>">
 
   <?php foreach ($grouped_links as $group => $links): ?>
-    <h3 class="text-lg font-semibold mt-6 mb-2 text-gray-800 dark:text-gray-200">
+    <h3 class="text-lg font-semibold mt-6 mb-2 px-4 text-gray-800 dark:text-gray-200">
       <?= htmlspecialchars($group) ?>
     </h3>
 
-    <div class="grid sm:grid-cols-2 gap-2">
+    <div class="grid sm:grid-cols-1 gap-2 px-4">
       <?php foreach ($links as $link): ?>
-        <?php $isChecked = in_array($link->id, $employee_links) ? 'checked' : ''; ?>
-        <label for="link_<?= $link->id ?>" class="flex p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 cursor-pointer">
-          <input
-            type="checkbox"
-            id="link_<?= $link->id ?>"
-            name="permissions[]"
-            value="<?= $link->id ?>"
-            class="permission-checkbox shrink-0 mt-0.5 border-gray-300 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:checked:bg-blue-500"
-            <?= $isChecked ?>
-          >
-          <span class="ms-3 text-gray-700 dark:text-gray-300"><?= htmlspecialchars($link->link_name) ?></span>
-        </label>
+        <?php
+          $isChecked = in_array($link->id, $employee_links) ? 'checked' : '';
+          $hasView   = !empty($employee_actions[$link->id]['can_view']);
+          $hasEdit   = !empty($employee_actions[$link->id]['can_edit']);
+          $hasDelete = !empty($employee_actions[$link->id]['can_delete']);
+        ?>
+        <div class="flex items-center justify-between p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
+          <div class="flex items-center">
+            <input
+              type="checkbox"
+              id="link_<?= $link->id ?>"
+              name="permissions[]"
+              value="<?= $link->id ?>"
+              class="permission-checkbox shrink-0 mt-0.5 border-gray-300 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:checked:bg-blue-500"
+              <?= $isChecked ?>
+              onchange="toggleActions(<?= $link->id ?>)"
+            >
+            <span class="ms-3 text-gray-700 dark:text-gray-300"><?= htmlspecialchars($link->link_name) ?></span>
+          </div>
+          <?php if (!empty($link->has_edit) || !empty($link->has_delete)): ?>
+          <div class="flex items-center gap-3 actions-group" id="actions_<?= $link->id ?>" style="<?= $isChecked ? 'display:flex' : 'display:none' ?>">
+            <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+              <input type="checkbox" name="actions[<?= $link->id ?>][can_view]" value="1" class="rounded-sm border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-800 dark:border-gray-600" <?= $hasView ? 'checked' : '' ?>>
+              <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              View
+            </label>
+            <?php if (!empty($link->has_edit)): ?>
+            <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+              <input type="checkbox" name="actions[<?= $link->id ?>][can_edit]" value="1" class="rounded-sm border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-600" <?= $hasEdit ? 'checked' : '' ?>>
+              <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </label>
+            <?php endif; ?>
+            <?php if (!empty($link->has_delete)): ?>
+            <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+              <input type="checkbox" name="actions[<?= $link->id ?>][can_delete]" value="1" class="rounded-sm border-gray-300 text-red-600 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-600" <?= $hasDelete ? 'checked' : '' ?>>
+              <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Delete
+            </label>
+            <?php endif; ?>
+          </div>
+          <?php endif; ?>
+        </div>
       <?php endforeach; ?>
     </div>
   <?php endforeach; ?>
 
-  <div class="mt-6">
+  <div class="mt-6 px-4 pb-4">
     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
       Update Permissions
     </button>
@@ -127,8 +162,19 @@ include_once APPPATH . "views/partials/header.php";
   function toggleCheckboxes(button) {
     const checkboxes = document.querySelectorAll('.permission-checkbox');
     const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-    checkboxes.forEach(cb => cb.checked = !allChecked);
-    button.textContent = allChecked ? 'Chagua Zote' : 'Ondoa Zote'; // Change button text accordingly
+    checkboxes.forEach(cb => {
+      cb.checked = !allChecked;
+      toggleActions(cb.value);
+    });
+    button.textContent = allChecked ? 'Chagua Zote' : 'Ondoa Zote';
+  }
+
+  function toggleActions(linkId) {
+    const cb = document.getElementById('link_' + linkId);
+    const actionsDiv = document.getElementById('actions_' + linkId);
+    if (cb && actionsDiv) {
+      actionsDiv.style.display = cb.checked ? 'flex' : 'none';
+    }
   }
 </script>
 
@@ -139,12 +185,5 @@ include_once APPPATH . "views/partials/header.php";
   ?>
 
 <script>
-function toggleCheckboxes(button) {
-    const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
-    const allChecked = [...checkboxes].every(cb => cb.checked);
-
-    checkboxes.forEach(cb => cb.checked = !allChecked);
-
-    button.textContent = allChecked ? 'Chagua Zote' : 'Ondoa Zote';
-}
+// toggleCheckboxes and toggleActions already defined above
 </script>
