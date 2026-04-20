@@ -1,6 +1,8 @@
 <?php
 include_once APPPATH . "views/partials/officerheader.php";
 $customers = !empty($customers) ? $customers : [];
+$selected_customer_id = !empty($selected_customer_id) ? (int)$selected_customer_id : 0;
+$selected_loan_id = !empty($selected_loan_id) ? (int)$selected_loan_id : 0;
 ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->
@@ -36,7 +38,7 @@ $customers = !empty($customers) ? $customers : [];
                                 class="w-full h-14 text-base font-semibold py-2 px-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white select2">
                                 <option value=""><?php echo $this->lang->line('select_customer') ?: 'Select customer'; ?></option>
                                 <?php foreach ($customers as $c): ?>
-                                    <option value="<?php echo (int) $c->customer_id; ?>">
+                                    <option value="<?php echo (int) $c->customer_id; ?>" <?php echo ((int)$c->customer_id === $selected_customer_id) ? 'selected' : ''; ?>>
                                         <?php echo strtoupper(trim($c->f_name . ' ' . $c->m_name . ' ' . $c->l_name)); ?> /
                                         <?php echo strtoupper($c->customer_code ?? ''); ?> /
                                         <?php echo strtoupper($c->blanch_name ?? ''); ?>
@@ -80,6 +82,7 @@ $customers = !empty($customers) ? $customers : [];
 
 <script>
 $(document).ready(function(){
+    var selectedLoanId = '<?php echo (int) $selected_loan_id; ?>';
     var selectConfig = {
         allowClear: true,
         width: '100%',
@@ -90,20 +93,33 @@ $(document).ready(function(){
     $('#customer').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_customer') ?: 'Select customer'; ?>"});
     $('#loan').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_loan') ?: 'Select loan'; ?>"});
 
-    $('#customer').change(function(){
-        var customer_id = $(this).val();
+    function loadLoans(customer_id, selectedId) {
         if (customer_id) {
             $.ajax({
                 url: "<?php echo base_url('oficer/fetch_data_loanActive'); ?>",
                 method: "POST",
                 data: { customer_id: customer_id },
                 success: function(data){
-                    $('#loan').html(data).trigger('change');
+                    $('#loan').html(data);
+                    if (selectedId) {
+                        $('#loan').val(selectedId);
+                    }
+                    $('#loan').trigger('change');
                 }
             });
         } else {
             $('#loan').html('<option value=""><?php echo $this->lang->line('select_loan') ?: 'Select loan'; ?></option>').trigger('change');
         }
+    }
+
+    var initialCustomer = $('#customer').val();
+    if (initialCustomer) {
+        loadLoans(initialCustomer, selectedLoanId);
+    }
+
+    $('#customer').change(function(){
+        var customer_id = $(this).val();
+        loadLoans(customer_id, '');
     });
 });
 </script>

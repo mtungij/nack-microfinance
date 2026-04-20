@@ -5323,7 +5323,7 @@ public function disburse($loan_id){
         $company_data = $this->queries->get_companyData($comp_id);
         $blanch_data = $this->queries->get_blanchData($blanch_id);
         $empl_data = $this->queries->get_employee_data($empl_id);
-        $total_loanDis = $this->queries->get_sum_loanwithdrawal_data($comp_id);
+        $total_loanDis = $this->queries->get_sum_loanwithdrawal_dataBlanch($blanch_id);
        
         $privillage = $this->queries->get_position_empl($empl_id);
         $manager = $this->queries->get_position_manager($empl_id);
@@ -5331,7 +5331,8 @@ public function disburse($loan_id){
       //     $disburse = $this->queries->get_withdrawal_LoanByOfficer($empl_id);
       //     $total_interest_loan = $this->queries->get_sum_withdrawal_by_officer($empl_id);
       // } else {
-        $disburse = $this->queries->get_withdrawal_LoanBlanch($blanch_id);
+        $disburse = $this->queries->get_withdrawal_Loan($comp_id, ['blanch_id' => $blanch_id]);
+        $disburse_grouped = $this->queries->get_grouped_withdrawal_LoanBlanch($blanch_id);
         $total_interest_loan = $this->queries->get_sum_withdrawal_by_branch($blanch_id);
       // }
 
@@ -5339,7 +5340,15 @@ public function disburse($loan_id){
            // print_r($disburse);
            //            exit();
 
-        $this->load->view('officer/loan_withdrawal',['disburse'=>$disburse,'total_loanDis'=>$total_loanDis,'total_interest_loan'=>$total_interest_loan,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);
+        $this->load->view('officer/loan_withdrawal',[
+          'disburse' => $disburse,
+          'disburse_grouped' => $disburse_grouped ?: [],
+          'total_loanDis' => $total_loanDis,
+          'total_interest_loan' => $total_interest_loan,
+          'empl_data' => $empl_data,
+          'privillage' => $privillage,
+          'manager' => $manager
+        ]);
     }
 
     public function delete_loanDisbursed($loan_id){
@@ -5400,6 +5409,37 @@ public function disburse($loan_id){
         return $this->db->delete('tbl_outstand',['loan_id'=>$loan_id]);
     }
 
+    public function customer_loan_detail($customer_id)
+    {
+      $this->load->model('queries');
+      $empl_id = $this->session->userdata('empl_id');
+      $manager_data = $this->queries->get_manager_data($empl_id);
+      $comp_id = !empty($manager_data->comp_id) ? (int)$manager_data->comp_id : (int)$this->session->userdata('comp_id');
+      $officer_blanch_id = !empty($manager_data->blanch_id) ? (int)$manager_data->blanch_id : (int)$this->session->userdata('blanch_id');
+
+      if (!$comp_id) {
+        return redirect('welcome/employee_login');
+      }
+
+      $customer_id = (int)$customer_id;
+      $customer = $this->queries->search_CustomerID($customer_id, $comp_id);
+      if (!$customer || (int)($customer->blanch_id ?? 0) !== $officer_blanch_id) {
+        $this->session->set_flashdata('error', 'Customer not found');
+        return redirect('oficer/loan_withdrawal');
+      }
+
+      $customer_loans_raw = $this->queries->get_loan_customer($customer_id);
+      $customer_loans = array_values(array_filter($customer_loans_raw, function ($loan) use ($officer_blanch_id, $comp_id) {
+        return (int)($loan->blanch_id ?? 0) === $officer_blanch_id
+          && (int)($loan->comp_id ?? 0) === (int)$comp_id;
+      }));
+
+      $this->load->view('officer/customer_loan_detail', [
+        'customer' => $customer,
+        'customer_loans' => $customer_loans,
+      ]);
+    }
+
 
     public function manager_loanWithdrawal(){
          $this->load->model('queries');
@@ -5411,7 +5451,8 @@ public function disburse($loan_id){
         $blanch_data = $this->queries->get_blanchData($blanch_id);
         $empl_data = $this->queries->get_employee_data($empl_id);
 
-        $disburse = $this->queries->get_withdrawal_Loan($comp_id);
+        $disburse = $this->queries->get_withdrawal_Loan($comp_id, ['blanch_id' => $blanch_id]);
+        $disburse_grouped = $this->queries->get_grouped_withdrawal_LoanBlanch($blanch_id);
           
         $total_loanDis = $this->queries->get_sum_loanwithdrawal_dataBlanch($blanch_id);
         $total_interest_loan = $this->queries->get_sum_loanwithdrawal_interestBlanch($blanch_id);
@@ -5421,7 +5462,15 @@ public function disburse($loan_id){
            // print_r($disburse);
            //            exit();
 
-        $this->load->view('officer/loan_withdrawal',['disburse'=>$disburse,'total_loanDis'=>$total_loanDis,'total_interest_loan'=>$total_interest_loan,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);
+        $this->load->view('officer/loan_withdrawal',[
+          'disburse' => $disburse,
+          'disburse_grouped' => $disburse_grouped ?: [],
+          'total_loanDis' => $total_loanDis,
+          'total_interest_loan' => $total_interest_loan,
+          'empl_data' => $empl_data,
+          'privillage' => $privillage,
+          'manager' => $manager
+        ]);
 
     }
 
@@ -8019,9 +8068,14 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
       $manager_data = $this->queries->get_manager_data($empl_id);
       $blanch_id = !empty($manager_data->blanch_id) ? $manager_data->blanch_id : $this->session->userdata('blanch_id');
 
+      $selected_customer_id = (int) $this->input->get('customer_id');
+      $selected_loan_id = (int) $this->input->get('loan_id');
+
       $customers = $this->queries->get_allcutomerBlanch_Data($blanch_id);
       $this->load->view('officer/payment_statement_search', [
         'customers' => $customers,
+        'selected_customer_id' => $selected_customer_id,
+        'selected_loan_id' => $selected_loan_id,
       ]);
     }
 
@@ -8033,7 +8087,12 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
       return redirect('oficer/payment_statement_detail/' . $loan_id);
     }
 
-    public function payment_statement_detail($loan_id) {
+    public function payment_statement_detail($loan_id = null) {
+      if (empty($loan_id)) {
+        $this->session->set_flashdata('error', 'Chagua mkopo kwanza');
+        return redirect('oficer/payment_statement_search');
+      }
+
       $this->load->model('queries');
       $empl_id = $this->session->userdata('empl_id');
       $manager_data = $this->queries->get_manager_data($empl_id);
@@ -8118,11 +8177,19 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
 
       usort($schedule, function($a, $b) { return strcmp($a['date'], $b['date']); });
 
+      $sponsors = $this->queries->get_sponser_by_loan($loan_id);
+      if (empty($sponsors)) {
+        $sponsors = $this->queries->get_sponser_data($loan->customer_id, $comp_id);
+      }
+      $collateral = $this->queries->get_colateral_data($loan_id);
+
       $this->load->view('officer/payment_statement_detail', [
         'loan'                 => $loan,
         'customer'             => $customer,
         'compdata'             => $compdata,
         'schedule'             => $schedule,
+        'sponsors'             => $sponsors,
+        'collateral'           => $collateral,
         'customers'            => $customers,
         'selected_customer_id' => (int) ($loan->customer_id ?? 0),
         'selected_loan_id'     => $loan_id,

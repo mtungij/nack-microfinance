@@ -165,84 +165,111 @@ if ($position === 'LOAN OFFICER'): ?>
 
   <!-- Spacer to push buttons right on large screens -->
   
-  <table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-    <thead class="text-xs text-cyan-500 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-50">
-        <tr>
-            <th class="px-4 py-3">S/no</th>
-            <th class="px-4 py-3">Customer Name</th>
-          
-            <th class="px-4 py-3">Loan Withdrawal</th>
-            <th class="px-4 py-3">Duration Type</th>
-            <th class="px-4 py-3">Restoration</th>
-            <th class="px-4 py-3">Start Date</th>
-            <th class="px-4 py-3">End Date</th>
-        </tr>
+  <table id="shareholder_table"  class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
+      <tr>
+        <th scope="col" class="px-4 py-3 dark:text-white">S/No</th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('customer_name'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('principal'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_amount'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('duration_type'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('collection'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('product_name'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('method'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('withdraw_date'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_end_date'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('amount_paid'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('remain_debt'); ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('status') ?? 'Status'; ?></th>
+        <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th>
+      </tr>
     </thead>
     <tbody>
-        <?php 
-            $sno = 1; 
-            $grand_total_withdrawal = 0;
-        ?>
+      <?php
+      $no = 1;
+      $total_loan_aprove = 0;
+      $total_loan_int = 0;
+      $total_restoration = 0;
+      $total_paid_all = 0;
+      $total_remain_all = 0;
+      ?>
+      <?php foreach(($disburse ?? []) as $loan_aproveds):
+        $total_loan_aprove += (float)$loan_aproveds->loan_aprove;
+        $total_loan_int += (float)$loan_aproveds->loan_int;
+        $total_restoration += (float)$loan_aproveds->restration;
+        $row_paid = (float)($loan_aproveds->total_paid ?? 0);
+        $row_remain = max(0, (float)$loan_aproveds->loan_int - $row_paid);
+        $total_paid_all += $row_paid;
+        $total_remain_all += $row_remain;
+      ?>
+      <tr class="border-b dark:border-gray-700">
+        <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></th>
+        <td class="uppercase px-4 py-3 dark:text-white"><?= $loan_aproveds->f_name; ?> <?= substr($loan_aproveds->m_name, 0,1); ?> <?= $loan_aproveds->l_name; ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->phone_no; ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->blanch_name; ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= number_format($loan_aproveds->loan_aprove); ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= number_format($loan_aproveds->loan_int); ?></td>
+        <td class="px-4 py-3 dark:text-white">
+          <?php
+          if ($loan_aproveds->day == 1) {
+            echo $this->lang->line('daily');
+          } elseif ($loan_aproveds->day == 7) {
+            echo $this->lang->line('weekly');
+          } elseif (in_array($loan_aproveds->day, [28,29,30,31])) {
+            echo $this->lang->line('monthly');
+          }
+          echo " (" . $loan_aproveds->session . ")";
+          ?>
+        </td>
+        <td class="px-4 py-3 dark:text-white"><?= number_format($loan_aproveds->restration); ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->loan_name; ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= $loan_aproveds->account_name; ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= substr($loan_aproveds->loan_stat_date, 0,10); ?></td>
+        <td class="px-4 py-3 dark:text-white"><?= substr($loan_aproveds->loan_end_date, 0,10); ?></td>
+        <td class="px-4 py-3 text-green-600 dark:text-green-400"><?= number_format($row_paid); ?></td>
+        <td class="px-4 py-3 <?= $row_remain > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'; ?>"><?= number_format($row_remain); ?></td>
+        <td class="px-4 py-3">
+          <?php
+          $status = $loan_aproveds->loan_status;
+          $badge = 'bg-gray-100 text-gray-800';
+          $label = ucfirst($status);
+          if ($status == 'open') { $badge = 'bg-blue-100 text-blue-800'; }
+          elseif ($status == 'aproved') { $badge = 'bg-yellow-100 text-yellow-800'; }
+          elseif ($status == 'disbarsed') { $badge = 'bg-indigo-100 text-indigo-800'; }
+          elseif ($status == 'withdrawal') { $badge = 'bg-green-100 text-green-800'; $label = 'Active'; }
+          elseif ($status == 'out') { $badge = 'bg-red-100 text-red-800'; $label = 'Expired'; }
+          elseif ($status == 'done') { $badge = 'bg-emerald-100 text-emerald-800'; $label = 'Full Paid'; }
+          ?>
+          <span class="px-2 py-1 rounded-full text-xs font-medium <?= $badge ?>"><?= $label ?></span>
+        </td>
+        <td class="px-4 py-3 dark:text-white flex items-center gap-2">
+          <?php if (!empty($loan_aproveds->loan_id)): ?>
+          <a href="<?= base_url("oficer/customer_loan_detail/{$loan_aproveds->customer_id}") ?>" class="text-blue-600 hover:text-blue-900 flex items-center gap-1" title="<?php echo $this->lang->line('view_statement') ?? 'View Statement'; ?>">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+          </a>
+          <?php else: ?>
+          <span class="text-gray-400" title="<?php echo $this->lang->line('view_statement') ?? 'View Statement'; ?>">-</span>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <?php endforeach; ?>
 
-        <?php foreach($disburse_grouped as $empl_name => $loans): ?>
-            <!-- Employee Header -->
-            <tr class="bg-gray-200 dark:bg-gray-700">
-                <td colspan="8" class="px-4 py-2 font-bold text-blue-600 dark:text-white">
-                    <?= strtoupper($empl_name); ?>
-                </td>
-            </tr>
-
-            <?php 
-                $total_withdrawal = 0; 
-                foreach($loans as $loan_aproveds): 
-                    $total_withdrawal += $loan_aproveds->with_amount;
-                    $grand_total_withdrawal += $loan_aproveds->with_amount;
-            ?>
-                <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <td class="px-4 py-2"><?= $sno++; ?></td>
-                    <td class="px-4 py-2 text-gray-900 dark:text-white">
-                        <?= strtoupper($loan_aproveds->f_name . " " . $loan_aproveds->m_name . " " . $loan_aproveds->l_name); ?>
-                    </td>
-
-                    <td class="px-4 py-2 text-gray-900 dark:text-white"><?= number_format($loan_aproveds->with_amount); ?></td>
-                    <td class="px-4 py-2 text-gray-900 dark:text-white">
-                        <?php
-                            if ($loan_aproveds->day == 1) {
-                                $frequency = "Daily";
-                            } elseif ($loan_aproveds->day == 7) {
-                                $frequency = "Weekly";
-                            } elseif (in_array($loan_aproveds->day, [28, 29, 30, 31])) {
-                                $frequency = "Monthly";
-                            } else {
-                                $frequency = "Other";
-                            }
-                            echo $frequency . " (" . $loan_aproveds->session . ")";
-                        ?>
-                    </td>
-                    <td class="px-4 py-2 text-gray-900 dark:text-white"><?= number_format($loan_aproveds->restration); ?></td>
-                    <td class="px-4 py-2 text-gray-900 dark:text-white"><?= $loan_aproveds->loan_stat_date; ?></td>
-                    <td class="px-4 py-2 text-gray-900 dark:text-white"><?= substr($loan_aproveds->loan_end_date, 0, 10); ?></td>
-                </tr>
-            <?php endforeach; ?>
-
-            <!-- Subtotal -->
-            <tr class="bg-gray-100 dark:bg-gray-800 font-bold text-gray-700 dark:text-white">
-                <td colspan="3" class="px-4 py-2 text-right">TOTAL for <?= strtoupper($empl_name); ?>:</td>
-                <td class="px-4 py-2"><?= number_format($total_withdrawal); ?></td>
-                <td colspan="4"></td>
-            </tr>
-        <?php endforeach; ?>
+      <tr class="bg-gray-200 dark:bg-gray-800 font-extrabold text-lg">
+        <td colspan="4" class="px-4 py-3 dark:text-white text-right"><?php echo $this->lang->line('total'); ?></td>
+        <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_loan_aprove); ?></td>
+        <td class="px-4 py-3 text-blue-700 dark:text-blue-400"><?= number_format($total_loan_int); ?></td>
+        <td></td>
+        <td class="px-4 py-3 text-purple-700 dark:text-purple-400"><?= number_format($total_restoration); ?></td>
+        <td colspan="4"></td>
+        <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_paid_all); ?></td>
+        <td class="px-4 py-3 text-red-700 dark:text-red-400"><?= number_format($total_remain_all); ?></td>
+        <td></td>
+        <td></td>
+      </tr>
     </tbody>
-
-    <!-- 🔽 General Total -->
-    <tfoot class="font-bold text-white bg-green-600">
-        <tr>
-            <td colspan="3" class="px-4 py-3 text-right">GENERAL TOTAL:</td>
-            <td class="px-4 py-3"><?= number_format($grand_total_withdrawal); ?></td>
-            <td colspan="4"></td>
-        </tr>
-    </tfoot>
-</table>
+  </table>
 
 
           </div>
