@@ -278,7 +278,7 @@ public function get_Allemployee($comp_id){
 }
 
 public function get_AllemployeeBlanch($blanch_id){
-	$empl = $this->db->query("SELECT * FROM tbl_employee e JOIN tbl_blanch b  ON b.blanch_id = e.blanch_id JOIN tbl_position p ON p.position_id = e.position_id WHERE e.blanch_id = '$blanch_id' AND e.ac_status = 'empl' ORDER BY e.empl_id DESC");
+	$empl = $this->db->query("SELECT * FROM tbl_employee e JOIN tbl_blanch b  ON b.blanch_id = e.blanch_id JOIN tbl_position p ON p.position_id = e.position_id WHERE e.blanch_id = '$blanch_id' AND e.ac_status = 'empl' AND e.empl_status = 'open' ORDER BY e.empl_id DESC");
 	  return $empl->result();
 }
 
