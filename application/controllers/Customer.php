@@ -161,7 +161,8 @@ class Customer extends CI_Controller {
             'margin_top' => 10,
             'margin_bottom' => 10,
             'margin_left' => 10,
-            'margin_right' => 10
+            'margin_right' => 10,
+            'tempDir' => APPPATH . 'tmp/mpdf',
         ]);
         
         $mpdf->SetTitle('Risiti ya Malipo - ' . $data['customer']->f_name . ' ' . $data['customer']->l_name);

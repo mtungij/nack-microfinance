@@ -37,7 +37,7 @@ $capital_submenu_active = is_submenu_active(['shareHolder', 'capital', 'transfar
 $expenses_income_submenu_active = is_submenu_active(['expenses', 'expnses_requisition_form', 'get_recomended_request', 'income_detail', 'income_dashboard', 'deducted_income', 'deducted_income_sumary', 'deduction_branch_company', 'income_balance']);
 $employee_submenu_active = is_submenu_active(['employee', 'all_employee', 'view_blanchEmployee', 'leave', 'salary_sheet', 'employee_allowance', 'employee_deduction']);
 $customer_submenu_active = is_submenu_active(['customer', 'all_customer']);
-$loan_submenu_active = is_submenu_active(['loan_application', 'loan_pending', 'get_loan_aproved', 'disburse_loan', 'loan_withdrawal', 'all_loan_lejected', 'loanpending_groups', 'parsonal_pending_loan']);
+$loan_submenu_active = is_submenu_active(['loan_application', 'loan_pending', 'get_loan_aproved', 'disburse_loan', 'loan_withdrawal', 'all_loan_lejected', 'loanpending_groups', 'parsonal_pending_loan', 'manager_verify_loans']);
 $group_loan_submenu_active = is_submenu_active(['loanpending_groups', 'general_operation', 'group_list']); // Note: 'loanpending_groups' is repeated, which is fine if intended
 $teller_dashboard_active = is_active_link('oficer/teller_dashboard');
 $report_submenu_active = is_submenu_active(['cash_transaction', 'blanchiwise_report', 'loan_pending_time', 'repaymant_data', 'get_outstand_loan', 'clonic_customers', 'loan_collection', 'search_customer_loan_report', 'payment_statement_search', 'payment_statement_detail', 'customer_account_statement', 'today_recevable_loan', 'today_receved_loan', 'teller_oficer', 'teller_trasior', 'daily_report', 'loan_oficer_expectation', 'next_expectation']);
@@ -311,6 +311,9 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
 
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/loan_pending') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/loan_pending"); ?>"><?php echo $this->lang->line('loan_pending'); ?></a></li>
 
+                  <?php if ($this->session->userdata('position_id') == '21'): ?>
+                  <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/manager_verify_loans') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/manager_verify_loans"); ?>"><?php echo $this->lang->line('loan_verification') ?? 'Loan Verification'; ?></a></li>
+                  <?php endif; ?>
 
                   <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/get_loan_aproved') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/get_loan_aproved"); ?>">Mikopo Iliyopitishwa</a></li> -->
                  

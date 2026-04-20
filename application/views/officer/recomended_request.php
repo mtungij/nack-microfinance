@@ -28,6 +28,17 @@
                   </div>
          <?php endif; ?>
 
+<?php if ($das = $this->session->flashdata('error')): ?>
+	  <div class="alert alert-danger fade show" role="alert">
+                            <div class="alert-icon"><i class="flaticon-warning"></i></div>
+                            <div class="alert-text"><?php echo $das;?></div>
+                            <div class="alert-close">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true"><i class="la la-close"></i></span>
+                                </button>
+                            </div>
+                  </div>
+         <?php endif; ?>
 
 
 <div class="kt-portlet kt-portlet--mobile">
@@ -62,10 +73,11 @@
 			  						          	<th>Branch</th>
 				  							    <th>Expenses</th>
 				  							    <th>Amount</th>
-												<th>Descrption </th>
+												<th>From Account</th>
+												<th>Description</th>
 												<th>Comment</th>
 												<th>Date</th>
-												<th>status</th>
+												<th>Status</th>
 												<th>Action</th>
 				  									
 				  									
@@ -79,6 +91,7 @@
 				  					<td><?php echo $datas->blanch_name; ?></td>
 				  					<td><?php echo $datas->ex_name; ?></td>
 				  					<td><?php echo number_format($datas->req_amount); ?></td>
+				  					<td><?php echo isset($datas->account_name) ? $datas->account_name : '-'; ?></td>
 				  					<td><?php echo $datas->req_description; ?></td>
 				  					 <td><?php echo $datas->req_comment; ?></td>
 				  					 <td><?php echo $datas->req_date; ?></td>
@@ -155,10 +168,11 @@
                    	<th>Branch</th>
 				    <th>Expenses</th>
 				    <th>Amount</th>
-				    <th>Descrption </th>
+				    <th>From Account</th>
+				    <th>Description</th>
 				    <th>Comment</th>
-				    <th>status</th>
-				     <th>Date</th>
+				    <th>Date</th>
+				    <th>Status</th>
 				     <th>Action</th>
                     </tr>
                    </tfoot>

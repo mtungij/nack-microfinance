@@ -87,19 +87,8 @@ echo form_open($form_action, ['novalidate' => true]);
                     <!-- Employee -->
                     <div class="sm:col-span-4">
                         <label for="StaffSelect" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('select_officer'); ?>:</label>
-                        <select id="StaffSelect" name="empl_id" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm">
-                            <option value=""><?php echo $this->lang->line('select_officer'); ?></option>
-                            <?php foreach ($empl_blanch as $empl_blanchs): ?>
-                                <option value="<?= $empl_blanchs->empl_id; ?>"
-                                    <?= set_select('empl_id', $empl_blanchs->empl_id, 
-                                        (isset($existing_loan) && $existing_loan->empl_id == $empl_blanchs->empl_id) ||
-                                        (!isset($existing_loan) && $empl_blanchs->empl_id == $empl_data->empl_id)
-                                    ); ?>>
-                                    <?= $empl_blanchs->empl_name; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <?= form_error("empl_id", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
+                        <input type="text" readonly value="<?php echo htmlspecialchars($empl_data->empl_name ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm bg-gray-100 dark:bg-gray-700 dark:text-white cursor-not-allowed">
+                        <input type="hidden" name="empl_id" value="<?php echo htmlspecialchars($empl_data->empl_id ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     </div>
 
                     <!-- Hidden Inputs -->
@@ -327,7 +316,6 @@ document.addEventListener('DOMContentLoaded', function () {
 function showConfirmationModal() {
     // Validate required fields
     const loanProduct = document.getElementById('branchSelect');
-    const officer = document.getElementById('StaffSelect');
     const loanAmount = document.getElementById('how_loan');
     const duration = document.getElementById('durationselect');
     const sessions = document.getElementById('session');
@@ -335,7 +323,7 @@ function showConfirmationModal() {
     const interestFormula = document.querySelector('select[name="rate"]');
     
     // Check if required fields are filled
-    if (!loanProduct.value || !officer.value || !loanAmount.value || !duration.value || !sessions.value || !business.value || !interestFormula.value) {
+    if (!loanProduct.value || !loanAmount.value || !duration.value || !sessions.value || !business.value || !interestFormula.value) {
         alert('<?php echo $this->lang->line('fill_all_required_fields'); ?>');
         return;
     }
@@ -356,7 +344,7 @@ function showConfirmationModal() {
     document.getElementById('confirm_interest_formula').textContent = formulaText;
     
     document.getElementById('confirm_business').textContent = business.value;
-    document.getElementById('confirm_officer').textContent = officer.options[officer.selectedIndex].text;
+    document.getElementById('confirm_officer').textContent = '<?php echo htmlspecialchars($empl_data->empl_name ?? '', ENT_QUOTES, 'UTF-8'); ?>';
     
     // Show modal
     const modal = document.getElementById('confirmationModal');

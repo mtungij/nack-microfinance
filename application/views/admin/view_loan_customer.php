@@ -627,6 +627,38 @@ $end_date = date('Y-m-d', strtotime("+".($sessions * $day_interval)." days"));
 
 
                     </div>
+
+                    <!-- Branch Manager Verification Status -->
+                    <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <?php if (!empty($loan_form->verified_by)): ?>
+                        <div class="flex items-center gap-x-3 p-4 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/20 dark:border-green-800">
+                            <svg class="shrink-0 size-5 text-green-600 dark:text-green-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <div>
+                                <h3 class="text-sm font-semibold text-green-800 dark:text-green-300">
+                                    <?php echo $this->lang->line('verified') ?? 'Verified'; ?>
+                                </h3>
+                                <p class="text-sm text-green-700 dark:text-green-400">
+                                    <?php echo ($this->lang->line('verified_by') ?? 'Verified By') . ': ' . htmlspecialchars($loan_form->verifier_name ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                    &bull;
+                                    <?php echo ($this->lang->line('verified_at') ?? 'Verified At') . ': ' . date('d M, Y H:i', strtotime($loan_form->verified_at)); ?>
+                                </p>
+                            </div>
+                        </div>
+                        <?php else: ?>
+                        <div class="flex items-center gap-x-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-900/20 dark:border-yellow-800">
+                            <svg class="shrink-0 size-5 text-yellow-600 dark:text-yellow-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                            <div>
+                                <h3 class="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                                    <?php echo $this->lang->line('not_verified') ?? 'Not Verified'; ?>
+                                </h3>
+                                <p class="text-sm text-yellow-700 dark:text-yellow-400">
+                                    <?php echo $this->lang->line('loan_verification_subtitle') ?? 'This loan has not been verified by a branch manager.'; ?>
+                                </p>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
                                <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 border border-cyan-500 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('approve'); ?></button>

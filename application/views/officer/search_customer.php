@@ -302,19 +302,35 @@ $comp_id = $comp_id ?? null;
     <!-- Passport Size Photo -->
     <div class="sm:col-span-4">
         <label class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('passport_size_photo'); ?>:</label>
-        <input type="file" id="sponsorPassportInput" accept="image/*"   required
-       capture="environment"
-               class="block w-full text-sm text-gray-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-md 
-                      file:border-0 file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 
-                      dark:file:bg-gray-700 dark:file:text-gray-300">
-        <input type="hidden" name="passport_cropped" id="passportCropped">
-        <div class="mt-3">
-            <img id="sponsorPreviewImage" class="rounded border shadow w-32 h-32 object-cover"
-                 src="<?= isset($sponser->passport_path) && !empty($sponser->passport_path) 
-                          ? base_url($sponser->passport_path) 
-                          : base_url('assets/img/customer21.png') ?>"
-                 alt="Preview">
+        <?php $has_passport = isset($sponser->passport_path) && !empty($sponser->passport_path); ?>
+        <div id="existingPassportSection" class="<?php echo $has_passport ? '' : 'hidden'; ?>">
+            <div class="flex items-center gap-3 mb-2">
+                <img id="sponsorPreviewImage" class="rounded border shadow w-32 h-32 object-cover"
+                     src="<?php echo $has_passport ? base_url($sponser->passport_path) : base_url('assets/img/customer21.png'); ?>"
+                     alt="Preview">
+                <button type="button" onclick="showPassportUpload()" class="inline-flex items-center px-3 py-2 text-xs font-medium rounded-md bg-yellow-500 text-white hover:bg-yellow-600">
+                    <i class="fa fa-pencil mr-1"></i> <?php echo $this->lang->line('change') ?? 'Change'; ?>
+                </button>
+            </div>
         </div>
+        <div id="passportUploadSection" class="<?php echo $has_passport ? 'hidden' : ''; ?>">
+            <input type="file" id="sponsorPassportInput" accept="image/*"
+                   capture="environment"
+                   class="block w-full text-sm text-gray-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-md 
+                          file:border-0 file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 
+                          dark:file:bg-gray-700 dark:file:text-gray-300">
+            <?php if ($has_passport): ?>
+            <button type="button" onclick="cancelPassportChange()" class="mt-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <i class="fa fa-times mr-1"></i> <?php echo $this->lang->line('cancel') ?? 'Cancel'; ?>
+            </button>
+            <?php endif; ?>
+            <div class="mt-3 <?php echo $has_passport ? 'hidden' : ''; ?>" id="newPreviewWrapper">
+                <img id="sponsorPreviewImageNew" class="rounded border shadow w-32 h-32 object-cover"
+                     src="<?php echo base_url('assets/img/customer21.png'); ?>"
+                     alt="Preview">
+            </div>
+        </div>
+        <input type="hidden" name="passport_cropped" id="passportCropped">
     </div>
 </div>
 
@@ -463,6 +479,13 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent default submit
 
+        var hasExisting = <?php echo $has_passport ? 'true' : 'false'; ?>;
+        var cropped = document.getElementById('passportCropped').value;
+        if (!hasExisting && !cropped) {
+            alert('<?php echo $this->lang->line('please_select_passport') ?? 'Please select a passport photo'; ?>');
+            return;
+        }
+
         const formData = new FormData(this);
 
         fetch(this.action, {
@@ -597,6 +620,8 @@ document.getElementById('cropImage').addEventListener('click', async () => {
 
     if (activePassportTarget === 'sponsor') {
         sponsorPreviewImage.src = croppedDataUrl;
+        var newPreview = document.getElementById('sponsorPreviewImageNew');
+        if (newPreview) newPreview.src = croppedDataUrl;
         passportCropped.value = croppedDataUrl;
     }
 
@@ -642,4 +667,17 @@ document.getElementById('cropImage').addEventListener('click', async () => {
     activePassportTarget = null;
     activePassportInput = null;
 });
+
+function showPassportUpload() {
+  document.getElementById('existingPassportSection').classList.add('hidden');
+  document.getElementById('passportUploadSection').classList.remove('hidden');
+  document.getElementById('newPreviewWrapper').classList.remove('hidden');
+}
+
+function cancelPassportChange() {
+  document.getElementById('passportUploadSection').classList.add('hidden');
+  document.getElementById('existingPassportSection').classList.remove('hidden');
+  document.getElementById('sponsorPassportInput').value = '';
+  document.getElementById('passportCropped').value = '';
+}
 </script>

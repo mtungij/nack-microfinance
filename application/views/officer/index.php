@@ -279,7 +279,7 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
 </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
 
     <div class="bg-gradient-to-r from-orange-400 to-orange-600 dark:from-green-700 dark:to-teal-800 text-white rounded-xl shadow p-6">
@@ -295,6 +295,13 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
     </h4>
     <span class="text-white text-sm"><?php echo $this->lang->line('forms_today'); ?></span>
 </div>
+
+<a href="<?php echo base_url('oficer/expnses_requisition_form'); ?>" class="bg-gradient-to-r from-orange-400 to-orange-600 dark:from-emerald-700 dark:to-green-800 text-white rounded-xl shadow p-6 block hover:opacity-90 transition">
+    <h4 class="text-2xl font-bold flex items-center gap-2">
+        <i class="icon-wallet"></i> <?php echo number_format(isset($accepted_expences->total_accepted) ? $accepted_expences->total_accepted : 0); ?>
+    </h4>
+    <span class="text-white text-sm"><?php echo $this->lang->line('accepted_expenses') ?? 'Accepted Expenses'; ?></span>
+</a>
 
 
 </div>

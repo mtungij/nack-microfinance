@@ -1024,7 +1024,6 @@ public function get_total_pay_description_acount_statement($loan_id)
 
  
 	   public function get_loanPending($comp_id){
-		// Modify the query to join with the 'employees' table (or the appropriate table that stores user info)
 		$loan = $this->db->query("
 			SELECT 
 				l.*, 
@@ -1032,14 +1031,16 @@ public function get_total_pay_description_acount_statement($loan_id)
 				lt.*, 
 				b.*, 
 				s.*, 
-				e.empl_name as created_by_name  -- Get the employee's name who created the loan
+				e.empl_name as created_by_name,
+				vb.empl_name as verifier_name
 			FROM 
 				tbl_loans l 
 				LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
 				LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id 
 				LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
 				LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id  
-				LEFT JOIN tbl_employee e ON e.empl_id = l.created_by  -- Join with employees table to get the creator's name
+				LEFT JOIN tbl_employee e ON e.empl_id = l.created_by
+				LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
 			WHERE 
 				l.loan_status = 'open' 
 				AND l.comp_id = '$comp_id' 
@@ -1063,8 +1064,32 @@ public function get_total_pay_description_acount_statement($loan_id)
 
 
         public function get_loanPendingBlanch($blanch_id){
-       	$loan = $this->db->query("SELECT * FROM tbl_loans l LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id  WHERE l.loan_status = 'open'  AND l.blanch_id = '$blanch_id'  ORDER BY l.loan_id DESC ");
+       	$loan = $this->db->query("SELECT l.*, c.*, lt.*, b.*, s.*, vb.empl_name as verifier_name FROM tbl_loans l LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by WHERE l.loan_status = 'open' AND l.blanch_id = '$blanch_id' ORDER BY l.loan_id DESC ");
        	   return $loan->result();
+       }
+
+       // Get open loans for branch manager verification (only their branch)
+       public function get_loanPendingVerification($blanch_id){
+           $loan = $this->db->query("
+               SELECT 
+                   l.*, 
+                   c.*, 
+                   lt.*, 
+                   b.*, 
+                   s.*,
+                   e.empl_name as created_by_name
+               FROM tbl_loans l 
+               LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
+               LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id 
+               LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
+               LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id
+               LEFT JOIN tbl_employee e ON e.empl_id = l.created_by
+               WHERE l.loan_status = 'open' 
+               AND l.blanch_id = ?
+               AND l.verified_by IS NULL
+               ORDER BY l.loan_id DESC
+           ", [$blanch_id]);
+           return $loan->result();
        }
 
 	   public function get_loanPendingByOfficer($empl_id) {
@@ -1187,13 +1212,15 @@ public function get_total_pay_description_acount_statement($loan_id)
 				cb.empl_email AS creator_email,
 				cb.empl_no AS creator_no,
 				cb.empl_sex AS creator_sex,
-				cb.passport AS creator_passport
+				cb.passport AS creator_passport,
+				vb.empl_name AS verifier_name
 			FROM tbl_loans l
 			JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
 			JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
 			JOIN tbl_customer c ON c.customer_id = l.customer_id 
 			JOIN tbl_employee e ON e.empl_id = l.empl_id
 			JOIN tbl_employee cb ON cb.empl_id = l.created_by
+			LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
 			WHERE l.customer_id = '$customer_id' 
 			AND l.comp_id = '$comp_id' 
 			ORDER BY l.loan_id DESC 
@@ -1368,16 +1395,11 @@ public function get_total_pay_description_acount_statement($loan_id)
     $this->db->join('tbl_account_transaction at', 'at.trans_id = l.method', 'left');
 
     $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
 
     // Date logic
     if (!empty($filters['from']) && !empty($filters['to'])) {
         $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
         $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
-    } else {
-        $today = date('Y-m-d');
-        $this->db->where('ot.loan_stat_date >=', $today . ' 00:00:00');
-        $this->db->where('ot.loan_stat_date <=', $today . ' 23:59:59');
     }
 
     if (!empty($filters['blanch_id'])) {
@@ -1386,6 +1408,10 @@ public function get_total_pay_description_acount_statement($loan_id)
 
     if (!empty($filters['loan_name'])) {
         $this->db->like('l.loan_name', $filters['loan_name']);
+    }
+
+    if (!empty($filters['loan_status'])) {
+        $this->db->where('l.loan_status', $filters['loan_status']);
     }
 
     // Filter: only loans with a deposit made today
@@ -1474,7 +1500,6 @@ public function get_sum_loanwithdrawal_data_filtered($comp_id, $filters = [])
     $this->db->from('tbl_loans l');
     $this->db->join('tbl_outstand ot', 'ot.loan_id = l.loan_id', 'left');
     $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
 
     // Filter by branch
     if (!empty($filters['blanch_id'])) {
@@ -1485,10 +1510,6 @@ public function get_sum_loanwithdrawal_data_filtered($comp_id, $filters = [])
     if (!empty($filters['from']) && !empty($filters['to'])) {
         $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
         $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
-    } else {
-        // Default: today
-        $today = date("Y-m-d");
-        $this->db->where('DATE(ot.loan_stat_date)', $today);
     }
 
     return $this->db->get()->row()->loan_aprove ?? 0;
@@ -1509,7 +1530,6 @@ public function get_withdrawal_Loan_filtered($comp_id, $filters = [])
     $this->db->join('tbl_account_transaction at', 'at.trans_id = l.method', 'left');
 
     $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
 
     // Apply filters if provided
     if (!empty($filters['blanch_id'])) {
@@ -1544,7 +1564,6 @@ public function get_sum_loanwithdrawal_interest_filtered($comp_id, $filters = []
     $this->db->join('tbl_outstand ot', 'ot.loan_id = l.loan_id', 'left');
 
     $this->db->where('l.comp_id', $comp_id);
-    $this->db->where('l.loan_status', 'withdrawal');
 
     // Apply filters if provided
     if (!empty($filters['blanch_id'])) {
@@ -3477,6 +3496,11 @@ public function get_expenses($comp_id){
 	 return $data->result();
 }
 
+public function get_expenses_byId($ex_id){
+	$data = $this->db->query("SELECT * FROM tbl_expenses WHERE ex_id = '$ex_id'");
+	return $data->row();
+}
+
 
 public function update_expenses($data,$ex_id){
 	return $this->db->where('ex_id',$ex_id)->update('tbl_expenses',$data);
@@ -3494,13 +3518,65 @@ public function get_expences_request($comp_id){
 }
 
 public function get_expences_requestManager($comp_id){
-	$expences = $this->db->query("SELECT * FROM tbl_request_exp re JOIN tbl_expenses e ON e.ex_id = re.ex_id JOIN tbl_blanch b ON b.blanch_id = re.blanch_id WHERE re.comp_id = '$comp_id' AND re.req_status = 'open' ORDER BY re.req_id DESC");
+	$expences = $this->db->query("SELECT * FROM tbl_request_exp re JOIN tbl_expenses e ON e.ex_id = re.ex_id JOIN tbl_blanch b ON b.blanch_id = re.blanch_id LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id WHERE re.comp_id = '$comp_id' AND re.req_status = 'open' ORDER BY re.req_id DESC");
 	 return $expences->result();
 }
 
 public function get_expences_requestAccepted($comp_id){
 	$expences = $this->db->query("SELECT * FROM tbl_request_exp re LEFT JOIN tbl_expenses e ON e.ex_id = re.ex_id LEFT JOIN tbl_blanch b ON b.blanch_id = re.blanch_id LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id WHERE re.comp_id = '$comp_id' ORDER BY re.req_id DESC");
 	 return $expences->result();
+}
+
+public function get_expences_requestAcceptedOnly($comp_id){
+	$expences = $this->db->query("SELECT re.*, e.ex_name, b.blanch_name, at.account_name, emp.empl_name AS approved_by_name FROM tbl_request_exp re LEFT JOIN tbl_expenses e ON e.ex_id = re.ex_id LEFT JOIN tbl_blanch b ON b.blanch_id = re.blanch_id LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id LEFT JOIN tbl_employee emp ON emp.empl_id = re.approved_by WHERE re.comp_id = ? AND re.req_status = 'accept' ORDER BY re.req_id DESC", array($comp_id));
+	return $expences->result();
+}
+
+public function get_expences_acceptedFiltered($comp_id, $from = null, $to = null, $blanch_id = null, $ex_id = null){
+	$sql = "SELECT re.*, e.ex_name, b.blanch_name, at.account_name, emp.empl_name AS approved_by_name FROM tbl_request_exp re LEFT JOIN tbl_expenses e ON e.ex_id = re.ex_id LEFT JOIN tbl_blanch b ON b.blanch_id = re.blanch_id LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id LEFT JOIN tbl_employee emp ON emp.empl_id = re.approved_by WHERE re.comp_id = ? AND re.req_status = 'accept'";
+	$params = array($comp_id);
+	if (!empty($from) && !empty($to)) {
+		$sql .= " AND re.req_date BETWEEN ? AND ?";
+		$params[] = $from;
+		$params[] = $to;
+	}
+	if (!empty($blanch_id)) {
+		$sql .= " AND re.blanch_id = ?";
+		$params[] = $blanch_id;
+	}
+	if (!empty($ex_id)) {
+		if ($ex_id === 'daily_allowance') {
+			$sql .= " AND re.deduct_type = 'daily_allowance'";
+		} else {
+			$sql .= " AND re.ex_id = ?";
+			$params[] = $ex_id;
+		}
+	}
+	$sql .= " ORDER BY re.req_id DESC";
+	return $this->db->query($sql, $params)->result();
+}
+
+public function get_expences_acceptedFilteredSummary($comp_id, $from = null, $to = null, $blanch_id = null, $ex_id = null){
+	$sql = "SELECT COUNT(*) AS total_count, COALESCE(SUM(req_amount),0) AS total_amount FROM tbl_request_exp WHERE comp_id = ? AND req_status = 'accept'";
+	$params = array($comp_id);
+	if (!empty($from) && !empty($to)) {
+		$sql .= " AND req_date BETWEEN ? AND ?";
+		$params[] = $from;
+		$params[] = $to;
+	}
+	if (!empty($blanch_id)) {
+		$sql .= " AND blanch_id = ?";
+		$params[] = $blanch_id;
+	}
+	if (!empty($ex_id)) {
+		if ($ex_id === 'daily_allowance') {
+			$sql .= " AND deduct_type = 'daily_allowance'";
+		} else {
+			$sql .= " AND ex_id = ?";
+			$params[] = $ex_id;
+		}
+	}
+	return $this->db->query($sql, $params)->row();
 }
 
 public function get_expences_requestNotDone($comp_id){
@@ -3517,8 +3593,23 @@ public function get_expences_requestBlanch($blanch_id){
 
 public function get_expences_requestBlanchuniq($blanch_id){
 	$day = date("Y-m-d");
-	$expences = $this->db->query("SELECT * FROM tbl_request_exp re JOIN tbl_expenses e ON e.ex_id = re.ex_id JOIN tbl_blanch b ON b.blanch_id = re.blanch_id JOIN tbl_account_transaction at ON at.trans_id = re.trans_id WHERE re.blanch_id = '$blanch_id' AND re.req_date >= '$day' ORDER BY re.req_id DESC");
+	$expences = $this->db->query("SELECT * FROM tbl_request_exp re LEFT JOIN tbl_expenses e ON e.ex_id = re.ex_id JOIN tbl_blanch b ON b.blanch_id = re.blanch_id LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id WHERE re.blanch_id = '$blanch_id' AND re.req_date >= '$day' ORDER BY re.req_id DESC");
 	 return $expences->result();
+}
+
+public function get_expences_requestBlanchByDate($blanch_id, $from, $to, $ex_id = null){
+	$sql = "SELECT * FROM tbl_request_exp re LEFT JOIN tbl_expenses e ON e.ex_id = re.ex_id JOIN tbl_blanch b ON b.blanch_id = re.blanch_id LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id WHERE re.blanch_id = ? AND re.req_date BETWEEN ? AND ?";
+	$params = [$blanch_id, $from, $to];
+	if (!empty($ex_id)) {
+		if ($ex_id === 'daily_allowance') {
+			$sql .= " AND re.deduct_type = 'daily_allowance'";
+		} else {
+			$sql .= " AND re.ex_id = ?";
+			$params[] = $ex_id;
+		}
+	}
+	$sql .= " ORDER BY re.req_id DESC";
+	return $this->db->query($sql, $params)->result();
 }
 
 public function get_recomended_status($req_id){
@@ -4671,6 +4762,11 @@ public function get_today_expencesDataBlanch($blanch_id){
 	 return $expences->row();
 }
 
+public function get_accepted_expencesBlanch($blanch_id){
+	$expences = $this->db->query("SELECT SUM(req_amount) AS total_accepted FROM tbl_request_exp WHERE blanch_id = ? AND req_status = 'accept'", array($blanch_id));
+	return $expences->row();
+}
+
 
 public function get_toay_Cashinhand($blanch_id){
 	$date = date("Y-m-d");
@@ -5250,6 +5346,16 @@ public function get_defaulters_3_30_days_by_branch($blanch_id)
      public function get_sum_expencesnotAccept($comp_id){
     	$data = $this->db->query("SELECT SUM(req_amount) AS total_expences FROM tbl_request_exp WHERE comp_id = '$comp_id' AND req_status = 'open'");
     	 return $data->row();
+    }
+
+    public function get_pending_expenses_summary($comp_id){
+        $data = $this->db->query("SELECT COUNT(*) AS total_count, COALESCE(SUM(req_amount),0) AS total_amount FROM tbl_request_exp WHERE comp_id = ? AND req_status = 'open'", array($comp_id));
+        return $data->row();
+    }
+
+    public function get_accepted_expenses_summary($comp_id){
+        $data = $this->db->query("SELECT COUNT(*) AS total_count, COALESCE(SUM(req_amount),0) AS total_amount FROM tbl_request_exp WHERE comp_id = ? AND req_status = 'accept'", array($comp_id));
+        return $data->row();
     }
 
     public function get_sum_expencesBlanch($blanch_id){
@@ -6873,7 +6979,7 @@ public function get_branch_account_balances($comp_id){
 }
 
 public function get_branch_account_balances_filtered($comp_id, $from = null, $to = null, $blanch_id = null, $trans_id = null){
-	$this->db->select('b.blanch_name, at.account_name, ba.blanch_capital, ba.blanch_id, ba.receive_trans_id');
+	$this->db->select('ba.ac_id, b.blanch_name, at.account_name, ba.blanch_capital, ba.blanch_id, ba.receive_trans_id');
 	$this->db->from('tbl_blanch_account ba');
 	$this->db->join('tbl_account_transaction at', 'at.trans_id = ba.receive_trans_id');
 	$this->db->join('tbl_blanch b', 'b.blanch_id = ba.blanch_id');

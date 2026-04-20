@@ -327,6 +327,66 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
   </div>
 </a>
 
+<!-- Expenses Requests Card -->
+<?php
+  $pe_count = isset($pending_expenses->total_count) ? (int)$pending_expenses->total_count : 0;
+  $pe_amount = isset($pending_expenses->total_amount) ? $pending_expenses->total_amount : 0;
+?>
+<a href="<?= base_url('admin/get_expences_notAcceptable'); ?>" class="block">
+  <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4 relative">
+    <?php if($pe_count > 0): ?>
+      <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full size-7 flex items-center justify-center shadow-lg animate-pulse"><?= $pe_count; ?></span>
+    <?php endif; ?>
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
+        📋 <?php echo $lang_line('expenses_requests', 'Expenses Requests'); ?>
+      </p>
+      <div class="relative group cursor-pointer">
+        <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <path d="M12 17h.01" />
+        </svg>
+        <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <?php echo $lang_line('tt_expenses_requests', 'Pending expense requests awaiting approval. Click to review and approve or reject.'); ?>
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 flex items-center justify-between">
+      <h3 class="text-3xl font-bold"><?= number_format($pe_amount); ?></h3>
+      <span class="flex items-center gap-1 text-cyan-100 font-medium text-sm"><?= $pe_count; ?> <?php echo $lang_line('pending', 'Pending'); ?></span>
+    </div>
+  </div>
+</a>
+
+<!-- Accepted Expenses Card -->
+<?php
+  $ae_count = isset($accepted_expenses->total_count) ? (int)$accepted_expenses->total_count : 0;
+  $ae_amount = isset($accepted_expenses->total_amount) ? $accepted_expenses->total_amount : 0;
+?>
+<a href="<?= base_url('admin/get_accepted_expenses'); ?>" class="block">
+  <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
+        ✅ <?php echo $lang_line('accepted_expenses', 'Accepted Expenses'); ?>
+      </p>
+      <div class="relative group cursor-pointer">
+        <svg class="size-4 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <path d="M12 17h.01" />
+        </svg>
+        <div class="absolute z-10 mt-2 right-0 w-56 text-xs text-white bg-black/80 rounded-lg shadow-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <?php echo $lang_line('tt_accepted_expenses', 'Total approved expense requests. Click to view all accepted expenses.'); ?>
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 flex items-center justify-between">
+      <h3 class="text-3xl font-bold"><?= number_format($ae_amount); ?></h3>
+      <span class="flex items-center gap-1 text-cyan-100 font-medium text-sm"><?= $ae_count; ?> <?php echo $lang_line('approved', 'Approved'); ?></span>
+    </div>
+  </div>
+</a>
 
   <!-- 3️⃣ Paid Expiring Today -->
 <a href="<?= base_url('admin/loan_withdrawal') ?>" class="block">

@@ -53,7 +53,8 @@ include_once APPPATH . "views/partials/officerheader.php";
             <th class="py-3 px-6 text-start">Loan Type</th>
             <th class="py-3 px-6 text-end">Loan Status</th>
             <th class="py-3 px-6 text-end">Application Date</th>
-            <th class="py-3 px-6 text-end">Action</th>
+            <th class="py-3 px-6 text-center"><?php echo $this->lang->line('verification_status') ?? 'Verification'; ?></th>
+            <th class="py-3 px-6 text-end"><?php echo $this->lang->line('action') ?? 'Action'; ?></th>
         </tr>
     </thead>
 
@@ -117,38 +118,54 @@ include_once APPPATH . "views/partials/officerheader.php";
                 <?php echo htmlspecialchars(date('d M, Y', strtotime($loan_pendings->loan_day)), ENT_QUOTES, 'UTF-8'); ?>
             </td>
 
-            <!-- <?php if ($empl_data->position_id == '21'): ?>
+            <!-- Verification Status -->
+            <td class="px-6 py-4 text-center text-sm">
+                <?php if (!empty($loan_pendings->verified_by)): ?>
+                <span class="py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-500/10 dark:text-green-500">
+                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <?php echo ($this->lang->line('verified') ?? 'Verified') . ' - ' . htmlspecialchars($loan_pendings->verifier_name ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                </span>
+                <?php else: ?>
+                <span class="py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-500/10 dark:text-yellow-500">
+                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                    <?php echo $this->lang->line('not_verified') ?? 'Not Verified'; ?>
+                </span>
+                <?php endif; ?>
+            </td>
+
+            <!-- Action -->
+            <?php if ($empl_data->position_id == '21'): ?>
             <td class="px-6 py-4 text-end text-sm">
-                <div class="hs-dropdown relative inline-flex">
+                <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
                     <button id="hs-table-action-sh-<?php echo $loan_pendings->loan_id; ?>" type="button"
-                        class="hs-dropdown-toggle py-1.5 px-2.5 border rounded-lg">
-                        Action
+                        class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
+                        <?php echo $this->lang->line('action') ?? 'Action'; ?>
+                        <svg class="size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                     </button>
 
-                    <div class="hs-dropdown-menu hidden mt-2 bg-white shadow-lg rounded-lg p-2">
+                    <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-40 bg-white shadow-md rounded-lg p-2 mt-2 z-20 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-table-action-sh-<?php echo $loan_pendings->loan_id; ?>">
 
-                        <?php if (!empty($loan_pendings->group_id)): ?>
-                            <a href="<?= base_url("oficer/view_LoanCustomerData/{$loan_pendings->customer_id}/{$loan_pendings->comp_id}") ?>"
-                               class="block px-3 py-2 text-sm hover:bg-gray-100">
-                                Approve Group
-                            </a>
-                        <?php else: ?>
-                            <a href="<?= base_url("oficer/view_Dataloan/{$loan_pendings->customer_id}/{$loan_pendings->comp_id}") ?>"
-                               class="block px-3 py-2 text-sm hover:bg-gray-100">
-                                Approve Loan
-                            </a>
-                        <?php endif; ?>
-
-                        <a href="<?= base_url("oficer/delete_loan/{$loan_pendings->loan_id}") ?>"
-                           onclick="return confirm('Are you sure?')"
-                           class="block px-3 py-2 text-sm text-red-600 hover:bg-red-50">
-                            Delete
+                        <a href="<?= base_url("oficer/view_Dataloan/{$loan_pendings->customer_id}/{$loan_pendings->comp_id}") ?>"
+                           class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300">
+                            <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <?php echo $this->lang->line('view') ?? 'View'; ?>
                         </a>
+
+                        <?php if (empty($loan_pendings->verified_by)): ?>
+                        <a href="<?= base_url("oficer/verify_loan/{$loan_pendings->loan_id}") ?>"
+                           onclick="return confirm('<?php echo $this->lang->line('verify_loan') ?? 'Verify this loan'; ?>?')"
+                           class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20">
+                            <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <?php echo $this->lang->line('verify') ?? 'Verify'; ?>
+                        </a>
+                        <?php endif; ?>
 
                     </div>
                 </div>
             </td>
-            <?php endif; ?> -->
+            <?php else: ?>
+            <td class="px-6 py-4 text-end text-sm text-gray-400 dark:text-gray-500">—</td>
+            <?php endif; ?>
 
         </tr>
 
@@ -160,7 +177,7 @@ include_once APPPATH . "views/partials/officerheader.php";
             <td class="px-6 py-4">
                 <?php echo number_format($total_loan, 0, '.', ','); ?>
             </td>
-            <td colspan="5"></td>
+            <td colspan="6"></td>
         </tr>
 
     <?php endif; ?>

@@ -282,26 +282,48 @@ include_once APPPATH . "views/partials/officerheader.php";
 
     <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4 md:p-6">
-                <!-- <h4 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-                    Register New Customer
-                </h4> -->
-                <?php echo form_open("oficer/aprove_loan/{$loan_form->loan_id}", ['novalidate' => true]); ?>
+                <?php
+                    $position_id = $this->session->userdata('position_id');
+                    if (empty($position_id)) {
+                        if (isset($privillage) && is_array($privillage) && !empty($privillage)) {
+                            $position_id = $privillage[0]->position_id;
+                        } elseif (isset($privillage) && is_object($privillage)) {
+                            $position_id = $privillage->position_id;
+                        }
+                    }
+                    $is_manager = ($position_id == '21');
+                    $is_not_verified = empty($loan_form->verified_by);
+                    $can_edit = $is_manager && $is_not_verified;
+                    $form_action = $can_edit ? "oficer/verify_loan_update/{$loan_form->loan_id}" : "oficer/aprove_loan/{$loan_form->loan_id}";
+                ?>
+                <?php echo form_open($form_action, ['novalidate' => true]); ?>
                     <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
 
                     
                         <div class="sm:col-span-4">
-                            <label for="f_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* Aina Ya Mkopo:</label>                                                                                                                                                                                                           
-                            <input type="text" id="f_name" name="" readonly autocomplete="off" 
-                                   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"  
-                                   value="<?php echo set_value('loan_name', isset($loan_form->loan_name) ? strtoupper(preg_replace('/[^a-zA-Z]/', '  ', $loan_form->loan_name)) : ''); ?>">
-
+                            <label for="category_id" class="block text-sm font-medium mb-2 dark:text-gray-300">* Aina Ya Mkopo:</label>
+                            <?php if ($can_edit): ?>
+                            <select id="category_id" name="category_id" class="py-2.5 px-4 block w-full border-blue-500 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-blue-500 dark:text-gray-300 dark:focus:ring-gray-600">
+                                <?php if (!empty($loan_categories)): ?>
+                                    <?php foreach ($loan_categories as $cat): ?>
+                                    <option value="<?php echo $cat->category_id; ?>" <?php echo ($cat->category_id == $loan_form->category_id) ? 'selected' : ''; ?>>
+                                        <?php echo strtoupper(htmlspecialchars($cat->loan_name, ENT_QUOTES, 'UTF-8')); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                            <?php else: ?>
+                            <input type="text" id="category_id" readonly autocomplete="off"
+                                   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                                   value="<?php echo isset($loan_form->loan_name) ? strtoupper(preg_replace('/[^a-zA-Z]/', '  ', $loan_form->loan_name)) : ''; ?>">
+                            <?php endif; ?>
                         </div>
 
 						<div class="sm:col-span-4">
                             <label for="how_loan" class="block text-sm font-medium mb-2 dark:text-gray-300">* Kiasi Kilichoombwa:</label>
                             <input type="text" id="how_loan" name="" readonly autocomplete="off" 
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
-                                   value="<?php echo set_value('sp_lname', isset($loan_form->how_loan) ? number_format((float)$loan_form->how_loan, 0) : ''); ?>">
+                                   value="<?php echo isset($loan_form->how_loan) ? number_format((float)$loan_form->how_loan, 0) : ''; ?>">
                         </div>
 
                         <div class="sm:col-span-4">
@@ -316,20 +338,24 @@ include_once APPPATH . "views/partials/officerheader.php";
                         
 
                         <div class="sm:col-span-4">
-    <label for="l_name" class="block text-sm font-medium mb-2 dark:text-gray-300">* Marejesho Ya:</label>
-    <input type="text" id="l_name" name="" readonly autocomplete="off" 
-        class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
+    <label for="day" class="block text-sm font-medium mb-2 dark:text-gray-300">* Marejesho Ya:</label>
+    <?php if ($can_edit): ?>
+    <select id="day" name="day" class="py-2.5 px-4 block w-full border-blue-500 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-blue-500 dark:text-gray-300 dark:focus:ring-gray-600">
+        <option value="1" <?php echo (isset($loan_form->day) && $loan_form->day == 1) ? 'selected' : ''; ?>>Siku (Daily)</option>
+        <option value="7" <?php echo (isset($loan_form->day) && $loan_form->day == 7) ? 'selected' : ''; ?>>Wiki (Weekly)</option>
+        <option value="30" <?php echo (isset($loan_form->day) && in_array($loan_form->day, [28,29,30,31])) ? 'selected' : ''; ?>>Mwezi (Monthly)</option>
+    </select>
+    <?php else: ?>
+    <input type="text" id="day" readonly autocomplete="off"
+        class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
         value="<?php
             if (isset($loan_form->day)) {
-                if ($loan_form->day == 1) {
-                    echo 'Siku';
-                } elseif ($loan_form->day == 7) {
-                    echo 'Week';
-                } elseif (in_array($loan_form->day, [28, 29, 30, 31])) {
-                    echo 'Mwezi';
-                }
+                if ($loan_form->day == 1) echo 'Siku';
+                elseif ($loan_form->day == 7) echo 'Week';
+                elseif (in_array($loan_form->day, [28,29,30,31])) echo 'Mwezi';
             }
         ?>">
+    <?php endif; ?>
 </div>
 
 
@@ -337,16 +363,16 @@ include_once APPPATH . "views/partials/officerheader.php";
 
                         <div class="sm:col-span-4">
                             <label for="phone_no" class="block text-sm font-medium mb-2 dark:text-gray-300">* Idadi Jumla Ya Marejesho:</label>
-                            <input type="number" id="phone_no" name="" readonly autocomplete="off" required
-                                   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
+                            <input type="number" id="phone_no" name="<?php echo $can_edit ? 'session' : ''; ?>" <?php echo $can_edit ? '' : 'readonly'; ?> autocomplete="off" required
+                                   class="py-2.5 px-4 block w-full <?php echo $can_edit ? 'border-blue-500 dark:border-blue-500' : 'border-gray-200 dark:border-gray-600'; ?> rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
                                    value="<?php echo set_value('session', isset($loan_form->session) ? $loan_form->session : ''); ?>">
                            
                         </div>
 
                         <div class="sm:col-span-4">
                             <label for="reason" class="block text-sm font-medium mb-2 dark:text-gray-300">* Biashara Ya Mkopaji:</label>
-                            <input type="text" id="reason" name="" readonly autocomplete="off" required
-                                   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
+                            <input type="text" id="reason" name="<?php echo $can_edit ? 'reason' : ''; ?>" <?php echo $can_edit ? '' : 'readonly'; ?> autocomplete="off" required
+                                   class="py-2.5 px-4 block w-full <?php echo $can_edit ? 'border-blue-500 dark:border-blue-500' : 'border-gray-200 dark:border-gray-600'; ?> rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" 
                                    value="<?php echo set_value('reason', isset($loan_form->reason) ? $loan_form->reason : ''); ?>">
                            
                         </div>
@@ -370,8 +396,15 @@ include_once APPPATH . "views/partials/officerheader.php";
                     </div>
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex justify-center gap-x-2">
+                            <?php if ($can_edit): ?>
+                            <button type="submit" class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-green-500 bg-green-600 text-white hover:bg-green-700">
+                                <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                <?php echo $this->lang->line('verify') ?? 'Verify'; ?>
+                            </button>
+                            <?php else: ?>
                             <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white">Tuma Maombi</button>
-                            <a href="<?php echo base_url("admin/reject_loan/{$loan_form->loan_id}") ?>" class="py-2 px-4 btn-primary-sm dark:bg-red-800 hover:bg-cyan-700 text-white">Kataa</a>
+                            <?php endif; ?>
+                            <a href="<?php echo base_url("oficer/reject_loan/{$loan_form->loan_id}") ?>" class="py-2 px-4 bg-red-600 dark:bg-red-800 rounded border border-red-500 hover:bg-red-700 text-white">Kataa</a>
                         </div>
                     </div>
                 <?php echo form_close(); ?>

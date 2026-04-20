@@ -44,6 +44,7 @@ class Oficer extends CI_Controller{
     $today_depost = $this->queries->get_today_chashData_Blanch($blanch_id);
     $today_income = $this->queries->get_today_incomeBlanchData($blanch_id);
     $today_expences = $this->queries->get_today_expencesData($blanch_id);
+    $accepted_expences = $this->queries->get_accepted_expencesBlanch($blanch_id);
     
     $rejesho = $this->queries->get_total_recevableBlanch($blanch_id);
 
@@ -190,7 +191,7 @@ class Oficer extends CI_Controller{
     'blanch_outstand'=>$blanch_outstand,'loan_aproveClose'=>$loan_aproveClose,
     'withdrawalclose'=>$withdrawalclose,'loan_depostClose'=>$loan_depostClose,
     'receive_AmountClose'=>$receive_AmountClose,'request_expencesclose'=>$request_expencesclose,
-    'loan_feeCloseData'=>$loan_feeCloseData,'deducted'=>$deducted,'non_deducted'=>$non_deducted,'blanch_amount_balance'=>$blanch_amount_balance]);
+    'loan_feeCloseData'=>$loan_feeCloseData,'deducted'=>$deducted,'non_deducted'=>$non_deducted,'blanch_amount_balance'=>$blanch_amount_balance,'accepted_expences'=>$accepted_expences]);
     }
 
       public function my_profile(){
@@ -625,15 +626,71 @@ $this->load->model('queries');
 
   $expns = $this->queries->get_expenses($comp_id);
   $privillage = $this->queries->get_position_empl($empl_id);
-  $data = $this->queries->get_expences_requestBlanchuniq($blanch_id);
   $manager = $this->queries->get_position_manager($empl_id);
 
+  // Date + expense filter
+  $filter_from = $this->input->get('from');
+  $filter_to = $this->input->get('to');
+  $filter_expense = $this->input->get('expense');
+  if (!empty($filter_from) && !empty($filter_to)) {
+      $data = $this->queries->get_expences_requestBlanchByDate($blanch_id, $filter_from, $filter_to, $filter_expense);
+  } elseif (!empty($filter_expense)) {
+      $data = $this->queries->get_expences_requestBlanchByDate($blanch_id, '2000-01-01', '2099-12-31', $filter_expense);
+  } else {
+      $data = $this->queries->get_expences_requestBlanchuniq($blanch_id);
+  }
+
   $blanch_account = $this->queries->get_blanch_account_data($blanch_id);
-  // $blanch_account = $this->queries->get_amount_remainAmountBlanch($blanch_id,$payment_method);
-  // echo "<pre>";
-  //      print_r($blanch_account);
-  //           exit();
-    $this->load->view('officer/expenses_requisition',['expns'=>$expns,'empl_data'=>$empl_data,'privillage'=>$privillage,'data'=>$data,'manager'=>$manager,'blanch_account'=>$blanch_account]);
+  $branch_employees = $this->queries->get_AllemployeeBlanch($blanch_id);
+    $this->load->view('officer/expenses_requisition',['expns'=>$expns,'empl_data'=>$empl_data,'privillage'=>$privillage,'data'=>$data,'manager'=>$manager,'blanch_account'=>$blanch_account,'branch_employees'=>$branch_employees,'filter_from'=>$filter_from,'filter_to'=>$filter_to,'filter_expense'=>$filter_expense]);
+}
+
+public function expenses_pdf(){
+    $this->load->model('queries');
+    $blanch_id = $this->session->userdata('blanch_id');
+    $empl_id = $this->session->userdata('empl_id');
+    $empl_data = $this->queries->get_employee_data($empl_id);
+    $comp_id = $empl_data->comp_id;
+    $company_data = $this->queries->get_companyData($comp_id);
+    $blanch_data = $this->queries->get_blanchData($blanch_id);
+
+    $filter_from = $this->input->get('from');
+    $filter_to = $this->input->get('to');
+    $filter_expense = $this->input->get('expense');
+    if (!empty($filter_from) && !empty($filter_to)) {
+        $data = $this->queries->get_expences_requestBlanchByDate($blanch_id, $filter_from, $filter_to, $filter_expense);
+    } elseif (!empty($filter_expense)) {
+        $data = $this->queries->get_expences_requestBlanchByDate($blanch_id, '2000-01-01', '2099-12-31', $filter_expense);
+    } else {
+        $data = $this->queries->get_expences_requestBlanchuniq($blanch_id);
+        $filter_from = date('Y-m-d');
+        $filter_to = date('Y-m-d');
+    }
+
+    require_once APPPATH . '../vendor/autoload.php';
+    $mpdf = new \Mpdf\Mpdf([
+        'mode' => 'utf-8',
+        'format' => 'A4',
+        'margin_left' => 10,
+        'margin_right' => 10,
+        'margin_top' => 10,
+        'margin_bottom' => 15,
+        'tempDir' => APPPATH . 'tmp/mpdf',
+    ]);
+
+    $html = $this->load->view('officer/expenses_pdf', [
+        'data' => $data,
+        'company_data' => $company_data,
+        'blanch_data' => $blanch_data,
+        'filter_from' => $filter_from,
+        'filter_to' => $filter_to,
+    ], TRUE);
+
+    $mpdf->SetTitle('Expenses Report - ' . $blanch_data->blanch_name);
+    $mpdf->SetFooter('Generated on ' . date('Y-m-d H:i'));
+    $mpdf->WriteHTML($html);
+    $filename = 'Expenses_' . $blanch_data->blanch_name . '_' . $filter_from . '_to_' . $filter_to . '.pdf';
+    $mpdf->Output($filename, 'D');
 }
 
 
@@ -649,9 +706,6 @@ $this->load->model('queries');
 
     if ($this->form_validation->run()) {
         $data = $this->input->post();
-        // echo "<pre>";
-        //  print_r($data);
-        //        exit();
         $blanch_id = $data['blanch_id'];
         $ex_id = $data['ex_id'];
         $req_amount = $data['req_amount'];
@@ -659,27 +713,75 @@ $this->load->model('queries');
         $req_description = $data['req_description'];
         $comp_id = $data['comp_id'];
 
-        $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
-        $balance_blanch = $blanch_account->blanch_capital;
-        $remain_blanch_remain = $balance_blanch - $req_amount; 
-        if ($req_amount > $balance_blanch) {
-       $this->session->set_flashdata("error",'Blanch Account Blance is Not Enough');
-       return redirect("oficer/expnses_requisition_form");
-        }else{
-        $this->insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id);
-        $this->update_blanch_account_balance($comp_id,$blanch_id,$trans_id,$remain_blanch_remain);
-       $this->session->set_flashdata("massage",'Successfully');
-       
+        // Check if expense is "Daily allowance" (auto-approve, no manager approval needed)
+        $is_daily_allowance = ($ex_id === 'daily_allowance');
+        if (!$is_daily_allowance) {
+            $expense_info = $this->queries->get_expenses_byId($ex_id);
+            $is_daily_allowance = (strtolower(trim($expense_info->ex_name)) == 'daily allowance');
+        }
+
+        if ($is_daily_allowance) {
+            // Get the selected employees for daily allowance
+            $allowance_empl_ids = $this->input->post('allowance_empl_ids');
+            if (empty($allowance_empl_ids) || !is_array($allowance_empl_ids)) {
+                $this->session->set_flashdata("error",'Please select at least one employee for Daily Allowance');
+                return redirect("oficer/expnses_requisition_form");
             }
+
+            // Use actual ex_id if it came from tbl_expenses, otherwise 0
+            $da_ex_id = ($ex_id === 'daily_allowance') ? 0 : $ex_id;
+
+            // Calculate total amount from all selected employees
+            $total_amount = 0;
+            $employees_data = [];
+            foreach ($allowance_empl_ids as $aid) {
+                $emp = $this->queries->get_employee_data($aid);
+                $emp_allowance = isset($emp->daily_allowance) ? (int)$emp->daily_allowance : 0;
+                $total_amount += $emp_allowance;
+                $employees_data[] = ['empl' => $emp, 'amount' => $emp_allowance];
+            }
+
+            // Check balance for total amount
+            $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
+            $balance_blanch = $blanch_account->blanch_capital;
+            if ($total_amount > $balance_blanch) {
+                $this->session->set_flashdata("error",'Branch Account Balance is Not Enough (Total: '.number_format($total_amount).')');
+                return redirect("oficer/expnses_requisition_form");
+            }
+
+            // Insert one request per employee, auto-approved
+            foreach ($employees_data as $ed) {
+                $desc = $ed['empl']->empl_name . ' - ' . $req_description;
+                $this->insert_expenses_request($comp_id,$blanch_id,$da_ex_id,$desc,$ed['amount'],$trans_id,'accept',$ed['empl']->empl_id,'daily_allowance');
+            }
+
+            // Deduct total from branch account
+            $remain = $balance_blanch - $total_amount;
+            $this->update_blanch_account_balance($comp_id,$blanch_id,$trans_id,$remain);
+            $this->session->set_flashdata("massage",'Daily Allowance approved for '.count($employees_data).' employee(s)');
+        } else {
+            // Requires manager approval: insert as pending, do NOT deduct balance
+            // Validate amount does not exceed account balance
+            $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
+            $balance_blanch = $blanch_account->blanch_capital;
+            if ($req_amount > $balance_blanch) {
+                $this->session->set_flashdata("error",'Requested amount exceeds account balance. Existed balance is '.number_format($balance_blanch));
+                return redirect("oficer/expnses_requisition_form");
+            }
+            $this->insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id,'open');
+            $this->session->set_flashdata("massage",'Requisition submitted, awaiting manager approval');
+        }
         return redirect("oficer/expnses_requisition_form");
          }
       $this->expnses_requisition_form();        
     }
 
 
-  public function insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id){
+  public function insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id,$req_status='open',$allowance_empl_id=null,$deduct_type=null){
    $date = date("Y-m-d");
-  $this->db->query("INSERT INTO tbl_request_exp (`comp_id`,`blanch_id`,`ex_id`,`req_description`,`req_amount`,`req_date`,`trans_id`) VALUES ('$comp_id','$blanch_id','$ex_id','$req_description','$req_amount','$date','$trans_id')");  
+   $empl_id = $allowance_empl_id ? $allowance_empl_id : $this->session->userdata('empl_id');
+   $deduct_type = $deduct_type ? $deduct_type : '';
+  $this->db->query("INSERT INTO tbl_request_exp (`comp_id`,`blanch_id`,`ex_id`,`req_description`,`req_amount`,`req_date`,`trans_id`,`empl_id`,`req_status`,`deduct_type`) VALUES ('$comp_id','$blanch_id','$ex_id','$req_description','$req_amount','$date','$trans_id','$empl_id','$req_status','$deduct_type')");  
   }
 
   public function update_blanch_account_balance($comp_id,$blanch_id,$trans_id,$remain_blanch_remain){
@@ -694,20 +796,22 @@ $this->load->model('queries');
   public function delete_expences($req_id){
         $this->load->model('queries');
         $rejected = $this->queries->get_expenses_reject($req_id);
-        $blanch_id = $rejected->blanch_id;
-        $req_amount = $rejected->req_amount;
-        $trans_id = $rejected->trans_id;
-        $comp_id = $rejected->comp_id;
-       
-       $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
-       $blanch_capital = $blanch_account->blanch_capital;
+        $req_status = $rejected->req_status;
 
-       $return_balance = $blanch_capital + $req_amount;
+        // Only restore balance if expense was already approved (balance was deducted)
+        if ($req_status == 'accept') {
+            $blanch_id = $rejected->blanch_id;
+            $req_amount = $rejected->req_amount;
+            $trans_id = $rejected->trans_id;
+            $comp_id = $rejected->comp_id;
 
-        // echo "<pre>";
-        // print_r($return_balance);
-        //      exit();
-         $this->update_account_balance_remain_data($comp_id,$blanch_id,$trans_id,$return_balance);
+            $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
+            $blanch_capital = $blanch_account->blanch_capital;
+            $return_balance = $blanch_capital + $req_amount;
+
+            $this->update_account_balance_remain_data($comp_id,$blanch_id,$trans_id,$return_balance);
+        }
+
         if($this->queries->remove_expences($req_id));
         $this->session->set_flashdata('massage','Expenses rejected successfully');
         return redirect('oficer/expnses_requisition_form');
@@ -746,26 +850,38 @@ $this->load->model('queries');
 
 
     public function expenses_request_accept($req_id){
-          //Prepare array of user data
-        $day = date('Y-m-d');
+            $this->load->model('queries');
+
+            // Get request details for balance deduction
+            $request = $this->queries->get_recomended_status($req_id);
+            $blanch_id = $request->blanch_id;
+            $trans_id = $request->trans_id;
+            $comp_id = $request->comp_id;
+            $req_amount = $this->input->post('req_amount');
+
+            // Check branch account balance before approving
+            $blanch_account = $this->queries->get_blanch_balance_expenses($blanch_id,$trans_id);
+            $balance_blanch = $blanch_account->blanch_capital;
+            if ($req_amount > $balance_blanch) {
+                $this->session->set_flashdata("error",'Branch Account Balance is Not Enough to approve this expense');
+                return redirect('oficer/get_recomended_request');
+            }
+
+            $remain = $balance_blanch - $req_amount;
+
+            $day = date('Y-m-d');
             $data = array(
             'req_comment'=> $this->input->post('req_comment'),
-            'req_amount'=> $this->input->post('req_amount'),
+            'req_amount'=> $req_amount,
             'req_status'=> 'accept',
             'req_date' => $day,
-           
             );
-            //   echo "<pre>";
-            // print_r($data);
-            //  echo "</pre>";
-            //   exit();
-            
-            //Pass user data to model
-           $this->load->model('queries'); 
-            $data = $this->queries->update_requet_status($req_id,$data);
-            
-            //Storing insertion status message.
-            if($data){
+
+            $result = $this->queries->update_requet_status($req_id,$data);
+
+            if($result){
+                // Deduct balance from branch account on approval
+                $this->update_blanch_account_balance($comp_id,$blanch_id,$trans_id,$remain);
                 $this->session->set_flashdata('massage','Expenses Accepted successfully');
             }else{
                 $this->session->set_flashdata('error','Data failed!!');
@@ -867,7 +983,7 @@ $this->load->model('queries');
     $penalty_today = $this->queries->get_sum_incomeBlanchData($blanch_id, $report_date);
     $processing_fee = $this->queries->get_total_deducted_income_blanch_data($blanch_id, $report_date);
 
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/daily_report_pdf', [
       'company_data' => $company_data,
       'blanch_data' => $blanch_data,
@@ -966,7 +1082,7 @@ echo $this->queries->fetch_vipmios($this->input->post('customer_id'));
         $income = $this->queries->get_income($comp_id);
         $detail_income = $this->queries->get_income_detail($comp_id);
         $total_receved = $this->queries->get_sum_income($comp_id);
-        $mpdf = new \Mpdf\Mpdf();
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
         $html = $this->load->view('officer/today_income_report',['compdata'=>$compdata,'income'=>$income,'detail_income'=>$detail_income,'total_receved'=>$total_receved],true);
         $mpdf->SetFooter('Generated By Brainsoft Technology');
         $mpdf->WriteHTML($html);
@@ -991,7 +1107,7 @@ echo $this->queries->fetch_vipmios($this->input->post('customer_id'));
              //     echo "<pre>";
              // print_r($blanch_income);
              //         exit();
-        $mpdf = new \Mpdf\Mpdf();
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
         $html = $this->load->view('officer/print_blanch_income',['compdata'=>$compdata,'blanch_income'=>$blanch_income,'sum_income'=>$sum_income,'blanch_data'=>$blanch_data],true);
         $mpdf->SetFooter('Generated By Brainsoft Technology');
         $mpdf->WriteHTML($html);
@@ -1036,7 +1152,7 @@ echo $this->queries->fetch_vipmios($this->input->post('customer_id'));
     $total_req = $this->queries->getTotal_reqExpences($comp_id);
     $compdata = $this->queries->get_companyData($comp_id);
 
-    $mpdf = new \Mpdf\Mpdf();
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/print_all_aceptexpences',['data'=>$data,'blanch'=>$blanch,'compdata'=>$compdata,'total_req'=>$total_req],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
     $mpdf->WriteHTML($html);
@@ -1115,7 +1231,8 @@ echo $this->queries->fetch_vipmios($this->input->post('region_id'));
         'margin_top' => 15,
         'margin_bottom' => 15,
         'margin_header' => 5,
-        'margin_footer' => 5
+        'margin_footer' => 5,
+        'tempDir' => APPPATH . 'tmp/mpdf',
     ]);
 
     $html = $this->load->view('officer/print_penalt', [
@@ -1414,7 +1531,7 @@ Jumla leo tawi: " . number_format($jumla_faini) . " TZS.";
         //      echo "<pre>";
         // print_r($blanch);
         //        exit();
-      $mpdf = new \Mpdf\Mpdf();
+      $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
       $html = $this->load->view('officer/previous_income_report',['compdata'=>$compdata,'data'=>$data,'sum_income'=>$sum_income,'from'=>$from,'to'=>$to,'blanch'=>$blanch,'blanch'=>$blanch],true);
       $mpdf->SetFooter('Generated By Brainsoft Technology');
       $mpdf->WriteHTML($html);
@@ -1448,7 +1565,7 @@ Jumla leo tawi: " . number_format($jumla_faini) . " TZS.";
       $compdata = $this->queries->get_companyData($comp_id);
       $data = $this->queries->get_previous_incomeAll($from,$to,$comp_id);
       $sum_income = $this->queries->get_sum_previousIncomeAll($from,$to,$comp_id);
-      $mpdf = new \Mpdf\Mpdf();
+      $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
       $html = $this->load->view('officer/previous_income_reportAll',['compdata'=>$compdata,'data'=>$data,'sum_income'=>$sum_income,'from'=>$from,'to'=>$to],true);
       $mpdf->SetFooter('Generated By Brainsoft Technology');
       $mpdf->WriteHTML($html);
@@ -1821,7 +1938,7 @@ public function insert_companyAccount_income($comp_id,$comp_total){
 
      $compdata = $this->queries->get_companyData($comp_id);
      $blanch = $this->queries->get_blanch($comp_id);
-     $mpdf = new \Mpdf\Mpdf();
+     $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/blanch_report',['compdata'=>$compdata,'blanch'=>$blanch,'empl_data'=>$empl_data],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -1926,7 +2043,7 @@ public function insert_companyAccount_income($comp_id,$comp_total){
     $sheet = $this->queries->get_Allemployee_salary($comp_id);
     $total_salary = $this->queries->get_sum_salary($comp_id);
     $compdata = $this->queries->get_companyData($comp_id);
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/salary_sheet_report',['compdata'=>$compdata,'sheet'=>$sheet,'total_salary'=>$total_salary,'empl_data'=>$empl_data],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -3348,7 +3465,7 @@ public function  view_aggrement($customer_id){
                 
 
 
-	 $mpdf = new \Mpdf\Mpdf();
+	 $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/loan_aggrement',[
        "customer"      => $customer,
         "loan_form"     => $loan_form,
@@ -4077,7 +4194,7 @@ $this->loan_application();
      $total_loan_group = $this->queries->get_total_loan_group($blanch_id);
      $blanch_data = $this->queries->get_blanchData($blanch_id);
      
-     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/loan_group_request_report',['group_loan'=>$group_loan,'compdata'=>$compdata,'total_loan_group'=>$total_loan_group,'blanch_data'=>$blanch_data],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -4100,7 +4217,7 @@ $this->loan_application();
      $blanch_data = $this->queries->get_blanchData($blanch_id);
      // print_r($total_request);
      //            exit();
-     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/loan_request_report',['compdata'=>$compdata,'loan_pending'=>$loan_pending,'total_request'=>$total_request,'blanch_data'=>$blanch_data],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -4130,6 +4247,98 @@ $this->loan_application();
         $this->load->view('officer/loan_pending',['loan_pending'=>$loan_pending,'empl_data'=>$empl_data,'privillage'=>$privillage,'manager'=>$manager]);  
     }
 
+    // Branch Manager: view loans pending verification for their branch
+    public function manager_verify_loans(){
+        $this->load->model('queries');
+        $blanch_id = $this->session->userdata('blanch_id');
+        $empl_id = $this->session->userdata('empl_id');
+        $manager_data = $this->queries->get_manager_data($empl_id);
+        $comp_id = $manager_data->comp_id;
+        $empl_data = $this->queries->get_employee_data($empl_id);
+        $privillage = $this->queries->get_position_empl($empl_id);
+
+        $loan_pending = $this->queries->get_loanPendingVerification($blanch_id);
+
+        $this->load->view('officer/manager_verify_loans', [
+            'loan_pending' => $loan_pending,
+            'empl_data' => $empl_data,
+            'privillage' => $privillage
+        ]);
+    }
+
+    // Branch Manager: verify a single loan
+    public function verify_loan($loan_id){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        $position_id = $this->session->userdata('position_id');
+
+        // Check position is branch manager (position_id = 21)
+        if ($position_id != '21') {
+            $this->session->set_flashdata('error', 'You do not have permission to verify loans');
+            return redirect('oficer/index');
+        }
+
+        $data = array(
+            'verified_by' => $empl_id,
+            'verified_at' => date('Y-m-d H:i:s'),
+        );
+
+        $updated = $this->queries->update_status($loan_id, $data);
+
+        if ($updated) {
+            $this->session->set_flashdata('massage', 'Loan verified successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Verification failed');
+        }
+
+        return redirect('oficer/manager_verify_loans');
+    }
+
+    // Branch Manager: verify loan with edits from view_Dataloan form
+    public function verify_loan_update($loan_id){
+        $this->load->model('queries');
+        $empl_id = $this->session->userdata('empl_id');
+        $position_id = $this->session->userdata('position_id');
+
+        // Check position is branch manager (position_id = 21)
+        if ($position_id != '21') {
+            $this->session->set_flashdata('error', 'You do not have permission to verify loans');
+            return redirect('oficer/index');
+        }
+
+        $data = array(
+            'verified_by' => $empl_id,
+            'verified_at' => date('Y-m-d H:i:s'),
+        );
+
+        // Update editable fields if submitted
+        if ($this->input->post('category_id') !== null) {
+            $data['category_id'] = $this->input->post('category_id');
+        }
+        if ($this->input->post('day') !== null) {
+            $data['day'] = $this->input->post('day');
+        }
+        if ($this->input->post('loan_aprove') !== null) {
+            $data['loan_aprove'] = $this->input->post('loan_aprove');
+        }
+        if ($this->input->post('session') !== null) {
+            $data['session'] = $this->input->post('session');
+        }
+        if ($this->input->post('reason') !== null) {
+            $data['reason'] = $this->input->post('reason');
+        }
+
+        $updated = $this->queries->update_status($loan_id, $data);
+
+        if ($updated) {
+            $this->session->set_flashdata('massage', 'Loan verified and updated successfully');
+        } else {
+            $this->session->set_flashdata('error', 'Verification failed');
+        }
+
+        return redirect('oficer/loan_pending');
+    }
+
 
          public function view_Dataloan($customer_id,$comp_id){
          $this->load->model('queries');
@@ -4148,11 +4357,12 @@ $this->loan_application();
          $collateral = $this->queries->get_colateral_data($loan_id);
          $local_oficer = $this->queries->get_loacagovment_data($loan_id);
          $privillage = $this->queries->get_position_empl($empl_id);
+         $loan_categories = $this->queries->get_loancategory($comp_id);
             //    echo "<pre>";
             // print_r(  $sponser_detail);
             //    echo "</pre>";
             //        exit();
-        $this->load->view('officer/view_loan_customer',['customer_data'=>$customer_data,'sponser_detail'=>$sponser_detail,'loan_form'=>$loan_form,'collateral'=>$collateral,'local_oficer'=>$local_oficer,'empl_data'=>$empl_data,'privillage'=>$privillage]);
+        $this->load->view('officer/view_loan_customer',['customer_data'=>$customer_data,'sponser_detail'=>$sponser_detail,'loan_form'=>$loan_form,'collateral'=>$collateral,'local_oficer'=>$local_oficer,'empl_data'=>$empl_data,'privillage'=>$privillage,'loan_categories'=>$loan_categories]);
     }
 
       public function download_attach($attach_id){
@@ -5430,7 +5640,8 @@ public function print_officer_todaycash_transaction()
 
     $mpdf = new \Mpdf\Mpdf([
       'format' => 'A4-L',
-      'orientation' => 'L'
+      'orientation' => 'L',
+        'tempDir' => APPPATH . 'tmp/mpdf',
     ]);
 
     $html = $this->load->view('officer/print_today_officer_transaction', [
@@ -6801,7 +7012,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
       $total_interest_loan = $this->queries->get_sum_loanwithdrawal_interestBlanch($blanch_id);
       $blanch = $this->queries->get_blanchData($blanch_id);
   
-      $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+      $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
       $html = $this->load->view('officer/loan_withdrawal_report', [
           'compdata' => $compdata,
           'disburse_grouped' => $disburse_grouped,
@@ -6949,7 +7160,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     $empl = $this->queries-> get_employee_data($empl_id);
         // print_r($empl);
         //        exit();
-    $mpdf = new \Mpdf\Mpdf();
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/print_cash_transaction',['cash'=>$cash,'empl'=> $empl,'compdata'=>$compdata,'sum_depost'=>$sum_depost,'sum_withdrawls'=>$sum_withdrawls,'empl_data'=>$empl_data,'blanch_data'=>$blanch_data],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
         $mpdf->WriteHTML($html);
@@ -6986,7 +7197,8 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
       // ✅ Set landscape mode: 'A4-L' for A4 Landscape
       $mpdf = new \Mpdf\Mpdf([
         'format' => 'A4-L', // A4 size in Landscape orientation
-        'orientation' => 'L' // Optional, since 'A4-L' already sets it
+        'orientation' => 'L', // Optional, since 'A4-L' already sets it
+          'tempDir' => APPPATH . 'tmp/mpdf',
       ]);
     
       // Load the HTML view
@@ -7043,7 +7255,8 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
 
       $mpdf = new \Mpdf\Mpdf([
         'format' => 'A4-L', // A4 size in Landscape orientation
-        'orientation' => 'L' // Optional, since 'A4-L' already sets it
+        'orientation' => 'L', // Optional, since 'A4-L' already sets it
+          'tempDir' => APPPATH . 'tmp/mpdf',
       ]);
     
       // Load the HTML view
@@ -7092,7 +7305,8 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
       // ✅ Set landscape mode: 'A4-L' for A4 Landscape
       $mpdf = new \Mpdf\Mpdf([
         'format' => 'A4-L', // A4 size in Landscape orientation
-        'orientation' => 'L' // Optional, since 'A4-L' already sets it
+        'orientation' => 'L', // Optional, since 'A4-L' already sets it
+          'tempDir' => APPPATH . 'tmp/mpdf',
       ]);
     
       // Load the HTML view
@@ -7132,7 +7346,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     $sum_withdrawls = $this->queries->get_sumCashtransWithdrow($comp_id);
         // print_r($comdata);
         //        exit();
-    $mpdf = new \Mpdf\Mpdf();
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/print_cash_transaction',['cash'=>$cash,'compdata'=>$compdata,'sum_depost'=>$sum_depost,'sum_withdrawls'=>$sum_withdrawls,'empl_data'=>$empl_data],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
         $mpdf->WriteHTML($html);
@@ -7155,7 +7369,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     $total_cashDepost = $this->queries->get_sumCashtransDepostPrviousBlanch($from,$to,$blanch_id);
     $total_withdrawal = $this->queries->get_sumCashtransWithdrowPreviousBlanch($from,$to,$blanch_id);
     $blanch_data = $this->queries->get_blanchData($blanch_id);
-    $mpdf = new \Mpdf\Mpdf();
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/previous_cash_report',['compdata'=>$compdata,'data'=>$data,'total_cashDepost'=>$total_cashDepost,'total_withdrawal'=>$total_withdrawal,'from'=>$from,'to'=>$to,'empl_data'=>$empl_data,'blanch_data'=>$blanch_data],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
     $mpdf->WriteHTML($html);
@@ -7178,7 +7392,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     $data = $this->queries->search_prev_cashtransaction($from,$to,$comp_id);
     $total_cashDepost = $this->queries->get_sumCashtransDepostPrvious($from,$to,$comp_id);
     $total_withdrawal = $this->queries->get_sumCashtransWithdrowPrevious($from,$to,$comp_id);
-    $mpdf = new \Mpdf\Mpdf();
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/manager_print_cash',['compdata'=>$compdata,'data'=>$data,'total_cashDepost'=>$total_cashDepost,'total_withdrawal'=>$total_withdrawal,'from'=>$from,'to'=>$to,'empl_data'=>$empl_data],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
     $mpdf->WriteHTML($html);
@@ -7252,7 +7466,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
             //   print_r($company_data);
             //         exit();
 
-    $mpdf = new \Mpdf\Mpdf();
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/print_blanchwise_report',['data_blanch'=>$data_blanch,'total_allblanch'=>$total_allblanch,'total_loan'=>$total_loan,'compdata'=>$compdata],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
         $mpdf->WriteHTML($html);
@@ -7279,7 +7493,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
             //   print_r($company_data);
             //         exit();
 
-    $mpdf = new \Mpdf\Mpdf();
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/manager_print_blanchwise_report',['data_blanch'=>$data_blanch,'total_allblanch'=>$total_allblanch,'total_loan'=>$total_loan,'compdata'=>$compdata],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
         $mpdf->WriteHTML($html);
@@ -7329,7 +7543,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
         $compdata = $this->queries->get_companyData($comp_id);
         $privillage = $this->queries->get_position_empl($empl_id); 
 
-        $mpdf = new \Mpdf\Mpdf();
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
         $html = $this->load->view('officer/print_previous_blanchwise',['data_blanchwise'=>$data_blanchwise,'total_receivable'=>$total_receivable,'total_receved'=>$total_receved,'from'=>$from,'to'=>$to,'blanch_id'=>$blanch_id,'compdata'=>$compdata,'empl_data'=>$empl_data,'privillage'=>$privillage],true);
         $mpdf->SetFooter('Generated By Brainsoft Technology');
         $mpdf->WriteHTML($html);
@@ -7464,7 +7678,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
         $blanch = $this->queries->get_blanch_data($blanch_id);
          // print_r($blanch);
          //      exit();
-     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/print_prev_pendLoan',['compdata'=>$compdata,'pend'=>$pend,'loan_pend'=>$loan_pend,'from'=>$from,'to'=>$to,'blanch'=>$blanch],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -7486,7 +7700,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
      $compdata = $this->queries->get_companyData($comp_id);
      $loan_pend = $this->queries->get_pending_reportLoanblanch($blanch_id);
      $pend = $this->queries->get_sun_loanPendingBlanch($blanch_id);
-     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/loan_pending_report',['compdata'=>$compdata,'pend'=>$pend,'loan_pend'=>$loan_pend],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -7506,7 +7720,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
      $compdata = $this->queries->get_companyData($comp_id);
      $loan_pend = $this->queries->get_pending_reportLoan($comp_id);
      $pend = $this->queries->get_sun_loanPending($comp_id);
-     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/loan_pending_report',['compdata'=>$compdata,'pend'=>$pend,'loan_pend'=>$loan_pend],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -7597,7 +7811,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     $repayment = $this->queries->get_repayment_dataBlanch($blanch_id);
     $total_loanAprove = $this->queries->get_total_loanDoneBlanch($blanch_id);
     $total_loan_int = $this->queries->get_sum_totalloanInterstBlanch($blanch_id);
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/repayment_report',['compdata'=>$compdata,'repayment'=>$repayment,'total_loanAprove'=>$total_loanAprove,'total_loan_int'=>$total_loan_int],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
     $mpdf->WriteHTML($html);
@@ -7618,7 +7832,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
     $repayment = $this->queries->get_repayment_data($comp_id);
     $total_loanAprove = $this->queries->get_total_loanDone($comp_id);
     $total_loan_int = $this->queries->get_sum_totalloanInterst($comp_id);
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/repayment_report',['compdata'=>$compdata,'repayment'=>$repayment,'total_loanAprove'=>$total_loanAprove,'total_loan_int'=>$total_loan_int],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
     $mpdf->WriteHTML($html);
@@ -7640,7 +7854,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
      $total_loanAprove = $this->queries->get_sumprev_loanAproveBlanch($from,$to,$blanch_id);
      $total_loan_int = $this->queries->get_sum_prevtotalLoansintBlanch($from,$to,$blanch_id);
      $compdata = $this->queries->get_companyData($comp_id);
-     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/prev_repayment_report',['compdata'=>$compdata,'repayment'=>$repayment,'total_loanAprove'=>$total_loanAprove,'total_loan_int'=>$total_loan_int,'from'=>$from,'to'=>$to],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -7723,7 +7937,7 @@ $this->db->query("INSERT INTO tbl_outstand (`comp_id`,`loan_id`,`blanch_id`,`loa
          //  echo "<pre>";
          // print_r($customer_report);
          //     exit();
-        $mpdf = new \Mpdf\Mpdf();
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
         $html = $this->load->view('officer/customer_loan_report',['compdata'=>$compdata,'customer_report'=>$customer_report,'customer_id'=>$customer_id,'sum_recevable'=>$sum_recevable,'sum_pend'=>$sum_pend,'sum_penart'=>$sum_penart,'statement'=>$statement],true);
         $mpdf->SetFooter('Generated By Brainsoft Technology');
         $mpdf->WriteHTML($html);
@@ -7969,7 +8183,7 @@ echo $this->queries->fetch_loan_list($this->input->post('customer_id'));
 
       usort($schedule, function($a, $b) { return strcmp($a['date'], $b['date']); });
 
-      $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'orientation' => 'L']);
+      $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
       $html = $this->load->view('admin/payment_statement_pdf', [
         'loan'           => $loan,
         'customer'       => $customer,
@@ -8057,7 +8271,7 @@ public function loan_statementreport(){
      $compdata = $this->queries->get_companyData($comp_id);
      $customer_data = $this->queries->get_loan_schedule_customer($loan_id);
      
-    $mpdf = new \Mpdf\Mpdf();
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/customer_account_statement',['compdata'=>$compdata,'customer_data'=>$customer_data,'loan_id'=>$loan_id,'customer_id'=>$customer_id],true);
      $mpdf->SetFooter('Generated By Brainsoft');
      $mpdf->WriteHTML($html);
@@ -8116,7 +8330,7 @@ $total_depost=$this->queries->get_total_amount_paid_loan($loan_id);
 // echo "<pre>";
 // exit();
     $compdata = $this->queries->get_companyData($comp_id);
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/customer_statement_report',['compdata'=>$compdata,'statement'=>$statement,'customer_loan_data'=>$customer_loan_data,
     'total_depost'=>$total_depost,'pay_customer'=>$pay_customer,'payisnull'=>$payisnull,'empl_data'=>$empl_data],true);
     //  $mpdf->SetFooter('Generated By Brainsoft Technology');
@@ -8309,7 +8523,7 @@ public function today_received_pdf()
     $html = $this->load->view('officer/report_siku', $data, true);
 
     // Generate PDF
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
     $mpdf->WriteHTML($html);
 
@@ -8807,7 +9021,8 @@ public function oficer_profile(){
 
       $mpdf = new \Mpdf\Mpdf([
         'format' => 'A4-L',
-        'orientation' => 'L'
+        'orientation' => 'L',
+          'tempDir' => APPPATH . 'tmp/mpdf',
       ]);
 
       $html = $this->load->view('officer/print_outstand_loan_pdf', [
@@ -8848,7 +9063,7 @@ public function print_allCustomer(){
       // print_r($customer);
       //          exit();
 
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/customer_report_pdf',['compdata'=>$compdata,'customer'=>$customer,'blanch'=>$blanch],true);
     $mpdf->SetFooter('Generated By Brainsoft Technology');
     $mpdf->WriteHTML($html);
@@ -8884,7 +9099,7 @@ public function download_yesterday_defaulters_pdf()
     if (ob_get_length()) ob_end_clean();
 
     // Load mPDF
-    $mpdf = new \Mpdf\Mpdf(['format' => 'A4-L']); // Landscape
+    $mpdf = new \Mpdf\Mpdf(['format' => 'A4-L', 'tempDir' => APPPATH . 'tmp/mpdf']); // Landscape
     $html = $this->load->view('officer/yesterday_defaulters_pdf', $data, true);
     $mpdf->WriteHTML($html);
 
@@ -8928,7 +9143,7 @@ exit();
         if (ob_get_length()) ob_end_clean();
 
         // Load mPDF and render PDF
-        $mpdf = new \Mpdf\Mpdf(['format' => 'A4-L']); // Landscape
+        $mpdf = new \Mpdf\Mpdf(['format' => 'A4-L', 'tempDir' => APPPATH . 'tmp/mpdf']); // Landscape
         $html = $this->load->view('officer/defaulters_3_30_days_pdf', $data, true);
         $mpdf->WriteHTML($html);
 
@@ -8957,7 +9172,7 @@ exit();
      $blanch = $this->queries->get_blanchData($blanch_id);
        // print_r($blanch);
        //         exit();
-     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/loan_withdrawal_report',['compdata'=>$compdata,'loan_withdrawal'=>$loan_withdrawal,'total_interest_loan'=>$total_interest_loan,'blanch'=>$blanch],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -8982,7 +9197,7 @@ exit();
      $blanch = $this->queries->get_blanchData($blanch_id);
        // print_r($blanch);
        //         exit();
-     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+     $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
      $html = $this->load->view('officer/loan_withdrawal_report',['compdata'=>$compdata,'loan_withdrawal'=>$loan_withdrawal,'total_interest_loan'=>$total_interest_loan,'blanch'=>$blanch],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -9555,7 +9770,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
         $manager = $this->queries->get_position_manager($empl_id);
         $compdata = $this->queries->get_companyData($comp_id);
 
-       $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+       $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
        $html = $this->load->view('officer/loan_collection_report',['compdata'=>$compdata,'loan_collection'=>$loan_collection,'income'=>$income,'loan_total'=>$loan_total,'depost_loan'=>$depost_loan,'penart'=>$penart,'penart_paid'=>$penart_paid],true);
        $mpdf->SetFooter('Generated By Brainsoft Technology');
        $mpdf->WriteHTML($html);
@@ -9582,7 +9797,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
         $penart_paid = $this->queries->get_paid_penart($comp_id);
         $compdata = $this->queries->get_companyData($comp_id);
 
-       $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+       $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
        $html = $this->load->view('officer/loan_collection_report',['compdata'=>$compdata,'loan_collection'=>$loan_collection,'income'=>$income,'loan_total'=>$loan_total,'depost_loan'=>$depost_loan,'penart'=>$penart,'penart_paid'=>$penart_paid],true);
        $mpdf->SetFooter('Generated By Brainsoft Technology');
        $mpdf->WriteHTML($html);
@@ -9635,7 +9850,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
        // print_r($data_collection);
        //            exit();
        
-       $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+       $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
        $html = $this->load->view('officer/loan_collections_blanch_report',['data_collection'=>$data_collection,'compdata'=>$compdata,'data_blanch'=>$data_blanch,'total_loans'=>$total_loans,'loan_paid'=>$loan_paid,'penart_amounts'=>$penart_amounts,'paid_penart'=>$paid_penart],true);
        $mpdf->SetFooter('Generated By Brainsoft Technology');
        $mpdf->WriteHTML($html);
@@ -9695,7 +9910,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
        $data_loan = $this->queries->get_loanSchedule($loan_id);
        $loan = $this->queries->get_loan_day($loan_id);
        $compdata = $this->queries->get_companyData($comp_id);
-       $mpdf = new \Mpdf\Mpdf([]);
+       $mpdf = new \Mpdf\Mpdf(['tempDir' => APPPATH . 'tmp/mpdf']);
        $html = $this->load->view('admin/schedule_report',['compdata'=>$compdata,'data_loan'=>$data_loan,'loan'=>$loan],true);
        $mpdf->SetFooter('Generated By Brainsoft Technology');
        $mpdf->WriteHTML($html);
@@ -9757,7 +9972,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
         // print_r($deducted_data);
         //        exit();
 
-          $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+          $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/print_deducted_income',['company_data'=>$company_data,'deducted_data'=>$deducted_data, 'empl_data'=>$empl_data,'blanch_data'=>$blanch_data],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -10044,7 +10259,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
     $compdata = $this->queries->get_companyData($comp_id);
     $blanch = $this->queries->get_blanchData($blanch_id);
 
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/print_general_operation',['compdata'=>$compdata,'empl'=>$empl,'blanch'=>$blanch],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -10084,7 +10299,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
     $group_loan = $this->queries->get_group_loan_blanch($blanch_id);
     $blanch = $this->queries->get_blanchData($blanch_id);
 
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/print_group_collection',['compdata'=>$compdata,'blanch'=>$blanch,'group_loan'=>$group_loan],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -10134,7 +10349,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
 
     $compdata = $this->queries->get_companyData($comp_id);
     $blanch = $this->queries->get_blanchData($blanch_id);
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
     $html = $this->load->view('officer/teller_officer_report',['compdata'=>$compdata,'blanch'=>$blanch,'empl_oficer'=>$empl_oficer,'total_deposit'=>$total_deposit,'total_withdrawal'=>$total_withdrawal,'cash_account'=>$cash_account],true);
      $mpdf->SetFooter('Generated By Brainsoft Technology');
      $mpdf->WriteHTML($html);
@@ -10278,7 +10493,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
             }
             $branch_data = $this->queries->get_blanch_data($blanch_id);
 
-          $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L']);
+          $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8','format' => 'A4-L','orientation' => 'L', 'tempDir' => APPPATH . 'tmp/mpdf']);
           $html = $this->load->view('officer/next_expectation_report',['compdata'=>$compdata,'branch'=>$branch,'data_expected'=>$data_expected,'sum_expectation'=>$sum_expectation,'from'=>$from,'to'=>$to,'branch_data'=>$branch_data,'blanch_id'=>$blanch_id],true);
           $mpdf->SetFooter('Generated By Brainsoft Technology');
           $mpdf->WriteHTML($html);

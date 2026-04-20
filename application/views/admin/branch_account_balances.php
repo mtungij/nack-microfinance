@@ -123,13 +123,17 @@ include_once APPPATH . "views/partials/header.php";
                   <tr>
                     <th class="px-4 py-3 text-start text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('account_name'); ?></th>
                     <th class="px-4 py-3 text-end text-xs font-semibold uppercase text-white"><?php echo $this->lang->line('balance'); ?></th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold uppercase text-white w-24"></th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                   <?php foreach ($branch_data['rows'] as $row): ?>
-                    <tr>
+                    <tr id="row-<?php echo $row->ac_id; ?>">
                       <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200"><?php echo htmlspecialchars($row->account_name ?? '-', ENT_QUOTES, 'UTF-8'); ?></td>
                       <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-end"><?php echo number_format((float)($row->blanch_capital ?? 0)); ?></td>
+                      <td class="px-4 py-3 text-center">
+                        <button type="button" onclick="openEditModal(<?php echo $row->ac_id; ?>, '<?php echo htmlspecialchars($row->account_name ?? '', ENT_QUOTES, 'UTF-8'); ?>', <?php echo (int)($row->blanch_capital ?? 0); ?>, '<?php echo htmlspecialchars($branch_name, ENT_QUOTES, 'UTF-8'); ?>')" class="text-xs px-2 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600"><i class="fa fa-pencil"></i></button>
+                      </td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
@@ -142,6 +146,29 @@ include_once APPPATH . "views/partials/header.php";
           </div>
         <?php endif; ?>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Balance Modal -->
+<div id="editBalanceModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+  <div class="fixed inset-0 bg-gray-900/20 backdrop-blur-md" onclick="closeEditModal()"></div>
+  <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white"><?php echo $this->lang->line('update_balance') ?? 'Update Balance'; ?></h3>
+      <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><i class="fa fa-times"></i></button>
+    </div>
+    <p id="editBranchName" class="text-sm font-medium text-cyan-700 dark:text-cyan-400 mb-1"></p>
+    <p id="editAccountName" class="text-sm text-gray-600 dark:text-gray-400 mb-4"></p>
+    <input type="hidden" id="editAcId">
+    <input type="hidden" id="editBalanceRaw">
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?php echo $this->lang->line('balance') ?? 'Balance'; ?></label>
+      <input type="text" id="editBalanceInput" oninput="formatBalanceInput(this)" class="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+    </div>
+    <div class="flex justify-end gap-2">
+      <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-sm font-medium rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"><?php echo $this->lang->line('cancel') ?? 'Cancel'; ?></button>
+      <button type="button" onclick="submitBalance()" class="px-4 py-2 text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-700"><?php echo $this->lang->line('save') ?? 'Save'; ?></button>
     </div>
   </div>
 </div>
@@ -272,5 +299,51 @@ $(document).ready(function () {
 
   $('#branchFilterSelect').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_branch'); ?>"});
   $('#accountFilterSelect').select2({...selectConfig, placeholder: "<?php echo $this->lang->line('select_accounts'); ?>", closeOnSelect: false});
+});
+
+function formatBalanceInput(el) {
+  var raw = el.value.replace(/[^0-9]/g, '');
+  document.getElementById('editBalanceRaw').value = raw;
+  if (raw === '') { el.value = ''; return; }
+  el.value = Number(raw).toLocaleString();
+}
+
+function openEditModal(acId, accountName, currentBalance, branchName) {
+  document.getElementById('editAcId').value = acId;
+  document.getElementById('editBranchName').textContent = branchName;
+  document.getElementById('editAccountName').textContent = accountName;
+  document.getElementById('editBalanceRaw').value = currentBalance;
+  document.getElementById('editBalanceInput').value = Number(currentBalance).toLocaleString();
+  document.getElementById('editBalanceModal').classList.remove('hidden');
+  document.getElementById('editBalanceInput').focus();
+}
+
+function closeEditModal() {
+  document.getElementById('editBalanceModal').classList.add('hidden');
+}
+
+function submitBalance() {
+  var acId = document.getElementById('editAcId').value;
+  var newVal = document.getElementById('editBalanceRaw').value;
+  if (newVal === '') return;
+
+  $.ajax({
+    url: '<?php echo base_url("admin/update_branch_account_balance"); ?>',
+    type: 'POST',
+    data: { ac_id: acId, blanch_capital: newVal, '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>' },
+    dataType: 'json',
+    success: function(res) {
+      if (res.status === 'success') {
+        location.reload();
+      } else {
+        alert(res.message || 'Update failed');
+      }
+    },
+    error: function() { alert('Server error'); }
+  });
+}
+
+$(document).keydown(function(e) {
+  if (e.key === 'Escape') closeEditModal();
 });
 </script>

@@ -44,6 +44,7 @@ include_once APPPATH . "views/partials/header.php";
     <input type="hidden" id="pdf-from"         name="from"       value="<?php echo isset($filters['from']) ? htmlspecialchars($filters['from']) : ''; ?>">
     <input type="hidden" id="pdf-to"           name="to"         value="<?php echo isset($filters['to'])   ? htmlspecialchars($filters['to'])   : ''; ?>">
     <input type="hidden" id="pdf-paid-today"   name="paid_today" value="<?php echo !empty($filters['paid_today']) ? '1' : ''; ?>">
+    <input type="hidden" id="pdf-loan-status"  name="loan_status" value="<?php echo isset($filters['loan_status']) ? htmlspecialchars($filters['loan_status']) : ''; ?>">
 </form>
 
 <button type="button" onclick="document.getElementById('pdf-download-form').submit()" class="flex items-center justify-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
@@ -75,7 +76,7 @@ include_once APPPATH . "views/partials/header.php";
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_end_date'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('amount_paid'); ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('remain_debt'); ?></th>
-
+                            <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('status') ?? 'Status'; ?></th>
                             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th> 
                         </tr>
                     </thead>
@@ -137,7 +138,29 @@ include_once APPPATH . "views/partials/header.php";
             <td class="px-4 py-3 text-green-600 dark:text-green-400"><?= number_format($row_paid); ?></td>
             <!-- Remaining Debt -->
             <td class="px-4 py-3 <?= $row_remain > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'; ?>"><?= number_format($row_remain); ?></td>
-<td class="px-4 py-3 dark:text-white">
+            <!-- Status -->
+            <td class="px-4 py-3">
+                <?php
+                    $status = $loan_aproveds->loan_status;
+                    $badge = 'bg-gray-100 text-gray-800';
+                    $label = ucfirst($status);
+                    if ($status == 'open') { $badge = 'bg-blue-100 text-blue-800'; }
+                    elseif ($status == 'aproved') { $badge = 'bg-yellow-100 text-yellow-800'; }
+                    elseif ($status == 'disbarsed') { $badge = 'bg-indigo-100 text-indigo-800'; }
+                    elseif ($status == 'withdrawal') { $badge = 'bg-green-100 text-green-800'; $label = 'Active'; }
+                    elseif ($status == 'out') { $badge = 'bg-red-100 text-red-800'; $label = 'Expired'; }
+                    elseif ($status == 'done') { $badge = 'bg-emerald-100 text-emerald-800'; $label = 'Full Paid'; }
+                ?>
+                <span class="px-2 py-1 rounded-full text-xs font-medium <?= $badge ?>"><?= $label ?></span>
+            </td>
+<td class="px-4 py-3 dark:text-white flex items-center gap-2">
+    <a href="<?= base_url("admin/customer_loan_detail/{$loan_aproveds->customer_id}") ?>" 
+       class="text-blue-600 hover:text-blue-900 flex items-center gap-1" title="<?php echo $this->lang->line('view_statement') ?? 'View Statement'; ?>">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+        </svg>
+    </a>
     <a href="<?= base_url("admin/delete_loanwith/{$loan_aproveds->loan_id}") ?>" 
        class="text-red-600 hover:text-red-900 flex items-center gap-1" 
     onclick="return confirm('<?php echo $this->lang->line('are_you_sure'); ?>')">
@@ -145,7 +168,6 @@ include_once APPPATH . "views/partials/header.php";
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4"/>
         </svg>
-        <?php echo $this->lang->line('delete'); ?>
     </a>
 </td>
 
@@ -163,6 +185,7 @@ include_once APPPATH . "views/partials/header.php";
     <td colspan="3"></td>
     <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_paid_all); ?></td>
     <td class="px-4 py-3 text-red-700 dark:text-red-400"><?= number_format($total_remain_all); ?></td>
+    <td></td>
     <td></td>
 </tr>
 
@@ -186,36 +209,49 @@ include_once APPPATH . "views/partials/header.php";
           </svg>
         </button>
       </div>
-	  <?php echo form_open("admin/get_blanch_withdraw"); ?>
+	  <?php echo form_open("admin/loan_withdrawal"); ?>
   <div class="p-4 overflow-y-auto space-y-4">
 
-    <!-- Gender Dropdown -->
+    <!-- Branch -->
     <div>
-      <label for="blanch" class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('choose_branch'); ?></label>
-  <select id="branchSelect" name="blanch_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" data-live-search="true"> <option value=""><?php echo $this->lang->line('choose_branch'); ?></option> <?php foreach ($blanch as $blanchs): ?> <option value="<?php echo $blanchs->blanch_id; ?>"><?php echo $blanchs->blanch_name; ?> </option> <?php endforeach; ?> </select>
-
+      <label class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('choose_branch'); ?></label>
+      <select name="blanch_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <option value=""><?php echo $this->lang->line('all_branches') ?? 'All Branches'; ?></option>
+        <?php foreach ($blanch as $blanchs): ?>
+          <option value="<?php echo $blanchs->blanch_id; ?>" <?php echo (isset($filters['blanch_id']) && $filters['blanch_id'] == $blanchs->blanch_id) ? 'selected' : ''; ?>><?php echo $blanchs->blanch_name; ?></option>
+        <?php endforeach; ?>
+      </select>
     </div>
 
-    <!-- 2-Column Grid: Phone, Email, Company Name, Address -->
+    <!-- Loan Status -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('status') ?? 'Status'; ?></label>
+      <select name="loan_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <option value=""><?php echo $this->lang->line('all') ?? 'All'; ?></option>
+        <?php
+          $statuses = [
+            'open' => 'Open',
+            'aproved' => 'Approved',
+            'disbarsed' => 'Disbursed',
+            'withdrawal' => 'Active',
+            'out' => 'Expired',
+            'done' => 'Full Paid',
+          ];
+          foreach ($statuses as $val => $lbl): ?>
+          <option value="<?= $val ?>" <?php echo (isset($filters['loan_status']) && $filters['loan_status'] == $val) ? 'selected' : ''; ?>><?= $lbl ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <!-- Date Range -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Phone -->
-      
-
-      <!-- Email -->
-    
-
-      <!-- Company Name -->
-	  <?php $date = date("Y-m-d"); ?>  
-
       <div>
-        <label for="company" class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('from_date'); ?></label>
-		<input type="date" value="<?php echo $date; ?>" name="from"  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <label class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('from_date'); ?></label>
+        <input type="date" name="from" value="<?php echo isset($filters['from']) && $filters['from'] ? htmlspecialchars($filters['from']) : ''; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
-
-      <!-- Address -->
       <div>
-        <label for="address" class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('to_date'); ?></label>
-		<input type="date" name="to" value="<?php echo $date; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <label class="block text-sm font-medium text-gray-700 dark:text-white"><?php echo $this->lang->line('to_date'); ?></label>
+        <input type="date" name="to" value="<?php echo isset($filters['to']) && $filters['to'] ? htmlspecialchars($filters['to']) : ''; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
     </div>
 
@@ -225,7 +261,7 @@ include_once APPPATH . "views/partials/header.php";
         <?php echo (!empty($filters['paid_today'])) ? 'checked' : ''; ?>
         class="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600">
       <label for="paid_today" class="text-sm font-medium text-gray-700 dark:text-white">
-                <?php echo $this->lang->line('paid_today_label'); ?>
+        <?php echo $this->lang->line('paid_today_label') ?? 'Paid Today'; ?>
       </label>
     </div>
 

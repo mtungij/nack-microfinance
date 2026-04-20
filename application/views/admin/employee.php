@@ -185,6 +185,13 @@ include_once APPPATH . "views/partials/header.php";
                             <?php echo form_error("salary", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
+						<div class="sm:col-span-4">
+                            <label for="daily_allowance" class="block text-sm font-medium mb-2 dark:text-gray-300">*Daily Allowance:</label>
+                            <input type="number" id="daily_allowance" name="daily_allowance" placeholder="Daily allowance amount" autocomplete="off"
+                                   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('daily_allowance'); ?>">
+                            <?php echo form_error("daily_allowance", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
+                        </div>
+
 
 						<div class="sm:col-span-4">
                             <label for="account_no" class="block text-sm font-medium mb-2 dark:text-gray-300">*Bank Account No:</label>
@@ -562,7 +569,12 @@ if ($status === 'open') { ?>
                             <label for="salary_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">*Salary:</label>
                             <input type="number" id="salary_<?php echo $employees->empl_id; ?>" name="salary" placeholder="System salary" autocomplete="off" 
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo htmlspecialchars($employees->salary, ENT_QUOTES, 'UTF-8'); ?>">
-                            
+                        </div>
+
+						<div class="sm:col-span-4">
+                            <label for="daily_allowance_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">*Daily Allowance:</label>
+                            <input type="number" id="daily_allowance_<?php echo $employees->empl_id; ?>" name="daily_allowance" placeholder="Daily allowance amount" autocomplete="off" 
+                                   class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo htmlspecialchars(isset($employees->daily_allowance) ? $employees->daily_allowance : '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
 
 

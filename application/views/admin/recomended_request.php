@@ -16,12 +16,33 @@ include_once APPPATH . "views/partials/header.php";
 
 
 <div class="w-full lg:ps-64">
-  <div class="= overflow-x-auto">
+  <div class="p-4 sm:p-6 space-y-4">
+
+    <!-- Page Header -->
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">
+        <?php echo $this->lang->line('expenses_requests') ?? 'Expenses Requests'; ?>
+      </h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <?php echo $this->lang->line('pending_expenses_subtitle') ?? 'Review and approve or reject pending expense requests.'; ?>
+      </p>
+    </div>
+
+    <!-- Flash Messages -->
+    <?php if ($msg = $this->session->flashdata('massage')): ?>
+      <div class="bg-teal-50 border-t-2 border-teal-500 rounded-lg p-4 dark:bg-teal-800/30">
+        <div class="flex"><div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('success') ?? 'Success'; ?></h3><p class="text-sm text-gray-700 dark:text-gray-400"><?php echo $msg; ?></p></div></div>
+      </div>
+    <?php endif; ?>
+    <?php if ($err = $this->session->flashdata('error')): ?>
+      <div class="bg-red-50 border-t-2 border-red-500 rounded-lg p-4 dark:bg-red-800/30">
+        <div class="flex"><div class="ms-3"><h3 class="text-gray-800 font-semibold dark:text-white"><?php echo $this->lang->line('error') ?? 'Error'; ?></h3><p class="text-sm text-gray-700 dark:text-gray-400"><?php echo $err; ?></p></div></div>
+      </div>
+    <?php endif; ?>
 
 
 <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
     <div class="w-full">
-        <!-- Start coding here -->
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div class="w-full md:w-1/2">
@@ -112,7 +133,7 @@ include_once APPPATH . "views/partials/header.php";
         </span>
         <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
            href="#"
-           data-hs-overlay="#hs-edit-shareholder-modal-<?= $datas->ex_id; ?>">
+           data-hs-overlay="#hs-accept-modal-<?= $datas->req_id; ?>">
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -124,18 +145,15 @@ include_once APPPATH . "views/partials/header.php";
 
 
       <div class="py-2 first:pt-0 last:pb-0">
-        <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
-        href="<?php echo base_url("admin/delete_employee/{$datas->empl_id}") ?>">
+        <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:ring-2 focus:ring-red-500 dark:text-red-400 dark:hover:bg-gray-700"
+        href="<?php echo base_url('admin/delete_expences/'.$datas->req_id); ?>"
+        onclick="return confirm('<?php echo $this->lang->line('confirm_delete_expense') ?? 'Are you sure you want to reject this expense?'; ?>');">
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="1.5"
+               fill="none" stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="7.5" cy="6.5" r="3"/>
-            <path d="M2 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/>
-            <rect x="14" y="11" width="8" height="8" rx="1.5"/>
-            <path d="M16 11v-2a3 3 0 0 1 6 0v2"/>
-            <circle cx="18" cy="15" r="1"/>f
+            <path d="M18 6L6 18"/><path d="M6 6l12 12"/>
           </svg>
-          Reject
+          <?php echo $this->lang->line('reject') ?? 'Reject'; ?>
         </a>
       </div>
 
@@ -143,73 +161,78 @@ include_once APPPATH . "views/partials/header.php";
   </div>
             </td>
         </tr>
+
+    <!-- Accept Modal for this row -->
+    <div id="hs-accept-modal-<?= $datas->req_id; ?>" 
+         class="hs-overlay hidden fixed top-0 left-0 w-full h-full z-50 overflow-x-hidden overflow-y-auto">
+      <div class="sm:max-w-lg sm:w-full mx-auto mt-10">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4"><?php echo $this->lang->line('approve') ?? 'Approve Expense'; ?></h3>
+
+          <?php echo form_open("admin/expenses_request_accept/".$datas->req_id); ?>
+
+            <input type="hidden" name="comp_id" value="<?= $datas->comp_id; ?>">
+            <input type="hidden" name="blanch_id" value="<?= $datas->blanch_id; ?>">
+            <input type="hidden" name="ex_id" value="<?= $datas->ex_id; ?>">
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"><?php echo $this->lang->line('from_account') ?? 'Account'; ?></label>
+              <input type="hidden" name="trans_id" value="<?= $datas->trans_id; ?>">
+              <?php
+                $acct_label = $datas->account_name ?? '';
+                $acct_bal = '';
+                $accts = isset($branch_accounts[$datas->blanch_id]) ? $branch_accounts[$datas->blanch_id] : array();
+                foreach ($accts as $acc) {
+                    if ($acc->receive_trans_id == $datas->trans_id) {
+                        $acct_label = $acc->account_name;
+                        $acct_bal = number_format(isset($acc->blanch_capital) ? $acc->blanch_capital : 0);
+                        break;
+                    }
+                }
+              ?>
+              <input type="text" readonly
+                     value="<?= $acct_label; ?><?= $acct_bal ? ' - ' . ($this->lang->line('balance') ?? 'Balance') . ': ' . $acct_bal : ''; ?>"
+                     class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-white cursor-not-allowed">
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"><?php echo $this->lang->line('comment') ?? 'Comment'; ?> <span class="text-xs text-gray-400 font-normal">(<?php echo $this->lang->line('optional') ?? 'Optional'; ?>)</span></label>
+              <textarea name="req_comment" rows="2" placeholder="<?php echo $this->lang->line('comment') ?? 'Comment'; ?>..."
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"><?= $datas->req_comment ?? ''; ?></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"><?php echo $this->lang->line('amount') ?? 'Amount'; ?></label>
+              <input type="number" name="req_amount" value="<?= $datas->req_amount; ?>" required
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            </div>
+
+            <div class="flex justify-end gap-x-2">
+              <button type="button" data-hs-overlay="#hs-accept-modal-<?= $datas->req_id; ?>"
+                      class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-white">
+                <?php echo $this->lang->line('cancel') ?? 'Cancel'; ?>
+              </button>
+              <button type="submit" 
+                      class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 font-medium shadow-sm">
+                <?php echo $this->lang->line('approve') ?? 'Approve'; ?>
+              </button>
+            </div>
+
+          <?php echo form_close(); ?>
+        </div>
+      </div>
+    </div>
+
     <?php endforeach; ?>
 
     <!-- Totals Row -->
- <!-- Totals Row -->
-<!-- <tr class="bg-gray-200 dark:bg-gray-800 font-extrabold text-lg">
-    <td colspan="5" class="px-4 py-3 dark:text-white text-right">Total</td>
-    <td class="px-4 py-3 text-green-700 dark:text-green-400"><?= number_format($total_loan_aprove); ?></td> 
-    <td class="px-4 py-3 text-blue-700 dark:text-blue-400"><?= number_format($total_loan_int); ?></td>    
-    <td></td>
-    <td class="px-4 py-3 text-purple-700 dark:text-purple-400"><?= number_format($total_restoration); ?></td> 
-    <td colspan="5"></td>
-</tr> -->
-
-<!-- Accept Modal -->
-<div id="hs-edit-shareholder-modal-<?= $datas->req_id; ?>" 
-     class="hs-overlay hidden fixed top-0 left-0 w-full h-full z-50 overflow-x-hidden overflow-y-auto">
-  <div class="sm:max-w-lg sm:w-full mx-auto mt-10">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Accept Expense</h3>
-
-      <?php echo form_open("admin/expenses_request_accept/".$datas->req_id); ?>
-
-        <!-- Hidden Inputs -->
-        <input type="hidden" name="comp_id" value="<?= $datas->comp_id; ?>">
-        <input type="hidden" name="blanch_id" value="<?= $datas->blanch_id; ?>">
-        <input type="hidden" name="ex_id" value="<?= $datas->ex_id; ?>">
-
-        <!-- Transaction (account) -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Account</label>
-          <input type="text" name="trans_id" value="<?= $datas->trans_id; ?>" 
-                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        </div>
-
-        <!-- Description / Comment -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Comment</label>
-          <textarea name="req_comment" rows="2"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"><?= $datas->req_comment ?? ''; ?></textarea>
-        </div>
-
-        <!-- Amount -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
-          <input type="number" name="req_amount" value="<?= $datas->req_amount; ?>" 
-                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="flex justify-end gap-x-2">
-          <button type="button" data-hs-overlay="#hs-edit-shareholder-modal-<?= $datas->req_id; ?>"
-                  class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
-            Cancel
-          </button>
-          <button type="submit" 
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Accept
-          </button>
-        </div>
-
-      <?php echo form_close(); ?>
-    </div>
-  </div>
-</div>
-
-
-
+    <?php if(isset($tota_exp) && $tota_exp->total_expences > 0): ?>
+    <tr class="bg-gray-100 dark:bg-gray-800 font-bold">
+      <td colspan="3" class="px-4 py-3 text-right text-gray-900 dark:text-white"><?php echo $this->lang->line('total') ?? 'Total'; ?></td>
+      <td class="px-4 py-3 text-orange-600 dark:text-orange-400"><?= number_format($tota_exp->total_expences); ?></td>
+      <td colspan="3"></td>
+    </tr>
+    <?php endif; ?>
 
 </tbody>
 

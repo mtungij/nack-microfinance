@@ -88,6 +88,7 @@ include_once APPPATH . "views/partials/header.php";
                                         <th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('loan_duration'); ?></span></div></th>
 										<th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('number_of_repayments'); ?></span></div></th>
 										<th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('loan_status'); ?></span></div></th>
+										<th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('verification_status') ?? 'Verification'; ?></span></div></th>
                                         <th scope="col" class="py-3 px-6 text-end --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('action'); ?></span></div></th>
                                     </tr>
                                 </thead>
@@ -174,11 +175,20 @@ include_once APPPATH . "views/partials/header.php";
                                                 
                                             </td>
 
-
-
-                                            
-
-
+                                            <!-- Verification Status -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <?php if (!empty($loan_pendings->verified_by)): ?>
+                                                <span class="py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-500/10 dark:text-green-500">
+                                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                                    <?php echo ($this->lang->line('verified') ?? 'Verified') . ' - ' . htmlspecialchars($loan_pendings->verifier_name ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                                </span>
+                                                <?php else: ?>
+                                                <span class="py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-500/10 dark:text-yellow-500">
+                                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                                                    <?php echo $this->lang->line('not_verified') ?? 'Not Verified'; ?>
+                                                </span>
+                                                <?php endif; ?>
+                                            </td>
 
 
                                             <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">

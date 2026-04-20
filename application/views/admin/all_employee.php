@@ -471,6 +471,15 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       </div>
 
+                      <div class="sm:col-span-4">
+                        <label for="daily_allowance_<?php echo $employees->empl_id; ?>"
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">*Daily Allowance:</label>
+                        <input type="number" id="daily_allowance_<?php echo $employees->empl_id; ?>" name="daily_allowance"
+                          placeholder="Daily allowance amount" autocomplete="off"
+                          class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
+                          value="<?php echo htmlspecialchars(isset($employees->daily_allowance) ? $employees->daily_allowance : '', ENT_QUOTES, 'UTF-8'); ?>">
+                      </div>
+
 
                       <div class="sm:col-span-4">
                         <label for="account_no_<?php echo $employees->empl_id; ?>"
