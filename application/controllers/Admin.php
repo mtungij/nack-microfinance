@@ -5126,7 +5126,7 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
 		  $wakala_name = $depost['wakala_name'];
 	      $loan_id = $depost['loan_id'];
 	      $deposit_date = $depost['deposit_date'];
-	      $depost = $depost['depost'];
+          $depost = (float)str_replace([',', ' '], '', (string)$depost['depost']);
 	      $description = 'LOAN RETURN';
           $new_depost = $depost;
           $deposit_date = $deposit_date;
@@ -5301,7 +5301,7 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
               // echo "bado sana";
 	       }elseif($kumaliza_depost > $loan_int){
 	       	//echo "hapana";
-	       }elseif($kumaliza_depost = $loan_int){
+           }elseif($kumaliza_depost == $loan_int){
            	$this->update_loastatus_done($loan_id);
             $this->insert_loan_kumaliza($comp_id,$blanch_id,$customer_id,$loan_id,$kumaliza,$group_id);
             $this->update_customer_statusclose($customer_id);
@@ -5309,12 +5309,15 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
 	      }
 
             
-	       if ($out_data == TRUE){
-	       	$new_balance = $new_depost;
-	       	if ($depost > $out_data->remain_amount){
+           if ($out_data == TRUE){
+           	$new_balance = $new_depost;
+           	$remain_amount = (float)$out_data->remain_amount;
+           	$current_remain_loan = max(0, (float)$remain_loan);
+           	$allowed_max_deposit = max($remain_amount, $current_remain_loan);
+           	if ($new_balance > $allowed_max_deposit){
 	       	$this->session->set_flashdata("error",'The amount you Deposit Amount is Greater than debt');
 	       	}else{
-	       $remain_amount = $out_data->remain_amount;
+          $remain_amount = $allowed_max_deposit;
 	       $paid_amount = $out_data->paid_amount;
 	       $customer_id = $out_data->customer_id;
             if($new_balance >= $remain_amount){

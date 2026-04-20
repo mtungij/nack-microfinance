@@ -5751,7 +5751,7 @@ $wakala = $this->input->post('wakala'); // may be empty for cash
           $p_method = $depost['p_method'];
           $loan_id = $depost['loan_id'];
           $deposit_date = $depost['deposit_date'];
-          $depost = $depost['depost'];
+          $depost = (float)str_replace([',', ' '], '', (string)$depost['depost']);
           $description = 'LOAN RETURN';
           $new_depost = $depost;
           $payment_method = $p_method;
@@ -5889,7 +5889,7 @@ $branch_name=$customer_data->blanch_name;
               // echo "bado sana";
            }elseif($kumaliza_depost > $loan_int){
             //echo "hapana";
-           }elseif($kumaliza_depost = $loan_int){
+           }elseif($kumaliza_depost == $loan_int){
             $this->update_loastatus_done($loan_id);
             $this->insert_loan_kumaliza($comp_id,$blanch_id,$customer_id,$loan_id,$kumaliza,$group_id,$wakala);
             $this->update_customer_statusclose($customer_id);
@@ -5905,10 +5905,13 @@ $branch_name=$customer_data->blanch_name;
 
 
            if ($out_data == TRUE) {
-            if ($depost > $out_data->remain_amount){
+            $remain_amount = (float)$out_data->remain_amount;
+            $current_remain_loan = max(0, (float)$remain_loan);
+            $allowed_max_deposit = max($remain_amount, $current_remain_loan);
+            if ($new_balance > $allowed_max_deposit){
             $this->session->set_flashdata("error",'Your Depost Amount is Greater');
             }else{
-           $remain_amount = $out_data->remain_amount;
+           $remain_amount = $allowed_max_deposit;
            $paid_amount = $out_data->paid_amount;
            $customer_id = $out_data->customer_id;
             if ($new_balance >= $remain_amount){
