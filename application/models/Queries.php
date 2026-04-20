@@ -1209,11 +1209,17 @@ public function get_total_pay_description_acount_statement($loan_id)
        }
 
        public function get_sponser_by_loan($loan_id){
+		if (!$this->db->field_exists('loan_id', 'tbl_sponser')) {
+			return [];
+		}
        	$sponser = $this->db->query("SELECT * FROM tbl_sponser WHERE loan_id = ?", [$loan_id]);
        	  return $sponser->result();
        }
 
        public function link_sponsors_to_loan($customer_id, $comp_id, $loan_id){
+		if (!$this->db->field_exists('loan_id', 'tbl_sponser')) {
+			return false;
+		}
        	$this->db->where('customer_id', $customer_id);
        	$this->db->where('comp_id', $comp_id);
        	$this->db->where('loan_id IS NULL', NULL, FALSE);
