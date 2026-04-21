@@ -931,6 +931,13 @@ $sqldata="UPDATE `tbl_ac_company` SET `comp_balance`= '$total_remain' WHERE  `tr
 
 
 	public function modify_blanch($blanch_id){
+        $can_edit_branch = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Register New Branch', 'can_edit') || has_permission('Branches', 'can_edit')));
+        if (!$can_edit_branch) {
+            $this->session->set_flashdata('error', 'You do not have permission to edit branches.');
+            return redirect('admin/blanch');
+        }
+
 		$this->form_validation->set_rules('region_id','Region','required');
 		$this->form_validation->set_rules('blanch_name','blanch name','required');
 		$this->form_validation->set_rules('blanch_no','blanch','required');
@@ -983,6 +990,13 @@ public function download_branches_pdf()
 
 
 	public function delete_blanch($blanch_id){
+        $can_delete_branch = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Register New Branch', 'can_delete') || has_permission('Branches', 'can_delete')));
+        if (!$can_delete_branch) {
+            $this->session->set_flashdata('error', 'You do not have permission to delete branches.');
+            return redirect('admin/blanch');
+        }
+
 		$this->load->model('queries');
 		if($this->queries->remove_blanch($blanch_id));
 		  $this->session->set_flashdata('massage','Data Deleted successfully');
@@ -1297,6 +1311,13 @@ public function store_link()
 
 
 	public function modify_employee($empl_id){
+        $can_edit_staff = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit')));
+        if (!$can_edit_staff) {
+            $this->session->set_flashdata('error', 'You do not have permission to edit staff.');
+            return redirect('admin/all_employee');
+        }
+
 		$this->form_validation->set_rules('blanch_id','blanch','required');
 		$this->form_validation->set_rules('empl_name','Empl name','required');
 		$this->form_validation->set_rules('empl_no','phone number','required');
@@ -1325,6 +1346,13 @@ public function store_link()
 	}
 
 	public function delete_employee($empl_id){
+        $can_delete_staff = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Staff', 'can_delete') || has_permission('Register Staff', 'can_delete') || has_permission('All Employee', 'can_delete')));
+        if (!$can_delete_staff) {
+            $this->session->set_flashdata('error', 'You do not have permission to delete staff.');
+            return redirect('admin/all_employee');
+        }
+
 		$this->load->model('queries');
 		if($this->queries->remove_employee($empl_id));
 		 $this->session->set_flashdata('massage','Data Deleted successfully');
@@ -1359,6 +1387,13 @@ public function save_permissions($employee_id)
 }
 
 public function manage($employee_id = null) {
+    $can_manage_permissions = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit')));
+    if (!$can_manage_permissions) {
+        $this->session->set_flashdata('error', 'You do not have permission to manage user access.');
+        return redirect('admin/all_employee');
+    }
+
     if (!$employee_id) {
         $this->session->set_flashdata('error', 'Employee ID is required');
         return redirect('admin/employee');
@@ -1411,6 +1446,13 @@ public function update()
 }
 
 	public function all_employee(){
+        $can_view_staff = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Staff', 'can_view') || has_permission('Register Staff', 'can_view') || has_permission('All Employee', 'can_view')));
+        if (!$can_view_staff) {
+            $this->session->set_flashdata('error', 'You do not have permission to view staff.');
+            return redirect('admin/index');
+        }
+
 		$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
 		$all_employee = $this->queries->get_Allemployee($comp_id);
@@ -1424,6 +1466,13 @@ public function update()
 	}
 
 	public function block_employee($empl_id){
+    $can_edit_staff = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit')));
+    if (!$can_edit_staff) {
+        $this->session->set_flashdata('error', 'You do not have permission to block staff.');
+        return redirect('admin/all_employee');
+    }
+
 	$this->load->model('queries');
     $data = $this->queries->get_emplBlock($empl_id);
     if ($data->empl_status = 'close') {
@@ -1463,6 +1512,13 @@ public function update()
 
 
 	public function Unblock_employee($empl_id){
+    $can_edit_staff = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit')));
+    if (!$can_edit_staff) {
+        $this->session->set_flashdata('error', 'You do not have permission to unblock staff.');
+        return redirect('admin/all_employee');
+    }
+
 	$this->load->model('queries');
     $data = $this->queries->get_emplBlock($empl_id);
     if ($data->empl_status = 'open') {
@@ -1895,6 +1951,13 @@ public function create_customer()
 
 public function all_customer()
 {
+    $can_view_customers = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('All Customers', 'can_view') || has_permission('Wateja', 'can_view') || has_permission('Customer List', 'can_view')));
+    if (!$can_view_customers) {
+        $this->session->set_flashdata('error', 'You do not have permission to view customers.');
+        return redirect('admin/index');
+    }
+
     $this->load->model('queries');
     $comp_id = $this->session->userdata('comp_id');
 
@@ -2082,6 +2145,13 @@ public function delete_accountType($account_id){
 
 
 public function view_more_customer($customer_id){
+    $can_view_customer_detail = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('All Customers', 'can_view') || has_permission('Wateja', 'can_view') || has_permission('Customer List', 'can_view')));
+    if (!$can_view_customer_detail) {
+        $this->session->set_flashdata('error', 'You do not have permission to view customer details.');
+        return redirect('admin/all_customer');
+    }
+
 	$this->load->model('queries');
 	$comp_id = $this->session->userdata('comp_id');
 	$customer_profile = $this->queries->get_customer_profileData_update($customer_id);
@@ -2635,6 +2705,13 @@ $comp_phone = $compdata->comp_number;
 
 
     public function loan_pending(){
+        $can_view_loans = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Loans', 'can_view') || has_permission('Mikopo', 'can_view')));
+        if (!$can_view_loans) {
+            $this->session->set_flashdata('error', 'You do not have permission to view loan pending records.');
+            return redirect('admin/index');
+        }
+
     	$this->load->model('queries');
     	$comp_id = $this->session->userdata('comp_id');
         $loan_pending = $this->queries->get_loanPending($comp_id);
@@ -2684,6 +2761,13 @@ $comp_phone = $compdata->comp_number;
 
 
         public function view_Dataloan($customer_id,$comp_id){
+         $can_edit_loans = ($this->session->userdata('role') === 'admin')
+             || (function_exists('has_permission') && (has_permission('Loans', 'can_edit') || has_permission('Mikopo', 'can_edit')));
+         if (!$can_edit_loans) {
+         	$this->session->set_flashdata('error', 'You do not have permission to approve or review this loan.');
+         	return redirect('admin/loan_pending');
+         }
+
     	 $this->load->model('queries');
     	 $comp_id = $this->session->userdata('comp_id');
     	 $customer_data = $this->queries->get_loanData($customer_id,$comp_id);
@@ -4034,6 +4118,16 @@ public function loan_withdrawal()
 
 public function create_notifications()
 {
+    $can_view = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_view'));
+    $can_edit = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_edit'));
+
+    if (!$can_view) {
+        $this->session->set_flashdata('error', 'You do not have permission to view notification recipients.');
+        return redirect('admin/index');
+    }
+
     $this->form_validation->set_rules('name', 'Name', 'required');
     $this->form_validation->set_rules('phone_number', 'Phone Number', 'required|numeric');
     $this->form_validation->set_rules('position', 'Position', 'required');
@@ -4041,8 +4135,16 @@ public function create_notifications()
     if ($this->form_validation->run() == FALSE) {
         $this->load->model('queries');
         $data['numbers'] = $this->queries->get_all_numbers();
+        $data['can_edit_notifications'] = $can_edit;
+        $data['can_delete_notifications'] = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_delete'));
         $this->load->view('admin/create_notifications', $data);
     } else {
+        if (!$can_edit) {
+            $this->session->set_flashdata('error', 'You do not have permission to create notification recipients.');
+            return redirect('admin/create_notifications');
+        }
+
         $phone = $this->input->post('phone_number');
         
         // Remove leading 0 and add 255
@@ -4071,6 +4173,13 @@ public function create_notifications()
 
 public function edit($id)
 {
+    $can_edit = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_edit'));
+    if (!$can_edit) {
+        $this->session->set_flashdata('error', 'You do not have permission to edit notification recipients.');
+        return redirect('admin/create_notifications');
+    }
+
     $data['number'] = $this->queries->get_number($id);
 	  $this->form_validation->set_rules('name', 'Name', 'required');
     $this->form_validation->set_rules('phone_number', 'Phone Number', 'required');
@@ -4093,6 +4202,13 @@ public function edit($id)
 
    public function delete($id)
     {
+        $can_delete = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_delete'));
+        if (!$can_delete) {
+            $this->session->set_flashdata('error', 'You do not have permission to delete notification recipients.');
+            return redirect('admin/create_notifications');
+        }
+
 		$this->load->model('queries');
         $this->queries->delete_number($id);
         redirect('admin/create_notifications');
@@ -6251,6 +6367,13 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
 
 
  public function delete_loan($loan_id){
+    $can_delete_loans = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('Loans', 'can_delete') || has_permission('Mikopo', 'can_delete')));
+    if (!$can_delete_loans) {
+        $this->session->set_flashdata('error', 'You do not have permission to delete loans.');
+        return redirect('admin/loan_pending');
+    }
+
  	$this->load->model('queries');
  	if($this->queries->remove_loan($loan_id));
  	$this->session->set_flashdata('massage','Loan Deleted successfully');
@@ -6524,6 +6647,13 @@ public function previous_transfor(){
 
 
  public function view_blanch_customer($blanch_id){
+    $can_view_branch_customer = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('Register New Branch', 'can_view') || has_permission('Branches', 'can_view')));
+    if (!$can_view_branch_customer) {
+        $this->session->set_flashdata('error', 'You do not have permission to view branch customers.');
+        return redirect('admin/blanch');
+    }
+
  	$this->load->model('queries');
  	$customer_blanch = $this->queries->get_allcutomerBlanch($blanch_id);
  	$blanch = $this->queries->view_blanchDetail($blanch_id);
@@ -6547,6 +6677,13 @@ public function previous_transfor(){
 
  public function delete_customerData($customer_id)
 {
+    $can_delete_customers = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('All Customers', 'can_delete') || has_permission('Wateja', 'can_delete') || has_permission('Customer List', 'can_delete')));
+    if (!$can_delete_customers) {
+        $this->session->set_flashdata('error', 'You do not have permission to delete customers.');
+        return redirect('admin/all_customer');
+    }
+
     ini_set("max_execution_time", 3600);
     $this->load->model('queries');
 
@@ -9426,6 +9563,13 @@ public function today_expiring_loans()
 	}
 
    public function privillage($empl_id){
+        $can_manage_privilege = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit')));
+        if (!$can_manage_privilege) {
+            $this->session->set_flashdata('error', 'You do not have permission to manage privileges.');
+            return redirect('admin/all_employee');
+        }
+
 		$this->load->model('queries');
 		$position = $this->queries->get_position();
 		$emply = $this->queries->view_employee($empl_id);
@@ -10768,10 +10912,21 @@ $this->load->view('admin/sms_history',['history'=>$history,'sms_jumla'=>$sms_jum
     }
 
 
- public function delete_loanwith($loan_id){
+ public function delete_loanwith($loan_id = null){
 		ini_set("max_execution_time", 3600);
 		 $this->load->model('queries');
+
+         if (empty($loan_id)) {
+         	$this->session->set_flashdata('massage', 'Loan ID is required');
+         	return redirect('admin/loan_withdrawal');
+         }
+
 		 $loan_with = $this->queries->get_loanDeletedata($loan_id);
+         if (empty($loan_with)) {
+         	$this->session->set_flashdata('massage', 'Loan not found');
+         	return redirect('admin/loan_withdrawal');
+         }
+
 		 $balance = $loan_with->loan_aprove;
 		 $payment_method = $loan_with->method;
 		 $blanch_id = $loan_with->blanch_id;
@@ -12429,14 +12584,36 @@ public function update_customer_details($customer_id){
 
     // Customer Notifications Management
     public function customer_notifications(){
+        $can_view = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('Customer Notifications', 'can_view'))
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_view'));
+        if (!$can_view) {
+            $this->session->set_flashdata('error', 'You do not have permission to view customer notifications.');
+            return redirect('admin/index');
+        }
+
         $this->load->model('queries');
         $comp_id = $this->session->userdata('comp_id');
         $data['compdata'] = $this->queries->get_companyData($comp_id);
         $data['notifications'] = $this->queries->get_all_notifications($comp_id);
+        $data['can_edit_notifications'] = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('Customer Notifications', 'can_edit'))
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_edit'));
+        $data['can_delete_notifications'] = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('Customer Notifications', 'can_delete'))
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_delete'));
         $this->load->view('admin/customer_notifications', $data);
     }
 
     public function create_customer_notification(){
+        $can_edit = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('Customer Notifications', 'can_edit'))
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_edit'));
+        if (!$can_edit) {
+            $this->session->set_flashdata('error', 'You do not have permission to create notifications.');
+            return redirect('admin/customer_notifications');
+        }
+
         $this->load->model('queries');
         $comp_id = $this->session->userdata('comp_id');
         $admin_id = $this->session->userdata('empl_id');
@@ -12459,6 +12636,14 @@ public function update_customer_details($customer_id){
     }
 
     public function edit_customer_notification(){
+        $can_edit = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('Customer Notifications', 'can_edit'))
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_edit'));
+        if (!$can_edit) {
+            $this->session->set_flashdata('error', 'You do not have permission to edit notifications.');
+            return redirect('admin/customer_notifications');
+        }
+
         $this->load->model('queries');
         $notification_id = $this->input->post('notification_id');
         
@@ -12478,6 +12663,14 @@ public function update_customer_details($customer_id){
     }
 
     public function delete_customer_notification($notification_id){
+        $can_delete = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('Customer Notifications', 'can_delete'))
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_delete'));
+        if (!$can_delete) {
+            $this->session->set_flashdata('error', 'You do not have permission to delete notifications.');
+            return redirect('admin/customer_notifications');
+        }
+
         $this->load->model('queries');
         $this->queries->delete_notification($notification_id);
         $this->session->set_flashdata('massage', 'Notification deleted successfully');
@@ -12485,6 +12678,14 @@ public function update_customer_details($customer_id){
     }
 
     public function toggle_notification_status($notification_id){
+        $can_edit = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && has_permission('Customer Notifications', 'can_edit'))
+            || (function_exists('has_permission') && has_permission('SMS Notifications', 'can_edit'));
+        if (!$can_edit) {
+            echo json_encode(['success' => false, 'message' => 'Permission denied']);
+            return;
+        }
+
         $this->load->model('queries');
         $notification = $this->queries->get_notification_by_id($notification_id);
         

@@ -63,15 +63,18 @@ include_once APPPATH . "views/partials/officerheader.php";
   <table id="shareholder_table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
     <thead class="text-xs text-cyan-500 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-50">
         <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
-            <th class="px-4 py-3">S/no</th>
-            <th class="px-4 py-3">Afisa</th>
-            <th class="px-4 py-3">Jina La Mteja</th>
-            <th class="px-4 py-3">Namba Ya Simu</th>
-            <th class="px-4 py-3">lipwa</th>
-            <th class="px-4 py-3">Account ya kulipisha</th>
-            <th class="px-4 py-3">Gawa</th>
-            <th class="px-4 py-3">Account Gawa</th>
-            <th class="px-4 py-3">Tarehe</th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('s_no'); ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('employee_label'); ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('customer_name'); ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('phone_number'); ?></th>
+            <th class="px-4 py-3"><?php echo ($this->lang->line('paid') ?: 'Paid') . ' (' . ($this->lang->line('rejesho') ?: 'Collection') . ')'; ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('loan_return_amount') ?: 'Loan Return Amount'; ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('principal_return') ?: 'Principal Return'; ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('interest_return') ?: 'Interest Return'; ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('payment_account_label') ?: 'Payment Account'; ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('mkopo') ?: 'Mkopo'; ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('withdrawal_account_label') ?: 'Withdrawal Account'; ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('date'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -105,6 +108,22 @@ include_once APPPATH . "views/partials/officerheader.php";
                                      ?>
                                      -
                                      <?php } ?>
+                    </td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                      <?php
+                      $loan_return_amount = ((float)($cashs->principal_return ?? 0) + (float)($cashs->interest_return ?? 0));
+                      if ($loan_return_amount > 0) {
+                        echo number_format($loan_return_amount);
+                      } else {
+                        echo '-';
+                      }
+                      ?>
+                    </td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                      <?php echo !empty($cashs->principal_return) ? number_format($cashs->principal_return) : '-'; ?>
+                    </td>
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                      <?php echo !empty($cashs->interest_return) ? number_format($cashs->interest_return) : '-'; ?>
                     </td>
                     <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
                        <?php if ($cashs->deposit_account == TRUE) {
@@ -155,6 +174,9 @@ include_once APPPATH . "views/partials/officerheader.php";
                                         <td><b></b></td>
                                         <td></td>
                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($sum_cashTransaction->total_deposit); ?></b></b></td>
+                                        <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format(($sum_cashTransaction->total_principal_return ?? 0) + ($sum_cashTransaction->total_interest_return ?? 0)); ?></b></td>
+                                        <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($sum_cashTransaction->total_principal_return ?? 0); ?></b></td>
+                                        <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b><?php echo number_format($sum_cashTransaction->total_interest_return ?? 0); ?></b></td>
                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><b></td>
                                         <td class="px-4 py-2 font-medium text-gray-900 dark:text-white"><?php echo number_format($sum_cashTransaction->total_aprove); ?></td>
                                         <td></td>

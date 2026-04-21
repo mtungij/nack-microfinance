@@ -2,6 +2,11 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
 
+$is_super_admin = ($this->session->userdata('role') === 'admin');
+$can_staff_view = $is_super_admin || has_permission('Staff', 'can_view') || has_permission('Register Staff', 'can_view') || has_permission('All Employee', 'can_view');
+$can_staff_edit = $is_super_admin || has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit');
+$can_staff_delete = $is_super_admin || has_permission('Staff', 'can_delete') || has_permission('Register Staff', 'can_delete') || has_permission('All Employee', 'can_delete');
+
 // --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
 // Controller should pass $share, an array of shareholder objects.
 // Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
@@ -159,6 +164,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
         <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">
           <?php echo $this->lang->line('choose_an_option'); ?>
         </span>
+        <?php if ($can_staff_edit): ?>
         <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
            href="#"
            data-hs-overlay="#hs-edit-shareholder-modal-<?= $employees->empl_id; ?>">
@@ -169,9 +175,11 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
           </svg>
           <?php echo $this->lang->line('view'); ?>
         </a>
+        <?php endif; ?>
       </div>
 
       <!-- block OR unblock option (shown according to status) -->
+      <?php if ($can_staff_edit): ?>
       <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm
                 text-<?= $colour ?>-600 hover:bg-<?= $colour ?>-50 focus:ring-2 focus:ring-<?= $colour ?>-500
                 dark:text-<?= $colour ?>-400 dark:hover:bg-gray-700"
@@ -201,8 +209,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
         <?= $actionLabel ?>
       </a>
+      <?php endif; ?>
 
-      <?php if ($employees->position_id == 22): ?>
+      <?php if ($can_staff_edit && $employees->position_id == 22): ?>
   <!-- grant access option (always shown) -->
   <div class="py-2 first:pt-0 last:pb-0">
     <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
@@ -219,7 +228,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
       <?php echo $this->lang->line('user_privileges'); ?>
     </a>
   </div>
-<?php else: ?>
+<?php elseif ($can_staff_edit): ?>
   <div class="py-2 first:pt-0 last:pb-0">
     <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
        href="<?= base_url("admin/privillage/{$employees->empl_id}"); ?>">
@@ -238,6 +247,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 <?php endif; ?>
 
 
+      <?php if ($can_staff_delete): ?>
       <div class="py-2 first:pt-0 last:pb-0">
         <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
         href="<?php echo base_url("admin/delete_employee/{$employees->empl_id}") ?>">
@@ -253,6 +263,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
           <?php echo $this->lang->line('delete'); ?>
         </a>
       </div>
+      <?php endif; ?>
 
     </div><!-- /.dropdown menu -->
   </div>

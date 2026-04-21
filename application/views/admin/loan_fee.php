@@ -2,6 +2,10 @@
 
 include_once APPPATH . "views/partials/header.php";
 
+$is_super_admin = ($this->session->userdata('role') === 'admin');
+$can_loan_fee_edit = $is_super_admin || has_permission('Loans', 'can_edit') || has_permission('Mikopo', 'can_edit') || has_permission('Add New Loan Product', 'can_edit');
+$can_loan_fee_delete = $is_super_admin || has_permission('Loans', 'can_delete') || has_permission('Mikopo', 'can_delete') || has_permission('Add New Loan Product', 'can_delete');
+
 // --- DUMMY DATA - REMOVE AND LOAD FROM CONTROLLER ---
 // if (!isset($fee_category)) { // For the list of fee categories (usually one)
 //     // Simulating that 'GENERAL' is the currently selected category for display logic
@@ -76,6 +80,7 @@ include_once APPPATH . "views/partials/header.php";
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
                         <?php echo $this->lang->line('set_loan_fee_category'); ?>
                     </h3>
+                    <?php if ($can_loan_fee_edit): ?>
                     <?php echo form_open("admin/create_loanfee_category", ['novalidate' => true]); ?>
                         <div class="space-y-4">
                             <div>
@@ -119,6 +124,7 @@ include_once APPPATH . "views/partials/header.php";
                             <?php endif; ?>
                         </div>
                     <?php echo form_close(); ?>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -144,7 +150,9 @@ include_once APPPATH . "views/partials/header.php";
                                             <?php echo ($fc_item->fee_category == 'LOAN PRODUCT') ? $this->lang->line('loan_fee_by_loan_product') : (($fc_item->fee_category == 'GENERAL') ? $this->lang->line('loan_fee_by_general') : htmlspecialchars($fc_item->fee_category, ENT_QUOTES, 'UTF-8')); ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                            <?php if ($can_loan_fee_edit): ?>
                                             <button type="button" class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-cyan-600 hover:text-cyan-800 dark:text-cyan-500 dark:hover:text-cyan-400" data-hs-overlay="#hs-edit-feecategory-modal-<?php echo $fc_item->id; ?>"><?php echo $this->lang->line('edit'); ?></button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -194,7 +202,9 @@ include_once APPPATH . "views/partials/header.php";
                                     <?php echo ($lc_item->fee_category_type == 'MONEY') ? number_format($lc_item->fee_value ?? 0).' / '.$this->lang->line('currency_tsh') : (($lc_item->fee_category_type == 'PERCENTAGE') ? ($lc_item->fee_value ?? 0).'%' : 'N/A'); ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                    <?php if ($can_loan_fee_edit): ?>
                                     <button type="button" class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-cyan-600 hover:text-cyan-800 dark:text-cyan-500 dark:hover:text-cyan-400" data-hs-overlay="#hs-edit-loanproductfee-modal-<?php echo $lc_item->category_id; ?>"><?php echo $this->lang->line('edit_fee'); ?></button>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; else: ?>
@@ -219,6 +229,7 @@ include_once APPPATH . "views/partials/header.php";
                 <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
                     <div class="p-4 md:p-6">
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"><?php echo $this->lang->line('set_general_loan_fee_type'); ?></h3>
+                        <?php if ($can_loan_fee_edit): ?>
                         <?php echo form_open("admin/create_loanfee_type", ['novalidate' => true]); ?>
                             <div class="space-y-4">
                                 <div>
@@ -251,6 +262,7 @@ include_once APPPATH . "views/partials/header.php";
                                 <?php endif; ?>
                             </div>
                         <?php echo form_close(); ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -272,7 +284,9 @@ include_once APPPATH . "views/partials/header.php";
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200"><?php echo htmlspecialchars($ft_item->type, ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                                <?php if ($can_loan_fee_edit): ?>
                                                 <button type="button" class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-cyan-600 hover:text-cyan-800 dark:text-cyan-500 dark:hover:text-cyan-400" data-hs-overlay="#hs-edit-feetype-modal-<?php echo $ft_item->id; ?>"><?php echo $this->lang->line('edit'); ?></button>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -293,6 +307,7 @@ include_once APPPATH . "views/partials/header.php";
                  <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
                     <div class="p-4 md:p-6">
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"><?php echo $this->lang->line('add_general_loan_fee'); ?></h3>
+                        <?php if ($can_loan_fee_edit): ?>
                         <?php echo form_open("admin/create_loan_fee", ['novalidate' => true]); ?>
                             <div class="grid sm:grid-cols-12 gap-4">
                                 <div class="sm:col-span-6">
@@ -317,6 +332,7 @@ include_once APPPATH . "views/partials/header.php";
                                 </div>
                             </div>
                         <?php echo form_close(); ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -341,8 +357,12 @@ include_once APPPATH . "views/partials/header.php";
                                         <?php echo ($fee_type->type == 'MONEY VALUE') ? number_format($lf_item->fee_interest) . ' / ' . $this->lang->line('currency_tsh') : htmlspecialchars($lf_item->fee_interest, ENT_QUOTES, 'UTF-8') . ' %'; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                        <?php if ($can_loan_fee_edit): ?>
                                         <button type="button" class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-cyan-600 hover:text-cyan-800 dark:text-cyan-500 dark:hover:text-cyan-400" data-hs-overlay="#hs-edit-generalfee-modal-<?php echo $lf_item->fee_id; ?>"><?php echo $this->lang->line('edit'); ?></button>
+                                        <?php endif; ?>
+                                        <?php if ($can_loan_fee_delete): ?>
                                         <a href="<?php echo base_url("admin/delete_loan_fee/{$lf_item->fee_id}"); ?>" onclick="return confirm('<?php echo $this->lang->line('are_you_sure'); ?>')" class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 ms-2"><?php echo $this->lang->line('delete'); ?></a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; else: ?>

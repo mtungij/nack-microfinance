@@ -1,5 +1,8 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
+
+$can_edit_notifications = isset($can_edit_notifications) ? (bool)$can_edit_notifications : true;
+$can_delete_notifications = isset($can_delete_notifications) ? (bool)$can_delete_notifications : true;
 ?>
 
 <style>
@@ -80,6 +83,7 @@ include_once APPPATH . "views/partials/header.php";
   <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
     <div class="p-4 md:p-6">
       <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6"><?php echo $this->lang->line('register_notification_recipient'); ?></h3>
+      <?php if ($can_edit_notifications): ?>
       <?php echo form_open("admin/create_notifications", ['novalidate' => true]); ?>
         <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
 
@@ -122,6 +126,7 @@ include_once APPPATH . "views/partials/header.php";
           </div>
         </div>
       <?php echo form_close(); ?>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -159,8 +164,8 @@ include_once APPPATH . "views/partials/header.php";
             <td class="px-6 py-4 text-sm text-gray-900 dark:text-white"><?= $n->status ? $this->lang->line('active') : $this->lang->line('inactive'); ?></td>
             <td class="px-6 py-4 ">
 
-
-       <a href="<?= site_url('admin/delete/'.$n->id) ?>" 
+     <?php if ($can_delete_notifications): ?>
+     <a href="<?= site_url('admin/delete/'.$n->id) ?>" 
    class="flex items-center px-3 py-1 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -168,6 +173,7 @@ include_once APPPATH . "views/partials/header.php";
     </svg>
     <?php echo $this->lang->line('delete'); ?>
 </a>
+  <?php endif; ?>
 
 
 

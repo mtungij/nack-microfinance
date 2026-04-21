@@ -2,6 +2,10 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
 
+$is_super_admin = ($this->session->userdata('role') === 'admin');
+$can_customer_view = $is_super_admin || has_permission('All Customers', 'can_view') || has_permission('Wateja', 'can_view') || has_permission('Customer List', 'can_view');
+$can_customer_delete = $is_super_admin || has_permission('All Customers', 'can_delete') || has_permission('Wateja', 'can_delete') || has_permission('Customer List', 'can_delete');
+
 // --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
 // Controller should pass $share, an array of shareholder objects.
 // Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
@@ -174,6 +178,7 @@ include_once APPPATH . "views/partials/header.php";
 
     <div class="py-2 first:pt-0 last:pb-0">
         <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500"><?php echo $this->lang->line('choose_an_option'); ?></span>
+        <?php if ($can_customer_view): ?>
         <a href="<?php echo base_url("admin/view_more_customer/{$customers->customer_id}") ?>" class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300">
     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -181,9 +186,10 @@ include_once APPPATH . "views/partials/header.php";
     </svg>
     <?php echo $this->lang->line('view_more'); ?>
 </a>
+<?php endif; ?>
 
 
-
+<?php if ($can_customer_delete): ?>
 <a href="<?php echo base_url("admin/delete_customerData/{$customers->customer_id}") ?>"
     onclick="return confirm('<?php echo $this->lang->line('confirm_delete_customer'); ?>')"
    class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300">
@@ -193,6 +199,7 @@ include_once APPPATH . "views/partials/header.php";
     </svg>
     <?php echo $this->lang->line('delete'); ?>
 </a>
+<?php endif; ?>
 
     </div>
             </div>

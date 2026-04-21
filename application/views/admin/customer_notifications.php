@@ -1,5 +1,8 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
+
+$can_edit_notifications = isset($can_edit_notifications) ? (bool)$can_edit_notifications : true;
+$can_delete_notifications = isset($can_delete_notifications) ? (bool)$can_delete_notifications : true;
 ?>
 <!-- ========== MAIN CONTENT BODY ========== -->
 <div class="w-full lg:ps-64">
@@ -46,7 +49,8 @@ include_once APPPATH . "views/partials/header.php";
             <div class="p-4 sm:p-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <h2 class="text-xl font-bold text-gray-800 dark:text-white"><?php echo $this->lang->line('manage_notifications'); ?></h2>
-                    <button type="button" 
+                        <?php if ($can_edit_notifications): ?>
+                        <button type="button" 
                             class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-medium rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                             aria-haspopup="dialog" 
                             aria-expanded="false" 
@@ -57,6 +61,7 @@ include_once APPPATH . "views/partials/header.php";
                         </svg>
                         <?php echo $this->lang->line('create_new_notification'); ?>
                     </button>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Table -->
@@ -103,6 +108,7 @@ include_once APPPATH . "views/partials/header.php";
                                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                                     <div class="flex gap-2">
                                         <button type="button" 
+                                            <?php if (!$can_edit_notifications): ?>disabled<?php endif; ?>
                                                 onclick="editNotification(<?= $notification->notification_id; ?>)" 
                                                 class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700"
                                                 title="<?php echo $this->lang->line('edit'); ?>">
@@ -110,7 +116,8 @@ include_once APPPATH . "views/partials/header.php";
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
-                                        <a href="<?= base_url('admin/delete_customer_notification/' . $notification->notification_id); ?>" 
+                                                     <?php if ($can_delete_notifications): ?>
+                                                     <a href="<?= base_url('admin/delete_customer_notification/' . $notification->notification_id); ?>" 
                                            onclick="return confirm('<?php echo $this->lang->line('confirm_delete_notification'); ?>')" 
                                            class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-red-600 text-white hover:bg-red-700"
                                            title="<?php echo $this->lang->line('delete'); ?>">
@@ -118,7 +125,9 @@ include_once APPPATH . "views/partials/header.php";
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </a>
+                                        <?php endif; ?>
                                         <button type="button" 
+                                                <?php if (!$can_edit_notifications): ?>disabled<?php endif; ?>
                                                 onclick="toggleStatus(<?= $notification->notification_id; ?>)" 
                                                 class="inline-flex items-center px-2 py-1 text-xs font-medium rounded <?= $notification->is_active == 1 ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'bg-green-600 text-white hover:bg-green-700'; ?>"
                                                 title="<?= $notification->is_active == 1 ? $this->lang->line('deactivate') : $this->lang->line('activate'); ?>">

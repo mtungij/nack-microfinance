@@ -1,6 +1,10 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
 
+$is_super_admin = ($this->session->userdata('role') === 'admin');
+$can_loan_category_edit = $is_super_admin || has_permission('Add New Loan Product', 'can_edit') || has_permission('Loan Category', 'can_edit');
+$can_loan_category_delete = $is_super_admin || has_permission('Add New Loan Product', 'can_delete') || has_permission('Loan Category', 'can_delete');
+
 // --- DUMMY DATA ---
 // if (!isset($loan_category)) { // For the loan category list table
 //     $loan_category = [
@@ -57,6 +61,7 @@ include_once APPPATH . "views/partials/header.php";
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
                     <?php echo $this->lang->line('add_loan_category'); ?>
                 </h3>
+                <?php if ($can_loan_category_edit): ?>
                 <?php echo form_open("admin/create_loanCategory", ['novalidate' => true]); ?>
                     <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
                         <div class="sm:col-span-3">
@@ -97,6 +102,7 @@ include_once APPPATH . "views/partials/header.php";
                         </div>
                     </div>
                 <?php echo form_close(); ?>
+                <?php endif; ?>
             </div>
         </div>
         <!-- End Card: Add Loan Category Form -->
@@ -148,11 +154,15 @@ include_once APPPATH . "views/partials/header.php";
                                                     <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden divide-y divide-gray-200 min-w-40 z-20 bg-white shadow-2xl rounded-lg p-2 mt-2 dark:divide-gray-700 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-table-action-lc-<?php echo $lc_item->category_id; ?>">
                                                         <div class="py-2 first:pt-0 last:pb-0">
                                                             <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500"><?php echo $this->lang->line('choose_an_option'); ?></span>
+                                                            <?php if ($can_loan_category_edit): ?>
                                                             <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="#" data-hs-overlay="#hs-edit-loancat-modal-<?php echo $lc_item->category_id; ?>"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg><?php echo $this->lang->line('edit'); ?></a>
+                                                            <?php endif; ?>
                                                         </div>
+                                                        <?php if ($can_loan_category_delete): ?>
                                                         <div class="py-2 first:pt-0 last:pb-0">
                                                             <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:ring-2 focus:ring-red-500 dark:text-red-500 dark:hover:bg-gray-700" href="<?php echo base_url("admin/delete_loancategory/{$lc_item->category_id}"); ?>" onclick="return confirm('<?php echo $this->lang->line('are_you_sure'); ?>')"><svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg><?php echo $this->lang->line('delete'); ?></a>
                                                         </div>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
                                             </td>
@@ -172,7 +182,7 @@ include_once APPPATH . "views/partials/header.php";
         <!-- End Card: Loan Category List Table -->
 
         <?php // Modals for Edit Loan Category ?>
-        <?php if (isset($loan_category) && is_array($loan_category)): ?>
+        <?php if ($can_loan_category_edit && isset($loan_category) && is_array($loan_category)): ?>
             <?php foreach ($loan_category as $lc_item): ?>
             <div id="hs-edit-loancat-modal-<?php echo $lc_item->category_id; ?>" class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto">
                 <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">

@@ -9,234 +9,173 @@
             padding: 0;
             width: 100%;
             box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            color: #333;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 6px 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #00bcd4;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .total-row {
-            background-color: #ddd;
-            font-weight: bold;
-        }
-        .company-header {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .company-header img {
-            max-height: 80px;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-<?php 
-$company_name = "CDC MICROFINANCE LIMITED";
-$company_address = "Anglicana Street, TARIME, Tanzania";
-$company_email = "cdcmicrofinance@gmail.com";
-$company_phone = "+255 763 727 272";
-$logo_path = FCPATH . 'assets/img/cdclogo.png';
-$logo_url = 'file://' . $logo_path;
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <title><?= htmlspecialchars($compdata->comp_name ?? 'Loan Withdrawal Report') ?></title>
+            <style>
+                html, body { margin: 0; padding: 0; width: 100%; box-sizing: border-box; }
+                body { font-family: Arial, sans-serif; font-size: 10px; color: #222; }
 
+                /* Company Header */
+                .company-header { text-align: center; padding: 10px 0 6px; border-bottom: 2px solid #00bcd4; margin-bottom: 8px; }
+                .company-header img { max-height: 70px; width: auto; margin-bottom: 4px; }
+                .company-header h2 { margin: 0; font-size: 15px; color: #00838f; text-transform: uppercase; }
+                .company-header p  { margin: 2px 0; font-size: 9px; color: #555; }
 
-?>
-    <!-- Company Header -->
-    <div class="company-header">
-    <div style="text-align: center;">
-    <img src="<?= $logo_url ?>" alt="Company Logo" style="max-height: 100px; width: auto;" />
-</div>
+                /* Report Title */
+                .report-title { text-align: center; margin: 6px 0 10px; }
+                .report-title h3 { margin: 0 0 2px; font-size: 13px; text-transform: uppercase; color: #006064; }
+                .report-title .date-range { font-size: 9px; color: #555; }
 
-        <h2><?= htmlspecialchars($company_name) ?></h2>
-        <p><?= htmlspecialchars($company_address) ?></p>
-        <p>Email: <?= htmlspecialchars($company_email) ?> | Phone: <?= htmlspecialchars($company_phone) ?></p>
-    </div>
+                /* Table */
+                table { border-collapse: collapse; width: 100%; margin-top: 4px; }
+                th, td { border: 1px solid #b2ebf2; padding: 5px 6px; text-align: left; }
+                thead tr th { background-color: #00bcd4; color: #fff; font-size: 9px; text-transform: uppercase; }
+                tbody tr:nth-child(even) { background-color: #e0f7fa; }
+                tbody tr:nth-child(odd)  { background-color: #fff; }
+                .total-row td { background-color: #00bcd4; color: #fff; font-weight: bold; font-size: 10px; }
 
-    <!-- Report Title -->
-    <h3 style="text-align: center; margin-top: 30px;">MIKOPO REPORT-<?= $blanch->blanch_name; ?></h3>
+                .text-right  { text-align: right; }
+                .text-center { text-align: center; }
 
-    <!-- Table -->
-    <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-    <thead>
-        <tr style="background-color: #f0f0f0;">
-            <th>S/no</th>
-            <th>JINA LA MTEJA</th>
-          
-            <th>KIASI CHA MKOPO</th>
-            <th>MAREJESHO YA</th>
-            <th>REJESHO</th>
-            <th>Tarehe Ya Kuchukua</th>
-            <th>Tarehe Ya Kumaliza</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php 
-        $sno = 1; 
-        $grand_total_withdrawal = 0;
+                /* Status badges */
+                .badge { padding: 1px 5px; border-radius: 3px; font-size: 8px; font-weight: bold; }
+                .badge-active   { background: #c8e6c9; color: #1b5e20; }
+                .badge-expired  { background: #ffcdd2; color: #b71c1c; }
+                .badge-fullpaid { background: #dcedc8; color: #33691e; }
+                .badge-disbarsed{ background: #e8eaf6; color: #1a237e; }
+                .badge-aproved  { background: #fff9c4; color: #f57f17; }
+                .badge-default  { background: #f5f5f5; color: #424242; }
+            </style>
+        </head>
+        <body>
+
+        <?php
+        $logo_html = '';
+        if (!empty($compdata->comp_logo)) {
+            $logo_path = FCPATH . 'assets/images/company_logo/' . $compdata->comp_logo;
+            if (file_exists($logo_path)) {
+                $logo_html = '<img src="' . $logo_path . '" alt="Logo" />';
+            }
+        }
         ?>
 
-        <?php foreach($disburse_grouped as $empl_name => $loans): ?>
-            <!-- Employee Header -->
-            <tr class="employee-header" style="background-color: #d9eaf7; font-weight: bold;">
-                <td colspan="8"><b><?= htmlspecialchars(strtoupper($empl_name)); ?></b></td>
-            </tr>
+        <!-- Company Header -->
+        <div class="company-header">
+            <?= $logo_html ?>
+            <h2><?= htmlspecialchars($compdata->comp_name ?? '') ?></h2>
+            <?php if (!empty($compdata->comp_address)): ?>
+                <p><?= htmlspecialchars($compdata->comp_address) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($compdata->comp_email) || !empty($compdata->comp_phone)): ?>
+                <p>
+                    <?php if (!empty($compdata->comp_email)): ?>Email: <?= htmlspecialchars($compdata->comp_email) ?><?php endif; ?>
+                    <?php if (!empty($compdata->comp_email) && !empty($compdata->comp_phone)): ?> &nbsp;|&nbsp; <?php endif; ?>
+                    <?php if (!empty($compdata->comp_phone)): ?>Phone: <?= htmlspecialchars($compdata->comp_phone) ?><?php endif; ?>
+                </p>
+            <?php endif; ?>
+        </div>
 
-            <?php $total_withdrawal = 0; ?>
-            <?php foreach($loans as $loan): ?>
-                <?php $total_withdrawal += $loan->with_amount; ?>
+        <!-- Report Title -->
+        <div class="report-title">
+            <h3>Loan Withdrawal Report &mdash; <?= htmlspecialchars($blanch->blanch_name ?? '') ?></h3>
+            <div class="date-range">
+                Period: <strong><?= htmlspecialchars($from_date) ?></strong> to <strong><?= htmlspecialchars($to_date) ?></strong>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <table>
+            <thead>
                 <tr>
-                    <td><?= $sno++; ?></td>
-                    <td><?= htmlspecialchars(strtoupper($loan->f_name . " " . $loan->m_name . " " . $loan->l_name)); ?></td>
-                   
-                    <td style="text-align: right;"><?= number_format($loan->with_amount); ?></td>
-                    <td>
-                        <?php
-                            if ($loan->day == 1) $frequency = "Siku";
-                            elseif ($loan->day == 7) $frequency = "Week";
-                            elseif (in_array($loan->day, [28,29,30,31])) $frequency = "Mwezi";
-                            else $frequency = "Other";
-                            echo htmlspecialchars($frequency . " (" . $loan->session . ")");
-                        ?>
-                    </td>
-                    <td style="text-align: right;"><?= number_format($loan->restration); ?></td>
-                    <td><?= htmlspecialchars(date('Y-m-d', strtotime($loan->loan_stat_date))); ?></td>
-                    <td><?= htmlspecialchars(substr($loan->loan_end_date, 0, 10)); ?></td>
+                    <th class="text-center">#</th>
+                    <th>Customer Name</th>
+                    <th>Phone</th>
+                    <th>Branch</th>
+                    <th class="text-right">Principal</th>
+                    <th class="text-right">Loan Amount</th>
+                    <th>Duration Type</th>
+                    <th class="text-right">Collection</th>
+                    <th>Product</th>
+                    <th>Method</th>
+                    <th>Withdraw Date</th>
+                    <th>End Date</th>
+                    <th class="text-right">Amount Paid</th>
+                    <th class="text-right">Remain Debt</th>
+                    <th class="text-center">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+            $no = 1;
+            $total_principal  = 0;
+            $total_loan_int   = 0;
+            $total_collection = 0;
+            $total_paid       = 0;
+            $total_remain     = 0;
+
+            foreach (($disburse ?? []) as $loan):
+                $row_paid   = (float)($loan->total_paid ?? 0);
+                $row_remain = max(0, (float)$loan->loan_int - $row_paid);
+
+                $total_principal  += (float)$loan->loan_aprove;
+                $total_loan_int   += (float)$loan->loan_int;
+                $total_collection += (float)$loan->restration;
+                $total_paid       += $row_paid;
+                $total_remain     += $row_remain;
+
+                if ($loan->day == 1)                          $duration = 'Daily';
+                elseif ($loan->day == 7)                      $duration = 'Weekly';
+                elseif (in_array($loan->day, [28,29,30,31]))  $duration = 'Monthly';
+                else                                          $duration = 'Other';
+                $duration .= ' (' . $loan->session . ')';
+
+                $status = $loan->loan_status ?? '';
+                switch ($status) {
+                    case 'withdrawal': $badge = 'badge-active';    $label = 'Active';    break;
+                    case 'out':        $badge = 'badge-expired';   $label = 'Expired';   break;
+                    case 'done':       $badge = 'badge-fullpaid';  $label = 'Full Paid'; break;
+                    case 'disbarsed':  $badge = 'badge-disbarsed'; $label = 'Disbursed'; break;
+                    case 'aproved':    $badge = 'badge-aproved';   $label = 'Approved';  break;
+                    default:           $badge = 'badge-default';   $label = ucfirst($status);
+                }
+            ?>
+                <tr>
+                    <td class="text-center"><?= $no++ ?></td>
+                    <td><?= htmlspecialchars(strtoupper(trim($loan->f_name . ' ' . substr($loan->m_name ?? '', 0, 1) . ' ' . $loan->l_name))) ?></td>
+                    <td><?= htmlspecialchars($loan->phone_no ?? '') ?></td>
+                    <td><?= htmlspecialchars($loan->blanch_name ?? '') ?></td>
+                    <td class="text-right"><?= number_format($loan->loan_aprove) ?></td>
+                    <td class="text-right"><?= number_format($loan->loan_int) ?></td>
+                    <td><?= htmlspecialchars($duration) ?></td>
+                    <td class="text-right"><?= number_format($loan->restration) ?></td>
+                    <td><?= htmlspecialchars($loan->loan_name ?? '') ?></td>
+                    <td><?= htmlspecialchars($loan->account_name ?? '') ?></td>
+                    <td><?= htmlspecialchars(substr($loan->loan_stat_date ?? '', 0, 10)) ?></td>
+                    <td><?= htmlspecialchars(substr($loan->loan_end_date ?? '', 0, 10)) ?></td>
+                    <td class="text-right"><?= number_format($row_paid) ?></td>
+                    <td class="text-right"><?= number_format($row_remain) ?></td>
+                    <td class="text-center"><span class="badge <?= $badge ?>"><?= htmlspecialchars($label) ?></span></td>
                 </tr>
             <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="4" class="text-right">TOTAL</td>
+                    <td class="text-right"><?= number_format($total_principal) ?></td>
+                    <td class="text-right"><?= number_format($total_loan_int) ?></td>
+                    <td></td>
+                    <td class="text-right"><?= number_format($total_collection) ?></td>
+                    <td colspan="4"></td>
+                    <td class="text-right"><?= number_format($total_paid) ?></td>
+                    <td class="text-right"><?= number_format($total_remain) ?></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
 
-            <!-- Subtotal -->
-            <tr class="subtotal" style="font-weight: bold; background-color: #eef5fc;">
-                <td colspan="2" style="text-align:right;"><b>JUMLA YA</b> <b><?= htmlspecialchars(strtoupper($empl_name)); ?></b>:</td>
-                <td style="text-align: right;"><b><?= number_format($total_withdrawal); ?></b></td>
-                <td colspan="4"></td>
-            </tr>
-
-            <?php $grand_total_withdrawal += $total_withdrawal; ?>
-        <?php endforeach; ?>
-    </tbody>
-
-    <tfoot>
-        <tr class="general-total" style="font-weight: bold; background-color: #c7d8f9;">
-            <td colspan="2" style="text-align:right;"><b>GENERAL TOTAL:</b></td>
-            <td style="text-align: right;"><b><?= number_format($grand_total_withdrawal); ?></b></td>
-            <td colspan="4"></td>
-        </tr>
-    </tfoot>
-</table>
-
-
-    
-</body>
-</html>
-
-
-
-
- <!-- #region 
-  -->
-
-
-  <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Loan Withdrawal Report</title>
-    <style>
-        body { font-family: sans-serif; font-size: 12px; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-        th, td { border: 1px solid #333; padding: 6px; }
-        th { background: #007BFF; color: white; }
-        .employee-header { background: #ddd; font-weight: bold; }
-        .subtotal { background: #f0f0f0; font-weight: bold; }
-        .general-total { background: #007BFF; color: white; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<h2>Loan Withdrawal Report</h2>
-
-<table>
-    <thead>
-        <tr>
-            <th>S/no</th>
-            <th>Customer Name</th>
-            <th>Afisa</th>
-            <th>Loan Withdrawal</th>
+        </body>
+        </html>
             <th>Duration Type</th>
-            <th>Restoration</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php 
-        $sno = 1; 
-        $grand_total_withdrawal = 0;
-        ?>
-
-        <?php foreach($disburse_grouped as $empl_name => $loans): ?>
-            <!-- Employee Header -->
-            <tr class="employee-header">
-                <td colspan="8"><?php echo strtoupper($empl_name); ?></td>
-            </tr>
-
-            <?php $total_withdrawal = 0; ?>
-            <?php foreach($loans as $loan): ?>
-                <?php $total_withdrawal += $loan->with_amount; ?>
-                <tr>
-                    <td><?= $sno++; ?></td>
-                    <td><?= strtoupper($loan->f_name . " " . $loan->m_name . " " . $loan->l_name); ?></td>
-                    <td><?= $loan->empl_name; ?></td>
-                    <td><?= number_format($loan->with_amount); ?></td>
-                    <td>
-                        <?php
-                            if ($loan->day == 1) $frequency = "Daily";
-                            elseif ($loan->day == 7) $frequency = "Weekly";
-                            elseif (in_array($loan->day, [28,29,30,31])) $frequency = "Monthly";
-                            else $frequency = "Other";
-                            echo $frequency . " (" . $loan->session . ")";
-                        ?>
-                    </td>
-                    <td><?= number_format($loan->restration); ?></td>
-                    <td><?= $loan->loan_stat_date; ?></td>
-                    <td><?= substr($loan->loan_end_date, 0, 10); ?></td>
-                </tr>
-            <?php endforeach; ?>
-
-            <!-- Subtotal -->
-            <tr class="subtotal">
-                <td colspan="3" style="text-align:right;">TOTAL for <?= strtoupper($empl_name); ?>:</td>
-                <td><?= number_format($total_withdrawal); ?></td>
-                <td colspan="4"></td>
-            </tr>
-
-            <?php $grand_total_withdrawal += $total_withdrawal; ?>
-        <?php endforeach; ?>
-    </tbody>
-    <tfoot>
-        <tr class="general-total">
-            <td colspan="3" style="text-align:right;">GENERAL TOTAL:</td>
-            <td><?= number_format($grand_total_withdrawal); ?></td>
-            <td colspan="4"></td>
-        </tr>
-    </tfoot>
-</table>
-
-</body>
-</html>

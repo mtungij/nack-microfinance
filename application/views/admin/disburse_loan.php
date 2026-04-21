@@ -1,6 +1,9 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
 
+$is_super_admin = ($this->session->userdata('role') === 'admin');
+$can_loan_delete = $is_super_admin || has_permission('Loans', 'can_delete') || has_permission('Mikopo', 'can_delete');
+
 // --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
 // Controller should pass $share, an array of shareholder objects.
 // Each object should have 'loan_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
@@ -244,6 +247,7 @@ include_once APPPATH . "views/partials/header.php";
 
                                             <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                                 
+											<?php if ($can_loan_delete): ?>
 											<a href="<?php echo base_url("admin/delete_loanDisbursed/{$loan_aproveds->loan_id}") ?>" 
     onclick="if(!confirm('<?php echo $this->lang->line('confirm_delete_loan'); ?>')) return;"
   class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none">
@@ -254,6 +258,7 @@ include_once APPPATH . "views/partials/header.php";
           d="M6 7h12M9 7V4h6v3M10 11v6M14 11v6M5 7h14l-1 14H6L5 7z" />
   </svg>
 </a>
+											<?php endif; ?>
 
 
                                             </td>

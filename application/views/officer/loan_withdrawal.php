@@ -25,6 +25,20 @@ include_once APPPATH . "views/partials/officerheader.php";
         <section class="bg-gray-50 dark:bg-gray-900 py-3 sm:py-5">
   <div class="w-full ">
       <div class="relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
+      <?php
+        $logo_url = '';
+        if (!empty($company_data->comp_logo)) {
+          $logo_path = FCPATH . 'assets/images/company_logo/' . $company_data->comp_logo;
+          if (file_exists($logo_path)) {
+            $logo_url = base_url('assets/images/company_logo/' . $company_data->comp_logo);
+          }
+        }
+      ?>
+      <?php if (!empty($logo_url)): ?>
+      <div class="px-4 pt-4 pb-1">
+        <img src="<?php echo $logo_url; ?>" alt="Company Logo" class="h-14 w-auto object-contain" />
+      </div>
+      <?php endif; ?>
       <div class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-start lg:space-y-0 lg:space-x-4">
   <div class="flex items-center flex-1 space-x-4">
       <!-- <h5>
@@ -65,6 +79,32 @@ include_once APPPATH . "views/partials/officerheader.php";
       </div>
     </div>
 
+    <!-- Date Range Filter Form -->
+    <form method="get" action="<?php echo base_url('oficer/loan_withdrawal'); ?>" class="flex flex-wrap items-center gap-2">
+      <div class="flex items-center gap-1">
+        <label for="from_date" class="text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">From:</label>
+        <input type="date" id="from_date" name="from_date"
+          value="<?php echo htmlspecialchars($from_date ?? ''); ?>"
+          class="py-1.5 px-2 block border border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+      </div>
+      <div class="flex items-center gap-1">
+        <label for="to_date" class="text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">To:</label>
+        <input type="date" id="to_date" name="to_date"
+          value="<?php echo htmlspecialchars($to_date ?? ''); ?>"
+          class="py-1.5 px-2 block border border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+      </div>
+      <button type="submit" class="py-1.5 px-3 inline-flex items-center gap-x-1 text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700 focus:outline-none focus:bg-cyan-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-3.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+        Filter
+      </button>
+      <?php if (!empty($from_date) || !empty($to_date)): ?>
+      <a href="<?php echo base_url('oficer/loan_withdrawal'); ?>" class="py-1.5 px-3 inline-flex items-center gap-x-1 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        Clear
+      </a>
+      <?php endif; ?>
+    </form>
+
     <!-- Optional Spacer for Layout (hidden on small screens) -->
     <div class="hidden md:block flex-grow"></div>
 
@@ -103,12 +143,16 @@ if ($position === 'LOAN OFFICER'): ?>
 
 
 <?php elseif ($position === 'BRANCH MANAGER'): ?>
-	<button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-basic-modal">
-  Filter By Date
-</button>
 
+
+  <?php
+    $pdf_params = [];
+    if (!empty($from_date)) $pdf_params['from_date'] = $from_date;
+    if (!empty($to_date))   $pdf_params['to_date']   = $to_date;
+    $pdf_url = base_url('oficer/print_manager_withdrawal_pdf') . (!empty($pdf_params) ? '?' . http_build_query($pdf_params) : '');
+  ?>
   <a 
-    href="<?php echo base_url('oficer/print_manager_withdrawal_pdf'); ?>"
+    href="<?php echo $pdf_url; ?>"
     class="w-full md:w-auto flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 rounded-lg focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:focus:ring-cyan-800"
     target="_blank"
   >
@@ -119,7 +163,7 @@ if ($position === 'LOAN OFFICER'): ?>
           d="M14 2H6a2 2 0 00-2 2v16c0 1.104.896 2 2 2h12a2 2 0 002-2V8l-6-6zM13 3.5L18.5 9H13V3.5zM10 14h1v4h-1v-4zm-2.5 0H9v1.5H8v.5h1v1H7.5V14zm7 0H15a1 1 0 110 2h-.5v2H13v-4z" />
       </svg>
     </span>
-    Print Manager PDF
+    Print  PDF
   </a>
 
 
@@ -291,18 +335,7 @@ if ($position === 'LOAN OFFICER'): ?>
     <div class="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
 
       <!-- Modal Header -->
-      <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
-        <h3 id="hs-basic-modal-label" class="font-bold text-gray-800 dark:text-white">
-          Filter Data
-        </h3>
-        <button type="button" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600" aria-label="Close" data-hs-overlay="#hs-basic-modal">
-          <span class="sr-only">Close</span>
-          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12"></path>
-          </svg>
-        </button>
-      </div>
+     
 
       <!-- Modal Body -->
     
