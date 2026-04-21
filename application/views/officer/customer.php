@@ -158,7 +158,11 @@ include_once APPPATH . "views/partials/officerheader.php";
 
 								
                     </div>
-                 
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-center gap-x-2">
+                            <button type="submit" class="py-2 px-4 btn-primary-sm bg-cyan-800 hover:bg-cyan-700 text-white"><?php echo $this->lang->line('next'); ?></button>
+                          
+                        </div>
                     </div>
                 <?php echo form_close(); ?>
             </div>
