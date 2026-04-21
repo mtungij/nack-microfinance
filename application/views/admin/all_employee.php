@@ -60,24 +60,24 @@ $officer_action_labels = [
                 <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
       	                  <a href="<?php echo base_url('admin/all_employee'); ?>"
                     class="inline-flex items-center justify-center gap-x-2 rounded-full border px-3 py-2 text-sm font-medium <?php echo $staff_filter === '' ? 'border-cyan-200 bg-cyan-100 text-cyan-700 dark:border-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300' : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'; ?>">
-                      <span>All Employees</span>
+                       <span><?php echo $this->lang->line('all_employees'); ?></span>
                   </a>
 
                   <a href="<?php echo base_url('admin/all_employee?staff_filter=branch_manager'); ?>"
                     class="inline-flex items-center justify-center gap-x-2 rounded-full border px-3 py-2 text-sm font-medium <?php echo $staff_filter === 'branch_manager' ? 'border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'; ?>">
-                      <span>Branch Managers</span>
+                      <span><?php echo $this->lang->line('branch_managers'); ?></span>
                       <span class="inline-flex min-w-6 justify-center rounded-full bg-white/80 px-2 py-0.5 text-xs dark:bg-gray-900/70"><?php echo $branch_manager_total; ?></span>
                   </a>
 
                   <a href="<?php echo base_url('admin/all_employee?staff_filter=loan_officer'); ?>"
                     class="inline-flex items-center justify-center gap-x-2 rounded-full border px-3 py-2 text-sm font-medium <?php echo $staff_filter === 'loan_officer' ? 'border-blue-200 bg-blue-100 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40 dark:text-blue-300' : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'; ?>">
-                      <span>Loan Officers</span>
+                      <span><?php echo $this->lang->line('loan_officers'); ?></span>
                       <span class="inline-flex min-w-6 justify-center rounded-full bg-white/80 px-2 py-0.5 text-xs dark:bg-gray-900/70"><?php echo $loan_officer_total; ?></span>
                   </a>
 
                   <a href="<?php echo base_url('admin/all_employee?staff_filter=management'); ?>"
                     class="inline-flex items-center justify-center gap-x-2 rounded-full border px-3 py-2 text-sm font-medium <?php echo $staff_filter === 'management' ? 'border-violet-200 bg-violet-100 text-violet-700 dark:border-violet-700 dark:bg-violet-900/40 dark:text-violet-300' : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'; ?>">
-                      <span>Management</span>
+                      <span><?php echo $this->lang->line('management_staff'); ?></span>
                       <span class="inline-flex min-w-6 justify-center rounded-full bg-white/80 px-2 py-0.5 text-xs dark:bg-gray-900/70"><?php echo $management_total; ?></span>
                   </a>
                 </div>
@@ -94,7 +94,7 @@ $officer_action_labels = [
             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('position'); ?></th>
              <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('account_status'); ?></th>
 							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('created_at'); ?></th>
-							<th scope="col" class="px-4 py-3 dark:text-white">Loan Officer Permissions</th>
+							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('officer_permissions'); ?></th>
 							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th>
                         </tr>
                     </thead>
