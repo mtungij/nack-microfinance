@@ -3294,6 +3294,13 @@ $comp_phone = $compdata->comp_number;
 
 public function aprove_loan($loan_id)
 {
+    $can_edit_loans = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('Loans', 'can_edit') || has_permission('Mikopo', 'can_edit')));
+    if (!$can_edit_loans) {
+        $this->session->set_flashdata('error', 'You do not have permission to approve loans.');
+        return redirect('admin/loan_pending');
+    }
+
     $this->load->helper('string');
     $this->load->model('queries');
 
@@ -3502,7 +3509,14 @@ public function delete_loan_fee($fee_id){
 
 
 public function disburse($loan_id){
-	$this->load->model('queries');
+    $can_edit_loans = ($this->session->userdata('role') === 'admin')
+        || (function_exists('has_permission') && (has_permission('Loans', 'can_edit') || has_permission('Mikopo', 'can_edit')));
+    if (!$can_edit_loans) {
+        $this->session->set_flashdata('error', 'You do not have permission to disburse loans.');
+        return redirect('admin/loan_aproved');
+    }
+
+    $this->load->model('queries');
 	$comp_id = $this->session->userdata('comp_id');
 	$admin_data = $this->queries->get_admin_role($comp_id);
 	$loan_fee = $this->queries->get_loanfee($comp_id);
@@ -3970,6 +3984,13 @@ if (!empty($employee_ids)) {
 	
 
 	public function delete_loanDisbursed($loan_id){
+        $can_delete_loans = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Loans', 'can_delete') || has_permission('Mikopo', 'can_delete')));
+        if (!$can_delete_loans) {
+            $this->session->set_flashdata('error', 'You do not have permission to delete loans.');
+            return redirect('admin/disburse_loan');
+        }
+
 		ini_set("max_execution_time", 3600);
 		$this->load->model('queries');
 		$receive_deducted = $this->queries->get_sum_nonDeducted_fee($loan_id);

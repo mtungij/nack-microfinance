@@ -83,6 +83,54 @@ include_once APPPATH . "views/partials/header.php";
 
 <?php
 $employee_actions = $employee_actions ?? [];
+
+$action_labels_by_link = [
+  'loans' => [
+    'can_view' => 'View Loan Pending',
+    'can_edit' => 'Approve Loan',
+    'can_delete' => 'Delete Loan',
+  ],
+  'mikopo' => [
+    'can_view' => 'View Loan Pending',
+    'can_edit' => 'Approve Loan',
+    'can_delete' => 'Delete Loan',
+  ],
+  'all customers' => [
+    'can_view' => 'View Customer',
+    'can_delete' => 'Delete Customer',
+  ],
+  'wateja' => [
+    'can_view' => 'View Customer',
+    'can_delete' => 'Delete Customer',
+  ],
+  'customer list' => [
+    'can_view' => 'View Customer',
+    'can_delete' => 'Delete Customer',
+  ],
+  'staff' => [
+    'can_view' => 'View Staff',
+    'can_edit' => 'Manage Staff',
+    'can_delete' => 'Delete Staff',
+  ],
+  'register staff' => [
+    'can_view' => 'View Staff',
+    'can_edit' => 'Manage Staff',
+    'can_delete' => 'Delete Staff',
+  ],
+  'all employee' => [
+    'can_view' => 'View Staff',
+    'can_edit' => 'Manage Staff',
+    'can_delete' => 'Delete Staff',
+  ],
+];
+
+$resolve_action_label = function ($link_name, $action, $default) use ($action_labels_by_link) {
+  $key = strtolower(trim((string) $link_name));
+  if (isset($action_labels_by_link[$key][$action])) {
+    return $action_labels_by_link[$key][$action];
+  }
+  return $default;
+};
 ?>
 
 <form method="post" action="<?= base_url('admin/save_permissions/' . $employee_id); ?>">
@@ -100,6 +148,9 @@ $employee_actions = $employee_actions ?? [];
           $hasView   = !empty($employee_actions[$link->id]['can_view']);
           $hasEdit   = !empty($employee_actions[$link->id]['can_edit']);
           $hasDelete = !empty($employee_actions[$link->id]['can_delete']);
+          $viewLabel = $resolve_action_label($link->link_name, 'can_view', 'View');
+          $editLabel = $resolve_action_label($link->link_name, 'can_edit', 'Edit');
+          $deleteLabel = $resolve_action_label($link->link_name, 'can_delete', 'Delete');
         ?>
         <div class="flex items-center justify-between p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
           <div class="flex items-center">
@@ -119,20 +170,20 @@ $employee_actions = $employee_actions ?? [];
             <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
               <input type="checkbox" name="actions[<?= $link->id ?>][can_view]" value="1" class="rounded-sm border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-800 dark:border-gray-600" <?= $hasView ? 'checked' : '' ?>>
               <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              View
+              <?= htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') ?>
             </label>
             <?php if (!empty($link->has_edit)): ?>
             <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
               <input type="checkbox" name="actions[<?= $link->id ?>][can_edit]" value="1" class="rounded-sm border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-600" <?= $hasEdit ? 'checked' : '' ?>>
               <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              Edit
+              <?= htmlspecialchars($editLabel, ENT_QUOTES, 'UTF-8') ?>
             </label>
             <?php endif; ?>
             <?php if (!empty($link->has_delete)): ?>
             <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
               <input type="checkbox" name="actions[<?= $link->id ?>][can_delete]" value="1" class="rounded-sm border-gray-300 text-red-600 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-600" <?= $hasDelete ? 'checked' : '' ?>>
               <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              Delete
+              <?= htmlspecialchars($deleteLabel, ENT_QUOTES, 'UTF-8') ?>
             </label>
             <?php endif; ?>
           </div>
