@@ -299,10 +299,27 @@ include_once APPPATH . "views/partials/header.php";
             <div class="grid sm:grid-cols-1 gap-2">
               <?php if (isset($grouped_links['Officer'])): ?>
                 <?php foreach ($grouped_links['Officer'] as $link): ?>
-                  <div class="flex items-center justify-between p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
-                    <div class="flex items-center">
+                  <div class="flex flex-col p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                    <div class="flex items-center w-full">
                       <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb officer-permissions shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500" onchange="toggleActions(<?= $link->id ?>)">
-                      <span class="text-sm text-gray-700 ms-3 dark:text-gray-400"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></span>
+                      <div class="ms-3 w-full">
+                        <span class="text-sm text-gray-700 dark:text-gray-400 block"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></span>
+                        <?php 
+                          $descriptions = [
+                            'officer payment dashboard' => 'Afisa anaweza kurekebisha malipo na kulipisha wateja',
+                            'officer customer' => 'Afisa anaweza kusajili wateja wasiozajiliwa',
+                            'officer loan application' => 'Afisa anaweza kuomba mikopo kwa tawi lake',
+                            'officer approve loan' => 'Afisa anaweza kupitisha mkopo wa tawi lake'
+                          ];
+                          $linkKey = strtolower(trim($link->link_name));
+                          if (isset($descriptions[$linkKey])): 
+                        ?>
+                          <span class="text-xs text-gray-500 dark:text-gray-500 italic block mt-1"><?= htmlspecialchars($descriptions[$linkKey], ENT_QUOTES, 'UTF-8') ?></span>
+                        <?php endif; ?>
+                      </div>
+                    </div>
+                                        </div>
                     </div>
                     <?php if (!empty($link->has_edit) || !empty($link->has_delete)): ?>
                       <div class="flex items-center gap-3 actions-group" id="actions_<?= $link->id ?>" style="display:none;">
