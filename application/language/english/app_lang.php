@@ -980,3 +980,11 @@ $lang['verified_by'] = 'Verified By';
 $lang['verified_at'] = 'Verified At';
 $lang['verify_loan'] = 'Verify Loan';
 $lang['verification_status'] = 'Verification Status';
+
+// Officer Permissions
+$lang['officer_system_access'] = 'Officer System Access';
+$lang['officer_permissions'] = 'Officer Permissions';
+$lang['officer_payment_dashboard'] = 'Officer Payment Dashboard';
+$lang['officer_customer_registration'] = 'Officer Customer Registration';
+$lang['officer_loan_application'] = 'Officer Loan Application';
+$lang['officer_loan_approval'] = 'Officer Loan Approval';

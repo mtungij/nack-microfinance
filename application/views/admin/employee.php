@@ -288,14 +288,14 @@ include_once APPPATH . "views/partials/header.php";
       <div class="p-1.5 min-w-full inline-block align-middle">
         <div class="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden dark:bg-gray-800 dark:border-gray-700">
           <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-gray-700">
-            <p class="text-sm text-gray-600 uppercase font-bold dark:text-white">Officer System Access</p>
+            <p class="text-sm text-gray-600 uppercase font-bold dark:text-white"><?php echo $this->lang->line('officer_system_access'); ?></p>
             <button class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700" type="button" onclick="toggleCheckboxes(this, 'officer-permissions')">
               <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
               Chagua Zote
             </button>
           </div>
           <div class="px-6 py-4">
-            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Officer Permissions</h3>
+            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('officer_permissions'); ?></h3>
             <div class="grid sm:grid-cols-1 gap-2">
               <?php if (isset($grouped_links['Officer'])): ?>
                 <?php foreach ($grouped_links['Officer'] as $link): ?>

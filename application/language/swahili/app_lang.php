@@ -980,3 +980,11 @@ $lang['verified_by'] = 'Imehakikiwa na';
 $lang['verified_at'] = 'Imehakikiwa Tarehe';
 $lang['verify_loan'] = 'Hakiki Mkopo';
 $lang['verification_status'] = 'Hali ya Uhakiki';
+
+// Officer Permissions
+$lang['officer_system_access'] = 'Upatikanaji wa Mfumo wa Afisa';
+$lang['officer_permissions'] = 'Ruhusa za Afisa';
+$lang['officer_payment_dashboard'] = 'Dashibodi ya Malipo ya Afisa';
+$lang['officer_customer_registration'] = 'Usajili wa Mteja wa Afisa';
+$lang['officer_loan_application'] = 'Maombi ya Mkopo ya Afisa';
+$lang['officer_loan_approval'] = 'Idhini ya Mkopo ya Afisa';
