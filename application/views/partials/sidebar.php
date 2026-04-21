@@ -410,10 +410,10 @@ $can_staff_view_branch = $can_staff_view_all;
         </button>
         <div id="customer-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $customer_submenu_active ? '' : 'hidden'; ?>">
             <ul class="pt-2 ps-2">
-            <?php if (has_permission('Sajili Mteja Mpya')): ?>
+            <?php if (has_permission('Sajili Mteja Mpya') || has_permission('Register Customer') || has_permission('Customer') || has_permission('Wateja')): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/customer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/customer"); ?>"><?php echo $this->lang->line('register_customer'); ?></a></li>
                 <?php endif; ?>
-                <?php if (has_permission('Orodha Ya Wateja wote')): ?>
+                <?php if (has_permission('Orodha Ya Wateja wote') || has_permission('All Customers') || has_permission('All Customer') || has_permission('Customer List') || has_permission('Wateja')): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/all_customer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/all_customer"); ?>"><?php echo $this->lang->line('all_customer'); ?></a></li>
                 <?php endif; ?>
             </ul>
