@@ -132,6 +132,23 @@ $action_labels_by_link = [
     'can_edit' => 'Edit Branch',
     'can_delete' => 'Delete Branch',
   ],
+  'officer payment dashboard' => [
+    'can_view' => 'View Payment Dashboard',
+    'can_edit' => 'Make Payment',
+  ],
+  'officer customer' => [
+    'can_view' => 'View Customers',
+    'can_edit' => 'Register Customer',
+  ],
+  'officer loan application' => [
+    'can_view' => 'View Loan Applications',
+    'can_edit' => 'Apply Loan',
+  ],
+  'officer approve loan' => [
+    'can_view' => 'View Loans',
+    'can_edit' => 'Approve Loan',
+    'can_delete' => 'Reject Loan',
+  ],
 ];
 
 $resolve_action_label = function ($link_name, $action, $default) use ($action_labels_by_link) {

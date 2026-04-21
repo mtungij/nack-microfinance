@@ -988,3 +988,14 @@ $lang['officer_payment_dashboard'] = 'Officer Payment Dashboard';
 $lang['officer_customer_registration'] = 'Officer Customer Registration';
 $lang['officer_loan_application'] = 'Officer Loan Application';
 $lang['officer_loan_approval'] = 'Officer Loan Approval';
+
+// Officer Permission Action Labels
+$lang['officer_view_payment_dashboard'] = 'View Payment Dashboard';
+$lang['officer_make_payment'] = 'Make Payment';
+$lang['officer_view_customers'] = 'View Customers';
+$lang['officer_register_customer'] = 'Register Customer';
+$lang['officer_view_loan_applications'] = 'View Loan Applications';
+$lang['officer_apply_loan'] = 'Apply Loan';
+$lang['officer_view_loans'] = 'View Loans';
+$lang['officer_approve_loan_action'] = 'Approve Loan';
+$lang['officer_reject_loan'] = 'Reject Loan';

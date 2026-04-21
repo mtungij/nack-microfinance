@@ -988,3 +988,14 @@ $lang['officer_payment_dashboard'] = 'Dashibodi ya Malipo ya Afisa';
 $lang['officer_customer_registration'] = 'Usajili wa Mteja wa Afisa';
 $lang['officer_loan_application'] = 'Maombi ya Mkopo ya Afisa';
 $lang['officer_loan_approval'] = 'Idhini ya Mkopo ya Afisa';
+
+// Officer Permission Action Labels
+$lang['officer_view_payment_dashboard'] = 'Tazama Dashibodi ya Malipo';
+$lang['officer_make_payment'] = 'Fanya Malipo';
+$lang['officer_view_customers'] = 'Tazama Wateja';
+$lang['officer_register_customer'] = 'Sajili Mteja';
+$lang['officer_view_loan_applications'] = 'Tazama Maombi ya Mikopo';
+$lang['officer_apply_loan'] = 'Omba Mkopo';
+$lang['officer_view_loans'] = 'Tazama Mikopo';
+$lang['officer_approve_loan_action'] = 'Idhinisha Mkopo';
+$lang['officer_reject_loan'] = 'Kataa Mkopo';
