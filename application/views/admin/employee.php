@@ -222,93 +222,121 @@ include_once APPPATH . "views/partials/header.php";
                     </div>
 
 			
-<!-- Table Section -->
+<!-- Management Access Section -->
 <div id="management-access" style="display:none;" class="w-full px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
-  <!-- Card -->
   <div class="flex flex-col">
     <div class="-m-1.5 overflow-x-auto">
       <div class="p-1.5 min-w-full inline-block align-middle">
         <div class="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden dark:bg-gray-800 dark:border-gray-700">
-          <!-- Header -->
           <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-gray-700">
-            <div>
-              
-              <p class="text-sm text-gray-600 uppercase font-bold dark:text-white">
-              <?php echo $this->lang->line('management_system_access'); ?>
-              </p>
-            </div>
-
-            <div>
-              <div class="inline-flex gap-x-2">
-               
-
-    <button class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" type="button"
-    onclick="toggleCheckboxes(this)"
-    class="mb-3 px-4 py-2 bg-cyan-600 dark:bg-cyan-700 dark:text-cyan-700 text-white rounded hover:bg-cyan-700">
-    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-    Chagua Zote
-</button>
-                
-              </div>
-            </div>
+            <p class="text-sm text-gray-600 uppercase font-bold dark:text-white"><?php echo $this->lang->line('management_system_access'); ?></p>
+            <button class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700" type="button" onclick="toggleCheckboxes(this, 'management-permissions')">
+              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Chagua Zote
+            </button>
           </div>
-       <?php foreach ($grouped_links as $group => $links): ?>
-    <h2 class="text-lg font-semibold mt-6 mb-2 text-gray-800 dark:text-gray-200">
-        <?= htmlspecialchars($group) ?>
-    </h2>
-
-    <div class="grid sm:grid-cols-1 mt-1 gap-2">
-        <?php foreach ($links as $link): ?>
-            <div class="flex items-center justify-between p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
-                <div class="flex items-center">
-                    <input
-                        type="checkbox"
-                        id="link_<?= $link->id ?>"
-                        name="permissions[]"
-                        value="<?= $link->id ?>"
-                        class="permission-cb shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500"
-                        onchange="toggleActions(<?= $link->id ?>)"
-                    >
-                    <span class="text-sm text-gray-700 ms-3 dark:text-gray-400">
-                        <?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?>
-                    </span>
-                </div>
-                <?php if (!empty($link->has_edit) || !empty($link->has_delete)): ?>
-                <div class="flex items-center gap-3 actions-group" id="actions_<?= $link->id ?>" style="display:none;">
-                    <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+          <?php foreach ($grouped_links as $group => $links): 
+            if ($group === 'Officer') continue; // Skip Officer group for management
+          ?>
+            <h2 class="text-lg font-semibold mt-6 mb-2 text-gray-800 dark:text-gray-200 px-6">
+              <?= htmlspecialchars($group) ?>
+            </h2>
+            <div class="grid sm:grid-cols-1 mt-1 gap-2 px-6 pb-4">
+              <?php foreach ($links as $link): ?>
+                <div class="flex items-center justify-between p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
+                  <div class="flex items-center">
+                    <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb management-permissions shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500" onchange="toggleActions(<?= $link->id ?>)">
+                    <span class="text-sm text-gray-700 ms-3 dark:text-gray-400"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></span>
+                  </div>
+                  <?php if (!empty($link->has_edit) || !empty($link->has_delete)): ?>
+                    <div class="flex items-center gap-3 actions-group" id="actions_<?= $link->id ?>" style="display:none;">
+                      <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
                         <input type="checkbox" name="actions[<?= $link->id ?>][can_view]" value="1" class="rounded-sm border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-800 dark:border-gray-600" checked>
                         <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         View
-                    </label>
-                    <?php if (!empty($link->has_edit)): ?>
-                    <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
-                        <input type="checkbox" name="actions[<?= $link->id ?>][can_edit]" value="1" class="rounded-sm border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-600">
-                        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        Edit
-                    </label>
-                    <?php endif; ?>
-                    <?php if (!empty($link->has_delete)): ?>
-                    <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
-                        <input type="checkbox" name="actions[<?= $link->id ?>][can_delete]" value="1" class="rounded-sm border-gray-300 text-red-600 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-600">
-                        <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        Delete
-                    </label>
-                    <?php endif; ?>
+                      </label>
+                      <?php if (!empty($link->has_edit)): ?>
+                        <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                          <input type="checkbox" name="actions[<?= $link->id ?>][can_edit]" value="1" class="rounded-sm border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-600">
+                          <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          Edit
+                        </label>
+                      <?php endif; ?>
+                      <?php if (!empty($link->has_delete)): ?>
+                        <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                          <input type="checkbox" name="actions[<?= $link->id ?>][can_delete]" value="1" class="rounded-sm border-gray-300 text-red-600 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-600">
+                          <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          Delete
+                        </label>
+                      <?php endif; ?>
+                    </div>
+                  <?php endif; ?>
                 </div>
-                <?php endif; ?>
+              <?php endforeach; ?>
             </div>
-        <?php endforeach; ?>
-    </div>
-<?php endforeach; ?>
-                    
-              
+          <?php endforeach; ?>
         </div>
       </div>
     </div>
   </div>
-  <!-- End Card -->
 </div>
-<!-- End Table Section -->
+
+<!-- Loan Officer Access Section -->
+<div id="loan-officer-access" style="display:none;" class="w-full px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+  <div class="flex flex-col">
+    <div class="-m-1.5 overflow-x-auto">
+      <div class="p-1.5 min-w-full inline-block align-middle">
+        <div class="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden dark:bg-gray-800 dark:border-gray-700">
+          <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-600 uppercase font-bold dark:text-white">Officer System Access</p>
+            <button class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700" type="button" onclick="toggleCheckboxes(this, 'officer-permissions')">
+              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Chagua Zote
+            </button>
+          </div>
+          <div class="px-6 py-4">
+            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Officer Permissions</h3>
+            <div class="grid sm:grid-cols-1 gap-2">
+              <?php if (isset($grouped_links['Officer'])): ?>
+                <?php foreach ($grouped_links['Officer'] as $link): ?>
+                  <div class="flex items-center justify-between p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
+                    <div class="flex items-center">
+                      <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb officer-permissions shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500" onchange="toggleActions(<?= $link->id ?>)">
+                      <span class="text-sm text-gray-700 ms-3 dark:text-gray-400"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></span>
+                    </div>
+                    <?php if (!empty($link->has_edit) || !empty($link->has_delete)): ?>
+                      <div class="flex items-center gap-3 actions-group" id="actions_<?= $link->id ?>" style="display:none;">
+                        <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                          <input type="checkbox" name="actions[<?= $link->id ?>][can_view]" value="1" class="rounded-sm border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-800 dark:border-gray-600" checked>
+                          <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          View
+                        </label>
+                        <?php if (!empty($link->has_edit)): ?>
+                          <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                            <input type="checkbox" name="actions[<?= $link->id ?>][can_edit]" value="1" class="rounded-sm border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-600">
+                            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Edit
+                          </label>
+                        <?php endif; ?>
+                        <?php if (!empty($link->has_delete)): ?>
+                          <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                            <input type="checkbox" name="actions[<?= $link->id ?>][can_delete]" value="1" class="rounded-sm border-gray-300 text-red-600 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-600">
+                            <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            Delete
+                          </label>
+                        <?php endif; ?>
+                      </div>
+                    <?php endif; ?>
+                  </div>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
  <!-- Hidden field with Loan Officer ID -->
 <input type="hidden" name="loan_officer_id" value="<?= $loan_officer_id ?>">
@@ -710,8 +738,8 @@ window.addEventListener('load', () => {
 </script>
 
 <script>
-function toggleCheckboxes(button) {
-    const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
+function toggleCheckboxes(button, className) {
+    const checkboxes = document.querySelectorAll('.' + className);
     const allChecked = [...checkboxes].every(cb => cb.checked);
 
     checkboxes.forEach(cb => {
@@ -757,23 +785,19 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     const positionSelect = document.getElementById('position_id');
     const managementAccessDiv = document.getElementById('management-access');
-
-    // Hii itakuja kutoka controller yako - id ya "management"
+    const loanOfficerAccessDiv = document.getElementById('loan-officer-access');
     const managementId = '<?php echo $management_id; ?>';
+    const loanOfficerId = '<?php echo $loan_officer_id; ?>';
 
-    function toggleManagementAccess() {
-        if (positionSelect.value === managementId) {
-            managementAccessDiv.style.display = 'block';  // Onyesha
-        } else {
-            managementAccessDiv.style.display = 'none';   // Ficha
-        }
+    function toggleSectionsByPosition() {
+        const selectedValue = positionSelect.value;
+        
+        managementAccessDiv.style.display = (selectedValue === managementId) ? 'block' : 'none';
+        loanOfficerAccessDiv.style.display = (selectedValue === loanOfficerId) ? 'block' : 'none';
     }
 
-    // Pima mara moja page inapopakia (in case kuna value tayari)
-    toggleManagementAccess();
-
-    // Sikiliza mabadiliko kwenye dropdown
-    positionSelect.addEventListener('change', toggleManagementAccess);
+    toggleSectionsByPosition();
+    positionSelect.addEventListener('change', toggleSectionsByPosition);
 });
 </script>
 

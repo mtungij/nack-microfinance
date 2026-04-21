@@ -122,6 +122,16 @@ $action_labels_by_link = [
     'can_edit' => 'Manage Staff',
     'can_delete' => 'Delete Staff',
   ],
+  'branches' => [
+    'can_view' => 'View Customers',
+    'can_edit' => 'Edit Branch',
+    'can_delete' => 'Delete Branch',
+  ],
+  'register new branch' => [
+    'can_view' => 'View Customers',
+    'can_edit' => 'Edit Branch',
+    'can_delete' => 'Delete Branch',
+  ],
 ];
 
 $resolve_action_label = function ($link_name, $action, $default) use ($action_labels_by_link) {

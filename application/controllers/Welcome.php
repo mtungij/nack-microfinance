@@ -335,10 +335,8 @@ public function Employee_signin()
     $sessionData['comp_name'] = $company_name;
 
     // ================= PERMISSIONS (MANAGEMENT) =================
-    if ($user->position_id == 22) {
-        $allowed_links = $this->queries->get_employee_links($user->empl_id);
-        $sessionData['permissions'] = $allowed_links;
-    }
+    $allowed_links = $this->queries->get_employee_links($user->empl_id);
+    $sessionData['permissions'] = $allowed_links;
 
     // ================= SAVE SESSION =================
     $this->session->set_userdata($sessionData);
