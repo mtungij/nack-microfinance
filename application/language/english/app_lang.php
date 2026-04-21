@@ -987,7 +987,7 @@ $lang['officer_permissions'] = 'Officer Permissions';
 $lang['officer_payment_dashboard'] = 'Officer Payment Dashboard';
 $lang['officer_customer_registration'] = 'Officer Customer Registration';
 $lang['officer_loan_application'] = 'Officer Loan Application';
-$lang['officer_loan_approval'] = 'Officer Loan Approval';
+$lang['officer_loan_approval'] = 'Officer can Approve Loan in their Branch';
 
 // Officer Permission Action Labels
 $lang['officer_view_payment_dashboard'] = 'View Payment Dashboard';
