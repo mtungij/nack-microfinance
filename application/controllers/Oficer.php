@@ -2236,6 +2236,11 @@ public function create_deduction(){
 }
 
 public function customer(){
+  if (function_exists('has_permission') && !has_permission('Officer Customer', 'can_edit') && !has_permission('Officer Customer', 'can_view')) {
+    $this->session->set_flashdata('error', 'You do not have permission to register customers.');
+    return redirect('oficer/index');
+  }
+
     $this->load->model('queries');
     $blanch_id = $this->session->userdata('blanch_id');
     $empl_id = $this->session->userdata('empl_id');
@@ -2837,6 +2842,11 @@ public function upadate_customer($customer_id){
 }
 
 public function loan_application(){
+    if (function_exists('has_permission') && !has_permission('Officer Loan Application', 'can_edit') && !has_permission('Officer Loan Application', 'can_view')) {
+        $this->session->set_flashdata('error', 'You do not have permission to apply loans.');
+        return redirect('oficer/index');
+    }
+
   // $position = strtoupper(trim($this->session->userdata('position_name')));
     $this->load->model('queries');
     $blanch_id = $this->session->userdata('blanch_id');
@@ -4154,6 +4164,11 @@ $this->loan_application();
 
 
     public function loan_pending() {
+    if (function_exists('has_permission') && !has_permission('Officer Approve Loan', 'can_edit') && !has_permission('Officer Approve Loan', 'can_view')) {
+      $this->session->set_flashdata('error', 'You do not have permission to approve loans.');
+      return redirect('oficer/index');
+    }
+
     $position   = strtoupper($this->session->userdata('position_name'));
       $this->load->model('queries');
       $blanch_id = $this->session->userdata('blanch_id');
@@ -5482,6 +5497,11 @@ public function disburse($loan_id){
 
 
         public function teller_dashboard(){
+        if (function_exists('has_permission') && !has_permission('Officer Payment Dashboard', 'can_edit') && !has_permission('Officer Payment Dashboard', 'can_view')) {
+          $this->session->set_flashdata('error', 'You do not have permission to access payment dashboard.');
+          return redirect('oficer/index');
+        }
+
           // $position = strtoupper($this->session->userdata('position_name'));
         $this->load->model('queries');
         $blanch_id = $this->session->userdata('blanch_id');

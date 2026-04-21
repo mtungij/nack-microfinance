@@ -9918,6 +9918,758 @@ public function get_employee_by_id($empl_id) {
     return $this->db->get_where('tbl_employee', ['empl_id' => $empl_id])->row();
 }
 
+public function get_staff_profile_summary($empl_id, $comp_id) {
+	return $this->db
+		->select('e.*, b.blanch_name, p.position')
+		->from('tbl_employee e')
+		->join('tbl_blanch b', 'b.blanch_id = e.blanch_id', 'left')
+		->join('tbl_position p', 'p.position_id = e.position_id', 'left')
+		->where('e.empl_id', $empl_id)
+		->where('e.comp_id', $comp_id)
+		->where('e.ac_status', 'empl')
+		->get()
+		->row();
+}
+
+public function get_loan_officer_core_metrics($empl_id, $comp_id) {
+	$metrics = (object) [
+		'loans_issued' => 0,
+		'active_clients' => 0,
+		'par_30_amount' => 0,
+		'par_30_loans' => 0,
+		'defaulters_count' => 0,
+		'new_clients_one_loan' => 0,
+		'arrears_collected' => 0,
+		'total_transactions_processed' => 0,
+		'deposit_transactions_processed' => 0,
+		'withdraw_transactions_processed' => 0,
+		'deposit_transactions_amount' => 0,
+		'withdraw_transactions_amount' => 0,
+		'total_transactions_amount' => 0,
+	];
+
+	$metrics->loans_issued = (int) $this->db
+		->from('tbl_loans')
+		->where('comp_id', $comp_id)
+		->where('empl_id', $empl_id)
+		->where_in('loan_status', ['withdrawal', 'done', 'disbarsed'])
+		->count_all_results();
+
+	$active_clients = $this->db
+		->select('COUNT(DISTINCT customer_id) AS total_active_clients', false)
+		->from('tbl_loans')
+		->where('comp_id', $comp_id)
+		->where('empl_id', $empl_id)
+		->where('loan_status', 'withdrawal')
+		->get()
+		->row();
+
+	$metrics->active_clients = (int) ($active_clients->total_active_clients ?? 0);
+
+	$par_30 = $this->db->query(
+		"SELECT COUNT(*) AS total_loans, COALESCE(SUM(risk.remain_amount), 0) AS total_amount
+		 FROM (
+			 SELECT
+				 l.loan_id,
+				 SUM(ot.remain_amount) AS remain_amount,
+				 DATEDIFF(CURDATE(), COALESCE(MAX(d.deposit_day), MAX(o.loan_end_date), MAX(o.loan_stat_date))) AS overdue_days
+			 FROM tbl_outstand_loan ot
+			 JOIN tbl_loans l ON l.loan_id = ot.loan_id
+			 JOIN tbl_outstand o ON o.loan_id = ot.loan_id
+			 LEFT JOIN tbl_depost d ON d.loan_id = ot.loan_id
+			 WHERE l.comp_id = ?
+			   AND l.empl_id = ?
+			   AND l.loan_status = 'withdrawal'
+			   AND ot.out_status = 'open'
+			 GROUP BY l.loan_id
+		 ) risk
+		 WHERE risk.overdue_days > 30",
+		[$comp_id, $empl_id]
+	)->row();
+
+	$metrics->par_30_amount = (float) ($par_30->total_amount ?? 0);
+	$metrics->par_30_loans = (int) ($par_30->total_loans ?? 0);
+
+	$defaulters = $this->db->query(
+		"SELECT COUNT(*) AS total_defaulters
+		 FROM (
+			 SELECT l.customer_id
+			 FROM tbl_outstand_loan ot
+			 JOIN tbl_loans l ON l.loan_id = ot.loan_id
+			 JOIN tbl_outstand o ON o.loan_id = ot.loan_id
+			 LEFT JOIN tbl_depost d ON d.loan_id = ot.loan_id
+			 WHERE l.comp_id = ?
+			   AND l.empl_id = ?
+			   AND l.loan_status = 'withdrawal'
+			   AND ot.out_status = 'open'
+			 GROUP BY l.customer_id, l.loan_id
+			 HAVING DATEDIFF(CURDATE(), COALESCE(MAX(d.deposit_day), MAX(o.loan_end_date), MAX(o.loan_stat_date))) > 30
+		 ) defaulters",
+		[$comp_id, $empl_id]
+	)->row();
+
+	$metrics->defaulters_count = (int) ($defaulters->total_defaulters ?? 0);
+
+	$new_clients = $this->db->query(
+		"SELECT COUNT(*) AS total_new_clients
+		 FROM (
+			 SELECT l.customer_id
+			 FROM tbl_loans l
+			 WHERE l.comp_id = ?
+			   AND l.empl_id = ?
+			   AND l.loan_status IN ('withdrawal', 'done', 'disbarsed')
+			 GROUP BY l.customer_id
+			 HAVING COUNT(l.loan_id) = 1
+		 ) one_loan_clients",
+		[$comp_id, $empl_id]
+	)->row();
+
+	$metrics->new_clients_one_loan = (int) ($new_clients->total_new_clients ?? 0);
+
+	$arrears_collected = $this->db->query(
+		"SELECT COALESCE(SUM(d.depost), 0) AS total_arrears_collected
+		 FROM tbl_depost d
+		 JOIN tbl_loans l ON l.loan_id = d.loan_id
+		 JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		 WHERE d.comp_id = ?
+		   AND l.empl_id = ?
+		   AND l.loan_status IN ('withdrawal', 'out')
+		   AND o.loan_end_date IS NOT NULL
+		   AND DATE(d.depost_day) > DATE(o.loan_end_date)",
+		[$comp_id, $empl_id]
+	)->row();
+
+	$metrics->arrears_collected = (float) ($arrears_collected->total_arrears_collected ?? 0);
+
+	$transactions = $this->db->query(
+		"SELECT
+			 COALESCE(SUM(CASE WHEN CAST(COALESCE(p.depost, '0') AS DECIMAL(18,2)) > 0 THEN 1 ELSE 0 END), 0) AS deposit_txn,
+			 COALESCE(SUM(CASE WHEN CAST(COALESCE(p.withdrow, '0') AS DECIMAL(18,2)) > 0 THEN 1 ELSE 0 END), 0) AS withdraw_txn,
+			 COALESCE(SUM(CASE WHEN CAST(COALESCE(p.depost, '0') AS DECIMAL(18,2)) > 0 THEN CAST(COALESCE(p.depost, '0') AS DECIMAL(18,2)) ELSE 0 END), 0) AS deposit_amount,
+			 COALESCE(SUM(CASE WHEN CAST(COALESCE(p.withdrow, '0') AS DECIMAL(18,2)) > 0 THEN CAST(COALESCE(p.withdrow, '0') AS DECIMAL(18,2)) ELSE 0 END), 0) AS withdraw_amount
+		 FROM tbl_pay p
+		 JOIN tbl_loans l ON l.loan_id = p.loan_id
+		 WHERE l.comp_id = ?
+		   AND l.empl_id = ?",
+		[$comp_id, $empl_id]
+	)->row();
+
+	$metrics->deposit_transactions_processed = (int) ($transactions->deposit_txn ?? 0);
+	$metrics->withdraw_transactions_processed = (int) ($transactions->withdraw_txn ?? 0);
+	$metrics->total_transactions_processed = (int) (($transactions->deposit_txn ?? 0) + ($transactions->withdraw_txn ?? 0));
+	$metrics->deposit_transactions_amount = (float) ($transactions->deposit_amount ?? 0);
+	$metrics->withdraw_transactions_amount = (float) ($transactions->withdraw_amount ?? 0);
+	$metrics->total_transactions_amount = (float) (($transactions->deposit_amount ?? 0) + ($transactions->withdraw_amount ?? 0));
+
+	return $metrics;
+}
+
+// ============================================================
+// LOAN OFFICER METRICS DETAIL QUERIES
+// ============================================================
+
+/**
+ * Get detailed list of loans issued by officer
+ */
+public function get_loans_issued_details($officer_id, $comp_id) {
+	$loans = $this->db->query(
+		"SELECT 
+			l.loan_id, l.loan_code, l.loan_status,
+			l.loan_aprove,
+			l.loan_int,
+			l.day,
+			l.session,
+			CASE
+				WHEN CAST(COALESCE(l.day, '0') AS UNSIGNED) = 1 THEN 'Daily'
+				WHEN CAST(COALESCE(l.day, '0') AS UNSIGNED) = 7 THEN 'Weekly'
+				WHEN CAST(COALESCE(l.day, '0') AS UNSIGNED) IN (30, 31) THEN 'Monthly'
+				ELSE 'Custom'
+			END AS duration_type,
+			l.approved_by,
+			CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+			c.phone_no AS customer_phone,
+			o.loan_stat_date,
+			o.loan_end_date,
+			COALESCE(dp.total_principal_paid, 0) AS total_principal_paid,
+			COALESCE(dp.total_interest_paid, 0) AS total_interest_paid,
+			COALESCE(dp.total_paid_amount, 0) AS total_paid_amount,
+			CASE
+				WHEN dp.last_depost_date IS NULL THEN py.last_pay_date
+				WHEN py.last_pay_date IS NULL THEN dp.last_depost_date
+				WHEN dp.last_depost_date >= py.last_pay_date THEN dp.last_depost_date
+				ELSE py.last_pay_date
+			END AS last_payment_date
+		 FROM tbl_loans l
+		 JOIN tbl_customer c ON c.customer_id = l.customer_id
+		 LEFT JOIN (
+		 	SELECT
+		 		loan_id,
+		 		MAX(loan_stat_date) AS loan_stat_date,
+		 		MAX(loan_end_date) AS loan_end_date
+		 	FROM tbl_outstand
+		 	GROUP BY loan_id
+		 ) o ON o.loan_id = l.loan_id
+		 LEFT JOIN (
+		 	SELECT
+		 		loan_id,
+		 		SUM(COALESCE(sche_principal, 0)) AS total_principal_paid,
+		 		SUM(COALESCE(sche_interest, 0)) AS total_interest_paid,
+		 		SUM(COALESCE(depost, 0)) AS total_paid_amount,
+		 		MAX(depost_day) AS last_depost_date
+		 	FROM tbl_depost
+		 	GROUP BY loan_id
+		 ) dp ON dp.loan_id = l.loan_id
+		 LEFT JOIN (
+		 	SELECT
+		 		loan_id,
+		 		MAX(date_data) AS last_pay_date
+		 	FROM tbl_pay
+		 	GROUP BY loan_id
+		 ) py ON py.loan_id = l.loan_id
+		 WHERE l.comp_id = ?
+		   AND l.empl_id = ?
+		   AND l.loan_status IN ('withdrawal', 'done', 'disbarsed')
+		 ORDER BY o.loan_stat_date DESC, l.loan_id DESC",
+		[$comp_id, $officer_id]
+	)->result();
+
+	$officer = $this->db->query(
+		"SELECT empl_name FROM tbl_employee WHERE empl_id = ? LIMIT 1",
+		[$officer_id]
+	)->row();
+	$officer_name = $officer ? htmlspecialchars($officer->empl_name ?? '', ENT_QUOTES, 'UTF-8') : 'Officer';
+
+	$print_url = base_url('admin/loans_issued_print/' . rawurlencode((string)$officer_id));
+
+	$html  = '<h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">Loans Issued by ' . $officer_name . '</h3>';
+	$html .= '<div class="flex flex-col lg:flex-row gap-3 mb-4 items-start lg:items-center justify-between">';
+	$html .= '<div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">';
+	$html .= '<input type="text" id="loansIssuedSearch" oninput="applyLoansIssuedFilters()" placeholder="Search customer name or phone..." ';
+	$html .= 'class="w-full sm:w-80 px-3 py-2 text-sm border border-cyan-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-cyan-600 dark:text-white dark:placeholder-gray-400">';
+	$html .= '<select id="loansIssuedStatusFilter" onchange="applyLoansIssuedFilters()" ';
+	$html .= 'class="w-full sm:w-56 px-3 py-2 text-sm border border-cyan-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:border-cyan-600 dark:text-white">';
+	$html .= '<option value="">All Statuses</option>';
+	$html .= '<option value="ongoing">Ongoing</option>';
+	$html .= '<option value="completed">Completed</option>';
+	$html .= '<option value="disbursed">Disbursed</option>';
+	$html .= '<option value="expired_loan">Expired Loan</option>';
+	$html .= '<option value="overdue">Overdue</option>';
+	$html .= '<option value="approved">Approved</option>';
+	$html .= '<option value="pending">Pending</option>';
+	$html .= '</select>';
+	$html .= '</div>';
+	$html .= '<a id="loansIssuedDownloadLink" data-base-url="' . htmlspecialchars($print_url, ENT_QUOTES, 'UTF-8') . '" href="' . htmlspecialchars($print_url, ENT_QUOTES, 'UTF-8') . '" ';
+	$html .= 'class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 text-white shadow transition whitespace-nowrap">';
+	$html .= '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>';
+	$html .= 'Download</a>';
+	$html .= '</div>';
+	$html .= '<div class="overflow-x-auto"><table id="loansIssuedTable" class="w-full text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">S/N</th><th class="px-4 py-2 text-left">Customer Name</th><th class="px-4 py-2 text-left">Phone Number</th><th class="px-4 py-2 text-right">Principal</th><th class="px-4 py-2 text-right">Loan Amount</th><th class="px-4 py-2 text-left">Duration Type</th><th class="px-4 py-2 text-right">Principal Paid</th><th class="px-4 py-2 text-right">Interest Paid</th><th class="px-4 py-2 text-right">Total Paid</th><th class="px-4 py-2 text-left">Loan Approved By</th><th class="px-4 py-2 text-left">Disburse Date</th><th class="px-4 py-2 text-left">Loan End Date</th><th class="px-4 py-2 text-left">Last Payment</th><th class="px-4 py-2 text-left">Status</th></tr></thead><tbody>';
+	
+	$sn = 1;
+	foreach ($loans as $loan) {
+		$html .= '<tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">';
+		$html .= '<td class="px-4 py-2 font-semibold">' . $sn . '</td>';
+		$html .= '<td class="px-4 py-2 capitalize">' . htmlspecialchars($loan->customer_name ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($loan->customer_phone ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($loan->loan_aprove ?? 0), 2) . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($loan->loan_int ?? 0), 2) . '</td>';
+		$day_value = (int) ($loan->day ?? 0);
+		$session_value = trim((string) ($loan->session ?? ''));
+		$duration_base = strtolower((string) ($loan->duration_type ?? 'custom'));
+		$duration_suffix = $session_value !== '' ? $session_value : (string) $day_value;
+		$duration_label = $duration_base . '(' . $duration_suffix . ')';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($duration_label, ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($loan->total_principal_paid ?? 0), 2) . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($loan->total_interest_paid ?? 0), 2) . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($loan->total_paid_amount ?? 0), 2) . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($loan->approved_by ?? '-', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . ($loan->loan_stat_date ? date('M d, Y', strtotime($loan->loan_stat_date)) : '-') . '</td>';
+		$html .= '<td class="px-4 py-2">' . ($loan->loan_end_date ? date('M d, Y', strtotime($loan->loan_end_date)) : '-') . '</td>';
+		$html .= '<td class="px-4 py-2">' . ($loan->last_payment_date ? date('M d, Y', strtotime($loan->last_payment_date)) : '-') . '</td>';
+		$status_raw = strtolower(trim((string)($loan->loan_status ?? '')));
+		$loan_end_ts = !empty($loan->loan_end_date) ? strtotime((string) $loan->loan_end_date) : false;
+		$is_expired_by_date = $loan_end_ts !== false && $loan_end_ts < strtotime(date('Y-m-d'));
+		$loan_amount = (float) ($loan->loan_int ?? 0);
+		$total_paid = (float) ($loan->total_paid_amount ?? 0);
+		$is_unpaid_balance = abs($loan_amount - $total_paid) > 0.009;
+		if ($is_expired_by_date && $is_unpaid_balance) {
+			$status_raw = 'expired_loan';
+		}
+		$status_map = [
+			'withdrawal' => ['label' => 'Ongoing',    'class' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'],
+			'done'       => ['label' => 'Completed',  'class' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'],
+			'out'        => ['label' => 'Overdue',    'class' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'],
+			'expired_loan' => ['label' => 'Expired Loan', 'class' => 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300'],
+			'disbarsed'  => ['label' => 'Disbursed',  'class' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'],
+			'aproved'    => ['label' => 'Approved',   'class' => 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'],
+			'open'       => ['label' => 'Pending',    'class' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'],
+		];
+		$status_info = $status_map[$status_raw] ?? ['label' => ucfirst($status_raw), 'class' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'];
+		$html .= '<td class="px-4 py-2"><span class="px-2 py-1 rounded text-xs font-semibold ' . $status_info['class'] . '">' . $status_info['label'] . '</span></td>';
+		$html .= '</tr>';
+		$sn++;
+	}
+	
+	$html .= '</tbody></table></div>';
+	
+	if (empty($loans)) {
+		$html = '<p class="text-gray-500">No loans issued found.</p>';
+	}
+
+	return [
+		'success' => true,
+		'title' => 'Loans Issued by ' . $officer_name,
+		'html' => $html
+	];
+}
+
+/**
+ * Return raw loan rows + officer name for the print/PDF page
+ */
+public function get_loans_issued_rows($officer_id, $comp_id, $status_filter = '') {
+	$loans = $this->db->query(
+		"SELECT
+			l.loan_id, l.loan_status, l.loan_aprove, l.loan_int, l.day, l.session,
+			CASE
+				WHEN CAST(COALESCE(l.day,'0') AS UNSIGNED) = 1 THEN 'Daily'
+				WHEN CAST(COALESCE(l.day,'0') AS UNSIGNED) = 7 THEN 'Weekly'
+				WHEN CAST(COALESCE(l.day,'0') AS UNSIGNED) IN (30,31) THEN 'Monthly'
+				ELSE 'Custom'
+			END AS duration_type,
+			l.approved_by,
+			CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+			c.phone_no AS customer_phone,
+			o.loan_stat_date, o.loan_end_date,
+			COALESCE(dp.total_principal_paid,0) AS total_principal_paid,
+			COALESCE(dp.total_interest_paid,0)  AS total_interest_paid,
+			COALESCE(dp.total_paid_amount,0)     AS total_paid_amount,
+			CASE
+				WHEN dp.last_depost_date IS NULL THEN py.last_pay_date
+				WHEN py.last_pay_date IS NULL THEN dp.last_depost_date
+				WHEN dp.last_depost_date >= py.last_pay_date THEN dp.last_depost_date
+				ELSE py.last_pay_date
+			END AS last_payment_date
+		 FROM tbl_loans l
+		 JOIN tbl_customer c ON c.customer_id = l.customer_id
+		 LEFT JOIN (SELECT loan_id, MAX(loan_stat_date) AS loan_stat_date, MAX(loan_end_date) AS loan_end_date FROM tbl_outstand GROUP BY loan_id) o ON o.loan_id = l.loan_id
+		 LEFT JOIN (SELECT loan_id, SUM(COALESCE(sche_principal,0)) AS total_principal_paid, SUM(COALESCE(sche_interest,0)) AS total_interest_paid, SUM(COALESCE(depost,0)) AS total_paid_amount, MAX(depost_day) AS last_depost_date FROM tbl_depost GROUP BY loan_id) dp ON dp.loan_id = l.loan_id
+		 LEFT JOIN (SELECT loan_id, MAX(date_data) AS last_pay_date FROM tbl_pay GROUP BY loan_id) py ON py.loan_id = l.loan_id
+		 WHERE l.comp_id = ? AND l.empl_id = ? AND l.loan_status IN ('withdrawal','done','disbarsed')
+		 ORDER BY o.loan_stat_date DESC, l.loan_id DESC",
+		[$comp_id, $officer_id]
+	)->result();
+
+	$status_filter = strtolower(trim((string) $status_filter));
+	if ($status_filter !== '') {
+		$status_label_to_key = [
+			'withdrawal' => 'ongoing',
+			'done' => 'completed',
+			'out' => 'overdue',
+			'disbarsed' => 'disbursed',
+			'aproved' => 'approved',
+			'open' => 'pending',
+			'expired_loan' => 'expired_loan',
+		];
+
+		$filtered_loans = [];
+		foreach ($loans as $loan) {
+			$status_raw = strtolower(trim((string) ($loan->loan_status ?? '')));
+			$loan_end_ts = !empty($loan->loan_end_date) ? strtotime((string) $loan->loan_end_date) : false;
+			$is_expired_by_date = $loan_end_ts !== false && $loan_end_ts < strtotime(date('Y-m-d'));
+			$loan_amount = (float) ($loan->loan_int ?? 0);
+			$total_paid = (float) ($loan->total_paid_amount ?? 0);
+			$is_unpaid_balance = abs($loan_amount - $total_paid) > 0.009;
+			if ($is_expired_by_date && $is_unpaid_balance) {
+				$status_raw = 'expired_loan';
+			}
+
+			$status_key = $status_label_to_key[$status_raw] ?? str_replace(' ', '_', $status_raw);
+			if ($status_key === $status_filter) {
+				$filtered_loans[] = $loan;
+			}
+		}
+		$loans = $filtered_loans;
+	}
+
+	$officer = $this->db->query("SELECT empl_name FROM tbl_employee WHERE empl_id = ? LIMIT 1", [$officer_id])->row();
+
+	return [
+		'loans'        => $loans,
+		'officer_name' => $officer ? $officer->empl_name : 'Officer',
+	];
+}
+
+/**
+ * Get detailed list of active clients
+ */
+public function get_active_clients_details($officer_id, $comp_id) {
+	$clients = $this->db->query(
+		"SELECT DISTINCT
+			c.customer_id,
+			CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+			c.phone_no AS customer_phone,
+			COUNT(l.loan_id) as active_loans,
+			SUM(l.how_loan) as total_loan_amount
+		 FROM tbl_customer c
+		 JOIN tbl_loans l ON l.customer_id = c.customer_id
+		 WHERE c.comp_id = ?
+		   AND l.empl_id = ?
+		   AND l.loan_status = 'withdrawal'
+		 GROUP BY c.customer_id
+		 ORDER BY c.f_name ASC, c.m_name ASC, c.l_name ASC",
+		[$comp_id, $officer_id]
+	)->result();
+
+	$html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">Customer Name</th><th class="px-4 py-2 text-left">Phone</th><th class="px-4 py-2 text-right">Active Loans</th><th class="px-4 py-2 text-right">Total Amount</th></tr></thead><tbody>';
+	
+	foreach ($clients as $client) {
+		$html .= '<tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">';
+		$html .= '<td class="px-4 py-2 font-semibold">' . htmlspecialchars($client->customer_name ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($client->customer_phone ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">' . (int)($client->active_loans ?? 0) . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($client->total_loan_amount ?? 0), 2) . '</td>';
+		$html .= '</tr>';
+	}
+	
+	$html .= '</tbody></table></div>';
+	
+	if (empty($clients)) {
+		$html = '<p class="text-gray-500">No active clients found.</p>';
+	}
+
+	return [
+		'success' => true,
+		'title' => 'Active Clients',
+		'html' => $html
+	];
+}
+
+/**
+ * Get detailed list of PAR > 30 loans
+ */
+public function get_par_30_details($officer_id, $comp_id) {
+	$par_loans = $this->db->query(
+		"SELECT
+			l.loan_id, l.loan_code, l.how_loan,
+			CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+			c.phone_no AS customer_phone,
+			o.loan_end_date,
+			DATEDIFF(CURDATE(), o.loan_end_date) as overdue_days,
+			ot.remain_amount
+		 FROM tbl_outstand_loan ot
+		 JOIN tbl_loans l ON l.loan_id = ot.loan_id
+		 JOIN tbl_customer c ON c.customer_id = l.customer_id
+		 JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		 WHERE l.comp_id = ?
+		   AND l.empl_id = ?
+		   AND l.loan_status = 'withdrawal'
+		   AND ot.out_status = 'open'
+		   AND DATEDIFF(CURDATE(), o.loan_end_date) > 30
+		 ORDER BY o.loan_end_date ASC",
+		[$comp_id, $officer_id]
+	)->result();
+
+	$html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">Loan Code</th><th class="px-4 py-2 text-left">Customer</th><th class="px-4 py-2 text-left">Phone</th><th class="px-4 py-2 text-right">Overdue Days</th><th class="px-4 py-2 text-right">Outstanding</th></tr></thead><tbody>';
+	
+	foreach ($par_loans as $loan) {
+		$html .= '<tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">';
+		$html .= '<td class="px-4 py-2 font-semibold">' . htmlspecialchars($loan->loan_code ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($loan->customer_name ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($loan->customer_phone ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2 text-right"><span class="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">' . (int)($loan->overdue_days ?? 0) . ' days</span></td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($loan->remain_amount ?? 0), 2) . '</td>';
+		$html .= '</tr>';
+	}
+	
+	$html .= '</tbody></table></div>';
+	
+	if (empty($par_loans)) {
+		$html = '<p class="text-gray-500">No PAR > 30 loans found.</p>';
+	}
+
+	return [
+		'success' => true,
+		'title' => 'PAR > 30 Days - Overdue Loans',
+		'html' => $html
+	];
+}
+
+/**
+ * Get detailed list of defaulters
+ */
+public function get_defaulters_details($officer_id, $comp_id) {
+	$defaulters = $this->db->query(
+		"SELECT DISTINCT
+			c.customer_id,
+			CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+			c.phone_no AS customer_phone,
+			COUNT(DISTINCT l.loan_id) as default_count,
+			SUM(ot.remain_amount) as total_outstanding
+		 FROM tbl_customer c
+		 JOIN tbl_loans l ON l.customer_id = c.customer_id
+		 JOIN tbl_outstand_loan ot ON ot.loan_id = l.loan_id
+		 JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		 WHERE c.comp_id = ?
+		   AND l.empl_id = ?
+		   AND l.loan_status = 'withdrawal'
+		   AND ot.out_status = 'open'
+		   AND DATEDIFF(CURDATE(), o.loan_end_date) > 30
+		 GROUP BY c.customer_id
+		 ORDER BY total_outstanding DESC",
+		[$comp_id, $officer_id]
+	)->result();
+
+	$html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">Customer Name</th><th class="px-4 py-2 text-left">Phone</th><th class="px-4 py-2 text-right">Loans in Default</th><th class="px-4 py-2 text-right">Total Outstanding</th></tr></thead><tbody>';
+	
+	foreach ($defaulters as $defaulter) {
+		$html .= '<tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">';
+		$html .= '<td class="px-4 py-2 font-semibold">' . htmlspecialchars($defaulter->customer_name ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($defaulter->customer_phone ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">' . (int)($defaulter->default_count ?? 0) . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($defaulter->total_outstanding ?? 0), 2) . '</td>';
+		$html .= '</tr>';
+	}
+	
+	$html .= '</tbody></table></div>';
+	
+	if (empty($defaulters)) {
+		$html = '<p class="text-gray-500">No defaulters found.</p>';
+	}
+
+	return [
+		'success' => true,
+		'title' => 'Defaulters - Borrowers with PAR > 30',
+		'html' => $html
+	];
+}
+
+/**
+ * Get detailed list of new clients (1 loan only)
+ */
+public function get_new_clients_details($officer_id, $comp_id) {
+	$new_clients = $this->db->query(
+		"SELECT
+			c.customer_id,
+			CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+			c.phone_no AS customer_phone,
+			l.loan_id, l.loan_code, l.how_loan, l.loan_status
+		 FROM tbl_customer c
+		 JOIN tbl_loans l ON l.customer_id = c.customer_id
+		 WHERE c.comp_id = ?
+		   AND l.empl_id = ?
+		   AND l.loan_status IN ('withdrawal', 'done', 'disbarsed')
+		   AND c.customer_id IN (
+			   SELECT l.customer_id
+			   FROM tbl_loans l
+			   WHERE l.comp_id = ?
+				 AND l.empl_id = ?
+				 AND l.loan_status IN ('withdrawal', 'done', 'disbarsed')
+			   GROUP BY l.customer_id
+			   HAVING COUNT(l.loan_id) = 1
+		   )
+		 ORDER BY l.disburse_day DESC",
+		[$comp_id, $officer_id, $comp_id, $officer_id]
+	)->result();
+
+	$html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">Customer Name</th><th class="px-4 py-2 text-left">Phone</th><th class="px-4 py-2 text-left">Loan Code</th><th class="px-4 py-2 text-right">Amount</th></tr></thead><tbody>';
+	
+	foreach ($new_clients as $client) {
+		$html .= '<tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">';
+		$html .= '<td class="px-4 py-2 font-semibold">' . htmlspecialchars($client->customer_name ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($client->customer_phone ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($client->loan_code ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($client->how_loan ?? 0), 2) . '</td>';
+		$html .= '</tr>';
+	}
+	
+	$html .= '</tbody></table></div>';
+	
+	if (empty($new_clients)) {
+		$html = '<p class="text-gray-500">No new clients found.</p>';
+	}
+
+	return [
+		'success' => true,
+		'title' => 'New Clients Acquired (1 Loan)',
+		'html' => $html
+	];
+}
+
+/**
+ * Get detailed list of arrears payments
+ */
+public function get_arrears_details($officer_id, $comp_id) {
+	$arrears = $this->db->query(
+		"SELECT
+			d.dep_id, d.depost, d.depost_day,
+			CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+			c.phone_no AS customer_phone,
+			l.loan_code, l.loan_id,
+			o.loan_end_date
+		 FROM tbl_depost d
+		 JOIN tbl_loans l ON l.loan_id = d.loan_id
+		 JOIN tbl_customer c ON c.customer_id = l.customer_id
+		 JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		 WHERE d.comp_id = ?
+		   AND l.empl_id = ?
+		   AND l.loan_status IN ('withdrawal', 'out')
+		   AND o.loan_end_date IS NOT NULL
+		   AND DATE(d.depost_day) > DATE(o.loan_end_date)
+		 ORDER BY d.depost_day DESC",
+		[$comp_id, $officer_id]
+	)->result();
+
+	$html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">Customer</th><th class="px-4 py-2 text-left">Loan Code</th><th class="px-4 py-2 text-left">Agreed End Date</th><th class="px-4 py-2 text-left">Payment Date</th><th class="px-4 py-2 text-right">Amount</th></tr></thead><tbody>';
+	
+	foreach ($arrears as $arr) {
+		$html .= '<tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">';
+		$html .= '<td class="px-4 py-2 font-semibold">' . htmlspecialchars($arr->customer_name ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . htmlspecialchars($arr->loan_code ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+		$html .= '<td class="px-4 py-2">' . ($arr->loan_end_date ? date('M d, Y', strtotime($arr->loan_end_date)) : '-') . '</td>';
+		$html .= '<td class="px-4 py-2">' . ($arr->depost_day ? date('M d, Y', strtotime($arr->depost_day)) : '-') . '</td>';
+		$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)($arr->depost ?? 0), 2) . '</td>';
+		$html .= '</tr>';
+	}
+	
+	$html .= '</tbody></table></div>';
+	
+	if (empty($arrears)) {
+		$html = '<p class="text-gray-500">No arrears payments found.</p>';
+	}
+
+	return [
+		'success' => true,
+		'title' => 'Arrears Collected (Payments After Agreement End Date)',
+		'html' => $html
+	];
+}
+
+/**
+ * Get detailed list of total transactions
+ */
+public function get_total_transactions_details($officer_id, $comp_id) {
+	return $this->_get_transactions_details($officer_id, $comp_id, 'both');
+}
+
+/**
+ * Get detailed list of deposit transactions
+ */
+public function get_deposit_transactions_details($officer_id, $comp_id) {
+	return $this->_get_transactions_details($officer_id, $comp_id, 'deposit');
+}
+
+/**
+ * Get detailed list of withdraw transactions
+ */
+public function get_withdraw_transactions_details($officer_id, $comp_id) {
+	return $this->_get_transactions_details($officer_id, $comp_id, 'withdraw');
+}
+
+/**
+ * Helper function to get transaction details
+ */
+private function _get_transactions_details($officer_id, $comp_id, $type = 'both') {
+	if ($type === 'deposit') {
+		$transactions = $this->db->query(
+			"SELECT
+				p.pay_id, p.depost, p.date_data,
+				CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+				c.phone_no AS customer_phone,
+				l.loan_code, l.loan_id
+			 FROM tbl_pay p
+			 JOIN tbl_loans l ON l.loan_id = p.loan_id
+			 JOIN tbl_customer c ON c.customer_id = l.customer_id
+			 WHERE p.comp_id = ?
+			   AND l.empl_id = ?
+			   AND CAST(COALESCE(p.depost, '0') AS DECIMAL(18,2)) > 0
+			 ORDER BY p.date_data DESC
+			 LIMIT 100",
+			[$comp_id, $officer_id]
+		)->result();
+		$title = 'Deposit Transactions';
+	} elseif ($type === 'withdraw') {
+		$transactions = $this->db->query(
+			"SELECT
+				p.pay_id, p.withdrow, p.date_data,
+				CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+				c.phone_no AS customer_phone,
+				l.loan_code, l.loan_id
+			 FROM tbl_pay p
+			 JOIN tbl_loans l ON l.loan_id = p.loan_id
+			 JOIN tbl_customer c ON c.customer_id = l.customer_id
+			 WHERE p.comp_id = ?
+			   AND l.empl_id = ?
+			   AND CAST(COALESCE(p.withdrow, '0') AS DECIMAL(18,2)) > 0
+			 ORDER BY p.date_data DESC
+			 LIMIT 100",
+			[$comp_id, $officer_id]
+		)->result();
+		$title = 'Withdrawal Transactions';
+	} else {
+		// both
+		$transactions = $this->db->query(
+			"SELECT
+				p.pay_id, 
+				CAST(COALESCE(p.depost, '0') AS DECIMAL(18,2)) as depost,
+				CAST(COALESCE(p.withdrow, '0') AS DECIMAL(18,2)) as withdrow,
+				p.date_data,
+				CONCAT_WS(' ', c.f_name, c.m_name, c.l_name) AS customer_name,
+				c.phone_no AS customer_phone,
+				l.loan_code, l.loan_id
+			 FROM tbl_pay p
+			 JOIN tbl_loans l ON l.loan_id = p.loan_id
+			 JOIN tbl_customer c ON c.customer_id = l.customer_id
+			 WHERE p.comp_id = ?
+			   AND l.empl_id = ?
+			   AND (CAST(COALESCE(p.depost, '0') AS DECIMAL(18,2)) > 0 
+				    OR CAST(COALESCE(p.withdrow, '0') AS DECIMAL(18,2)) > 0)
+			 ORDER BY p.date_data DESC
+			 LIMIT 100",
+			[$comp_id, $officer_id]
+		)->result();
+		$title = 'All Transactions (Deposits & Withdrawals)';
+	}
+
+	if ($type === 'both') {
+		$html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">Customer</th><th class="px-4 py-2 text-left">Loan Code</th><th class="px-4 py-2 text-right">Deposit</th><th class="px-4 py-2 text-right">Withdrawal</th><th class="px-4 py-2 text-left">Date</th></tr></thead><tbody>';
+		
+		foreach ($transactions as $txn) {
+			$html .= '<tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">';
+			$html .= '<td class="px-4 py-2">' . htmlspecialchars($txn->customer_name ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+			$html .= '<td class="px-4 py-2">' . htmlspecialchars($txn->loan_code ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+			$html .= '<td class="px-4 py-2 text-right">' . ($txn->depost > 0 ? 'TZS ' . number_format((float)$txn->depost, 2) : '-') . '</td>';
+			$html .= '<td class="px-4 py-2 text-right">' . ($txn->withdrow > 0 ? 'TZS ' . number_format((float)$txn->withdrow, 2) : '-') . '</td>';
+			$html .= '<td class="px-4 py-2">' . ($txn->date_data ? date('M d, Y', strtotime($txn->date_data)) : '-') . '</td>';
+			$html .= '</tr>';
+		}
+	} else {
+		$colName = $type === 'deposit' ? 'depost' : 'withdrow';
+		$html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">Customer</th><th class="px-4 py-2 text-left">Loan Code</th><th class="px-4 py-2 text-right">Amount</th><th class="px-4 py-2 text-left">Date</th></tr></thead><tbody>';
+		
+		foreach ($transactions as $txn) {
+			$amount = $type === 'deposit' ? $txn->depost : $txn->withdrow;
+			$html .= '<tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">';
+			$html .= '<td class="px-4 py-2">' . htmlspecialchars($txn->customer_name ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+			$html .= '<td class="px-4 py-2">' . htmlspecialchars($txn->loan_code ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+			$html .= '<td class="px-4 py-2 text-right">TZS ' . number_format((float)$amount, 2) . '</td>';
+			$html .= '<td class="px-4 py-2">' . ($txn->date_data ? date('M d, Y', strtotime($txn->date_data)) : '-') . '</td>';
+			$html .= '</tr>';
+		}
+	}
+	
+	$html .= '</tbody></table></div>';
+	
+	if (empty($transactions)) {
+		$html = '<p class="text-gray-500">No transactions found.</p>';
+	}
+
+	return [
+		'success' => true,
+		'title' => $title,
+		'html' => $html
+	];
+}
+
 
 
 // public function get_todaexpected_collections($comp_id)

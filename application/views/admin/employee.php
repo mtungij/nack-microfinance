@@ -137,7 +137,7 @@ include_once APPPATH . "views/partials/header.php";
                         </div>
 
 						<div class="sm:col-span-4">
-                            <label for="empl_sex" class="block text-sm font-medium mb-2 dark:text-gray-300">* Gender:</label>
+                            <label for="empl_sex" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('gender'); ?>:</label>
                             <select id="empl_sex" name="empl_sex" required
                                     data-hs-select='{
                                         "placeholder": "<?php echo $this->lang->line('select_gender'); ?>",
@@ -148,9 +148,9 @@ include_once APPPATH . "views/partials/header.php";
                                         "optionTemplate": "<div><div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div class=\"text-gray-800 dark:text-gray-200\" data-title></div></div></div>",
                                         "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-gray-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
                                       }'>
-                                <option value="">Select gender</option>
-                                <option value="male" <?php echo set_select('empl_sex', 'male'); ?>>Male</option>
-                                <option value="female" <?php echo set_select('empl_sex', 'female'); ?>>Female</option>
+                                <option value=""><?php echo $this->lang->line('select_gender'); ?></option>
+                                <option value="male" <?php echo set_select('empl_sex', 'male'); ?>><?php echo $this->lang->line('male'); ?></option>
+                                <option value="female" <?php echo set_select('empl_sex', 'female'); ?>><?php echo $this->lang->line('female'); ?></option>
                             </select>
                             <?php echo form_error("share_sex", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
@@ -186,8 +186,8 @@ include_once APPPATH . "views/partials/header.php";
                         </div>
 
 						<div class="sm:col-span-4">
-                            <label for="daily_allowance" class="block text-sm font-medium mb-2 dark:text-gray-300">*Daily Allowance:</label>
-                            <input type="number" id="daily_allowance" name="daily_allowance" placeholder="Daily allowance amount" autocomplete="off"
+        <label for="daily_allowance" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('daily_allowance'); ?>:</label>
+        <input type="number" id="daily_allowance" name="daily_allowance" placeholder="<?php echo $this->lang->line('daily_allowance'); ?>" autocomplete="off"
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('daily_allowance'); ?>">
                             <?php echo form_error("daily_allowance", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
@@ -202,16 +202,16 @@ include_once APPPATH . "views/partials/header.php";
 
 
 						<div class="sm:col-span-4">
-                            <label for="password" class="block text-sm font-medium mb-2 dark:text-gray-300">*Password:</label>
-                            <input type="password" id="password" name="password" placeholder="write ur password" autocomplete="off" required
+        <label for="password" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('password'); ?>:</label>
+        <input type="password" id="password" name="password" placeholder="<?php echo $this->lang->line('password_placeholder'); ?>" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('password'); ?>">
                             <?php echo form_error("password", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                         </div>
 
 
 						<div class="sm:col-span-4">
-                            <label for="passconf" class="block text-sm font-medium mb-2 dark:text-gray-300">*Confirm Password:</label>
-                            <input type="password" id="passconf" name="passconf" placeholder="System passconf" autocomplete="off" required
+        <label for="passconf" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('confirm_password'); ?>:</label>
+        <input type="password" id="passconf" name="passconf" placeholder="<?php echo $this->lang->line('confirm_password_placeholder'); ?>" autocomplete="off" required
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo set_value('passconf'); ?>">
                             <?php echo form_error("passconf", '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
                             
@@ -307,8 +307,8 @@ include_once APPPATH . "views/partials/header.php";
                         <span class="text-sm text-gray-700 dark:text-gray-400 block"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></span>
                         <?php 
                           $descriptions = [
-                            'officer payment dashboard' => 'Afisa anaweza kurekebisha malipo na kulipisha wateja',
-                            'officer customer' => 'Afisa anaweza kusajili wateja wasiozajiliwa',
+                            'officer payment dashboard' => 'Afisa anaweza kulipisha marejesho',
+                            'officer customer' => 'Afisa anaweza kusajili mteja mpya',
                             'officer loan application' => 'Afisa anaweza kuomba mikopo kwa tawi lake',
                             'officer approve loan' => 'Afisa anaweza kupitisha mkopo wa tawi lake'
                           ];
@@ -398,26 +398,26 @@ include_once APPPATH . "views/partials/header.php";
 
 
         <!-- Card: Share Holder List Table -->
-        <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
+          <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('employee_list'); ?></h2>
             </div>
 
-            <div class="p-4" data-hs-datatable='{
+          <div class="p-3 sm:p-4" data-hs-datatable='{
                 "pageLength": 10, "paging": true,
                 "pagingOptions": { "pageBtnClasses": "min-w-10 h-10 inline-flex justify-center items-center text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:focus:bg-gray-700 dark:hover:bg-gray-700" },
                 "language": { "zeroRecords": "<div class=\"py-10 px-5 flex flex-col justify-center items-center text-center\"><svg class=\"shrink-0 size-6 text-gray-500 dark:text-gray-400\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><div class=\"max-w-sm mx-auto\"><p class=\"mt-2 text-sm text-gray-600 dark:text-gray-400\"><?php echo $this->lang->line('no_employees_found'); ?></p></div></div>" }
             }'>
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <div class="relative max-w-xs w-full">
+              <div class="relative w-full sm:max-w-xs">
                         <label for="shareholder-table-search" class="sr-only"><?php echo $this->lang->line('search'); ?></label>
                         <input type="text" name="shareholder-table-search" id="shareholder-table-search" class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" placeholder="<?php echo $this->lang->line('search_employees'); ?>" data-hs-datatable-search="#shareholder_table">
                         <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3"><svg class="size-4 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <div class="min-w-full inline-block align-middle">
+            <div class="w-full overflow-x-auto">
+              <div class="inline-block min-w-full align-middle">
                         <div class="border rounded-lg overflow-hidden dark:border-gray-700">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="shareholder_table">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
@@ -426,7 +426,7 @@ include_once APPPATH . "views/partials/header.php";
                                         <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('name'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
                                         <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('phone'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
                                         <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('email'); ?></span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Gender</span></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('gender'); ?></span></div></th>
                                         <th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Branch</span></div></th>
 										
 										<th scope="col" class="py-3 px-6 text-start --exclude-from-ordering"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Account Status</span></div></th>
@@ -497,8 +497,8 @@ if ($status === 'open') { ?>
                         </div>
                     </div>
                 </div>
-                <div class="py-3 px-4 border-t border-gray-200 dark:border-gray-700 hidden" data-hs-datatable-paging="">
-                    <nav class="flex items-center space-x-1"><button type="button" class="p-2.5 min-w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700" data-hs-datatable-paging-prev=""><span aria-hidden="true">«</span><span class="sr-only"><?php echo $this->lang->line('previous'); ?></span></button><div class="flex items-center space-x-1 [&>.active]:bg-gray-100 dark:[&>.active]:bg-gray-700" data-hs-datatable-paging-pages=""></div><button type="button" class="p-2.5 min-w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700" data-hs-datatable-paging-next=""><span class="sr-only"><?php echo $this->lang->line('next'); ?></span><span aria-hidden="true">»</span></button></nav>
+                <div class="py-3 px-3 sm:px-4 border-t border-gray-200 dark:border-gray-700 hidden" data-hs-datatable-paging="">
+                  <nav class="flex flex-wrap items-center justify-center sm:justify-start gap-1"><button type="button" class="p-2.5 min-w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700" data-hs-datatable-paging-prev=""><span aria-hidden="true">«</span><span class="sr-only"><?php echo $this->lang->line('previous'); ?></span></button><div class="flex flex-wrap items-center gap-1 [&>.active]:bg-gray-100 dark:[&>.active]:bg-gray-700" data-hs-datatable-paging-pages=""></div><button type="button" class="p-2.5 min-w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700" data-hs-datatable-paging-next=""><span class="sr-only"><?php echo $this->lang->line('next'); ?></span><span aria-hidden="true">»</span></button></nav>
                 </div>
             </div>
         </div>
@@ -643,8 +643,8 @@ if ($status === 'open') { ?>
                         </div>
 
 						<div class="sm:col-span-4">
-                            <label for="daily_allowance_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">*Daily Allowance:</label>
-                            <input type="number" id="daily_allowance_<?php echo $employees->empl_id; ?>" name="daily_allowance" placeholder="Daily allowance amount" autocomplete="off" 
+        <label for="daily_allowance_<?php echo $employees->empl_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('daily_allowance'); ?>:</label>
+        <input type="number" id="daily_allowance_<?php echo $employees->empl_id; ?>" name="daily_allowance" placeholder="<?php echo $this->lang->line('daily_allowance'); ?>" autocomplete="off" 
                                    class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" value="<?php echo htmlspecialchars(isset($employees->daily_allowance) ? $employees->daily_allowance : '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
 
@@ -755,6 +755,14 @@ window.addEventListener('load', () => {
 </script>
 
 <script>
+function setPermissionsForGroup(className, checked) {
+  const checkboxes = document.querySelectorAll('.' + className);
+  checkboxes.forEach(cb => {
+    cb.checked = checked;
+    toggleActions(cb.value);
+  });
+}
+
 function toggleCheckboxes(button, className) {
     const checkboxes = document.querySelectorAll('.' + className);
     const allChecked = [...checkboxes].every(cb => cb.checked);
@@ -772,6 +780,12 @@ function toggleActions(linkId) {
     const actionsDiv = document.getElementById('actions_' + linkId);
     if (cb && actionsDiv) {
         actionsDiv.style.display = cb.checked ? 'flex' : 'none';
+
+    const viewAction = actionsDiv.querySelector('input[name="actions[' + linkId + '][can_view]"]');
+    if (viewAction) {
+      // Default action for granted permission is always View.
+      viewAction.checked = cb.checked;
+    }
     }
 }
 </script>
@@ -811,6 +825,17 @@ document.addEventListener('DOMContentLoaded', function () {
         
         managementAccessDiv.style.display = (selectedValue === managementId) ? 'block' : 'none';
         loanOfficerAccessDiv.style.display = (selectedValue === loanOfficerId) ? 'block' : 'none';
+
+      if (selectedValue === managementId) {
+        setPermissionsForGroup('management-permissions', true);
+        setPermissionsForGroup('officer-permissions', false);
+      } else if (selectedValue === loanOfficerId) {
+        setPermissionsForGroup('officer-permissions', true);
+        setPermissionsForGroup('management-permissions', false);
+      } else {
+        setPermissionsForGroup('management-permissions', false);
+        setPermissionsForGroup('officer-permissions', false);
+      }
     }
 
     toggleSectionsByPosition();

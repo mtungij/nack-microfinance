@@ -6,6 +6,19 @@ $is_super_admin = ($this->session->userdata('role') === 'admin');
 $can_staff_view = $is_super_admin || has_permission('Staff', 'can_view') || has_permission('Register Staff', 'can_view') || has_permission('All Employee', 'can_view');
 $can_staff_edit = $is_super_admin || has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit');
 $can_staff_delete = $is_super_admin || has_permission('Staff', 'can_delete') || has_permission('Register Staff', 'can_delete') || has_permission('All Employee', 'can_delete');
+$loan_officer_id = isset($loan_officer_id) ? (int) $loan_officer_id : 0;
+$branch_manager_total = isset($branch_manager_total) ? (int) $branch_manager_total : 0;
+$loan_officer_total = isset($loan_officer_total) ? (int) $loan_officer_total : 0;
+$management_total = isset($management_total) ? (int) $management_total : 0;
+$staff_filter = isset($staff_filter) ? (string) $staff_filter : '';
+$officer_permissions_by_employee = $officer_permissions_by_employee ?? [];
+
+$officer_action_labels = [
+  'officer payment dashboard' => ['can_view' => 'View Payment Dashboard', 'can_edit' => 'Make Payment', 'can_delete' => 'Delete'],
+  'officer customer' => ['can_view' => 'View Customers', 'can_edit' => 'Register Customer', 'can_delete' => 'Delete'],
+  'officer loan application' => ['can_view' => 'View Loan Applications', 'can_edit' => 'Apply Loan', 'can_delete' => 'Delete'],
+  'officer approve loan' => ['can_view' => 'View Loans', 'can_edit' => 'Approve Loan', 'can_delete' => 'Reject Loan'],
+];
 
 // --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
 // Controller should pass $share, an array of shareholder objects.
@@ -45,9 +58,28 @@ $can_staff_delete = $is_super_admin || has_permission('Staff', 'can_delete') || 
                     </form>
                 </div>
                 <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-	
+      	                  <a href="<?php echo base_url('admin/all_employee'); ?>"
+                    class="inline-flex items-center justify-center gap-x-2 rounded-full border px-3 py-2 text-sm font-medium <?php echo $staff_filter === '' ? 'border-cyan-200 bg-cyan-100 text-cyan-700 dark:border-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300' : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'; ?>">
+                      <span>All Employees</span>
+                  </a>
 
-                  
+                  <a href="<?php echo base_url('admin/all_employee?staff_filter=branch_manager'); ?>"
+                    class="inline-flex items-center justify-center gap-x-2 rounded-full border px-3 py-2 text-sm font-medium <?php echo $staff_filter === 'branch_manager' ? 'border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'; ?>">
+                      <span>Branch Managers</span>
+                      <span class="inline-flex min-w-6 justify-center rounded-full bg-white/80 px-2 py-0.5 text-xs dark:bg-gray-900/70"><?php echo $branch_manager_total; ?></span>
+                  </a>
+
+                  <a href="<?php echo base_url('admin/all_employee?staff_filter=loan_officer'); ?>"
+                    class="inline-flex items-center justify-center gap-x-2 rounded-full border px-3 py-2 text-sm font-medium <?php echo $staff_filter === 'loan_officer' ? 'border-blue-200 bg-blue-100 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40 dark:text-blue-300' : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'; ?>">
+                      <span>Loan Officers</span>
+                      <span class="inline-flex min-w-6 justify-center rounded-full bg-white/80 px-2 py-0.5 text-xs dark:bg-gray-900/70"><?php echo $loan_officer_total; ?></span>
+                  </a>
+
+                  <a href="<?php echo base_url('admin/all_employee?staff_filter=management'); ?>"
+                    class="inline-flex items-center justify-center gap-x-2 rounded-full border px-3 py-2 text-sm font-medium <?php echo $staff_filter === 'management' ? 'border-violet-200 bg-violet-100 text-violet-700 dark:border-violet-700 dark:bg-violet-900/40 dark:text-violet-300' : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'; ?>">
+                      <span>Management</span>
+                      <span class="inline-flex min-w-6 justify-center rounded-full bg-white/80 px-2 py-0.5 text-xs dark:bg-gray-900/70"><?php echo $management_total; ?></span>
+                  </a>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -62,12 +94,17 @@ $can_staff_delete = $is_super_admin || has_permission('Staff', 'can_delete') || 
             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('position'); ?></th>
              <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('account_status'); ?></th>
 							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('created_at'); ?></th>
+							<th scope="col" class="px-4 py-3 dark:text-white">Loan Officer Permissions</th>
 							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th>
                         </tr>
                     </thead>
 					<tbody>
   <?php $no = 1; ?>
             <?php foreach ($all_employee as $employees): ?>
+        <?php
+          $isLoanOfficer = ((int) $employees->position_id === $loan_officer_id);
+          $officerPermissionRows = $officer_permissions_by_employee[$employees->empl_id] ?? [];
+        ?>
         <tr class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></th>
             <td class="uppercase px-4 py-3 dark:text-white">
@@ -121,9 +158,38 @@ $can_staff_delete = $is_super_admin || has_permission('Staff', 'can_delete') || 
                <?= $employees->empl_day ?>
             </td>
 
+            <td class="px-4 py-3 dark:text-white align-top">
+              <?php if ($isLoanOfficer): ?>
+                <?php if (!empty($officerPermissionRows)): ?>
+                  <div class="space-y-1 min-w-[280px]">
+                    <?php foreach ($officerPermissionRows as $permissionRow): ?>
+                      <?php
+                        $linkName = (string) ($permissionRow['link_name'] ?? '');
+                        $actionKeys = $permissionRow['actions'] ?? [];
+                        $linkKey = strtolower(trim($linkName));
+                        $labelsForLink = $officer_action_labels[$linkKey] ?? [];
+                        $actionLabels = [];
+                        foreach ($actionKeys as $actionKey) {
+                          $mapKey = 'can_' . strtolower(trim($actionKey));
+                          $actionLabels[] = $labelsForLink[$mapKey] ?? $actionKey;
+                        }
+                      ?>
+                      <div class="text-xs">
+                        <span class="font-semibold text-gray-700 dark:text-gray-200"><?= htmlspecialchars($linkName, ENT_QUOTES, 'UTF-8') ?></span>
+                        <span class="text-cyan-700 dark:text-cyan-300">(<?= htmlspecialchars(implode(', ', $actionLabels), ENT_QUOTES, 'UTF-8') ?>)</span>
+                      </div>
+                    <?php endforeach; ?>
+                  </div>
+                <?php else: ?>
+                  <span class="text-xs text-amber-600 dark:text-amber-400">No permission assigned</span>
+                <?php endif; ?>
+              <?php else: ?>
+                <span class="text-xs text-gray-400 dark:text-gray-500">-</span>
+              <?php endif; ?>
+            </td>
+
             <!-- Collection -->
-            <td class="px-4 py-3 dark:text-white">
-                            <?php
+            <?php
 /* -------------------------------------------------
  | Work out action, colours, icon and textblock_employee
  | ------------------------------------------------ */
@@ -141,7 +207,6 @@ $confirmText = $isOpen
 
 $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 ?>
-            </td>
 
             <td class="px-4 py-3 dark:text-white">
                <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
@@ -165,6 +230,27 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
           <?php echo $this->lang->line('choose_an_option'); ?>
         </span>
         <?php if ($can_staff_edit): ?>
+        <?php if ($isLoanOfficer): ?>
+        <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+           href="<?= base_url("admin/loan_officer_metrics/{$employees->empl_id}"); ?>">
+          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/>
+            <path d="M7 14l3-3 3 2 4-5"/>
+          </svg>
+          <?php echo $this->lang->line('view_metrics'); ?>
+        </a>
+        <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+           href="#"
+           data-hs-overlay="#hs-edit-shareholder-modal-<?= $employees->empl_id; ?>">
+          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+          </svg>
+          <?php echo $this->lang->line('update_loan_officer_info'); ?>
+        </a>
+        <?php else: ?>
         <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
            href="#"
            data-hs-overlay="#hs-edit-shareholder-modal-<?= $employees->empl_id; ?>">
@@ -175,6 +261,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
           </svg>
           <?php echo $this->lang->line('view'); ?>
         </a>
+        <?php endif; ?>
         <?php endif; ?>
       </div>
 
@@ -211,7 +298,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
       </a>
       <?php endif; ?>
 
-      <?php if ($can_staff_edit && $employees->position_id == 22): ?>
+      <?php if ($can_staff_edit && $isLoanOfficer): ?>
   <!-- grant access option (always shown) -->
   <div class="py-2 first:pt-0 last:pb-0">
     <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
@@ -225,7 +312,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
         <path d="M16 11v-2a3 3 0 0 1 6 0v2"/>
         <circle cx="18" cy="15" r="1"/>
       </svg>
-      <?php echo $this->lang->line('user_privileges'); ?>
+      Update Loan Officer Access
     </a>
   </div>
 <?php elseif ($can_staff_edit): ?>
@@ -484,9 +571,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
                       <div class="sm:col-span-4">
                         <label for="daily_allowance_<?php echo $employees->empl_id; ?>"
-                          class="block text-sm font-medium mb-2 dark:text-gray-300">*Daily Allowance:</label>
+                          class="block text-sm font-medium mb-2 dark:text-gray-300">*<?php echo $this->lang->line('daily_allowance'); ?>:</label>
                         <input type="number" id="daily_allowance_<?php echo $employees->empl_id; ?>" name="daily_allowance"
-                          placeholder="Daily allowance amount" autocomplete="off"
+                          placeholder="<?php echo $this->lang->line('daily_allowance'); ?>" autocomplete="off"
                           class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                           value="<?php echo htmlspecialchars(isset($employees->daily_allowance) ? $employees->daily_allowance : '', ENT_QUOTES, 'UTF-8'); ?>">
                       </div>

@@ -45,6 +45,28 @@ $accounting_report_submenu_active = is_submenu_active(['loss_profit', 'cash_flow
 $cash_book_active = is_active_link('oficer/get_cashInHand_Data');
 $communication_submenu_active = is_submenu_active(['send_email']); // Assuming SMS link might be external or different
 
+// Officer permission-based menu visibility
+$can_officer_payment = has_permission('Officer Payment Dashboard', 'can_view')
+  || has_permission('Officer Payment Dashboard', 'can_edit')
+  || has_permission('Officer Payment Dashboard', 'can_delete');
+
+$can_officer_customer_view = has_permission('Officer Customer', 'can_view')
+  || has_permission('Officer Customer', 'can_edit')
+  || has_permission('Officer Customer', 'can_delete');
+
+$can_officer_customer_edit = has_permission('Officer Customer', 'can_edit');
+
+$can_officer_loan_application = has_permission('Officer Loan Application', 'can_view')
+  || has_permission('Officer Loan Application', 'can_edit')
+  || has_permission('Officer Loan Application', 'can_delete');
+
+$can_officer_approve_loan = has_permission('Officer Approve Loan', 'can_view')
+  || has_permission('Officer Approve Loan', 'can_edit')
+  || has_permission('Officer Approve Loan', 'can_delete');
+
+$show_customer_menu = $can_officer_customer_view || $can_officer_customer_edit;
+$show_loan_menu = $can_officer_loan_application || $can_officer_approve_loan;
+
 ?>
 <!-- ========== SIDEBAR ========== -->
 <div id="hs-application-sidebar"
@@ -251,6 +273,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
       </li>
       <!-- End Settings Accordion -->
 
+      <?php if ($can_officer_payment): ?>
       <li>
         <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg
                   <?php echo $cash_book_active ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
@@ -260,8 +283,10 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
           <?php echo $this->lang->line('teller_dashboard'); ?>
         </a>
       </li>
+      <?php endif; ?>
      
       <!-- Capital Accordion -->
+      <?php if ($show_customer_menu): ?>
       <li class="hs-accordion <?php echo $capital_submenu_active ? 'active' : ''; ?>" id="capital-accordion">
         <button type="button"
                 class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $capital_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
@@ -276,17 +301,24 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
         <div id="capital-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $capital_submenu_active ? '' : 'hidden'; ?>">
             <ul class="pt-2 ps-2">
             
+                <?php if ($can_officer_customer_edit || $can_officer_customer_view): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/customer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/customer"); ?>"><?php echo $this->lang->line('register_customer'); ?></a></li>
+                <?php endif; ?>
 
+                <?php if ($can_officer_customer_view): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/customer_update') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/customer_update"); ?>">Update Customer Information</a></li>
+                <?php endif; ?>
              
                
+                <?php if ($can_officer_customer_view): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/all_customer') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/all_customer"); ?>"><?php echo $this->lang->line('all_customer'); ?></a></li>
+                <?php endif; ?>
               
               
             </ul>
         </div>
       </li>
+      <?php endif; ?>
       <!-- End Capital Accordion -->
 
 
@@ -297,6 +329,7 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
 
    
       <!-- Loan Accordion -->
+      <?php if ($show_loan_menu): ?>
       <li class="hs-accordion <?php echo $loan_submenu_active ? 'active' : ''; ?>" id="loan-accordion">
           <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo $loan_submenu_active ? 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>">
               <!-- SVG: CurrencyDollarIcon -->
@@ -307,9 +340,13 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
           <div id="loan-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $loan_submenu_active ? '' : 'hidden'; ?>">
               <ul class="pt-2 ps-2">
              
+                  <?php if ($can_officer_loan_application): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/loan_application') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/loan_application"); ?>"><?php echo $this->lang->line('loan_application'); ?></a></li>
+                  <?php endif; ?>
 
+                  <?php if ($can_officer_approve_loan): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/loan_pending') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/loan_pending"); ?>"><?php echo $this->lang->line('loan_pending'); ?></a></li>
+                  <?php endif; ?>
 
                   <?php if ($this->session->userdata('position_id') == '21'): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/manager_verify_loans') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/manager_verify_loans"); ?>"><?php echo $this->lang->line('loan_verification') ?? 'Loan Verification'; ?></a></li>
@@ -318,17 +355,20 @@ $communication_submenu_active = is_submenu_active(['send_email']); // Assuming S
                   <!-- <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/get_loan_aproved') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/get_loan_aproved"); ?>">Mikopo Iliyopitishwa</a></li> -->
                  
                   
+                  <?php if ($can_officer_approve_loan): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/disburse_loan') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/disburse_loan"); ?>"><?php echo $this->lang->line('disbursed_loans'); ?></a></li>
 
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/loan_withdrawal') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/loan_withdrawal"); ?>"><?php echo $this->lang->line('loan_withdrawal'); ?></a></li>
 
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('oficer/all_loan_lejected') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("oficer/all_loan_lejected"); ?>"><?php echo $this->lang->line('rejected_loans'); ?></a></li>
+                  <?php endif; ?>
                 
              
 
               </ul>
           </div>
       </li>
+      <?php endif; ?>
 
       </ul>
     </nav>

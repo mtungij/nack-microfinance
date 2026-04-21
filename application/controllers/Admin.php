@@ -1411,11 +1411,25 @@ public function manage($employee_id = null) {
     $employee_links = $this->queries->get_employee_link_ids($employee_id);
     $employee_actions = $this->queries->get_employee_permissions_full($employee_id);
 
+    $position = $this->queries->get_position();
+    $loan_officer_id = null;
+    foreach ($position as $pos) {
+        if (strtolower(trim($pos->position)) === 'loan officer') {
+            $loan_officer_id = (int) $pos->position_id;
+            break;
+        }
+    }
+    $is_loan_officer = ($loan_officer_id !== null && (int) $employee->position_id === $loan_officer_id);
+
     // Group links by group_name
     $grouped_links = [];
     foreach ($all_links as $link) {
         $group = $link->group_name ?? 'Others';
         $grouped_links[$group][] = $link;
+    }
+
+    if ($is_loan_officer) {
+        $grouped_links = ['Officer' => $grouped_links['Officer'] ?? []];
     }
 
     $data = [
@@ -1424,6 +1438,8 @@ public function manage($employee_id = null) {
         'employee_links'   => $employee_links,
         'employee_actions'  => $employee_actions,
         'grouped_links'    => $grouped_links,
+        'access_title'     => $is_loan_officer ? 'Loan Officer Permissions' : 'Management System Access',
+        'is_loan_officer'  => $is_loan_officer,
     ];
 
     $this->load->view('admin/manage_permissions', $data);
@@ -1445,6 +1461,164 @@ public function update()
     redirect('admin/manage/' . $employee_id);
 }
 
+	public function loan_officer_metrics($employee_id){
+        $can_view_staff = ($this->session->userdata('role') === 'admin')
+            || (function_exists('has_permission') && (has_permission('Staff', 'can_view') || has_permission('Register Staff', 'can_view') || has_permission('All Employee', 'can_view')));
+        if (!$can_view_staff) {
+            $this->session->set_flashdata('error', 'You do not have permission to view staff metrics.');
+            return redirect('admin/index');
+        }
+		$this->load->model('queries');
+		$comp_id = $this->session->userdata('comp_id');
+		$employee = $this->queries->get_staff_profile_summary($employee_id, $comp_id);
+
+        if (!$employee) {
+            $this->session->set_flashdata('error', 'Staff record was not found.');
+            return redirect('admin/all_employee');
+        }
+
+        if (strtolower(trim((string) ($employee->position ?? ''))) !== 'loan officer') {
+            $this->session->set_flashdata('error', 'Core metrics are available only for loan officers.');
+            return redirect('admin/all_employee');
+        }
+
+        $metrics = $this->queries->get_loan_officer_core_metrics($employee_id, $comp_id);
+
+        $this->load->view('admin/loan_officer_metrics', [
+            'employee' => $employee,
+            'metrics' => $metrics,
+            'officer_id' => $employee_id,
+        ]);
+	}
+
+	public function get_metric_details(){
+		$this->load->model('queries');
+
+        $this->output->set_content_type('application/json');
+
+        if (strtoupper((string) $this->input->method()) !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            return;
+        }
+
+		// Get JSON input
+		$input = json_decode($this->input->raw_input_stream, true);
+        if (!is_array($input)) {
+            $input = $this->input->post(NULL, true);
+        }
+		$metric = $input['metric'] ?? null;
+		$officer_id = $input['officer_id'] ?? null;
+
+		if (!$metric || !$officer_id) {
+			echo json_encode(['success' => false, 'message' => 'Missing parameters']);
+            return;
+		}
+
+		$comp_id = $this->session->userdata('comp_id');
+        if (!$comp_id) {
+            echo json_encode(['success' => false, 'message' => 'Session expired. Please login again.']);
+            return;
+        }
+
+		$data = [];
+        ob_start();
+
+		switch($metric) {
+			case 'loans_issued':
+				$data = $this->queries->get_loans_issued_details($officer_id, $comp_id);
+				break;
+			case 'active_clients':
+				$data = $this->queries->get_active_clients_details($officer_id, $comp_id);
+				break;
+			case 'par_30':
+				$data = $this->queries->get_par_30_details($officer_id, $comp_id);
+				break;
+			case 'defaulters':
+				$data = $this->queries->get_defaulters_details($officer_id, $comp_id);
+				break;
+			case 'new_clients':
+				$data = $this->queries->get_new_clients_details($officer_id, $comp_id);
+				break;
+			case 'arrears':
+				$data = $this->queries->get_arrears_details($officer_id, $comp_id);
+				break;
+			case 'total_transactions':
+				$data = $this->queries->get_total_transactions_details($officer_id, $comp_id);
+				break;
+			case 'deposit_transactions':
+				$data = $this->queries->get_deposit_transactions_details($officer_id, $comp_id);
+				break;
+			case 'withdraw_transactions':
+				$data = $this->queries->get_withdraw_transactions_details($officer_id, $comp_id);
+				break;
+			default:
+                ob_end_clean();
+                echo json_encode(['success' => false, 'message' => 'Unknown metric']);
+                return;
+		}
+
+        $buffered_output = trim((string) ob_get_clean());
+        if ($buffered_output !== '') {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Server returned unexpected output.',
+                'debug' => strip_tags($buffered_output),
+            ]);
+            return;
+        }
+
+		echo json_encode($data);
+        return;
+	}
+
+	public function loans_issued_print($officer_id = null) {
+		if (!$officer_id) {
+			show_404();
+			return;
+		}
+		$this->load->model('queries');
+		$comp_id = $this->session->userdata('comp_id');
+		if (!$comp_id) {
+			show_error('Session expired. Please login again.', 401);
+			return;
+		}
+		$officer_id = (int) $officer_id;
+        $status_filter = strtolower(trim((string) $this->input->get('status', true)));
+        $allowed_status_filters = ['ongoing', 'completed', 'disbursed', 'expired_loan', 'overdue', 'approved', 'pending'];
+        if (!in_array($status_filter, $allowed_status_filters, true)) {
+            $status_filter = '';
+        }
+
+        $data = $this->queries->get_loans_issued_rows($officer_id, $comp_id, $status_filter);
+        $data['download_mode'] = true;
+
+        $html = $this->load->view('admin/loans_issued_print', $data, true);
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4-L',
+            'orientation' => 'L',
+            'default_font_size' => 12,
+            'default_font' => 'dejavusans',
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+            'margin_left' => 8,
+            'margin_right' => 8,
+            'tempDir' => APPPATH . 'tmp/mpdf',
+        ]);
+        $officer_name = trim((string) ($data['officer_name'] ?? 'Officer'));
+        $filename_officer = preg_replace('/[^A-Za-z0-9_-]+/', '_', $officer_name);
+        $filename_officer = trim((string) $filename_officer, '_');
+        if ($filename_officer === '') {
+            $filename_officer = 'Officer';
+        }
+        $filename = 'loans_issued_' . $filename_officer . '_' . date('Y-m-d') . '.pdf';
+
+        $mpdf->SetTitle('Loans Issued - ' . $officer_name);
+        $mpdf->SetFooter('Generated By Brainsoft Technology');
+        $mpdf->WriteHTML($html);
+        $mpdf->Output($filename, 'D');
+	}
+
 	public function all_employee(){
         $can_view_staff = ($this->session->userdata('role') === 'admin')
             || (function_exists('has_permission') && (has_permission('Staff', 'can_view') || has_permission('Register Staff', 'can_view') || has_permission('All Employee', 'can_view')));
@@ -1458,11 +1632,133 @@ public function update()
 		$all_employee = $this->queries->get_Allemployee($comp_id);
 		$blanch = $this->queries->get_blanch($comp_id);
 		$position = $this->queries->get_position();
+
+        $loan_officer_id = null;
+        $branch_manager_id = null;
+        $management_id = null;
+        foreach ($position as $pos) {
+            if (strtolower(trim($pos->position)) === 'loan officer') {
+                $loan_officer_id = (int) $pos->position_id;
+            }
+
+            if (strtolower(trim($pos->position)) === 'branch manager') {
+                $branch_manager_id = (int) $pos->position_id;
+            }
+
+            if (strtolower(trim($pos->position)) === 'management') {
+                $management_id = (int) $pos->position_id;
+            }
+        }
+
+        $staff_filter = strtolower(trim((string) $this->input->get('staff_filter', true)));
+        $branch_manager_total = 0;
+        $loan_officer_total = 0;
+        $management_total = 0;
+
+        if ($management_id !== null && !empty($all_employee)) {
+            foreach ($all_employee as $emp) {
+                if ((int) $emp->position_id === $management_id) {
+                    $management_total++;
+                }
+            }
+
+            if ($staff_filter === 'management') {
+                $all_employee = array_values(array_filter($all_employee, function ($emp) use ($management_id) {
+                    return (int) $emp->position_id === $management_id;
+                }));
+            }
+        }
+
+        if ($loan_officer_id !== null && !empty($all_employee)) {
+            foreach ($all_employee as $emp) {
+                if ((int) $emp->position_id === $loan_officer_id) {
+                    $loan_officer_total++;
+                }
+            }
+
+            if ($staff_filter === 'loan_officer') {
+                $all_employee = array_values(array_filter($all_employee, function ($emp) use ($loan_officer_id) {
+                    return (int) $emp->position_id === $loan_officer_id;
+                }));
+            }
+        }
+
+        if ($branch_manager_id !== null && !empty($all_employee)) {
+            foreach ($all_employee as $emp) {
+                if ((int) $emp->position_id === $branch_manager_id) {
+                    $branch_manager_total++;
+                }
+            }
+
+            if ($staff_filter === 'branch_manager') {
+                $all_employee = array_values(array_filter($all_employee, function ($emp) use ($branch_manager_id) {
+                    return (int) $emp->position_id === $branch_manager_id;
+                }));
+            }
+        }
+
+        $officer_permissions_by_employee = [];
+        if ($loan_officer_id !== null && !empty($all_employee)) {
+            $all_links = $this->queries->get_all_links();
+            $link_map = [];
+            foreach ($all_links as $link) {
+                $link_map[(int) $link->id] = $link;
+            }
+
+            foreach ($all_employee as $emp) {
+                if ((int) $emp->position_id !== $loan_officer_id) {
+                    continue;
+                }
+
+                $permission_rows = $this->queries->get_employee_permissions_full($emp->empl_id);
+                $officer_permissions_by_employee[$emp->empl_id] = [];
+
+                foreach ($permission_rows as $link_id => $flags) {
+                    $link_id = (int) $link_id;
+                    if (!isset($link_map[$link_id])) {
+                        continue;
+                    }
+
+                    $link = $link_map[$link_id];
+                    if (strtolower(trim((string) ($link->group_name ?? ''))) !== 'officer') {
+                        continue;
+                    }
+
+                    $actions = [];
+                    if (!empty($flags['can_view'])) {
+                        $actions[] = 'View';
+                    }
+                    if (!empty($flags['can_edit'])) {
+                        $actions[] = 'Edit';
+                    }
+                    if (!empty($flags['can_delete'])) {
+                        $actions[] = 'Delete';
+                    }
+
+                    $officer_permissions_by_employee[$emp->empl_id][] = [
+                        'link_name' => $link->link_name,
+                        'actions' => $actions,
+                    ];
+                }
+            }
+        }
 		//      echo "<pre>";
 		//   print_r($position);
 		//    echo "</pre>";
 		//        exit();
-		$this->load->view('admin/all_employee',['all_employee'=>$all_employee,'blanch'=>$blanch,'position'=>$position]);
+        $this->load->view('admin/all_employee',[
+            'all_employee' => $all_employee,
+            'blanch' => $blanch,
+            'position' => $position,
+            'loan_officer_id' => $loan_officer_id,
+            'branch_manager_id' => $branch_manager_id,
+            'management_id' => $management_id,
+            'branch_manager_total' => $branch_manager_total,
+            'loan_officer_total' => $loan_officer_total,
+            'management_total' => $management_total,
+            'staff_filter' => $staff_filter,
+            'officer_permissions_by_employee' => $officer_permissions_by_employee,
+        ]);
 	}
 
 	public function block_employee($empl_id){
@@ -1553,9 +1849,68 @@ public function update()
 		$this->load->model('queries');
 		$all_employee = $this->queries->get_blanchEmployee($blanch_id);
 		$position = $this->queries->get_position();
+
+        $loan_officer_id = null;
+        foreach ($position as $pos) {
+            if (strtolower(trim($pos->position)) === 'loan officer') {
+                $loan_officer_id = (int) $pos->position_id;
+                break;
+            }
+        }
+
+        $officer_permissions_by_employee = [];
+        if ($loan_officer_id !== null && !empty($all_employee)) {
+            $all_links = $this->queries->get_all_links();
+            $link_map = [];
+            foreach ($all_links as $link) {
+                $link_map[(int) $link->id] = $link;
+            }
+
+            foreach ($all_employee as $emp) {
+                if ((int) $emp->position_id !== $loan_officer_id) {
+                    continue;
+                }
+
+                $permission_rows = $this->queries->get_employee_permissions_full($emp->empl_id);
+                $officer_permissions_by_employee[$emp->empl_id] = [];
+
+                foreach ($permission_rows as $link_id => $flags) {
+                    $link_id = (int) $link_id;
+                    if (!isset($link_map[$link_id])) {
+                        continue;
+                    }
+
+                    $link = $link_map[$link_id];
+                    if (strtolower(trim((string) ($link->group_name ?? ''))) !== 'officer') {
+                        continue;
+                    }
+
+                    $actions = [];
+                    if (!empty($flags['can_view'])) {
+                        $actions[] = 'View';
+                    }
+                    if (!empty($flags['can_edit'])) {
+                        $actions[] = 'Edit';
+                    }
+                    if (!empty($flags['can_delete'])) {
+                        $actions[] = 'Delete';
+                    }
+
+                    $officer_permissions_by_employee[$emp->empl_id][] = [
+                        'link_name' => $link->link_name,
+                        'actions' => $actions,
+                    ];
+                }
+            }
+        }
 		  // print_r($empl);
 		  //       exit();
-		$this->load->view('admin/all_employee',['all_employee'=>$all_employee,'position'=>$position]);
+        $this->load->view('admin/all_employee',[
+            'all_employee' => $all_employee,
+            'position' => $position,
+            'loan_officer_id' => $loan_officer_id,
+            'officer_permissions_by_employee' => $officer_permissions_by_employee,
+        ]);
 	}
 
 	public function leave(){

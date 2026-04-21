@@ -54,8 +54,11 @@ include_once APPPATH . "views/partials/header.php";
           <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-gray-700">
             <div>
               <p class="text-sm text-gray-600 uppercase font-bold dark:text-white">
-                Management System Access
+                <?= htmlspecialchars($access_title ?? 'Management System Access', ENT_QUOTES, 'UTF-8') ?>
               </p>
+              <?php if (!empty($is_loan_officer)): ?>
+                <p class="text-xs text-gray-500 mt-1 dark:text-gray-400">Select and update Loan Officer actions below.</p>
+              <?php endif; ?>
             </div>
 
             <div>
@@ -158,6 +161,9 @@ $resolve_action_label = function ($link_name, $action, $default) use ($action_la
   }
   return $default;
 };
+
+$access_title = $access_title ?? 'Management System Access';
+$is_loan_officer = $is_loan_officer ?? false;
 ?>
 
 <form method="post" action="<?= base_url('admin/save_permissions/' . $employee_id); ?>">
