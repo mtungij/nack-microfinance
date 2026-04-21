@@ -94,7 +94,7 @@ $officer_action_labels = [
             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('position'); ?></th>
              <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('account_status'); ?></th>
 							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('created_at'); ?></th>
-							<th scope="col" class="px-4 py-3 dark:text-white">Loan Officer Permissions</th>
+			
 							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th>
                         </tr>
                     </thead>
@@ -103,6 +103,7 @@ $officer_action_labels = [
             <?php foreach ($all_employee as $employees): ?>
         <?php
           $isLoanOfficer = ((int) $employees->position_id === $loan_officer_id);
+          $isManagement = (strtolower(trim((string) ($employees->position ?? ''))) === 'management');
           $officerPermissionRows = $officer_permissions_by_employee[$employees->empl_id] ?? [];
         ?>
         <tr class="border-b dark:border-gray-700">
@@ -154,39 +155,8 @@ $officer_action_labels = [
             </td>
 
             <!-- Session -->
-            <td class="px-4 py-3 dark:text-white">
-               <?= $employees->empl_day ?>
-            </td>
-
-            <td class="px-4 py-3 dark:text-white align-top">
-              <?php if ($isLoanOfficer): ?>
-                <?php if (!empty($officerPermissionRows)): ?>
-                  <div class="space-y-1 min-w-[280px]">
-                    <?php foreach ($officerPermissionRows as $permissionRow): ?>
-                      <?php
-                        $linkName = (string) ($permissionRow['link_name'] ?? '');
-                        $actionKeys = $permissionRow['actions'] ?? [];
-                        $linkKey = strtolower(trim($linkName));
-                        $labelsForLink = $officer_action_labels[$linkKey] ?? [];
-                        $actionLabels = [];
-                        foreach ($actionKeys as $actionKey) {
-                          $mapKey = 'can_' . strtolower(trim($actionKey));
-                          $actionLabels[] = $labelsForLink[$mapKey] ?? $actionKey;
-                        }
-                      ?>
-                      <div class="text-xs">
-                        <span class="font-semibold text-gray-700 dark:text-gray-200"><?= htmlspecialchars($linkName, ENT_QUOTES, 'UTF-8') ?></span>
-                        <span class="text-cyan-700 dark:text-cyan-300">(<?= htmlspecialchars(implode(', ', $actionLabels), ENT_QUOTES, 'UTF-8') ?>)</span>
-                      </div>
-                    <?php endforeach; ?>
-                  </div>
-                <?php else: ?>
-                  <span class="text-xs text-amber-600 dark:text-amber-400">No permission assigned</span>
-                <?php endif; ?>
-              <?php else: ?>
-                <span class="text-xs text-gray-400 dark:text-gray-500">-</span>
-              <?php endif; ?>
-            </td>
+            <td class="px-4 py-3 dark:text-white"><?php echo !empty($employees->empl_day) ? date('Y-m-d H:i', strtotime($employees->empl_day)) : '-'; ?></td>
+           
 
             <!-- Collection -->
             <?php
@@ -312,13 +282,13 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
         <path d="M16 11v-2a3 3 0 0 1 6 0v2"/>
         <circle cx="18" cy="15" r="1"/>
       </svg>
-      Update Loan Officer Access
+      Rekebisha Vipengele vya Afisa
     </a>
   </div>
 <?php elseif ($can_staff_edit): ?>
   <div class="py-2 first:pt-0 last:pb-0">
     <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
-       href="<?= base_url("admin/privillage/{$employees->empl_id}"); ?>">
+       href="<?= $isManagement ? base_url("admin/manage/{$employees->empl_id}") : base_url("admin/privillage/{$employees->empl_id}"); ?>">
       <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
            fill="none" stroke="currentColor" stroke-width="1.5"
            stroke-linecap="round" stroke-linejoin="round">
