@@ -45,24 +45,12 @@ $accounting_report_submenu_active = is_submenu_active(['loss_profit', 'cash_flow
 $cash_book_active = is_active_link('oficer/get_cashInHand_Data');
 $communication_submenu_active = is_submenu_active(['send_email']); // Assuming SMS link might be external or different
 
-// Officer permission-based menu visibility
-$can_officer_payment = has_permission('Officer Payment Dashboard', 'can_view')
-  || has_permission('Officer Payment Dashboard', 'can_edit')
-  || has_permission('Officer Payment Dashboard', 'can_delete');
-
-$can_officer_customer_view = has_permission('Officer Customer', 'can_view')
-  || has_permission('Officer Customer', 'can_edit')
-  || has_permission('Officer Customer', 'can_delete');
-
-$can_officer_customer_edit = has_permission('Officer Customer', 'can_edit');
-
-$can_officer_loan_application = has_permission('Officer Loan Application', 'can_view')
-  || has_permission('Officer Loan Application', 'can_edit')
-  || has_permission('Officer Loan Application', 'can_delete');
-
-$can_officer_approve_loan = has_permission('Officer Approve Loan', 'can_view')
-  || has_permission('Officer Approve Loan', 'can_edit')
-  || has_permission('Officer Approve Loan', 'can_delete');
+// Loan officer sidebar: show all related menus without permission filtering.
+$can_officer_payment = true;
+$can_officer_customer_view = true;
+$can_officer_customer_edit = true;
+$can_officer_loan_application = true;
+$can_officer_approve_loan = true;
 
 $show_customer_menu = $can_officer_customer_view || $can_officer_customer_edit;
 $show_loan_menu = $can_officer_loan_application || $can_officer_approve_loan;
