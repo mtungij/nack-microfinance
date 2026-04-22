@@ -319,9 +319,9 @@ $can_staff_view_branch = $can_staff_view_all;
               </button>
               <div id="expenses-sub-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo is_submenu_active(['expenses', 'expnses_requisition_form', 'get_recomended_request']) ? '' : 'hidden'; ?>">
                 <ul class="pt-2 ps-4">
-                <?php if (has_permission('Sajili Matumizi Ya Ofisi')): ?>
+                
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/expenses') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/expenses"); ?>"><?php echo $this->lang->line('register_expenses'); ?></a></li>
-                  <?php endif; ?>
+                  
                   <!-- <?php if (has_permission('Record Matumizi ')): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/expnses_requisition_form') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/expnses_requisition_form"); ?>">Expenses</a></li>
                   <?php endif; ?> -->
@@ -329,9 +329,9 @@ $can_staff_view_branch = $can_staff_view_all;
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/get_expences_notAcceptable') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/get_expences_notAcceptable"); ?>">Expenses Request</a></li>
                   <?php endif; ?> -->
                  
-                  <?php if (has_permission('Matumizi yote')): ?>
+                
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/get_recomended_request') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/get_recomended_request"); ?>"><?php echo $this->lang->line('accepted_expenses'); ?></a></li>
-                  <?php endif; ?>
+                 
                 </ul>
               </div>
             </li>
