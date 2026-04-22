@@ -456,12 +456,7 @@ include_once APPPATH . "views/partials/header.php";
 <input type="hidden" name="loan_officer_id" value="<?= $loan_officer_id ?>">
 
 <!-- The conditional checkbox -->
-<div id="loan-officer-privilege" style="display: none;" class="mt-4">
-  <label class="inline-flex items-center">
-    <input type="checkbox" id="can-make-payment" name="can_make_payment" class="form-checkbox text-blue-600" checked>
-    <span class="ml-2 text-gray-700 dark:text-gray-300">Loan Officer have payment privilege</span>
-  </label>
-</div>
+
 
 
 <div id="branch-manager-privilege" style="display: none;" class="mt-4 space-y-2">
@@ -886,7 +881,8 @@ function toggleActions(linkId) {
       specialReceive.checked = shouldCheck;
     }
     if (specialDelete) {
-      specialDelete.checked = shouldCheck;
+      // Keep delete action off by default; user can opt-in manually.
+      specialDelete.checked = false;
     }
     if (specialView) {
       specialView.checked = shouldCheck;
