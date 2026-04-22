@@ -6,6 +6,17 @@ $is_super_admin = ($this->session->userdata('role') === 'admin');
 $can_customer_view = $is_super_admin || has_permission('All Customers', 'can_view') || has_permission('Wateja', 'can_view') || has_permission('Customer List', 'can_view');
 $can_customer_delete = $is_super_admin || has_permission('All Customers', 'can_delete') || has_permission('Wateja', 'can_delete') || has_permission('Customer List', 'can_delete');
 
+$registered_today_count = 0;
+if (isset($customer) && is_array($customer) && !empty($customer)) {
+    $today = date('Y-m-d');
+    foreach ($customer as $c) {
+        $registered_raw = !empty($c->customer_day) ? $c->customer_day : (!empty($c->reg_date) ? $c->reg_date : '');
+        if (!empty($registered_raw) && substr((string) $registered_raw, 0, 10) === $today) {
+            $registered_today_count++;
+        }
+    }
+}
+
 // --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
 // Controller should pass $share, an array of shareholder objects.
 // Each object should have 'share_id', 'share_name', 'share_mobile', 'share_email', 'share_sex', 'share_dob'.
@@ -127,6 +138,11 @@ $can_customer_delete = $is_super_admin || has_permission('All Customers', 'can_d
                     <?php echo $this->lang->line('download_pdf'); ?>
                   </a>
 
+                                      <span class="inline-flex items-center gap-x-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200/70 dark:border-emerald-500/50 dark:bg-emerald-500/20 dark:text-white dark:ring-emerald-400/40">
+                                        Registered Today
+                                        <span class="inline-flex min-w-6 justify-center rounded-full bg-white/80 px-2 py-0.5 text-xs dark:bg-gray-900/70"><?php echo (int) $registered_today_count; ?></span>
+                                    </span>
+
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -138,6 +154,7 @@ $can_customer_delete = $is_super_admin || has_permission('All Customers', 'can_d
                <th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('branch_name'); ?></th>
                <th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('phone_number'); ?></th>
 					 <th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('status'); ?></th>
+                     <th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500">Date Registered</th>
 							<th scope="col" class="border-b border-cyan-200 px-4 py-3 dark:border-cyan-500"><?php echo $this->lang->line('action'); ?></th> 
                         </tr>
                     </thead>
@@ -145,6 +162,10 @@ $can_customer_delete = $is_super_admin || has_permission('All Customers', 'can_d
   <?php $no = 1; ?>
                                     <?php if (isset($customer ) && is_array($customer ) && !empty($customer )): ?>
                                         <?php foreach ($customer  as $customers): ?>
+                <?php
+                    $registered_raw = !empty($customers->customer_day) ? $customers->customer_day : (!empty($customers->reg_date) ? $customers->reg_date : '');
+                    $registered_date = !empty($registered_raw) ? date('Y-m-d', strtotime($registered_raw)) : '-';
+                ?>
         <tr class="border-b dark:border-gray-700"
             data-branch="<?php echo htmlspecialchars($customers->blanch_name, ENT_QUOTES, 'UTF-8'); ?>"
             data-status="<?php echo htmlspecialchars($customers->customer_status, ENT_QUOTES, 'UTF-8'); ?>">
@@ -152,24 +173,24 @@ $can_customer_delete = $is_super_admin || has_permission('All Customers', 'can_d
             <td class="uppercase px-4 py-3 dark:text-white">
             <?php echo htmlspecialchars($customers->f_name, ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars($customers->m_name, ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars($customers->l_name, ENT_QUOTES, 'UTF-8'); ?>
             </td>
-              <td class="px-4 py-3 dark:text-white"><?php echo htmlspecialchars($customers->gender, ENT_QUOTES, 'UTF-8'); ?></td>
-            <td class="px-4 py-3 dark:text-white"><?php echo ucfirst(htmlspecialchars($customers->phone_no, ENT_QUOTES, 'UTF-8')); ?></td>
             <td class="px-4 py-3 dark:text-white"><?php echo ucfirst(htmlspecialchars($customers->blanch_name, ENT_QUOTES, 'UTF-8')); ?></td>
+                        <td class="px-4 py-3 dark:text-white"><?php echo ucfirst(htmlspecialchars($customers->phone_no, ENT_QUOTES, 'UTF-8')); ?></td>
             <td class="px-4 py-3 dark:text-white">
                   <?php if ($customers->customer_status == 'open') {
         ?>
-                <a href="#" class="badge badge-success"><?php echo $this->lang->line('active'); ?></a>
+                <a href="#" class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200/80 dark:bg-emerald-500/20 dark:text-emerald-100 dark:ring-emerald-400/40"><?php echo $this->lang->line('active'); ?></a>
        <?php }elseif ($customers->customer_status == 'close') {
         ?>
-                <a href="#" class="badge badge-primary"><?php echo $this->lang->line('done'); ?></a>
+                <a href="#" class="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800 ring-1 ring-sky-200/80 dark:bg-sky-500/20 dark:text-sky-100 dark:ring-sky-400/40"><?php echo $this->lang->line('done'); ?></a>
         <?php }elseif($customers->customer_status == 'pending'){
          ?>
-                 <a href="#" class="badge badge-warning"><?php echo $this->lang->line('pending'); ?></a>
+                 <a href="#" class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-amber-200/80 dark:bg-amber-500/20 dark:text-amber-100 dark:ring-amber-400/40"><?php echo $this->lang->line('pending'); ?></a>
          <?php }elseif ($customers->customer_status == 'out') {
           ?>
-                    <a href="#" class="badge badge-danger"><?php echo $this->lang->line('default'); ?></a>
+                    <a href="#" class="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800 ring-1 ring-rose-200/80 dark:bg-rose-500/20 dark:text-rose-100 dark:ring-rose-400/40"><?php echo $this->lang->line('default'); ?></a>
           <?php } ?>
             </td>
+                        <td class="px-4 py-3 dark:text-white"><?php echo htmlspecialchars($registered_date, ENT_QUOTES, 'UTF-8'); ?></td>
 
            <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
         <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">

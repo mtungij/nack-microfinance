@@ -2,6 +2,10 @@
 <?php
 include_once APPPATH . "views/partials/officerheader.php";
 
+$can_delete_paid_transactions = true;
+if (function_exists('has_permission')) {
+    $can_delete_paid_transactions = has_permission('Officer Payment Dashboard', 'can_delete');
+}
 ?>
 
 
@@ -75,6 +79,7 @@ include_once APPPATH . "views/partials/officerheader.php";
             <th class="px-4 py-3"><?php echo $this->lang->line('mkopo') ?: 'Mkopo'; ?></th>
             <th class="px-4 py-3"><?php echo $this->lang->line('withdrawal_account_label') ?: 'Withdrawal Account'; ?></th>
             <th class="px-4 py-3"><?php echo $this->lang->line('date'); ?></th>
+            <th class="px-4 py-3"><?php echo $this->lang->line('action'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -153,6 +158,21 @@ include_once APPPATH . "views/partials/officerheader.php";
 
                     <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
                       <?php echo $cashs->time_rec; ?>
+                    </td>
+
+                    <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                      <?php if ($can_delete_paid_transactions && !empty($cashs->pay_id) && !empty($cashs->depost) && (float)$cashs->depost > 0): ?>
+                        <a href="<?php echo base_url("oficer/delete_depost_data/{$cashs->pay_id}") ?>"
+                           onclick="return confirm('Are you sure you want to delete this paid transaction?')"
+                           class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-hidden focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0h8m-8 0a1 1 0 01-1-1V5a1 1 0 011-1h6a1 1 0 011 1v1"/>
+                          </svg>
+                          <?php echo $this->lang->line('delete'); ?>
+                        </a>
+                      <?php else: ?>
+                        -
+                      <?php endif; ?>
                     </td>
 
                     

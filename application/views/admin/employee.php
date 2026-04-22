@@ -241,34 +241,40 @@ include_once APPPATH . "views/partials/header.php";
             <h2 class="text-lg font-semibold mt-6 mb-2 text-gray-800 dark:text-gray-200 px-6">
               <?= htmlspecialchars($group) ?>
             </h2>
-            <div class="grid sm:grid-cols-1 mt-1 gap-2 px-6 pb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5 mt-1 px-6 pb-4">
               <?php foreach ($links as $link): ?>
-                <div class="flex items-center justify-between p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
-                  <div class="flex items-center">
+                <div class="flex h-full flex-col rounded-xl border border-gray-200 bg-white text-sm shadow-sm transition hover:border-cyan-300 hover:shadow-md dark:bg-gray-900 dark:border-gray-700 dark:hover:border-cyan-700">
+                  <div class="flex items-start gap-3 p-4">
                     <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb management-permissions shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500" onchange="toggleActions(<?= $link->id ?>)">
-                    <span class="text-sm text-gray-700 ms-3 dark:text-gray-400"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></span>
+                    <div class="min-w-0">
+                      <div class="text-sm font-semibold text-gray-800 dark:text-gray-100"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></div>
+                      <div class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">Enable this permission for the selected employee.</div>
+                    </div>
                   </div>
                   <?php if (!empty($link->has_edit) || !empty($link->has_delete)): ?>
-                    <div class="flex items-center gap-3 actions-group" id="actions_<?= $link->id ?>" style="display:none;">
-                      <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                    <div class="actions-group mt-auto border-t border-gray-100 bg-gray-50/80 p-4 dark:border-gray-800 dark:bg-gray-800/50" id="actions_<?= $link->id ?>" style="display:none;">
+                      <div class="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Actions</div>
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <label class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-green-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 dark:border-green-900/60 dark:bg-gray-900 dark:text-gray-300 cursor-pointer">
                         <input type="checkbox" name="actions[<?= $link->id ?>][can_view]" value="1" class="rounded-sm border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-800 dark:border-gray-600" checked>
                         <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         View
                       </label>
                       <?php if (!empty($link->has_edit)): ?>
-                        <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                        <label class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 dark:border-amber-900/60 dark:bg-gray-900 dark:text-gray-300 cursor-pointer">
                           <input type="checkbox" name="actions[<?= $link->id ?>][can_edit]" value="1" class="rounded-sm border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-600">
                           <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                           Edit
                         </label>
                       <?php endif; ?>
                       <?php if (!empty($link->has_delete)): ?>
-                        <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                        <label class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 dark:border-red-900/60 dark:bg-gray-900 dark:text-gray-300 cursor-pointer">
                           <input type="checkbox" name="actions[<?= $link->id ?>][can_delete]" value="1" class="rounded-sm border-gray-300 text-red-600 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-600">
                           <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                           Delete
                         </label>
                       <?php endif; ?>
+                      </div>
                     </div>
                   <?php endif; ?>
                 </div>
@@ -296,52 +302,143 @@ include_once APPPATH . "views/partials/header.php";
           </div>
           <div class="px-6 py-4">
             <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200"><?php echo $this->lang->line('officer_permissions'); ?></h3>
-            <div class="grid sm:grid-cols-1 gap-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
               <?php if (isset($grouped_links['Officer'])): ?>
+                <?php $renderedOfficerPaymentCards = false; ?>
                 <?php foreach ($grouped_links['Officer'] as $link): ?>
-                  <div class="flex flex-col p-3 w-full bg-white border border-gray-200 rounded-lg text-sm dark:bg-gray-900 dark:border-gray-700">
-                    <div class="flex items-center justify-between">
-                    <div class="flex items-center w-full">
+                  <?php
+                    $officerActionLabels = [
+                      'officer payment dashboard' => [
+                        'can_view' => 'View Payment Dashboard',
+                        'can_edit' => 'Receive Payment',
+                        'can_delete' => 'Delete Paid Payment',
+                      ],
+                      'officer customer' => [
+                        'can_view' => 'View Customers',
+                        'can_edit' => 'Register Customer',
+                      ],
+                      'officer loan application' => [
+                        'can_view' => 'View Loan Applications',
+                        'can_edit' => 'Apply Loan',
+                      ],
+                      'officer approve loan' => [
+                        'can_view' => 'View Loans',
+                        'can_edit' => 'Approve Loan',
+                        'can_delete' => 'Reject Loan',
+                      ],
+                    ];
+                    $linkKey = strtolower(trim($link->link_name));
+                    $viewLabel = $officerActionLabels[$linkKey]['can_view'] ?? 'View';
+                    $editLabel = $officerActionLabels[$linkKey]['can_edit'] ?? 'Edit';
+                    $deleteLabel = $officerActionLabels[$linkKey]['can_delete'] ?? 'Delete';
+                  ?>
+                  <?php if ($linkKey === 'officer payment dashboard'): ?>
+                    <?php if ($renderedOfficerPaymentCards) continue; ?>
+                    <?php $renderedOfficerPaymentCards = true; ?>
+                    <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb officer-permissions hidden" onchange="toggleActions(<?= $link->id ?>)">
+                    <input type="checkbox" id="officer_payment_view_<?= $link->id ?>" name="actions[<?= $link->id ?>][can_view]" value="1" class="hidden">
+                    <div class="flex h-full flex-col rounded-xl border border-gray-200 bg-white text-sm shadow-sm transition hover:border-cyan-300 hover:shadow-md dark:bg-gray-900 dark:border-gray-700 dark:hover:border-cyan-700">
+                      <div class="flex items-start gap-3 p-4">
+                        <input type="checkbox" id="officer_payment_receive_<?= $link->id ?>" name="actions[<?= $link->id ?>][can_edit]" value="1" class="shrink-0 mt-0.5 border-gray-200 rounded-sm text-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-amber-500" onchange="syncOfficerPaymentCards(<?= $link->id ?>)">
+                        <div class="min-w-0">
+                          <div class="text-sm font-semibold text-gray-800 dark:text-gray-100"><?php echo $this->lang->line('officer_receive_payment'); ?></div>
+                          <div class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('officer_receive_payment_desc'); ?></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex h-full flex-col rounded-xl border border-gray-200 bg-white text-sm shadow-sm transition hover:border-cyan-300 hover:shadow-md dark:bg-gray-900 dark:border-gray-700 dark:hover:border-cyan-700">
+                      <div class="flex items-start gap-3 p-4">
+                        <input type="checkbox" id="officer_payment_delete_<?= $link->id ?>" name="actions[<?= $link->id ?>][can_delete]" value="1" class="shrink-0 mt-0.5 border-gray-200 rounded-sm text-red-600 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-red-500" onchange="syncOfficerPaymentCards(<?= $link->id ?>)">
+                        <div class="min-w-0">
+                          <div class="text-sm font-semibold text-gray-800 dark:text-gray-100"><?php echo $this->lang->line('officer_delete_paid_payment'); ?></div>
+                          <div class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('officer_delete_paid_payment_desc'); ?></div>
+                        </div>
+                      </div>
+                    </div>
+                    <?php continue; ?>
+                  <?php endif; ?>
+                  <?php if ($linkKey === 'officer approve loan'): ?>
+                    <div class="flex h-full flex-col rounded-xl border border-gray-200 bg-white text-sm shadow-sm transition hover:border-cyan-300 hover:shadow-md dark:bg-gray-900 dark:border-gray-700 dark:hover:border-cyan-700">
+                      <div class="flex items-start gap-3 p-4">
+                        <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb officer-permissions shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500" onchange="toggleActions(<?= $link->id ?>)">
+                        <input type="checkbox" id="officer_view_only_<?= $link->id ?>" name="actions[<?= $link->id ?>][can_view]" value="1" class="hidden">
+                        <div class="min-w-0">
+                          <div class="text-sm font-semibold text-gray-800 dark:text-gray-100"><?php echo $this->lang->line('officer_view_loans'); ?></div>
+                          <div class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('officer_view_loans_desc'); ?></div>
+                        </div>
+                      </div>
+                    </div>
+                    <?php continue; ?>
+                  <?php endif; ?>
+                  <?php if ($linkKey === 'officer customer'): ?>
+                    <div class="flex h-full flex-col rounded-xl border border-gray-200 bg-white text-sm shadow-sm transition hover:border-cyan-300 hover:shadow-md dark:bg-gray-900 dark:border-gray-700 dark:hover:border-cyan-700">
+                      <div class="flex items-start gap-3 p-4">
+                        <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb officer-permissions shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500" onchange="toggleActions(<?= $link->id ?>)">
+                        <input type="checkbox" id="officer_view_only_<?= $link->id ?>" name="actions[<?= $link->id ?>][can_view]" value="1" class="hidden">
+                        <div class="min-w-0">
+                          <div class="text-sm font-semibold text-gray-800 dark:text-gray-100"><?php echo $this->lang->line('officer_view_customers'); ?></div>
+                          <div class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('officer_view_customers_desc'); ?></div>
+                        </div>
+                      </div>
+                    </div>
+                    <?php continue; ?>
+                  <?php endif; ?>
+                  <?php if ($linkKey === 'officer loan application'): ?>
+                    <div class="flex h-full flex-col rounded-xl border border-gray-200 bg-white text-sm shadow-sm transition hover:border-cyan-300 hover:shadow-md dark:bg-gray-900 dark:border-gray-700 dark:hover:border-cyan-700">
+                      <div class="flex items-start gap-3 p-4">
+                        <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb officer-permissions shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500" onchange="toggleActions(<?= $link->id ?>)">
+                        <input type="checkbox" id="officer_view_only_<?= $link->id ?>" name="actions[<?= $link->id ?>][can_view]" value="1" class="hidden">
+                        <div class="min-w-0">
+                          <div class="text-sm font-semibold text-gray-800 dark:text-gray-100"><?php echo $this->lang->line('officer_view_loan_applications'); ?></div>
+                          <div class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400"><?php echo $this->lang->line('officer_view_loan_applications_desc'); ?></div>
+                        </div>
+                      </div>
+                    </div>
+                    <?php continue; ?>
+                  <?php endif; ?>
+                  <div class="flex h-full flex-col rounded-xl border border-gray-200 bg-white text-sm shadow-sm transition hover:border-cyan-300 hover:shadow-md dark:bg-gray-900 dark:border-gray-700 dark:hover:border-cyan-700">
+                    <div class="flex items-start gap-3 p-4">
                       <input type="checkbox" id="link_<?= $link->id ?>" name="permissions[]" value="<?= $link->id ?>" class="permission-cb officer-permissions shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 checked:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500" onchange="toggleActions(<?= $link->id ?>)">
-                      <div class="ms-3 w-full">
-                        <span class="text-sm text-gray-700 dark:text-gray-400 block"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></span>
+                      <div class="min-w-0">
+                        <div class="text-sm font-semibold text-gray-800 dark:text-gray-100"><?= htmlspecialchars($link->link_name, ENT_QUOTES, 'UTF-8') ?></div>
                         <?php 
                           $descriptions = [
-                            'officer payment dashboard' => 'Afisa anaweza kulipisha marejesho',
                             'officer customer' => 'Afisa anaweza kusajili mteja mpya',
                             'officer loan application' => 'Afisa anaweza kuomba mikopo kwa tawi lake',
                             'officer approve loan' => 'Afisa anaweza kupitisha mkopo wa tawi lake'
                           ];
-                          $linkKey = strtolower(trim($link->link_name));
                           if (isset($descriptions[$linkKey])): 
                         ?>
-                          <span class="text-xs text-gray-500 dark:text-gray-500 italic block mt-1"><?= htmlspecialchars($descriptions[$linkKey], ENT_QUOTES, 'UTF-8') ?></span>
+                          <div class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400"><?= htmlspecialchars($descriptions[$linkKey], ENT_QUOTES, 'UTF-8') ?></div>
+                        <?php else: ?>
+                          <div class="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">Set access for this officer tool and its allowed actions.</div>
                         <?php endif; ?>
                       </div>
                     </div>
-                                        </div>
-                    </div>
                     <?php if (!empty($link->has_edit) || !empty($link->has_delete)): ?>
-                      <div class="flex items-center gap-3 actions-group" id="actions_<?= $link->id ?>" style="display:none;">
-                        <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                      <div class="actions-group mt-auto border-t border-gray-100 bg-gray-50/80 p-4 dark:border-gray-800 dark:bg-gray-800/50" id="actions_<?= $link->id ?>" style="display:none;">
+                        <div class="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Actions</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <label class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-green-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 dark:border-green-900/60 dark:bg-gray-900 dark:text-gray-300 cursor-pointer">
                           <input type="checkbox" name="actions[<?= $link->id ?>][can_view]" value="1" class="rounded-sm border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-800 dark:border-gray-600" checked>
                           <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                          View
+                          <?= htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') ?>
                         </label>
                         <?php if (!empty($link->has_edit)): ?>
-                          <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                          <label class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 dark:border-amber-900/60 dark:bg-gray-900 dark:text-gray-300 cursor-pointer">
                             <input type="checkbox" name="actions[<?= $link->id ?>][can_edit]" value="1" class="rounded-sm border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-600">
                             <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            Edit
+                            <?= htmlspecialchars($editLabel, ENT_QUOTES, 'UTF-8') ?>
                           </label>
                         <?php endif; ?>
                         <?php if (!empty($link->has_delete)): ?>
-                          <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                          <label class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 dark:border-red-900/60 dark:bg-gray-900 dark:text-gray-300 cursor-pointer">
                             <input type="checkbox" name="actions[<?= $link->id ?>][can_delete]" value="1" class="rounded-sm border-gray-300 text-red-600 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-600">
                             <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            Delete
+                            <?= htmlspecialchars($deleteLabel, ENT_QUOTES, 'UTF-8') ?>
                           </label>
                         <?php endif; ?>
+                        </div>
                       </div>
                     <?php endif; ?>
                   </div>
@@ -778,6 +875,30 @@ function toggleCheckboxes(button, className) {
 function toggleActions(linkId) {
     const cb = document.getElementById('link_' + linkId);
     const actionsDiv = document.getElementById('actions_' + linkId);
+  const specialReceive = document.getElementById('officer_payment_receive_' + linkId);
+  const specialDelete = document.getElementById('officer_payment_delete_' + linkId);
+  const specialView = document.getElementById('officer_payment_view_' + linkId);
+  const viewOnlyPermission = document.getElementById('officer_view_only_' + linkId);
+
+  if (cb && (specialReceive || specialDelete)) {
+    const shouldCheck = cb.checked;
+    if (specialReceive) {
+      specialReceive.checked = shouldCheck;
+    }
+    if (specialDelete) {
+      specialDelete.checked = shouldCheck;
+    }
+    if (specialView) {
+      specialView.checked = shouldCheck;
+    }
+    return;
+  }
+
+  if (cb && viewOnlyPermission) {
+    viewOnlyPermission.checked = cb.checked;
+    return;
+  }
+
     if (cb && actionsDiv) {
         actionsDiv.style.display = cb.checked ? 'flex' : 'none';
 
@@ -788,6 +909,23 @@ function toggleActions(linkId) {
     }
     }
 }
+
+  function syncOfficerPaymentCards(linkId) {
+    const parentPermission = document.getElementById('link_' + linkId);
+    const receivePermission = document.getElementById('officer_payment_receive_' + linkId);
+    const deletePermission = document.getElementById('officer_payment_delete_' + linkId);
+    const viewPermission = document.getElementById('officer_payment_view_' + linkId);
+
+    const isEnabled = (receivePermission && receivePermission.checked) || (deletePermission && deletePermission.checked);
+
+    if (parentPermission) {
+      parentPermission.checked = !!isEnabled;
+    }
+
+    if (viewPermission) {
+      viewPermission.checked = !!isEnabled;
+    }
+  }
 </script>
 
 <script>
@@ -822,14 +960,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function toggleSectionsByPosition() {
         const selectedValue = positionSelect.value;
+        console.log('Position selected:', selectedValue, 'Loan Officer ID:', loanOfficerId, 'Management ID:', managementId);
         
-        managementAccessDiv.style.display = (selectedValue === managementId) ? 'block' : 'none';
-        loanOfficerAccessDiv.style.display = (selectedValue === loanOfficerId) ? 'block' : 'none';
+        managementAccessDiv.style.display = (String(selectedValue) === String(managementId)) ? 'block' : 'none';
+        loanOfficerAccessDiv.style.display = (String(selectedValue) === String(loanOfficerId)) ? 'block' : 'none';
 
-      if (selectedValue === managementId) {
+      if (String(selectedValue) === String(managementId)) {
         setPermissionsForGroup('management-permissions', true);
         setPermissionsForGroup('officer-permissions', false);
-      } else if (selectedValue === loanOfficerId) {
+      } else if (String(selectedValue) === String(loanOfficerId)) {
         setPermissionsForGroup('officer-permissions', true);
         setPermissionsForGroup('management-permissions', false);
       } else {
@@ -838,8 +977,18 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    toggleSectionsByPosition();
+    // Initial check
+    setTimeout(toggleSectionsByPosition, 100);
+    
+    // Listen for both native change and Preline change events
     positionSelect.addEventListener('change', toggleSectionsByPosition);
+    
+    // For Preline HSSelect - it dispatches a change event
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'position_id') {
+            toggleSectionsByPosition();
+        }
+    }, true);
 });
 </script>
 
@@ -850,14 +999,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const loanOfficerId = "<?= $loan_officer_id ?>";
 
     function toggleLoanOfficerPrivilege() {
-        loanOfficerDiv.style.display = (positionSelect.value === loanOfficerId) ? 'block' : 'none';
+        loanOfficerDiv.style.display = (String(positionSelect.value) === String(loanOfficerId)) ? 'block' : 'none';
     }
 
-    toggleLoanOfficerPrivilege();
+    setTimeout(toggleLoanOfficerPrivilege, 100);
     positionSelect.addEventListener('change', toggleLoanOfficerPrivilege);
+    
+    // For Preline HSSelect
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'position_id') {
+            toggleLoanOfficerPrivilege();
+        }
+    }, true);
 });
-
-    </script>
+</script>
 
  <script>
 document.addEventListener('DOMContentLoaded', function () {

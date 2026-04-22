@@ -138,6 +138,7 @@ $action_labels_by_link = [
   'officer payment dashboard' => [
     'can_view' => 'View Payment Dashboard',
     'can_edit' => 'Make Payment',
+    'can_delete' => 'Delete',
   ],
   'officer customer' => [
     'can_view' => 'View Customers',

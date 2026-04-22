@@ -5788,6 +5788,173 @@ public function print_officer_todaycash_transaction()
     $mpdf->Output($filename, 'I');
 }
 
+  public function delete_depost_data($pay_id)
+  {
+    if (function_exists('has_permission') && !has_permission('Officer Payment Dashboard', 'can_delete')) {
+        $this->session->set_flashdata('error', 'You do not have permission to delete paid transactions.');
+        return redirect('oficer/today_officer_transaction');
+    }
+
+    $blanch_id = $this->session->userdata('blanch_id');
+    $deposit = $this->queries->get_deposit_data_record($pay_id);
+
+    if (!$deposit) {
+      $this->session->set_flashdata('error', 'Transaction not found.');
+      return redirect('oficer/today_officer_transaction');
+    }
+
+    if ((int)$deposit->blanch_id !== (int)$blanch_id) {
+      $this->session->set_flashdata('error', 'You are not allowed to delete this transaction.');
+      return redirect('oficer/today_officer_transaction');
+    }
+
+    if (empty($deposit->depost) || (float)$deposit->depost <= 0) {
+      $this->session->set_flashdata('error', 'Only paid (Lipwa) transactions can be deleted.');
+      return redirect('oficer/today_officer_transaction');
+    }
+
+    $depost = $deposit->depost;
+    $trans_id = $deposit->trans_id;
+    $comp_id = $deposit->comp_id;
+    $customer_id = $deposit->customer_id;
+    $loan_id = $deposit->loan_id;
+    $dep_id = $pay_id;
+
+    $remain_depost = $depost - $depost;
+
+    $blanch_balance = $this->queries->get_remain_blanch_capital($blanch_id, $trans_id);
+    $old_balance = $blanch_balance->blanch_capital ?? 0;
+    $deposit_new = $old_balance - $depost;
+
+    $descriptions = $this->queries->get_description_pay($loan_id);
+    $description = $descriptions->description ?? '';
+
+    $recovery = $this->queries->get_total_pend_data($loan_id);
+    $total_pend = $recovery->total_pend ?? 0;
+    $recov = $total_pend + $depost;
+
+    $out = $this->queries->get_outstand_loan_depost($loan_id);
+    $remain = $out->remain_amount ?? 0;
+    $paid = $out->paid_amount ?? 0;
+
+    $remain_data = $remain + $depost;
+    $paid_data = $paid - $depost;
+
+    $out_deposit = $this->queries->get_outstand_deposit($blanch_id, $trans_id);
+    $out_balance = $out_deposit->out_balance ?? 0;
+    $new_out_balance = $out_balance - $depost;
+
+    $total_depost = $this->queries->get_sum_dapost($loan_id);
+    $loan_restoration = $this->queries->get_loanInterest($loan_id);
+    $compdata = $this->queries->get_companyData($comp_id);
+    $customer_data = $this->queries->get_customer_data($customer_id);
+
+    $loan_dep = $total_depost->remain_balance_loan ?? 0;
+    $remove_deposit = $loan_dep - $depost;
+
+    $loan_int = $loan_restoration->loan_int ?? 0;
+    $remain_loan = $loan_int - $remove_deposit;
+
+    $comp_name = $compdata->comp_name ?? '';
+    $comp_phone = $compdata->comp_phone ?? '';
+    $phone = $customer_data->phone_no ?? null;
+
+    if (!empty($phone)) {
+      $massage = 'Tsh.' . number_format($depost) . ' Iliyoingizwa Kimakosa Kwenye Mkopo wako ' . $comp_name . ' Imetolewa Kiasi Kilichobaki Kulipwa ' . number_format($remain_loan) . ' Kwa Msaada ' . $comp_phone;
+      $this->sendsms($phone, $massage);
+    }
+
+    if ($description == 'CASH DEPOSIT') {
+      $this->update_loan_statatus_adjust_withdrawal($loan_id);
+    } elseif ($description == 'SYSTEM / PENDING LOAN RETURN') {
+      $this->update_recovery_amount($loan_id, $recov);
+      $this->update_loan_statatus_adjust_withdrawal($loan_id);
+    } elseif ($description == 'SYSTEM / DEFAULT LOAN RETURN') {
+      $this->update_outstand_table_mistak($loan_id, $remain_data, $paid_data);
+      $this->update_loan_statatus_adjust_out($loan_id);
+    }
+
+    if ($description == 'SYSTEM / DEFAULT LOAN RETURN') {
+      $this->update_blanch_amount_outstand($comp_id, $blanch_id, $new_out_balance, $trans_id);
+    } else {
+      $this->insert_blanch_amount_deposit($blanch_id, $deposit_new, $trans_id);
+    }
+
+    $this->update_prev_record_data($pay_id, $remain_depost);
+    $this->update_deposit_record_data($pay_id, $remain_depost);
+    $this->remove_deposit_loan($dep_id);
+    $this->remove_prepaid_deposit($dep_id);
+
+    $this->session->set_flashdata('massage', 'Adjust successfully');
+    return redirect('oficer/today_officer_transaction');
+  }
+
+  public function remove_prepaid_deposit($dep_id)
+  {
+    return $this->db->delete('tbl_prepaid', ['dep_id' => $dep_id]);
+  }
+
+  public function remove_deposit_loan($dep_id)
+  {
+    return $this->db->delete('tbl_pay', ['dep_id' => $dep_id]);
+  }
+
+  public function update_deposit_record_data($pay_id, $remain_depost)
+  {
+    $sqldata = "UPDATE `tbl_depost` SET `depost`= '$remain_depost',`sche_principal`='0',`sche_interest`='0',`depost_method`='0' WHERE `dep_id`= '$pay_id'";
+    $this->db->query($sqldata);
+    return true;
+  }
+
+  public function update_prev_record_data($pay_id, $remain_depost)
+  {
+    $sqldata = "UPDATE `tbl_prev_lecod` SET `depost`= '$remain_depost',`trans_id`='0' WHERE `pay_id`= '$pay_id'";
+    $this->db->query($sqldata);
+    return true;
+  }
+
+  public function insert_blanch_amount_deposit($blanch_id, $deposit_new, $trans_id)
+  {
+    $sqldata = "UPDATE `tbl_blanch_account` SET `blanch_capital`= '$deposit_new' WHERE `blanch_id`= '$blanch_id' AND `receive_trans_id` ='$trans_id'";
+    $this->db->query($sqldata);
+    return true;
+  }
+
+  public function update_blanch_amount_outstand($comp_id, $blanch_id, $new_out_balance, $trans_id)
+  {
+    $sqldata = "UPDATE `tbl_receve_outstand` SET `out_balance`= '$new_out_balance' WHERE `blanch_id`= '$blanch_id' AND `trans_id`='$trans_id'";
+    $this->db->query($sqldata);
+    return true;
+  }
+
+  public function update_loan_statatus_adjust_out($loan_id)
+  {
+    $sqldata = "UPDATE `tbl_loans` SET `loan_status`= 'out' WHERE `loan_id`= '$loan_id'";
+    $this->db->query($sqldata);
+    return true;
+  }
+
+  public function update_outstand_table_mistak($loan_id, $remain_data, $paid_data)
+  {
+    $sqldata = "UPDATE `tbl_outstand_loan` SET `remain_amount`= '$remain_data',`paid_amount`='$paid_data',`out_status`='open' WHERE `loan_id`= '$loan_id'";
+    $this->db->query($sqldata);
+    return true;
+  }
+
+  public function update_recovery_amount($loan_id, $recov)
+  {
+    $sqldata = "UPDATE `tbl_pending_total` SET `total_pend`= '$recov' WHERE `loan_id`= '$loan_id'";
+    $this->db->query($sqldata);
+    return true;
+  }
+
+  public function update_loan_statatus_adjust_withdrawal($loan_id)
+  {
+    $sqldata = "UPDATE `tbl_loans` SET `loan_status`= 'withdrawal' WHERE `loan_id`= '$loan_id'";
+    $this->db->query($sqldata);
+    return true;
+  }
+
 
   public function deposit_loan($customer_id){
     ini_set("max_execution_time", 3600);

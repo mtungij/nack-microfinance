@@ -276,13 +276,25 @@ $show_loan_menu = $can_officer_loan_application || $can_officer_approve_loan;
       <?php if ($can_officer_payment): ?>
       <li>
         <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg
-                  <?php echo $cash_book_active ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
+                  <?php echo is_active_link('oficer/teller_dashboard') ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
            href="<?php echo base_url("oficer/teller_dashboard"); ?>">
           <!-- SVG: BookOpenIcon -->
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A2.75 2.75 0 0 1 4.75 2h10.5A2.75 2.75 0 0 1 18 4.75v10.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25V4.75Zm8-1.5V17a.75.75 0 0 1-1.5 0V3.25a.75.75 0 0 1 1.5 0Z" clip-rule="evenodd" /></svg>
           <?php echo $this->lang->line('teller_dashboard'); ?>
         </a>
       </li>
+
+      <!-- Officer Payment Dashboard -->
+      <li>
+        <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg
+                  <?php echo is_active_link('oficer/today_officer_transaction') ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
+           href="<?php echo base_url("oficer/today_officer_transaction"); ?>">
+          <!-- SVG: CreditCardIcon -->
+          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M1 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H2a1 1 0 01-1-1V4zm0 10a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H2a1 1 0 01-1-1v-2zM2 7a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V7z" clip-rule="evenodd" /></svg>
+          Afisa anaweza kulipisha marejesho
+        </a>
+      </li>
+      <!-- End Officer Payment Dashboard -->
       <?php endif; ?>
      
       <!-- Capital Accordion -->
