@@ -1311,13 +1311,6 @@ public function store_link()
 
 
 	public function modify_employee($empl_id){
-        $can_edit_staff = ($this->session->userdata('role') === 'admin')
-            || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit')));
-        if (!$can_edit_staff) {
-            $this->session->set_flashdata('error', 'You do not have permission to edit staff.');
-            return redirect('admin/all_employee');
-        }
-
 		$this->form_validation->set_rules('blanch_id','blanch','required');
 		$this->form_validation->set_rules('empl_name','Empl name','required');
 		$this->form_validation->set_rules('empl_no','phone number','required');
@@ -1346,13 +1339,6 @@ public function store_link()
 	}
 
 	public function delete_employee($empl_id){
-        $can_delete_staff = ($this->session->userdata('role') === 'admin')
-            || (function_exists('has_permission') && (has_permission('Staff', 'can_delete') || has_permission('Register Staff', 'can_delete') || has_permission('All Employee', 'can_delete')));
-        if (!$can_delete_staff) {
-            $this->session->set_flashdata('error', 'You do not have permission to delete staff.');
-            return redirect('admin/all_employee');
-        }
-
 		$this->load->model('queries');
 		if($this->queries->remove_employee($empl_id));
 		 $this->session->set_flashdata('massage','Data Deleted successfully');
@@ -1387,13 +1373,6 @@ public function save_permissions($employee_id)
 }
 
 public function manage($employee_id = null) {
-    $can_manage_permissions = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit')));
-    if (!$can_manage_permissions) {
-        $this->session->set_flashdata('error', 'You do not have permission to manage user access.');
-        return redirect('admin/all_employee');
-    }
-
     if (!$employee_id) {
         $this->session->set_flashdata('error', 'Employee ID is required');
         return redirect('admin/employee');
@@ -1462,12 +1441,6 @@ public function update()
 }
 
 	public function loan_officer_metrics($employee_id){
-        $can_view_staff = ($this->session->userdata('role') === 'admin')
-            || (function_exists('has_permission') && (has_permission('Staff', 'can_view') || has_permission('Register Staff', 'can_view') || has_permission('All Employee', 'can_view')));
-        if (!$can_view_staff) {
-            $this->session->set_flashdata('error', 'You do not have permission to view staff metrics.');
-            return redirect('admin/index');
-        }
 		$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
 		$employee = $this->queries->get_staff_profile_summary($employee_id, $comp_id);
@@ -1620,13 +1593,6 @@ public function update()
 	}
 
 	public function all_employee(){
-        $can_view_staff = ($this->session->userdata('role') === 'admin')
-            || (function_exists('has_permission') && (has_permission('Staff', 'can_view') || has_permission('Register Staff', 'can_view') || has_permission('All Employee', 'can_view')));
-        if (!$can_view_staff) {
-            $this->session->set_flashdata('error', 'You do not have permission to view staff.');
-            return redirect('admin/index');
-        }
-
 		$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
 		$all_employee = $this->queries->get_Allemployee($comp_id);
@@ -1762,13 +1728,6 @@ public function update()
 	}
 
 	public function block_employee($empl_id){
-    $can_edit_staff = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit')));
-    if (!$can_edit_staff) {
-        $this->session->set_flashdata('error', 'You do not have permission to block staff.');
-        return redirect('admin/all_employee');
-    }
-
 	$this->load->model('queries');
     $data = $this->queries->get_emplBlock($empl_id);
     if ($data->empl_status = 'close') {
@@ -1808,13 +1767,6 @@ public function update()
 
 
 	public function Unblock_employee($empl_id){
-    $can_edit_staff = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit')));
-    if (!$can_edit_staff) {
-        $this->session->set_flashdata('error', 'You do not have permission to unblock staff.');
-        return redirect('admin/all_employee');
-    }
-
 	$this->load->model('queries');
     $data = $this->queries->get_emplBlock($empl_id);
     if ($data->empl_status = 'open') {
@@ -9964,13 +9916,6 @@ public function today_expiring_loans()
 	}
 
    public function privillage($empl_id){
-        $can_manage_privilege = ($this->session->userdata('role') === 'admin')
-            || (function_exists('has_permission') && (has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit')));
-        if (!$can_manage_privilege) {
-            $this->session->set_flashdata('error', 'You do not have permission to manage privileges.');
-            return redirect('admin/all_employee');
-        }
-
 		$this->load->model('queries');
 		$position = $this->queries->get_position();
 		$emply = $this->queries->view_employee($empl_id);

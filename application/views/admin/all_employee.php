@@ -3,9 +3,6 @@
 include_once APPPATH . "views/partials/header.php";
 
 $is_super_admin = ($this->session->userdata('role') === 'admin');
-$can_staff_view = $is_super_admin || has_permission('Staff', 'can_view') || has_permission('Register Staff', 'can_view') || has_permission('All Employee', 'can_view');
-$can_staff_edit = $is_super_admin || has_permission('Staff', 'can_edit') || has_permission('Register Staff', 'can_edit') || has_permission('All Employee', 'can_edit');
-$can_staff_delete = $is_super_admin || has_permission('Staff', 'can_delete') || has_permission('Register Staff', 'can_delete') || has_permission('All Employee', 'can_delete');
 $loan_officer_id = isset($loan_officer_id) ? (int) $loan_officer_id : 0;
 $branch_manager_total = isset($branch_manager_total) ? (int) $branch_manager_total : 0;
 $loan_officer_total = isset($loan_officer_total) ? (int) $loan_officer_total : 0;
@@ -199,7 +196,6 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
         <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500">
           <?php echo $this->lang->line('choose_an_option'); ?>
         </span>
-        <?php if ($can_staff_edit): ?>
         <?php if ($isLoanOfficer): ?>
         <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
            href="<?= base_url("admin/loan_officer_metrics/{$employees->empl_id}"); ?>">
@@ -232,11 +228,9 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
           <?php echo $this->lang->line('view'); ?>
         </a>
         <?php endif; ?>
-        <?php endif; ?>
       </div>
 
       <!-- block OR unblock option (shown according to status) -->
-      <?php if ($can_staff_edit): ?>
       <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm
                 text-<?= $colour ?>-600 hover:bg-<?= $colour ?>-50 focus:ring-2 focus:ring-<?= $colour ?>-500
                 dark:text-<?= $colour ?>-400 dark:hover:bg-gray-700"
@@ -266,9 +260,8 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 
         <?= $actionLabel ?>
       </a>
-      <?php endif; ?>
 
-      <?php if ($can_staff_edit && $isLoanOfficer): ?>
+      <?php if ($isLoanOfficer): ?>
   <!-- grant access option (always shown) -->
   <div class="py-2 first:pt-0 last:pb-0">
     <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
@@ -285,7 +278,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
       Rekebisha taarifa za afisa
     </a>
   </div>
-<?php elseif ($can_staff_edit): ?>
+<?php else: ?>
   <div class="py-2 first:pt-0 last:pb-0">
     <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
        href="<?= $isManagement ? base_url("admin/manage/{$employees->empl_id}") : base_url("admin/privillage/{$employees->empl_id}"); ?>">
@@ -304,7 +297,6 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
 <?php endif; ?>
 
 
-      <?php if ($can_staff_delete): ?>
       <div class="py-2 first:pt-0 last:pb-0">
         <a class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 dark:text-blue-400 dark:hover:bg-gray-700"
         href="<?php echo base_url("admin/delete_employee/{$employees->empl_id}") ?>">
@@ -320,7 +312,6 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
           <?php echo $this->lang->line('delete'); ?>
         </a>
       </div>
-      <?php endif; ?>
 
     </div><!-- /.dropdown menu -->
   </div>
