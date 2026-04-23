@@ -100,7 +100,13 @@ include_once APPPATH . "views/partials/header.php";
                                 (<?php echo number_format($loan->session); ?>)
                               </span>
                               <span class="hidden sm:inline">/</span>
-                              <span class="font-semibold">Interest:</span> <span><?php echo $loan->interest_formular; ?>%</span>
+                              <?php
+                                $loan_interest_text = '-';
+                                if (isset($loan->interest_formular) && $loan->interest_formular !== '') {
+                                  $loan_interest_text = $loan->interest_formular . '%';
+                                }
+                              ?>
+                              <span class="font-semibold">Interest:</span> <span><?php echo $loan_interest_text; ?></span>
                             </div>
                             <div class="mt-1 text-xs text-gray-500 dark:text-gray-500">
                               <?php
