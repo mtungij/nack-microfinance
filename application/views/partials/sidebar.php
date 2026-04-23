@@ -374,15 +374,15 @@ $can_staff_view_branch = $can_staff_view_all;
         </button>
         <div id="employee-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $employee_submenu_active ? '' : 'hidden'; ?>">
             <ul class="pt-2 ps-2">
-            <?php if ($can_staff_register): ?>
+            <!-- </?php if ($can_staff_register): ?> -->
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/employee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/employee"); ?>"><?php echo $this->lang->line('register_employee'); ?></a></li>
-                <?php endif; ?>
-              <?php if ($can_staff_view_all): ?>
+                <!-- </?php endif; ?> -->
+              <!-- <//?php if ($can_staff_view_all): ?> -->
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/all_employee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/all_employee"); ?>"><?php echo $this->lang->line('all_employee'); ?></a></li>
-                <?php endif; ?>
-              <?php if ($can_staff_view_branch): ?>
+                <!-- </?php endif; ?> -->
+              <!-- </?php if ($can_staff_view_branch): ?> -->
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/view_blanchEmployee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/view_blanchEmployee"); ?>"><?php echo $this->lang->line('all_branch_employee'); ?></a></li>
-                <?php endif; ?>
+                <!-- </?php endif; ?> -->
                 <!-- <?php if (has_permission('Record Likizo Ya Staff')): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/leave') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/leave"); ?>">Employee Leave</a></li>
                 <?php endif; ?> -->
