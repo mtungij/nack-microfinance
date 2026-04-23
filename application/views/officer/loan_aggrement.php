@@ -207,6 +207,11 @@ if ($company_logo_value !== '') {
     }
   }
 }
+
+$branch_name_text = trim((string)($customer->blanch_name ?? $customer->branch_name ?? ''));
+if ($branch_name_text === '') {
+  $branch_name_text = '......';
+}
 ?>
     <!-- PAGE 1 -->
     <div class="page">
@@ -234,6 +239,7 @@ if ($company_logo_value !== '') {
             <?php endif; ?>
            <h2><?= strtoupper($compdata->comp_name) ?></h2>
               <p><?= strtoupper($compdata->adress) ?></p>
+              <p>TAWI: <?= strtoupper($branch_name_text) ?></p>
               <!-- <p class="red-line">PHONE NO. <?= strtoupper($compdata->comp_number) ?></p> -->
             </div>
           </td>
