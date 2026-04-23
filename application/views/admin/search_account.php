@@ -228,8 +228,19 @@ include_once APPPATH . "views/partials/header.php";
                       <option value="">All Loans</option>
                       <?php if(isset($customer_loan) && !empty($customer_loan)): ?>
                         <?php foreach ($customer_loan as $loans): ?>
+                          <?php
+                            $loan_start_text = '-';
+                            if (isset($loans->loan_stat_date) && $loans->loan_stat_date !== '' && $loans->loan_stat_date !== '0000-00-00') {
+                              $loan_start_text = date('d/m/Y', strtotime($loans->loan_stat_date));
+                            }
+
+                            $loan_end_text = '-';
+                            if (isset($loans->loan_end_date) && $loans->loan_end_date !== '' && $loans->loan_end_date !== '0000-00-00') {
+                              $loan_end_text = date('d/m/Y', strtotime($loans->loan_end_date));
+                            }
+                          ?>
                           <option value="<?php echo $loans->loan_id; ?>">
-                            <?php echo $loans->loan_code; ?> - <?php echo $loans->loan_name; ?> (<?php echo number_format($loans->loan_aprove); ?>)
+                            <?php echo $loans->loan_code; ?> - <?php echo $loans->loan_name; ?> (<?php echo number_format($loans->loan_aprove); ?>) / <?php echo $loan_start_text; ?> - <?php echo $loan_end_text; ?>
                           </option>
                         <?php endforeach; ?>
                       <?php endif; ?>
@@ -436,13 +447,24 @@ $(document).ready(function() {
                 },
                 dataType: 'json',
                 success: function(response) {
+                  function formatLoanDate(dateStr) {
+                    if (!dateStr || dateStr === '0000-00-00') return '-';
+                    var parts = String(dateStr).split('-');
+                    if (parts.length !== 3) return dateStr;
+                    return parts[2] + '/' + parts[1] + '/' + parts[0];
+                  }
+
                     var options = '<option value="">All Loans</option>';
                     
                     if (response.success && response.loans.length > 0) {
                         $.each(response.loans, function(index, loan) {
+                      var startDate = formatLoanDate(loan.loan_stat_date);
+                      var endDate = formatLoanDate(loan.loan_end_date);
                             options += '<option value="' + loan.loan_id + '">' + 
                                       loan.loan_code + ' - ' + loan.loan_name + 
-                                      ' (' + parseFloat(loan.loan_aprove).toLocaleString() + ')</option>';
+                            ' (' + parseFloat(loan.loan_aprove).toLocaleString() + ')' +
+                            ' / ' + startDate + ' - ' + endDate +
+                            '</option>';
                         });
                     } else {
                         options = '<option value="">No loans found</option>';
