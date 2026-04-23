@@ -3109,13 +3109,6 @@ $comp_phone = $compdata->comp_number;
 
 
         public function view_Dataloan($customer_id,$comp_id){
-         $can_edit_loans = ($this->session->userdata('role') === 'admin')
-             || (function_exists('has_permission') && (has_permission('Loans', 'can_edit') || has_permission('Mikopo', 'can_edit')));
-         if (!$can_edit_loans) {
-         	$this->session->set_flashdata('error', 'You do not have permission to approve or review this loan.');
-         	return redirect('admin/loan_pending');
-         }
-
     	 $this->load->model('queries');
     	 $comp_id = $this->session->userdata('comp_id');
     	 $customer_data = $this->queries->get_loanData($customer_id,$comp_id);
@@ -3642,13 +3635,6 @@ $comp_phone = $compdata->comp_number;
 
 public function aprove_loan($loan_id)
 {
-    $can_edit_loans = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('Loans', 'can_edit') || has_permission('Mikopo', 'can_edit')));
-    if (!$can_edit_loans) {
-        $this->session->set_flashdata('error', 'You do not have permission to approve loans.');
-        return redirect('admin/loan_pending');
-    }
-
     $this->load->helper('string');
     $this->load->model('queries');
 
@@ -3857,13 +3843,6 @@ public function delete_loan_fee($fee_id){
 
 
 public function disburse($loan_id){
-    $can_edit_loans = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('Loans', 'can_edit') || has_permission('Mikopo', 'can_edit')));
-    if (!$can_edit_loans) {
-        $this->session->set_flashdata('error', 'You do not have permission to disburse loans.');
-        return redirect('admin/loan_aproved');
-    }
-
     $this->load->model('queries');
 	$comp_id = $this->session->userdata('comp_id');
 	$admin_data = $this->queries->get_admin_role($comp_id);
@@ -6796,13 +6775,6 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
 
 
  public function delete_loan($loan_id){
-    $can_delete_loans = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('Loans', 'can_delete') || has_permission('Mikopo', 'can_delete')));
-    if (!$can_delete_loans) {
-        $this->session->set_flashdata('error', 'You do not have permission to delete loans.');
-        return redirect('admin/loan_pending');
-    }
-
  	$this->load->model('queries');
  	if($this->queries->remove_loan($loan_id));
  	$this->session->set_flashdata('massage','Loan Deleted successfully');
