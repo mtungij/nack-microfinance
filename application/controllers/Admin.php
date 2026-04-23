@@ -3060,13 +3060,6 @@ $comp_phone = $compdata->comp_number;
 
 
     public function loan_pending(){
-        $can_view_loans = ($this->session->userdata('role') === 'admin')
-            || (function_exists('has_permission') && (has_permission('Loans', 'can_view') || has_permission('Mikopo', 'can_view')));
-        if (!$can_view_loans) {
-            $this->session->set_flashdata('error', 'You do not have permission to view loan pending records.');
-            return redirect('admin/index');
-        }
-
     	$this->load->model('queries');
     	$comp_id = $this->session->userdata('comp_id');
         $loan_pending = $this->queries->get_loanPending($comp_id);
