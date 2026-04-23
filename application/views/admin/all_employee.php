@@ -282,7 +282,7 @@ $colour = $isOpen ? 'amber' : 'green';  // Tailwind colour family
         <path d="M16 11v-2a3 3 0 0 1 6 0v2"/>
         <circle cx="18" cy="15" r="1"/>
       </svg>
-      Rekebisha Vipengele vya Afisa
+      Rekebisha taarifa za afisa
     </a>
   </div>
 <?php elseif ($can_staff_edit): ?>
