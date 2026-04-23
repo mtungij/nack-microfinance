@@ -7,8 +7,6 @@
 include_once APPPATH . "views/partials/header.php";
 
 $is_super_admin = ($this->session->userdata('role') === 'admin');
-$can_expenses_edit = $is_super_admin || has_permission('Expenses', 'can_edit') || has_permission('Matumizi', 'can_edit');
-$can_expenses_delete = $is_super_admin || has_permission('Expenses', 'can_delete') || has_permission('Matumizi', 'can_delete');
 
 // --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
 // Your controller should pass $account, an array of account objects.
@@ -56,7 +54,6 @@ $can_expenses_delete = $is_super_admin || has_permission('Expenses', 'can_delete
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
                     <?php echo $this->lang->line('register_daily_expenses'); ?>
                 </h3>
-                <?php if ($can_expenses_edit): ?>
                 <?php echo form_open("admin/create_expenses", ['novalidate' => true]); ?>
  
 <div class="grid sm:grid-cols-12 gap-4 sm:gap-6">
@@ -77,7 +74,6 @@ $can_expenses_delete = $is_super_admin || has_permission('Expenses', 'can_delete
                         </div>
                     </div>
                 <?php echo form_close(); ?>
-                <?php endif; ?>
             </div>
         </div>
         <!-- End Card: Registration Account Form -->
@@ -120,12 +116,10 @@ $can_expenses_delete = $is_super_admin || has_permission('Expenses', 'can_delete
 											<td class="uppercase px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200"><?= $no++; ?></td>
                                             <td class="uppercase px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200"><?php echo $exps->ex_name; ?></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                                <?php if ($can_expenses_delete): ?>
                                                 <a href="<?php echo base_url("admin/delete_expenses/{$exps->ex_id}"); ?>" onclick="return confirm('<?php echo $this->lang->line('confirm_delete_expense'); ?>');" class="inline-flex items-center gap-x-1.5 text-sm font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-800 disabled:opacity-50 disabled:pointer-events-none dark:text-red-500 dark:hover:text-red-400">
                                                     <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                                     <?php echo $this->lang->line('delete'); ?>
                                                 </a>
-                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
