@@ -115,7 +115,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
         <div class="mt-3 text-center">
           <a href="<?= base_url('oficer/view_aggrement/' . $customer->customer_id . '/' . $customer_loan->loan_id); ?>" target="_blank"
              class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-cyan-100 text-cyan-800 hover:bg-cyan-200 transition-all">
-            View Loan Agreement
+            Tazama Mkataba wa Mkopo
           </a>
         </div>
         <?php endif; ?>
