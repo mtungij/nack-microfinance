@@ -103,8 +103,19 @@ include_once APPPATH . "views/partials/header.php";
                               <span class="font-semibold">Interest:</span> <span><?php echo $loan->interest_formular; ?>%</span>
                             </div>
                             <div class="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                              <span class="font-semibold">Tarehe Ya Kuchukua:</span> <?php echo date('M d, Y', strtotime($loan->loan_stat_date)); ?>
-                              <span class="font-semibold">Tarehe Ya Kumaliza:</span> <?php echo date('M d, Y', strtotime($loan->loan_end_date)); ?>
+                              <?php
+                                $loan_start_date_text = '-';
+                                if (isset($loan->loan_stat_date) && $loan->loan_stat_date !== '' && $loan->loan_stat_date !== '0000-00-00') {
+                                  $loan_start_date_text = date('M d, Y', strtotime($loan->loan_stat_date));
+                                }
+
+                                $loan_end_date_text = '-';
+                                if (isset($loan->loan_end_date) && $loan->loan_end_date !== '' && $loan->loan_end_date !== '0000-00-00') {
+                                  $loan_end_date_text = date('M d, Y', strtotime($loan->loan_end_date));
+                                }
+                              ?>
+                              <span class="font-semibold">Tarehe Ya Kuchukua:</span> <?php echo $loan_start_date_text; ?>
+                              <span class="font-semibold">Tarehe Ya Kumaliza:</span> <?php echo $loan_end_date_text; ?>
                             </div>
                           </div>
                         </div>
