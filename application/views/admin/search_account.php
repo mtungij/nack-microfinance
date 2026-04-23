@@ -227,6 +227,7 @@ include_once APPPATH . "views/partials/header.php";
                             id="loanSearchSelect">
                       <option value="">All Loans</option>
                       <?php if(isset($customer_loan) && !empty($customer_loan)): ?>
+                        <?php $selected_loan_id = $this->input->post('loan_id'); ?>
                         <?php foreach ($customer_loan as $loans): ?>
                           <?php
                             $loan_start_text = '-';
@@ -239,7 +240,7 @@ include_once APPPATH . "views/partials/header.php";
                               $loan_end_text = date('d/m/Y', strtotime($loans->loan_end_date));
                             }
                           ?>
-                          <option value="<?php echo $loans->loan_id; ?>">
+                          <option value="<?php echo $loans->loan_id; ?>" <?php echo ((string)$selected_loan_id === (string)$loans->loan_id) ? 'selected' : ''; ?>>
                             <?php echo $loans->loan_code; ?> - <?php echo $loans->loan_name; ?> (<?php echo number_format($loans->loan_aprove); ?>) / <?php echo $loan_start_text; ?> - <?php echo $loan_end_text; ?>
                           </option>
                         <?php endforeach; ?>
@@ -257,6 +258,15 @@ include_once APPPATH . "views/partials/header.php";
                     <span class="sm:hidden">Filter by Loan</span>
                   </button>
                 <?php echo form_close(); ?>
+
+                <div class="mt-2">
+                  <a id="loanAgreementBtn"
+                     href="#"
+                     target="_blank"
+                     class="hidden inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-medium rounded-lg focus:ring-4 focus:ring-green-300 dark:bg-green-500 dark:hover:bg-green-600">
+                    Angalia Mkataba wa Mkopo
+                  </a>
+                </div>
               </div>
             </div>
             </div>
@@ -421,6 +431,19 @@ $(document).ready(function() {
         allowClear: true,
         width: '100%'
     });
+
+    function updateLoanAgreementLink() {
+      var customerId = $('#loanFilterCustomerId').val() || customerSelect.val();
+      var loanId = $('#loanSearchSelect').val();
+      var $btn = $('#loanAgreementBtn');
+
+      if (customerId && loanId) {
+        var agreementUrl = '<?php echo base_url("adminr/view_aggrement/"); ?>' + customerId + '/' + loanId;
+        $btn.attr('href', agreementUrl).removeClass('hidden');
+      } else {
+        $btn.attr('href', '#').addClass('hidden');
+      }
+    }
     
     // Show loan filter section if customer is already selected
     <?php if(isset($customer_loan) && !empty($customer_loan)): ?>
@@ -472,16 +495,25 @@ $(document).ready(function() {
                     
                     $('#loanSearchSelect').html(options);
                     loanSelect.trigger('change'); // Refresh Select2
+                    updateLoanAgreementLink();
                 },
                 error: function() {
                     $('#loanSearchSelect').html('<option value="">Error loading loans</option>');
+                    updateLoanAgreementLink();
                 }
             });
         } else {
             $('#loanFilterSection').hide();
             $('#loanSearchSelect').html('<option value="">All Loans</option>');
+                updateLoanAgreementLink();
         }
     });
+
+            loanSelect.on('change', function() {
+              updateLoanAgreementLink();
+            });
+
+            updateLoanAgreementLink();
 });
 </script>
 
