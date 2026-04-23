@@ -90,6 +90,7 @@ include_once APPPATH . "views/partials/officerheader.php";
                 <td class="px-4 py-3 space-x-2 flex items-center justify-end">
                     <!-- Print Mkataba Button -->
           
+                          <?php if (!empty($loan_aproveds->loan_status) && in_array($loan_aproveds->loan_status, ['withdrawal', 'out', 'done'], true)): ?>
                     <a href="<?= base_url("oficer/view_aggrement/{$loan_aproveds->customer_id}/{$loan_aproveds->loan_id}"); ?>" target="_blank"
                        class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 rounded-lg shadow-sm">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2"
@@ -99,6 +100,7 @@ include_once APPPATH . "views/partials/officerheader.php";
                         </svg>
                         Print Mkataba
                     </a>
+                    <?php endif; ?>
 
                    
                 </td>

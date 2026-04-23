@@ -34,7 +34,8 @@ $resolve_customer_passport = function ($value, $default_rel = 'assets/img/custom
   return $default_src;
 };
 
-$customer_passport_src = $resolve_customer_passport($customer_profile->passport ?? '', 'assets/img/customer21.png');
+$customerPassportValue = $customer_profile->customer_passport ?? ($customer_profile->passport ?? '');
+$customer_passport_src = $resolve_customer_passport($customerPassportValue, 'assets/img/customer21.png');
 ?>
 
 <!-- ========== MAIN CONTENT BODY ========== -->

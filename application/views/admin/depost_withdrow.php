@@ -112,6 +112,20 @@ $error_msg   = $this->session->flashdata('error');
           $total_deposit = $this->queries->get_total_amount_paid_loan($customer_loan->loan_id ?? 0);
           $loan_int = $customer_loan->loan_int ?? 0;
           $deposit = $total_deposit->total_Deposit ?? 0;
+          $gawa_tarehe = '';
+          $mwisho_tarehe = '';
+          $show_contract_dates = !empty($customer_loan) && in_array(($customer_loan->loan_status ?? ''), ['withdrawal', 'out', 'done'], true);
+
+          if ($show_contract_dates) {
+            if (!empty($customer_loan->loan_stat_date)) {
+              $gawa_tarehe = substr($customer_loan->loan_stat_date, 0, 10);
+            }
+
+            if (!empty($customer_loan->loan_end_date)) {
+              $mwisho_tarehe = substr($customer_loan->loan_end_date, 0, 10);
+            }
+          }
+
           $status_label = 'Not Active';
           $status_class = 'bg-blue-600 text-white';
           if (!empty($customer_loan)) {
@@ -123,14 +137,23 @@ $error_msg   = $this->session->flashdata('error');
           }
         ?>
 
+        <?php if (!empty($customer->customer_id) && !empty($customer_loan->loan_id) && !empty($customer_loan->loan_status) && in_array($customer_loan->loan_status, ['withdrawal', 'out', 'done'], true)): ?>
+        <div class="mt-3 text-center">
+          <a href="<?= base_url('adminr/view_aggrement/' . $customer->customer_id . '/' . $customer_loan->loan_id); ?>" target="_blank"
+             class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-cyan-100 text-cyan-800 hover:bg-cyan-200 transition-all">
+            View Loan Agreement
+          </a>
+        </div>
+        <?php endif; ?>
+
         <ul class="mt-5 bg-gray-100 text-gray-700 divide-y divide-gray-300 rounded-lg shadow-sm text-sm">
           <li class="flex items-center justify-between py-2 px-3">
             <span class="font-bold text-base">Status</span>
             <span class="px-3 py-1 rounded-full text-xs font-medium <?= $status_class; ?>"><?= $status_label; ?></span>
           </li>
           <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Customer Code</span><span><?= $customer->code; ?></span></li>
-          <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Gawa</span><span><?= $customer_loan->loan_stat_date ?? 'YY-MM-DD'; ?></span></li>
-          <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Mwisho</span><span><?= !empty($customer_loan->loan_end_date) ? substr($customer_loan->loan_end_date, 0, 10) : 'YY-MM-DD'; ?></span></li>
+          <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Gawa Tarehe</span><span><?= $gawa_tarehe !== '' ? $gawa_tarehe : '-'; ?></span></li>
+          <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Mwisho Tarehe</span><span><?= $mwisho_tarehe !== '' ? $mwisho_tarehe : '-'; ?></span></li>
           <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Rejesho</span><span><?= safe_number_format($customer_loan->restration ?? 0); ?></span></li>
 
         </ul>

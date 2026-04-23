@@ -52,3 +52,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'welcome/employee_login';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
+
+$route['adminr/view_aggrement/(:num)/(:num)'] = 'admin/view_aggrement/$1/$2';
+$route['adminr/view_aggrement/(:num)'] = 'admin/view_aggrement/$1';

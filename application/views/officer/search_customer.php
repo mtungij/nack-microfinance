@@ -139,7 +139,18 @@ $comp_id = $comp_id ?? null;
                     <h1 class="text-green-500 font-bold text-xl leading-8 my-1 dark:text-neutral-900 text-center">
                         <?= strtoupper($customer->f_name) . " " . strtoupper(substr($customer->m_name, 0, 1)) . " " . strtoupper($customer->l_name) ?>
                     </h1>
-                    <h1 class="text-center font-semibold"><?= $customer->phone_no ;?></h1>
+                    <h1 class="text-center font-semibold\"><?= $customer->phone_no ;?></h1>
+                    <?php
+                    $agreement_loan = !empty($customer->customer_id) ? $this->queries->get_loan_active_customer($customer->customer_id) : null;
+                    ?>
+                    <?php if (!empty($customer->customer_id) && !empty($agreement_loan->loan_id) && !empty($agreement_loan->loan_status) && in_array($agreement_loan->loan_status, ['withdrawal', 'out', 'done'], true)): ?>
+                    <div class="mt-3 text-center">
+                        <a href="<?= base_url('oficer/view_aggrement/' . $customer->customer_id . '/' . $agreement_loan->loan_id); ?>" target="_blank"
+                           class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-cyan-100 text-cyan-800 hover:bg-cyan-200 transition">
+                            View Loan Agreement
+                        </a>
+                    </div>
+                    <?php endif; ?>
                     <ul class="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
                         <li class="flex items-center py-3">
                             <span><?php echo $this->lang->line('status'); ?></span>

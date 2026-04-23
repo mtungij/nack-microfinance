@@ -905,7 +905,7 @@ public function get_total_pay_description_acount_statement($loan_id)
 
 
       public function get_customer_profileData_update($customer_id){
-		$customer = $this->db->query("SELECT * FROM tbl_customer c LEFT JOIN tbl_sub_customer sb  ON sb.customer_id = c.customer_id  LEFT JOIN tbl_blanch b ON b.blanch_id = c.blanch_id LEFT JOIN tbl_account_type ac ON ac.account_id = sb.account_id LEFT JOIN tbl_employee e ON e.empl_id = c.empl_id WHERE c.customer_id = '$customer_id'");
+		$customer = $this->db->query("SELECT c.*, sb.*, sb.passport AS passport, sb.passport AS customer_passport, b.*, ac.*, e.empl_name, e.passport AS employee_passport FROM tbl_customer c LEFT JOIN tbl_sub_customer sb  ON sb.customer_id = c.customer_id  LEFT JOIN tbl_blanch b ON b.blanch_id = c.blanch_id LEFT JOIN tbl_account_type ac ON ac.account_id = sb.account_id LEFT JOIN tbl_employee e ON e.empl_id = c.empl_id WHERE c.customer_id = '$customer_id'");
 		   return $customer->row();
 	}
 
@@ -1185,7 +1185,7 @@ public function get_total_pay_description_acount_statement($loan_id)
 
 
 	 public function get_aggrement($customer_id,$comp_id){
-       	$loan = $this->db->query("SELECT * FROM tbl_loans l LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id  LEFT JOIN tbl_region r ON r.region_id = c.region_id LEFT JOIN tbl_account_type at ON at.account_id = s.account_id LEFT JOIN tbl_employee e ON e.empl_id = c.empl_id  WHERE l.customer_id = '$customer_id' AND l.comp_id = '$comp_id' ORDER BY l.loan_id DESC LIMIT 1");
+	      	$loan = $this->db->query("SELECT *, s.passport AS customer_passport, e.passport AS employee_passport FROM tbl_loans l LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id LEFT JOIN tbl_region r ON r.region_id = c.region_id LEFT JOIN tbl_account_type at ON at.account_id = s.account_id LEFT JOIN tbl_employee e ON e.empl_id = c.empl_id LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id WHERE l.customer_id = '$customer_id' AND l.comp_id = '$comp_id' ORDER BY l.loan_id DESC LIMIT 1");
        	   return $loan->row();
        }
 
@@ -1243,6 +1243,8 @@ public function get_total_pay_description_acount_statement($loan_id)
 		$data = $this->db->query("
 			SELECT 
 				l.*,
+				o.loan_stat_date,
+				o.loan_end_date,
 				lc.*, 
 				c.*, 
 				b.*, 
@@ -1260,9 +1262,42 @@ public function get_total_pay_description_acount_statement($loan_id)
 			JOIN tbl_employee e ON e.empl_id = l.empl_id
 			JOIN tbl_employee cb ON cb.empl_id = l.created_by
 			LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
+			LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
 			WHERE l.customer_id = '$customer_id' 
 			AND l.comp_id = '$comp_id' 
 			ORDER BY l.loan_id DESC 
+			LIMIT 1
+		");
+		return $data->row();
+	}
+
+	public function get_formloanDataByLoanId($customer_id, $comp_id, $loan_id) {
+		$data = $this->db->query("
+			SELECT 
+				l.*,
+				o.loan_stat_date,
+				o.loan_end_date,
+				lc.*, 
+				c.*, 
+				b.*, 
+				e.*, 
+				cb.empl_name AS creator_name,
+				cb.empl_email AS creator_email,
+				cb.empl_no AS creator_no,
+				cb.empl_sex AS creator_sex,
+				cb.passport AS creator_passport,
+				vb.empl_name AS verifier_name
+			FROM tbl_loans l
+			JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
+			JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
+			JOIN tbl_customer c ON c.customer_id = l.customer_id 
+			JOIN tbl_employee e ON e.empl_id = l.empl_id
+			JOIN tbl_employee cb ON cb.empl_id = l.created_by
+			LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
+			LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
+			WHERE l.customer_id = '$customer_id'
+			AND l.comp_id = '$comp_id'
+			AND l.loan_id = '$loan_id'
 			LIMIT 1
 		");
 		return $data->row();
@@ -9674,7 +9709,7 @@ public function get_remain_amount($loan_id) {
 }
 
 		public function get_loan_active_customer($customer_id){
-     	$data = $this->db->query("SELECT l.loan_id,l.loan_int,l.restration,l.customer_id,ot.loan_stat_date,ot.loan_end_date,l.loan_status FROM tbl_loans l LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id  WHERE l.customer_id = '$customer_id' ORDER BY l.loan_id DESC");
+	    	$data = $this->db->query("SELECT l.loan_id,l.loan_int,l.restration,l.customer_id,l.disburse_day,ot.loan_stat_date,ot.loan_end_date,l.loan_status FROM tbl_loans l LEFT JOIN tbl_outstand ot ON ot.loan_id = l.loan_id WHERE l.customer_id = '$customer_id' ORDER BY CASE WHEN l.loan_status = 'withdrawal' THEN 1 WHEN l.loan_status = 'out' THEN 2 WHEN l.loan_status = 'disbarsed' THEN 3 WHEN l.loan_status = 'disbursed' THEN 4 ELSE 9 END, l.loan_id DESC LIMIT 1");
      	return $data->row();
      }
 

@@ -259,8 +259,8 @@ $lang['loan'] = 'Mkopo';
 $lang['loan_application'] = 'Ombi la Mkopo';
 $lang['loan_pending_approve'] = 'Uthibitisho wa Ombi la Mkopo';
 $lang['loan_approved_not_disbursed'] = 'Mikopo Iliyokubaliwa Haijatolewa';
-$lang['loan_disbursed'] = 'Mikopo Iliyotolewa';
-$lang['loan_withdrawal'] = 'Utoaji wa Mkopo';
+$lang['loan_disbursed'] = 'Mikopo Iliyopitishwa';
+$lang['loan_withdrawal'] = 'Mikopo Iliyotolewa';
 $lang['loan_rejected'] = 'Mikopo Iliyokataliwa';
 
 $lang['expenses_income'] = 'Matumizi na Mapato';
@@ -445,7 +445,7 @@ $lang['search_customer'] = 'Tafuta Mteja';
 $lang['select_customer'] = 'Chagua mteja';
 $lang['select_loan'] = 'Chagua mkopo';
 $lang['customer_loan_statement_title'] = 'Angalia statement ya mkopo wa mteja';
-$lang['disbursed_loans'] = 'Mikopo Iliyotolewa';
+$lang['disbursed_loans'] = 'Mikopo Iliyopitishwa';
 $lang['no_records_found'] = 'Hakuna taarifa zilizopatikana.';
 $lang['loan_approved'] = 'Mkopo Ulioidhinishwa';
 $lang['loan_plus_interest'] = 'Mkopo + Riba';
@@ -609,6 +609,8 @@ $lang['first_name'] = 'Jina la Kwanza';
 $lang['middle_name'] = 'Jina la Kati';
 $lang['last_name'] = 'Jina la Mwisho';
 $lang['age'] = 'Umri';
+$lang['age_auto_calculated_placeholder'] = 'Huhesabiwa moja kwa moja kutoka tarehe ya kuzaliwa';
+$lang['years'] = 'miaka';
 $lang['error'] = 'Hitilafu';
 
 // Customer details page

@@ -959,13 +959,13 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Position selected:', selectedValue, 'Loan Officer ID:', loanOfficerId, 'Management ID:', managementId);
         
         managementAccessDiv.style.display = (String(selectedValue) === String(managementId)) ? 'block' : 'none';
-        loanOfficerAccessDiv.style.display = (String(selectedValue) === String(loanOfficerId)) ? 'block' : 'none';
+        loanOfficerAccessDiv.style.display = 'none';
 
       if (String(selectedValue) === String(managementId)) {
         setPermissionsForGroup('management-permissions', true);
         setPermissionsForGroup('officer-permissions', false);
       } else if (String(selectedValue) === String(loanOfficerId)) {
-        setPermissionsForGroup('officer-permissions', true);
+        setPermissionsForGroup('officer-permissions', false);
         setPermissionsForGroup('management-permissions', false);
       } else {
         setPermissionsForGroup('management-permissions', false);

@@ -142,7 +142,9 @@ include_once APPPATH . "views/partials/officerheader.php";
                         </div>
 
                         <div class="sm:col-span-4">
-                            <label for="date_birth" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('date_of_birth'); ?>:</label>
+                            <label for="date_birth" class="block text-sm font-medium mb-2 dark:text-gray-300">* <?php echo $this->lang->line('date_of_birth'); ?>:
+                                <span id="age_display_inline" class="ml-2 text-cyan-600 dark:text-cyan-400"></span>
+                            </label>
                             <input type="date" id="date_birth" name="date_birth" autocomplete="off"
                                 class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
                                 value="<?php echo set_value('date_birth'); ?>">
@@ -327,11 +329,46 @@ $(document).ready(function () {
     });
 });
 
-// Age Calculation
-function getAge(dob) {
-    const age = new Date().getFullYear() - new Date(dob).getFullYear();
-    document.getElementById('age').value = isNaN(age) ? '' : age;
+function calculateAgeFromDob(dobValue) {
+    if (!dobValue) {
+        return '';
+    }
+
+    const dob = new Date(dobValue);
+    if (Number.isNaN(dob.getTime())) {
+        return '';
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age -= 1;
+    }
+
+    return age >= 0 ? age : '';
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const dobInput = document.getElementById('date_birth');
+    const ageDisplayInline = document.getElementById('age_display_inline');
+    const yearsLabel = <?php echo json_encode($this->lang->line('years')); ?>;
+    const ageLabel = <?php echo json_encode($this->lang->line('age')); ?>;
+
+    if (!dobInput || !ageDisplayInline) {
+        return;
+    }
+
+    const updateAgeDisplay = function () {
+        const age = calculateAgeFromDob(dobInput.value);
+        ageDisplayInline.textContent = age === '' ? '' : '(' + ageLabel + ': ' + age + ' ' + yearsLabel + ')';
+    };
+
+    dobInput.addEventListener('change', updateAgeDisplay);
+    dobInput.addEventListener('input', updateAgeDisplay);
+    updateAgeDisplay();
+});
 </script>
 
 

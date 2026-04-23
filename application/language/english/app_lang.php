@@ -609,6 +609,8 @@ $lang['first_name'] = 'First Name';
 $lang['middle_name'] = 'Middle Name';
 $lang['last_name'] = 'Last Name';
 $lang['age'] = 'Age';
+$lang['age_auto_calculated_placeholder'] = 'Auto calculated from date of birth';
+$lang['years'] = 'years';
 $lang['error'] = 'Error';
 
 // Customer details page

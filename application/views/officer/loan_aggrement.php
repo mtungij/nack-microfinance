@@ -18,8 +18,26 @@
         width: 100%;
         position: relative;
       }
-      .page:last-child {
-        page-break-after: avoid;
+      .page.last-page {
+        page-break-after: auto;
+      }
+
+            .company-logo {
+              max-width: 82px;
+              max-height: 82px;
+              display: block;
+              margin: 0 auto 6px auto;
+            }
+
+      .page.page-three p {
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+        line-height: 1.3;
+      }
+
+      .page.page-three h3 {
+        margin-top: 6px;
+        margin-bottom: 6px;
       }
 
       .passport-placeholder-top {
@@ -85,6 +103,13 @@
         padding: 0 5px;
       }
 
+      .inline-fill {
+        display: inline-block;
+        border-bottom: 1px dotted #000;
+        min-width: 90px;
+        line-height: 1.1;
+      }
+
       .checkbox {
         display: inline-block;
         width: 25px;
@@ -131,26 +156,85 @@
     </style>
   </head>
   <body>
+<?php
+$customer_passport_value = trim((string)($customer->customer_passport ?? $customer->passport ?? ''));
+$customer_passport_path = '';
+
+if ($customer_passport_value !== '') {
+  if (preg_match('#^(https?://|data:image/)#i', $customer_passport_value)) {
+    $customer_passport_path = $customer_passport_value;
+  }
+
+    $customer_candidates = [
+    ltrim($customer_passport_value, '/'),
+    'assets/uploads/' . ltrim($customer_passport_value, '/'),
+    'assets/img/' . ltrim($customer_passport_value, '/'),
+    'assets/passport/' . ltrim($customer_passport_value, '/'),
+        'assets/dhamana/' . ltrim($customer_passport_value, '/'),
+        'assets/sponser_passport/' . ltrim($customer_passport_value, '/'),
+        'assets/images/passport/' . ltrim($customer_passport_value, '/'),
+        'uploads/' . ltrim($customer_passport_value, '/'),
+    ];
+
+  if ($customer_passport_path === '') {
+    foreach ($customer_candidates as $candidate) {
+      $relative = ltrim($candidate, '/');
+      if (file_exists(FCPATH . $relative)) {
+        $customer_passport_path = FCPATH . $relative;
+        break;
+      }
+        }
+    }
+}
+
+if ($customer_passport_path === '' && file_exists(FCPATH . 'assets/img/customer21.png')) {
+    $customer_passport_path = FCPATH . 'assets/img/customer21.png';
+}
+
+$company_logo_path = '';
+$company_logo_value = trim((string)($compdata->comp_logo ?? ''));
+if ($company_logo_value !== '') {
+  $company_logo_candidates = [
+    ltrim($company_logo_value, '/'),
+    'assets/images/company_logo/' . ltrim($company_logo_value, '/'),
+    'assets/img/' . ltrim($company_logo_value, '/'),
+  ];
+
+  foreach ($company_logo_candidates as $logo_candidate) {
+    if (file_exists(FCPATH . $logo_candidate)) {
+      $company_logo_path = FCPATH . $logo_candidate;
+      break;
+    }
+  }
+}
+?>
     <!-- PAGE 1 -->
     <div class="page">
       <table style="margin-bottom: 10px">
         <tr>
           <td style="width: 25%; vertical-align: middle">
     <div style="width:20px; height:30px; margin:0 auto; border:2px solid black; overflow:hidden; border-radius:50%;">
+  <?php if (!empty($customer_passport_path)): ?>
   <img
-    src="<?= FCPATH . $customer->passport ?>"
+    src="<?= $customer_passport_path ?>"
     alt="Customer Image"
     style="width: 20%; height: 20%; object-fit: cover; display: block;"
   >
+  <?php else: ?>
+  No Image
+  <?php endif; ?>
 </div>
 
 
           </td>
           <td style="width: 50%; text-align: center; vertical-align: middle">
             <div class="company-header">
+            <?php if (!empty($company_logo_path)): ?>
+              <img src="<?= $company_logo_path ?>" alt="Company Logo" class="company-logo">
+            <?php endif; ?>
            <h2><?= strtoupper($compdata->comp_name) ?></h2>
               <p><?= strtoupper($compdata->adress) ?></p>
-              <p class="red-line">PHONE NO. <?= strtoupper($compdata->comp_number) ?></p>
+              <!-- <p class="red-line">PHONE NO. <?= strtoupper($compdata->comp_number) ?></p> -->
             </div>
           </td>
   
@@ -205,12 +289,297 @@ $swahili_months = [
 ];
 
 // 3. Get the specific parts you need from the date
-$day = $date_object->format('d'); // Day of the month, e.g., "25"
-$month_number = $date_object->format('n'); // Month number, e.g., "7"
-$year_last_two = $date_object->format('y'); // Last two digits of the year, e.g., "25"
+$readable_date = $date_object->format('d/m/Y');
+$customer_age_text = '......';
+$business_type_text = trim((string)($loan_form->reason ?? ''));
+$business_area_text = trim((string)($customer->place_imployment ?? ''));
 
-// 4. Look up the Swahili month name from the array
-$month_name = $swahili_months[$month_number]; // Gets "Julai"
+if (!function_exists('number_to_swahili_words')) {
+  function number_to_swahili_words($number)
+  {
+    $ones = [
+      0 => 'sifuri',
+      1 => 'moja',
+      2 => 'mbili',
+      3 => 'tatu',
+      4 => 'nne',
+      5 => 'tano',
+      6 => 'sita',
+      7 => 'saba',
+      8 => 'nane',
+      9 => 'tisa',
+      10 => 'kumi',
+      11 => 'kumi na moja',
+      12 => 'kumi na mbili',
+      13 => 'kumi na tatu',
+      14 => 'kumi na nne',
+      15 => 'kumi na tano',
+      16 => 'kumi na sita',
+      17 => 'kumi na saba',
+      18 => 'kumi na nane',
+      19 => 'kumi na tisa',
+    ];
+
+    $tens = [
+      2 => 'ishirini',
+      3 => 'thelathini',
+      4 => 'arobaini',
+      5 => 'hamsini',
+      6 => 'sitini',
+      7 => 'sabini',
+      8 => 'themanini',
+      9 => 'tisini',
+    ];
+
+    $to_words = function ($n) use (&$to_words, $ones, $tens) {
+      $n = (int)$n;
+
+      if ($n < 20) {
+        return $ones[$n];
+      }
+
+      if ($n < 100) {
+        $ten = (int)floor($n / 10);
+        $rem = $n % 10;
+        return $rem ? ($tens[$ten] . ' na ' . $ones[$rem]) : $tens[$ten];
+      }
+
+      if ($n < 1000) {
+        $hund = (int)floor($n / 100);
+        $rem = $n % 100;
+        $head = 'mia ' . $ones[$hund];
+        return $rem ? ($head . ' na ' . $to_words($rem)) : $head;
+      }
+
+      if ($n < 100000) {
+        $th = (int)floor($n / 1000);
+        $rem = $n % 1000;
+        $head = 'elfu ' . $to_words($th);
+        return $rem ? ($head . ' na ' . $to_words($rem)) : $head;
+      }
+
+      if ($n < 1000000) {
+        $laki = (int)floor($n / 100000);
+        $rem = $n % 100000;
+        $head = 'laki ' . $to_words($laki);
+        return $rem ? ($head . ' na ' . $to_words($rem)) : $head;
+      }
+
+      if ($n < 1000000000) {
+        $mil = (int)floor($n / 1000000);
+        $rem = $n % 1000000;
+        $head = 'milioni ' . $to_words($mil);
+        return $rem ? ($head . ' na ' . $to_words($rem)) : $head;
+      }
+
+      $bil = (int)floor($n / 1000000000);
+      $rem = $n % 1000000000;
+      $head = 'bilioni ' . $to_words($bil);
+      return $rem ? ($head . ' na ' . $to_words($rem)) : $head;
+    };
+
+    $value = round((float)$number, 2);
+    $value = abs($value);
+    $whole = (int)floor($value);
+    $cents = (int)round(($value - $whole) * 100);
+
+    $words = $to_words($whole);
+    if ($cents > 0) {
+      $words .= ' na senti ' . $to_words($cents);
+    }
+
+    return $words;
+  }
+}
+
+$loan_amount_words = number_to_swahili_words($loan_form->loan_int ?? 0);
+$loan_interest_percent_raw = $loan_form->interest_formular ?? ($customer->interest_formular ?? null);
+$loan_interest_percent_text = '......';
+
+if ($loan_interest_percent_raw !== null && $loan_interest_percent_raw !== '') {
+  $loan_interest_percent_value = (float)$loan_interest_percent_raw;
+  $loan_interest_percent_text = rtrim(rtrim(number_format($loan_interest_percent_value, 2, '.', ''), '0'), '.');
+}
+
+// Build loan duration label from day + session
+$_lday     = (int)($loan_form->day     ?? 0);
+$_lsession = (int)($loan_form->session ?? 0);
+if ($_lday == 1) {
+  $_freq_label = 'kila siku';
+  $_unit_label = 'siku';
+} elseif ($_lday == 7) {
+  $_freq_label = 'kila wiki';
+  $_unit_label = 'wiki';
+} elseif (in_array($_lday, [28, 29, 30, 31])) {
+  $_freq_label = 'kila mwezi';
+  $_unit_label = 'miezi';
+} elseif ($_lday > 0) {
+  $_freq_label = 'kila siku ' . $_lday;
+  $_unit_label = 'siku';
+} else {
+  $_freq_label = '......';
+  $_unit_label = '';
+}
+$loan_duration_text = $_freq_label . ($_lsession > 0 ? ', ' . $_unit_label . ' ' . $_lsession : '');
+
+if ($business_type_text === '') {
+  $business_type_text = '......';
+}
+
+if ($business_area_text === '') {
+  $business_area_text = '......';
+}
+
+if (!empty($customer->date_birth)) {
+  try {
+    $customer_birth_date = new DateTime($customer->date_birth);
+    $customer_age = $customer_birth_date->diff(new DateTime())->y;
+    $customer_age_text = (string)$customer_age;
+  } catch (Exception $exception) {
+    $customer_age_text = '......';
+  }
+}
+
+// Loan fee from tbl_loan_category
+$_fee_type  = strtolower(trim((string)($customer->fee_category_type ?? '')));
+$_fee_value = trim((string)($customer->fee_value ?? ''));
+if ($_fee_value !== '' && $_fee_value !== '0') {
+  if ($_fee_type === 'fixed' || $_fee_type === 'amount') {
+    $loan_fee_text = 'TSH ' . number_format((float)$_fee_value);
+  } else {
+    // default: percentage
+    $loan_fee_text = rtrim(rtrim(number_format((float)$_fee_value, 2, '.', ''), '0'), '.') . '%';
+  }
+} else {
+  $loan_fee_text = '......';
+}
+
+// Approver name (from local government/officer attachment data)
+$approver_name_text = trim((string)($local_officer->oficer ?? ''));
+if ($approver_name_text === '') {
+  $approver_name_text = trim((string)($customer->empl_name ?? ''));
+}
+if ($approver_name_text === '') {
+  $approver_name_text = '......';
+}
+
+// Calculate loan payment start and end dates
+$_loan_status  = strtolower(trim((string)($loan_form->loan_status ?? '')));
+$_start_date_text = '......';
+$_end_date_text   = '......';
+
+// Prefer dates from tbl_outstand when available.
+if (!empty($loan_form->loan_stat_date) && $loan_form->loan_stat_date !== '0000-00-00') {
+  try {
+    $_stat_date = new DateTime($loan_form->loan_stat_date);
+    $_day_val = (int)($loan_form->day ?? 0);
+    $_session_val = (int)($loan_form->session ?? 0);
+    
+    // Calculate start date based on repayment frequency
+    $_start_date = clone $_stat_date;
+    if ($_day_val === 1) {
+      // Daily: second day from loan_stat_date
+      $_start_date->modify('+1 day');
+    } elseif ($_day_val === 7) {
+      // Weekly: second week from loan_stat_date
+      $_start_date->modify('+7 days');
+    } elseif (in_array($_day_val, [28, 29, 30, 31])) {
+      // Monthly: second month from loan_stat_date
+      $_start_date->modify('+1 month');
+    } elseif ($_day_val > 0) {
+      // Custom interval
+      $_start_date->modify('+' . $_day_val . ' days');
+    }
+    $_start_date_text = $_start_date->format('d/m/Y');
+    
+    // Calculate end date
+    $_end_date = clone $_start_date;
+    if ($_day_val === 1) {
+      $_end_date->modify('+' . $_session_val . ' days');
+    } elseif ($_day_val === 7) {
+      $_end_date->modify('+' . $_session_val . ' weeks');
+    } elseif (in_array($_day_val, [28, 29, 30, 31])) {
+      $_end_date->modify('+' . $_session_val . ' months');
+    } elseif ($_day_val > 0) {
+      $_end_date->modify('+' . ($_session_val * $_day_val) . ' days');
+    }
+    $_end_date_text = $_end_date->format('d/m/Y');
+  } catch (Exception $e) {
+    $_start_date_text = '......';
+    $_end_date_text = '......';
+  }
+}
+if (empty($_end_date_text) || $_end_date_text === '......') {
+  if (!empty($loan_form->loan_end_date) && $loan_form->loan_end_date !== '0000-00-00') {
+    $_end_date_text = (new DateTime($loan_form->loan_end_date))->format('d/m/Y');
+  }
+}
+
+if (
+  $_start_date_text === '......' ||
+  $_end_date_text === '......'
+) {
+  if (
+    $_loan_status === 'disbursed' ||
+    $_loan_status === 'disburse' ||
+    $_loan_status === 'disbarsed'
+  ) {
+  // Calculate from dis_date
+  $_dis_date_str = trim((string)($loan_form->dis_date ?? ''));
+  if ($_dis_date_str !== '') {
+    try {
+      $_dis_date = new DateTime($_dis_date_str);
+      $_day_val = (int)($loan_form->day ?? 0);
+      $_session_val = (int)($loan_form->session ?? 0);
+      
+      if ($_day_val === 1) {
+        // Daily: first payment tomorrow from dis_date
+        $_start_date = clone $_dis_date;
+        $_start_date->modify('+1 day');
+        $_start_date_text = $_start_date->format('d/m/Y');
+        
+        // End date: start + session days
+        $_end_date = clone $_start_date;
+        $_end_date->modify('+' . $_session_val . ' days');
+        $_end_date_text = $_end_date->format('d/m/Y');
+      } elseif ($_day_val === 7) {
+        // Weekly: first payment after 7 days
+        $_start_date = clone $_dis_date;
+        $_start_date->modify('+7 days');
+        $_start_date_text = $_start_date->format('d/m/Y');
+        
+        // End date: start + session weeks
+        $_end_date = clone $_start_date;
+        $_end_date->modify('+' . $_session_val . ' weeks');
+        $_end_date_text = $_end_date->format('d/m/Y');
+      } elseif (in_array($_day_val, [28, 29, 30, 31])) {
+        // Monthly: first payment after 1 month
+        $_start_date = clone $_dis_date;
+        $_start_date->modify('+1 month');
+        $_start_date_text = $_start_date->format('d/m/Y');
+        
+        // End date: start + session months
+        $_end_date = clone $_start_date;
+        $_end_date->modify('+' . $_session_val . ' months');
+        $_end_date_text = $_end_date->format('d/m/Y');
+      } elseif ($_day_val > 0) {
+        // Custom day interval
+        $_start_date = clone $_dis_date;
+        $_start_date->modify('+' . $_day_val . ' days');
+        $_start_date_text = $_start_date->format('d/m/Y');
+        
+        // End date: start + (session * day) days
+        $_end_date = clone $_start_date;
+        $_end_date->modify('+' . ($_session_val * $_day_val) . ' days');
+        $_end_date_text = $_end_date->format('d/m/Y');
+      }
+    } catch (Exception $e) {
+      $_start_date_text = '......';
+      $_end_date_text = '......';
+    }
+  }
+  }
+}
 ?>
 
       <div class="main-title-box">MKATABA WA MKOPO <?= strtoupper($compdata->comp_name) ?></div>
@@ -223,59 +592,33 @@ $month_name = $swahili_months[$month_number]; // Gets "Julai"
         </tr>
       </table>
 
-    <p>
-    Mkataba huu umefanyika leo tarehe
-    <span class="fill-in" style="padding: 0 30px; text-align: center;">
-        <?= $day ?>
-    </span>
-    mwezi
-    <span class="fill-in" style="padding: 0 60px; text-align: center;">
-        <?= $month_name ?>
-    </span>
-    mwaka 20<?= $year_last_two ?><span class="fill-in" style="padding: 0 20px; text-align: center;">
-        
-    </span>.
-</p>
-      <p>
-        Kati ya <span class="fill-in" style="padding: 0 80px"></span
-        ><span class="bold"><?= ucfirst(strtolower($compdata->comp_name)) ?></span>
-, kampuni iliyosajiliwa kwa sheria za
-        Tanzania wa S.L.P.<span class="fill-in" style="padding: 0 50px"></span>,
-        Tanzania (Ambaye Katika Mkataba huu atajulikana kama
-        <span class="bold">Mkopeshaji</span>)
-      </p>
+    <p style="margin: 6px 0; text-align: justify;">
+      Mkataba huu wa kukopeshana fedha umejazwa kwa makubaliano yaliyofanyika leo tarehe
+      <span class="bold"><?= $readable_date ?></span>.
+    </p>
+    <p style="margin: 6px 0; text-align: justify;">
+      Baina ya <span class="bold"><?= strtoupper($compdata->comp_name) ?></span>, kampuni iliyosajiliwa kwa sheria za
+      Tanzania wa <span class="bold">S.L.P 159</span> <span class="inline-fill" style="min-width: 80px;">&nbsp;</span>,
+      Tanzania (ambaye katika mkataba huu atajulikana kama <span class="bold">Mkopeshaji</span>).
+    </p>
       <p class="center bold" style="margin: 8px 0">Na</p>
-      <p>
-        Bwa/Bi <span class="fill-in" style="padding: 0 200px"><span class="bold"><?= strtoupper($customer->f_name . " " . $customer->m_name . " " . $customer->l_name) ?></span>
-</span>wa S.L.P ..................
-        <span class="fill-in" style="padding: 0 200px"></span> (ambaye katika
-        Mkataba huu atajulikana kama <span class="bold">Mkopaji</span>)Umaarufu
-        <span class="fill-in" style="padding: 0 200px"></span>.Ambaye ni mkazi
-        wa Wilaya ya<span class="fill-in" style="padding: 0 80px">...............</span>.Tarafa
-        ya <span class="fill-in" style="padding: 0 80px">................</span>.Kata ya<span
-          class="fill-in"
-          style="padding: 0 80px"
-        >...............</span
-        >.Mtaa wa
-        <span class="fill-in" style="padding: 0 80px">................</span>.Kitongoji cha
-        <span class="fill-in" style="padding: 0 100px"></span>.Kazi yangu
-        ni<span class="fill-in" style="padding: 0 120px">......................</span>.Kata ambayo
-        kituo chako cha kazi hupatikana
-        <span class="fill-in" style="padding: 0 200px"></span>.Tarafa<span
-          class="fill-in"
-          style="padding: 0 80px"
-        ></span
-        >.Mtaa<span class="fill-in" style="padding: 0 80px"></span>.Namba ya
-        simu<span class="fill-in" style="padding: 0 60px"></span>./<span
-          class="fill-in"
-          style="padding: 0 60px"
-        ></span
-        >.tiki na jaza namba moja kati ya nyaraka zifuatazo, kadi ya mpiga kura
-        <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>
- kitambulisho cha Leseni ya udereva
-        <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span> Hati ya kusafiria
-        <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span> na kitambulisho cha makazi
-        <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>
+      <p style="margin: 6px 0; text-align: justify;">
+        Ndugu <span class="bold"><?= strtoupper($customer->f_name . " " . $customer->m_name . " " . $customer->l_name) ?></span>
+        mwenye Umri wa miaka <span class="bold"><?= $customer_age_text ?></span>
+        wa <span class="bold">S.L.P .......</span> (ambaye katika mkataba huu atajulikana kama <span class="bold">Mkopaji</span>)
+        <span class="inline-fill" style="min-width: 120px;">&nbsp;</span>. Ambaye ni mkazi wa Wilaya ya ...............
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>, Tarafa ya ...............................
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>, Kata ya ...............
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>, Mtaa wa .....................
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>, Kitongoji cha ........................
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>. Kazi yangu <span class="bold"><?= strtoupper($business_type_text) ?></span>
+        Eneo la biashara <span class="bold"><?= strtoupper($business_area_text) ?></span>.
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span> 
+         Tiki na jaza namba moja kati ya nyaraka zifuatazo: kadi ya mpiga kura
+         <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>,
+         leseni ya udereva <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>,
+         hati ya kusafiria <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>,
+         au kitambulisho cha makazi <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>.
 
         
       </p>
@@ -300,131 +643,119 @@ $month_name = $swahili_months[$month_number]; // Gets "Julai"
         ></span>
       </p>
       <p>
-        Nimechukua mkopo wa kiasi cha fedha za kitanzania Tsh.<span
-          class="fill-in"
-          style="padding: 0 200px"
-        ><b><?=number_format($loan_form->loan_aprove  ) ?></b></span
-        >
+        1. Kwa mantiki ya mkataba huu mimi <span class="bold"><?= strtoupper($customer->f_name . " " . $customer->m_name . " " . $customer->l_name) ?></span>
+        nikiwa na akili timamu, leo hii nakiri kusaini mkataba wa mkopo wa Tshs(tarakimu) <span class="bold"><?= number_format($loan_form->loan_int) ?></span>
+        Kwa maneno <span class="bold"><?= strtoupper($loan_amount_words) ?></span>.
       </p>
-      <p>
-        Saini ya mkopaji....................<span class="fill-in" style="padding: 0 80px"></span>
-        Dole gumba ................................<span class="fill-in" style="padding: 0 80px"></span> kwa
-        hiari yangu mimi mwenyewe nakiri kukopa kiasi cha fedha niliyoiandika
-        hapo juu nikiwa na akili timamu pasipo na shaka yeyote na ninakubali
-        bila pingamizi lolote kuwa mkataba huu nimeusoma na kuelewa na kuwa
-        nimeridhia kuwa mkataba huu kwangu mimi hauna utata wowote na ni jukumu
-        langu yaliyomo na kuyatekeleza.
+      <p  style="margin: 6px 0; text-align: justify;">
+ambazo ni mkopo wa fedha taslimu pamoja na riba ya <?= $loan_interest_percent_text ?>% <span class="bold"><?= strtoupper($loan_duration_text) ?></span>.
+  </p>
+  <p style="margin: 6px 0; text-align: justify;">
+        Kiasi hiki cha mkopo niliokopa ni kwa ajili ya <span class="bold\"><?= strtoupper($loan_form->reason) ?></span>.
       </p>
+
+      2. Naapa na kukiri kwamba, mimi ndiye mwenye majina na anwani tajwa hapo juu,deni tajwa ni halali kabisa.
+       Na kwamba pesa za mkopo huu niliokopa nitazirejesha kwa mujibu wa vigezo na masharti ya mkataba huu.
+<br>
+       3. Kwa mantiki ya makubaliano nitalipa deni hili bila ya usumbufu wowote ndani ya  muda wa <span class="bold"><?= strtoupper($loan_duration_text) ?></span> 
+       ambapo nitapaswa kulipa kiasi cha TSH.<b><?= number_format($loan_form->restration) ?></b> <?= strtoupper($loan_duration_text) ?>.
+       <br>
+       jumla ya deni nitakalolipa itakuwa ni TSH.<b><?= number_format($loan_form->loan_int) ?></b> ndani ya muda wa <span class="bold"><?= strtoupper($loan_duration_text) ?></span>.
+
+
+      <p style="margin: 6px 0; text-align: justify;">
+        Nakiri na kuhaidi kuwa nitakuwa  mwaminifu na mwenye kuheshimu masharti ya mkataba huu na kwamba nitarejesha mkopo huu kwa wakati bila kuchelewa au kushindwa kulipa kwa uzembe.
+        Vinginevyo, hatua za kisheria dhidi yangu ikiwa ni pamoja na kushitakiwa kujipatia fedha/mali kwa njia ya  udanganyifu.
+  </p>
+
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="page page-three last-page">
+
+     
 
       <p class="bold" style="margin-top: 15px; text-transform: uppercase">
         VIGEZO NA MASHARTI YA MKATABA HUU
       </p>
       <ol>
         <li>
-          Kampuni inajihusisha na biashara ya fedha kwa maana ya ukopeshaji wa
-          fedha kwa mujibu wa sheria.
+           Mkopaji atalipia fomu hii ya mkopo asilimia <span class="bold"><?= $loan_fee_text ?></span> ya mkopo anaochukua kwa ajili ya gharama za uandaaji wa mkataba wa mkopo huu.
         </li>
         <li>
-          Pamoja na kampuni kujihusisha na biashara ya fedha kwa maana utoaji
-          mikopo ijulikane kwamba kampuni itakuwa na mahusiano ya biashara na
-          watu wenye sifa ya kuitwa wajasiriamali au wafanyabiashara wadogo
-          wadogo wa aina zote.
+           Mkopaji atapaswa kuanza kurejesha mkopo huu kuanzia tarehe <span class="bold"><?= $_start_date_text ?></span> mpaka tarehe <span class="bold"><?= $_end_date_text ?></span>.
         </li>
         <li>
-          Ili mteja kukidhi vigezo na masharti mengine ya mkataba huu anapaswa
-          kuwa na sifa zifuatazo:-
-          <ol type="i" style="padding-left: 20px; margin-top: 5px">
-            <li>
-              Awe ni mtu mwenye akili timamu na awe hajawahi kuugua ugonjwa
-              wowote wa akili.
-            </li>
-            <li>
-              Awe ni mtu ambaye hajawahi kushtakiwa kwa kosa la madai/jinai
-            </li>
-          </ol>
-        </li>
-      </ol>
-    </div>
-
-    <!-- PAGE 2 -->
-    <div class="page">
-      <ol type="i" start="3" style="padding-left: 45px">
-        <li>Awe ni mwenye umri usiopungua miaka 18, muwajibikaji na mkweli</li>
-        <li>Awe ni mtu mwaminifu na mwenye kuheshimu mali za wengine</li>
-      </ol>
-      <ol start="4">
-        <li>
-          Marejesho ya mkopo huu yatalipwa kwa 
-<?php
-    $day = $loan_form->day;
-
-    if ($day == 1) {
-        echo '<span class="bold">' . strtoupper("kila siku") . '</span>';
-    } elseif ($day == 7) {
-        echo '<span class="bold">' . strtoupper("kila wiki") . '</span>';
-    } elseif (in_array($day, [28, 29, 30, 31])) {
-        echo '<span class="bold">' . strtoupper("kila mwezi") . '</span>';
-    } else {
-        echo '<span class="bold">' . strtoupper("kila siku $day") . '</span>';
-    }
-?>
- TSH.<b><?= number_format($loan_form->restration) ?></b>
-<span
-            class="fill-in"
-            style="padding: 0 100px"
-          ></span
-          
-          >
-        </li>
-        
-        <li>
-          Mkopaji kwa hiari yake mwenyewe anapaswa kuweka dhamana ya kitu ama
-          vitu venye thamani kama sehemu ya ukiri wake wa kuwa na jukumu la
-          kurejesha fedha, na endapo atashindwa kufanya hivyo, basi dhamana hizo
-          zitakuwa ni mali halali za kampuni kwa mujibu wa sheria.
+          3. Wajibu wa pande mbili (mdai na mdaiwa), utatekelezwa kwa mujibu wa sheria za nchi ya Tanzania.
         </li>
         <li>
-          Mkopaji atapaswa kuwa na mdhamini atakae tambulika kama mkopaji namba
-          mbili na ambaye atakuwa na jukumu la kuhakikisha mkopaji namba moja
-          analipa mkopo wake kwa wakati na endapo atashindwa kulipa kwa uzembe
-          basi yeye atakuwa na jukumu la kulipa mkopo huo wote haraka.
+          Pande zote mbili zinakubaliana kwamba kila upande unapaswa kutoa taarifa mapema kwa upande mwingine iwapo itatokea kuna jambo lililo nje ya uwezo wake kuhusu mkataba huu.
         </li>
-       
         <li>
-          Mkopaji na mdhamini wote kwa pamoja wanapaswa kuwa na barua
-          inayowatambulisha kutoka kwa viongozi wa serikali ya Mtaa wanakotoka
-          na barua hiyo iwe imekidhi vigezo na masharti ya utambulisho wa
-          kisheria.
+          Iwapo mgogoro utatokea kati ya pande mbili, pande zote mbili zinakubaliana kutafuta suluhisho kwa njia ya mazungumzo na usuluhishi kabla ya kwenda mahakamani.
+        </li>
+        <li>
+          Mkopaji anakubali kwamba endapo atashindwa kulipa mkopo huu kwa wakati au kwa uzembe, basi Mkopeshaji atakuwa na haki ya kuchukua hatua za kisheria dhidi yake ili kuhakikisha mkopo huu unarejeshwa kikamilifu.
+        </li>
+        <li>
+          Nimesoma na kuelewa vigezo na masharti ya mkataba huu wa mkopo, nakubaliana na masharti haya bila kushurutishwa na mtu yeyote.
         </li>
       </ol>
 
       <p class="bold" style="margin-top: 15px; text-transform: uppercase">
-        ORODHA YA DHAMANA KWA MKOPAJI NA MDHAMINI
+        DHAMANA YA MKOPO
+      </p>
+
+      <ol>
+        <li>LENGO LA DHAMANA</li>
+      </ol>
+      <p style="margin: 6px 0; text-align: justify;">
+          (a) Lengo la dhamana ya mkopo ni kampuni  kujidhisha kuwa Mkopaji anarejesha mkopo huu pamoja na riba na gharama zozote  zitakazojitokeza katika kutekeleza mapatano ya mkopo huu
+      </p>
+
+      <ol start="2">
+        <li> MALI ILIYOWEKWA DHAMANA YA MKOPO</li>
+      </ol>
+      <p style="margin: 6px 0; text-align: justify;">
+        Mimi <span class="bold"><?= strtoupper($customer->f_name . " " . $customer->m_name . " " . $customer->l_name) ?></span> nikiwa na akili timamu, leo tarehe <span class="bold"><?= date('d-m-Y') ?></span> hii nakiri kuweka dhamana zifuatazo kwa ajili ya mkopo huu.
       </p>
       <ul>
-          <?php if (!empty($collateral)): ?>
-    <?php foreach ($collateral as $item): ?>
-      <li>
-        <span class="fill-in" style="display: block; width: 100%">&nbsp;</span>
-        <span class="bold">
-          <?= $item->description ?>
-
-        </span>
-      </li>
-    <?php endforeach; ?>
-  <?php else: ?>
-        <li>
-          <span class="fill-in" style="display: block; width: 100%"
-            >&nbsp;</span
-          ><span class="bold">Dhamana hazijajazwa</span>
-        </li>
-          <?php endif; ?>
+        <?php if (!empty($collateral)): ?>
+          <?php foreach ($collateral as $item): ?>
+            <li>
+              <span class="fill-in" style="display: block; width: 100%">&nbsp;</span>
+              <span class="bold"><?= $item->description ?></span>
+            </li>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <li>
+            <span class="fill-in" style="display: block; width: 100%">&nbsp;</span>
+            <span class="bold">Dhamana hazijajazwa</span>
+          </li>
+        <?php endif; ?>
       </ul>
-      <hr />
+      <p style="margin: 6px 0; text-align: justify;">
+        (a) Ninatamka nikiwa na akili timamu kuwa endapo nikishindwa kulipa mkopo kwa mujibu wa makubaliano haya basi kampuni (mdai) itakuwa na haki kwa mujibu wa mapatano haya kufidia deni kwa kumiliki au kuuza dhamana iliyowekwa/zilizowekwa bila
+        masharti yoyote wala kikwazo kutoka kwangu wala mtu yeyote kufidia deni na gharama zitakazokuwa zimejitokeza kama na mdai kufuatilia deni hilo.ninakabidhi mali iliyowekwa/zilizowekwa kwa mdai ndani ya siku tatu bila ya usumbufu wowote baada ya muda wa malipo kuisha au kuanzia pale nitakapokuwa ninaanza kukiuka makubaliano ya kulipa.
+      </p>
+
+      <p style="margin: 6px 0; text-align: justify;">
+        (b)Endapo muda wa mkataba huu ukiisha bila deni lolote deni lote kulipwa ama kukiuka makubaliano ya kulipa,ikifika wakati wa kukabidhi dhamana ikawa imepoteza thamani yake au imeharibika kwa kiasi kikubwa, basi mdai atakuwa na haki ya kukabidhi dhamana nyingine yenye thamani sawa au zaidi kwa ajili ya kufidia deni hili.
+      </p>
+      <p class="bold" style="margin-top: 12px; text-align: justify;">
+        SAHIHI YA MKOPAJI ............................
+        <span class="inline-fill" style="min-width: 180px;">&nbsp;</span>.
+        DOLE GUMBA ..........................................
+        <span class="inline-fill" style="min-width: 180px;">&nbsp;</span>.
+      </p>
+    </div>
+
+    <!-- PAGE 3 -->
+    <div class="page">
       <h3 class="center bold" style="margin-bottom: 10px">
         SEHEMU YA MDHAMINI
       </h3>
-      <p>
+      <p style="margin: 6px 0; text-align: justify;">
   <?php
 $first_mdhamini = $mdhamini[0]; // Access the first sponsor
 
@@ -434,53 +765,31 @@ $full_mdhamini_name = strtoupper(
     $first_mdhamini->sp_lname
 );
 ?>
-        Mimi Bw/Bi.<span class="fill-in" style="padding: 0 150px"><b><?= $full_mdhamini_name ?></b></span
-        >.Umaarufu<span class="fill-in" style="padding: 0 150px"></span>.ni
-        mkazi wa Wilaya ya
-        <span class="fill-in" style="padding: 0 100px">............................</span>.Tarafa<span
-          class="fill-in"
-          style="padding: 0 100px"
-        >.....................</span
-        >.Kata.<span class="fill-in" style="padding: 0 100px">...........................</span> Mtaa.<span
-          class="fill-in"
-          style="padding: 0 100px"
-        >.............................</span
-        >.kitongoji cha<span class="fill-in" style="padding: 0 100px"></span
-        >.<?php
-$first_mdhamini = $mdhamini[0];
-?>
-
-Namba ya simu:
-<span class="fill-in bold" style="padding: 0 100px">
-  <?= $first_mdhamini->sp_phone_no ?>
-</span>
-       <?php
-$first_mdhamini = $mdhamini[0];
-?>
-
-Kazi yangu:
-<span class="fill-in bold" style="padding: 0 100px">
-  <?= strtoupper($first_mdhamini->nature) ?>
-</span>
-.Kata
-        ambayo kituo cha kazi hupatikana<span
-          class="fill-in"
-          style="padding: 0 200px"
-        ></span
-        >.Mtaa.<span class="fill-in" style="padding: 0 150px">........................</span>.namba moja
-        kati ya nakala zifuatazo kadi ya mpiga kura <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>hati ya kusafiria/Leseni ya
-       <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span> udereva/kitambulisho cha utaifa na kitambulisho cha mkazi
-       <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>
+        Mimi Ndugu <span class="bold"><?= $full_mdhamini_name ?></span>
+        <span class="inline-fill" style="min-width: 120px;">&nbsp;</span>. Ni mkazi wa Wilaya ya ............................
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>, Tarafa .........................
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>, Kata .................................
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>, Mtaa........................................
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>, Kitongoji...................................
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>.
+        Namba ya simu <span class="bold"><?= $first_mdhamini->sp_phone_no ?></span>.
+        Kazi yangu <span class="bold"><?= strtoupper($first_mdhamini->nature) ?></span>.
+        <span class="inline-fill" style="min-width: 90px;">&nbsp;</span>.
+        Namba moja kati ya nakala zifuatazo: kadi ya mpiga kura <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>,
+        hati ya kusafiria/leseni ya udereva <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>,
+        kitambulisho cha utaifa na kitambulisho cha mkazi <span style="font-family: DejaVu Sans, sans-serif;">&#x2610;</span>.
       </p>
-      <p>
+      <p style="margin: 4px 0 8px 0; text-align: justify;">
+        Namba ya kitambulisho .................................
+        <span class="inline-fill" style="min-width: 260px;">&nbsp;</span>
+      </p>
+      <p style="margin: 6px 0; text-align: justify;">
         <b>Kwa hiari yangu mwenyewe na nikiwa na akili timamu bila kushurutishwa na
-        mtu yeyote nakubali kumdhamini</b> Bw/Bi.<span
-          class="fill-in"
-          style="padding: 0 400px"
-        ><b><?= strtoupper($customer->f_name . " " . $customer->m_name . " " . $customer->l_name) ?></b></span
-        >. Na ya kwamba nitakuwa tayari kwa lolote litakalojitokeza endapo
+        mtu yeyote nakubali kumdhamini</b> Bw/Bi
+        <span class="bold"><?= strtoupper($customer->f_name . " " . $customer->m_name . " " . $customer->l_name) ?></span>.
+        ambaye ninathibithisha kuwa ninamfahamu mkopaji vizuri anapofanyia kazi/biashara, na nyumbani anapoishi Na ya kwamba nitakuwa tayari kwa lolote litakalojitokeza endapo
         niliye mdhamini ataenda kinyume na moja kati ya vigezo na masharti ya
-        mkataba huu. Nipo tayari kumlipia endapo atashindwa kurejesha au
+        mkataba huu. Nipo tayari  kumlipia endapo atashindwa kurejesha au
         kuchukuliwa dhamana zangu nilizoandikia kwa ajili ya kufidia deni lake.
       </p>
 
@@ -501,286 +810,40 @@ Kazi yangu:
           style="padding: 0 200px"
         ></span>
       </p> -->
-      <p>
-        Pesa tasilimu ninayomdhamini ni TSH.<span
-          class="fill-in"
-          style="padding: 0 200px"
-        >.............................</span
-        >.(kwa maneno)<span class="fill-in" style="padding: 0 200px">......................</span>
+      <p style="margin: 6px 0; text-align: justify;">
+        Pesa taslimu ninayomdhamini ni TSH ................
+        <span class="inline-fill" style="min-width: 140px;">&nbsp;</span>
+        (kwa maneno) .............................
+        <span class="inline-fill" style="min-width: 160px;">&nbsp;</span>.
       </p>
-      <p style="margin-top: 20px">
-        SAINI YA MDHAMINI.<span class="fill-in" style="padding: 0 200px">....................................</span
-        >.DOLE GUMBA.<span class="fill-in" style="padding: 0 200px">..................................</span>
-      </p>
-    </div>
-
-    <!-- PAGE 3 -->
-    <div class="page">
-      <!-- <p class="bold" style="text-transform: uppercase">
-        ORODHA YA DHAMANA KWA MDHAMINI
-      </p> -->
-      <!-- <ul>
-        <li>
-          <span class="fill-in" style="display: block; width: 100%"
-            >&nbsp;</span
-          >
-        </li>
-        <li>
-          <span class="fill-in" style="display: block; width: 100%"
-            >&nbsp;</span
-          >
-        </li>
-        <li>
-          <span class="fill-in" style="display: block; width: 100%"
-            >&nbsp;</span
-          >
-        </li>
-      </ul> -->
-      <!-- <ul style="list-style-type: none; padding-left: 15px; margin-top: 20px">
-        <li><span class="bold">&gt;</span> Muda wa mkopo ni siku 28/30</li>
-        <li>
-          <span class="bold">&gt;</span> Muda wa rejesho ni kuanzia saa 3:00
-          asubuhi hadi saa 11:00 jioni
-        </li>
-        <li>
-          <span class="bold">&gt;</span> Ukichelewa faini ni TSH 2,000/= AU
-          zaidi
-        </li>
-        <li><span class="bold">&gt;</span> Ukilaza faini ni rejesho zima</li>
-        <li>
-          <span class="bold">&gt;</span> Ukishinda siku mbili umevunja mkataba,
-          hivyo utatakiwa kurejesha fedha yote ya mkopo pamoja na riba au
-          kuchukuliwa dhamana ulizoandikia hapo juu.
-        </li>
-      </ul> 
-      <hr style="margin-top: 30px" />
-      <p class="bold" style="text-transform: uppercase">
-        AFISA WA KAMPUNI YA UKOPESHAJI
-      </p>
-
-    <table style="width: 100%; margin-top: 20px;">
-  <tr>
-    <td style="width: 65%; vertical-align: top;">
-      <p>
-        Jina:
-        <span class="fill-in bold" style="padding: 0 250px;">
-          <?= strtoupper($customer->empl_name) ?>
-        </span>
-      </p>
-      <p>
-        Wadhifa:
-        <span class="fill-in" style="padding: 0 238px;">
-          ................
-        </span>
-      </p>
-      <p>
-        Tarehe:
-        <span class="fill-in" style="padding: 0 240px;">
-          <?= date('Y-m-d', strtotime($loan_form->loan_day)) ?>
-        </span>
-      </p>
-      <p>
-        Sahihi:
-        <span class="fill-in" style="padding: 0 245px;">
-          .................
-        </span>
-      </p>
-    </td>
-    <td style="width: 35%; text-align: right; vertical-align: top;">
-      <div class="stamp-box"><strong>Muhuri wa ofisi</strong></div>
-    </td>
-  </tr>
-</table>
-
-    </div>
-
-    <!-- PAGE 4 -->
-    <!-- <div class="page">
-      <div class="company-header" style="text-align: center">
-        <h2 style="font-size: 18pt">DEMO CREDIT LTD</h2>
-        <p style="font-size: 12pt">P.O. BOX 152 DAR ES SALAAM</p>
-      </div>
-
-      <table style="margin-top: 15px; margin-bottom: 15px">
+      <table style="margin-top: 10px; width: 100%; border-collapse: collapse;">
         <tr>
-          <td style="width: 30%; text-align: center">
-            <div class="passport-box">MTEJA</div>
-          </td>
-          <td
-            style="
-              width: 40%;
-              text-align: left;
-              vertical-align: middle;
-              padding: 0 10px;
-            "
-          >
-            <p
-              style="
-                border-bottom: 1px dotted #000;
-                padding: 2px 0;
-                margin-bottom: 5px;
-              "
-            >
-              <span class="bold">OFISI YA SERIKALI YA MTAA WA</span
-              >.................
-            </p>
-            <p
-              style="
-                border-bottom: 1px dotted #000;
-                padding: 2px 0;
-                margin-bottom: 5px;
-              "
-            >
-              <span class="bold">KATA YA</span
-              >..................................................
-            </p>
-            <p
-              style="
-                border-bottom: 1px dotted #000;
-                padding: 2px 0;
-                margin-bottom: 5px;
-              "
-            >
-              <span class="bold">S.L.P</span
-              >.......................................................
-            </p>
-            <p
-              style="
-                border-bottom: 1px dotted #000;
-                padding: 2px 0;
-                margin-bottom: 5px;
-              "
-            >
-              <span class="bold">TAREHE</span
-              >..................................................
-            </p>
-          </td>
-          <td style="width: 30%; text-align: center">
-            <div class="passport-box">MDHAMINI</div>
-          </td>
+          <td style="width: 44%; padding: 4px 0;"><span class="bold">SAINI YA MDHAMINI</span></td>
+          <td style="width: 56%; padding: 4px 0;">: ........................................ <span class="inline-fill" style="min-width: 260px;">&nbsp;</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0;"><span class="bold">DOLE GUMBA</span></td>
+          <td style="padding: 4px 0;">: <span class="inline-fill" style="min-width: 260px;">&nbsp;</span></td>
+        </tr>
+        <br>
+        <tr>
+          <td style="padding: 4px 0;">JINA LA MKOPESHAJI (AFISA MIKOPO)</td>
+          <td style="padding: 4px 0;">: <span class="bold"><?= strtoupper($customer->empl_name ?? '......') ?></span></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0;">SAHIHI YA MKOPESHAJI</td>
+          <td style="padding: 4px 0;">: ........................................<span class="inline-fill" style="min-width: 260px;">&nbsp;</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0;">JINA LA MUIDHINISHA MKOPO</td>
+          <td style="padding: 4px 0;">: ........................................</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0;">SAHIHI YA MUIDHINISHA MKATABA</td>
+          <td style="padding: 4px 0;">: ........................................<span class="inline-fill" style="min-width: 260px;">&nbsp;</span></td>
         </tr>
       </table>
+    </div>
 
-      <p>
-        <span class="bold">Kumb Na</span
-        ><span class="fill-in" style="padding: 0 150px"></span>
-      </p>
-      <p>
-        <span class="bold">YAH: UTAMBULISHO WA NDUGU</span
-        ><span class="fill-in" style="padding: 0 200px"></span>
-      </p>
-
-      <p style="margin-top: 10px">
-        Rejea mada tajwa hapo juu,<br />
-        Mtajwa ambaye picha yake imebandikwa hapo juu ni mkazi halali katika
-        kijiji.Mtaa wa<span class="fill-in" style="padding: 0 50px"></span
-        >.Alizaliwa tarehe<span class="fill-in" style="padding: 0 25px"></span
-        >/<span class="fill-in" style="padding: 0 25px"></span>/<span
-          class="fill-in"
-          style="padding: 0 25px"
-        ></span>
-        katika Mkoa wa<span class="fill-in" style="padding: 0 100px"></span
-        >.Wilaya ya<span class="fill-in" style="padding: 0 100px"></span>.Mtaa
-        wa<span class="fill-in" style="padding: 0 100px"></span>.
-        Ameowa/ameolewa na mme wake Anaitwa<span
-          class="fill-in"
-          style="padding: 0 250px"
-        ></span
-        >.
-      </p>
-
-      <p class="bold" style="margin-top: 15px">DHAMANA ZA MKOPAJI</p>
-      <p>
-        Dhamana zangu mimi mkopaji ni:-
-        <span class="fill-in" style="width: 100%; display: block">&nbsp;</span>
-        <span class="fill-in" style="width: 100%; display: block">&nbsp;</span>
-      </p>
-
-      <p style="margin-top: 15px">
-        Ndugu ambaye picha yake ipo hapo juu, Nathibitisha kumfahamu mtu huyu
-        vizuri na ninaomba asaidiwe katika ofisi yako.
-      </p>
-
-      <p class="bold" style="margin-top: 15px">NAMBA YA KITAMBULISHO CHA</p>
-      <table style="width: 100%; text-align: center; margin-bottom: 10px">
-        <tr>
-          <td style="width: 33%"><span class="bold">KURA</span></td>
-          <td style="width: 33%"><span class="bold">LESENI</span></td>
-          <td style="width: 33%"><span class="bold">KINGINE</span></td>
-        </tr>
-        <tr>
-          <td style="border-bottom: 1px dotted black; height: 20px"></td>
-          <td style="border-bottom: 1px dotted black; height: 20px"></td>
-          <td style="border-bottom: 1px dotted black; height: 20px"></td>
-        </tr>
-      </table>
-
-      <p>
-        Namba ya simu <span class="fill-in" style="padding: 0 250px"></span>
-      </p>
-      <p class="bold" style="margin-top: 15px">MDHAMINI</p>
-      <p>
-        Mdhamini wake ni<span class="fill-in" style="padding: 0 250px"></span
-        ><br />
-        Ameoa/ameolewa – mjane mgane – hajaoa/hajaolewa
-        <span
-          style="
-            display: inline-block;
-            border: 1.5px solid #000;
-            width: 150px;
-            height: 20px;
-            vertical-align: middle;
-          "
-        ></span>
-      </p>
-      <p>
-        Anaishi Mtaa wa<span class="fill-in" style="padding: 0 250px"></span>
-      </p>
-      <p>
-        Dhamana ya mdhamini ni<span
-          class="fill-in"
-          style="padding: 0 220px"
-        ></span>
-      </p>
-      <p>
-        Simu namba<span class="fill-in" style="padding: 0 150px"></span> Sahihi
-        <span class="fill-in" style="padding: 0 150px"></span>
-      </p>
-
-      <p style="margin-top: 15px">
-        Wako<br />
-        Mwenyekiti Mtaa au mjumbe<span
-          class="fill-in"
-          style="padding: 0 200px"
-        ></span
-        ><br />
-        Jina<span class="fill-in" style="padding: 0 200px"></span>.cheo<span
-          class="fill-in"
-          style="padding: 0 150px"
-        ></span
-        ><br />
-        Sahihi<span class="fill-in" style="padding: 0 180px"></span>.simu<span
-          class="fill-in"
-          style="padding: 0 150px"
-        ></span
-        ><br />
-        Tarehe<span class="fill-in" style="padding: 0 300px"></span>
-      </p>
-      <div class="center" style="margin-top: 20px">
-        <p style="font-weight: bold; margin: 0; line-height: 1.2">
-          Tafadhali jaza nafasi zote kwa usahihi
-        </p>
-        <p
-          style="
-            font-weight: bold;
-            margin: 0;
-            line-height: 1.2;
-            font-size: 12pt;
-          "
-        >
-          0742 424 524
-        </p>
-      </div>
-    </div> -->
   </body>
 </html>

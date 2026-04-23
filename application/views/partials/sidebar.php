@@ -434,9 +434,9 @@ $can_staff_view_branch = $can_staff_view_all;
               <?php if (has_permission('Ombea Mkopo wa Mteja')): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_application') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_application"); ?>"><?php echo $this->lang->line('loan_application'); ?></a></li>
              <?php endif; ?>
-             <?php if (has_permission('Pitisha Maombi Ya Mikopo')): ?>
+         
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_pending') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/loan_pending"); ?>"><?php echo $this->lang->line('loan_pending_approve'); ?></a></li>
-                  <?php endif; ?>
+              
                   <?php if (has_permission('Ruhusu Malipo Ya Mkopo')): ?>
                   <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/get_loan_aproved') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/get_loan_aproved"); ?>"><?php echo $this->lang->line('loan_approved_not_disbursed'); ?></a></li>
                   <?php endif; ?>
