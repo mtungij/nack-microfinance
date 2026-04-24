@@ -8,19 +8,43 @@ class Admin extends CI_Controller {
 	{
 	$this->load->model('queries');
 	$comp_id = $this->session->userdata('comp_id');
+    $selected_blanch_input = $this->input->get('blanch_id', true);
+    $selected_blanch_id = 0;
+    if ($selected_blanch_input !== null && $selected_blanch_input !== '' && strtolower((string) $selected_blanch_input) !== 'all') {
+        $selected_blanch_id = (int) $selected_blanch_input;
+    }
+    if ($selected_blanch_id < 0) {
+        $selected_blanch_id = 0;
+    }
+    $blanch = $this->queries->get_blanch($comp_id);
+    $selected_blanch_name = '';
+    if ($selected_blanch_id > 0) {
+        $is_valid_branch = false;
+        foreach ($blanch as $branch_row) {
+            if ((int) $branch_row->blanch_id === $selected_blanch_id) {
+                $is_valid_branch = true;
+                $selected_blanch_name = (string) $branch_row->blanch_name;
+                break;
+            }
+        }
+        if (!$is_valid_branch) {
+            $selected_blanch_id = 0;
+        }
+    }
+    $active_blanch_id = $selected_blanch_id > 0 ? $selected_blanch_id : null;
    $compdata = $this->queries->get_companyData($comp_id);
 
  
 
 
-    $receivable_total = $this->queries->get_total_recevable($comp_id);
+    $receivable_total = $this->queries->get_total_recevable($comp_id, $active_blanch_id);
     $total_received = $this->queries->get_sumReceived_amount($comp_id);
     $total_loan_pending = $this->queries->get_sun_loanPending($comp_id);
-    $total_loanWithdrawal = $this->queries->get_today_withdrawal_loan($comp_id);
+    $total_loanWithdrawal = $this->queries->get_today_withdrawal_loan($comp_id, $active_blanch_id);
     $today_penart = $this->queries->get_total_penartToday($comp_id);
     $prepaid_today = $this->queries->prepaid_pay($comp_id);
 	$manager_data = $this->queries->get_compan_data($comp_id);
-  	$total_penalt = $this->queries->get_sum_income($comp_id);
+      	$total_penalt = $this->queries->get_sum_income($comp_id, null, $active_blanch_id);
 	
 
      $total_received = $this->queries->get_sumReceived_amount($comp_id);
@@ -36,14 +60,14 @@ class Admin extends CI_Controller {
      $cash_bank = $this->queries->get_sum_cashInHandcomp($comp_id);
      $principal_loan = $this->queries->get_total_principal($comp_id);
      $done_loan = $this->queries->get_totalLoanRepayment($comp_id);
-     $total_receved = $this->queries->get_sumReceived_amount($comp_id);
-	 	$total_loanDis = $this->queries->get_today_disbursed_loans_sum($comp_id);
+    $total_receved = $this->queries->get_sumReceived_amount($comp_id, $active_blanch_id);
+	 	$total_loanDis = $this->queries->get_today_disbursed_loans_sum($comp_id, $active_blanch_id);
      
      //new code 
      $cash_depost = $this->queries->get_today_chashData_Comp($comp_id);
      $cash_income = $this->queries->get_today_incomeBlanchDataComp($comp_id);
      $cash_expences = $this->queries->get_today_expencesDataComp($comp_id);
-     $blanch = $this->queries->get_blanch($comp_id);
+    $blanch = $this->queries->get_blanch($comp_id);
      $total_remain = $this->queries->total_outstand_loan($comp_id);
      $today_total_loan_pend = $this->queries->get_sum_loanpend($comp_id);
 
@@ -54,8 +78,8 @@ class Admin extends CI_Controller {
      $receive_Amount = $this->queries->get_sumReceve($comp_id);
      $loan_fee = $this->queries->get_total_loanFee($comp_id);
      $request_expences = $this->queries->get_expencesData($comp_id);
-     $pending_expenses = $this->queries->get_pending_expenses_summary($comp_id);
-     $accepted_expenses = $this->queries->get_accepted_expenses_summary($comp_id);
+    $pending_expenses = $this->queries->get_pending_expenses_summary($comp_id, $active_blanch_id);
+    $accepted_expenses = $this->queries->get_accepted_expenses_summary($comp_id, $active_blanch_id);
 
      $sum_comp_capital = $this->queries->get_sum_companyBalance($comp_id);
 
@@ -65,38 +89,40 @@ class Admin extends CI_Controller {
 
 	 $blanch_capital_circle = $this->queries->get_total_blanch_capital($comp_id);
 
-	 $employee_count = $this->queries->count_employee_company($comp_id);
+     $employee_count = $this->queries->count_employee_company($comp_id, $active_blanch_id);
 
 	 $new_customer = $this->queries->get_today_registered_customers_count($comp_id);
-	 $all_customer_count = $this->queries->count_by_company($comp_id);
+     $all_customer_count = $this->queries->count_by_company($comp_id, $active_blanch_id);
 	 $done_customer_count = $this->queries->count_completed_today($comp_id);
 	 $default_customer_count = $this->queries->count_default_loans_today($comp_id);
 	 $deposit_daily = $this->queries->fetch_today_deposit_daily_comp($comp_id);
-	 $total_deposit_daily = $this->queries->get_today_received_loan_total($comp_id);
-	 $total_deposit_weekly = $this->queries->get_weekly_received_loan_total($comp_id);
-	 $total_deposit_monthly = $this->queries->get_monthly_received_loan($comp_id);
-	 $total_withdrawal_daily = $this->queries->get_today_withdrawal_daily_comp($comp_id);
-	 $total_withdrawal_weekly = $this->queries->get_total_principal_weekly($comp_id);
-	 $total_withdrawal_monthly = $this->queries->get_total_principal_monthly($comp_id);
+     $total_deposit_daily = $this->queries->get_today_received_loan_total($comp_id, $active_blanch_id);
+     $total_deposit_weekly = $this->queries->get_weekly_received_loan_total($comp_id, $active_blanch_id);
+     $total_deposit_monthly = $this->queries->get_monthly_received_loan($comp_id, $active_blanch_id);
+     $total_withdrawal_daily = $this->queries->get_today_withdrawal_daily_comp($comp_id, $active_blanch_id);
+     $total_withdrawal_weekly = $this->queries->get_total_principal_weekly($comp_id, $active_blanch_id);
+     $total_withdrawal_monthly = $this->queries->get_total_principal_monthly($comp_id, $active_blanch_id);
 	 $top_employees = $this->queries->get_top_5_employees_today_loans($comp_id);
 	 $branchwise_deposits = $this->queries->get_branchwise_today_deposit($comp_id);
 
-	 $top_depositors = $this->queries->get_top_5_deposit_employees($comp_id);
-     $top_branch_deposits = $this->queries->get_top_10_branch_deposit_today($comp_id);
+	 $top_depositors = $this->queries->get_top_5_deposit_employees($comp_id, $active_blanch_id);
+     $top_branch_deposits = $this->queries->get_top_10_branch_deposit_today($comp_id, $active_blanch_id);
 
 	 $disbursed_loans= $this->queries->get_sum_loanDisbursed($comp_id);
 
- $today_enddate_collection = $this->queries->get_next7days_ending_loans_restriction($comp_id);
+ $today_enddate_collection = $this->queries->get_next7days_ending_loans_restriction($comp_id, $active_blanch_id);
 
 		//      echo "<pre>";
 	    //  print_r(   $today_enddate_collection);
 	    //  exit();
 	 
 
-	 $total_overdue= $this->queries->total_outstand_loans($comp_id);
+     $total_overdue= $this->queries->total_outstand_loans($comp_id, $active_blanch_id);
 	 $total_deni = $this->queries->total_outstand_loan_today($comp_id);
 	 $total_active_paid= $this->queries->get_today_received_from_receivale	($comp_id);
- $total_default_paid=$this->queries->get_depositing_out_total_comp($comp_id);
+ $total_default_paid = $active_blanch_id
+     ? $this->queries->get_depositing_out_total_blanch($active_blanch_id)
+     : $this->queries->get_depositing_out_total_comp($comp_id);
  $today_endactive_paid=$this->queries->get_depositing_out_todayend_comp($comp_id);
 
 //   $today_deposits = $this->queries->get_today_received_loan($comp_id);
@@ -131,6 +157,8 @@ class Admin extends CI_Controller {
 	      //         exit();
 	$this->load->view('admin/index',['receivable_total'=>$receivable_total,'total_deposit_monthly'=>$total_deposit_monthly,'total_deposit_weekly'=> $total_deposit_weekly,'total_deposit_daily'=> $total_deposit_daily,'deposit_daily'=> $deposit_daily,'done_customer_count'=>$done_customer_count,'all_customer_count'=>$all_customer_count,
     'new_customer'=> $new_customer,'top_depositors'=> $top_depositors,'top_branch_deposits' => $top_branch_deposits,
+    'selected_blanch_id' => $selected_blanch_id,
+    'selected_blanch_name' => $selected_blanch_name,
 	'total_deni'=> $total_deni,
 	'today_enddate_collection' => $today_enddate_collection,
 	'total_loanWithdrawal'=>$total_loanWithdrawal,
@@ -1595,7 +1623,10 @@ public function update()
 	public function all_employee(){
 		$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
-		$all_employee = $this->queries->get_Allemployee($comp_id);
+        $selected_blanch_id = (int) $this->input->get('blanch_id', true);
+        $all_employee = $selected_blanch_id > 0
+            ? $this->queries->get_AllemployeeBlanch($selected_blanch_id)
+            : $this->queries->get_Allemployee($comp_id);
 		$blanch = $this->queries->get_blanch($comp_id);
 		$position = $this->queries->get_position();
 
@@ -1715,6 +1746,7 @@ public function update()
         $this->load->view('admin/all_employee',[
             'all_employee' => $all_employee,
             'blanch' => $blanch,
+            'selected_blanch_id' => $selected_blanch_id,
             'position' => $position,
             'loan_officer_id' => $loan_officer_id,
             'branch_manager_id' => $branch_manager_id,
@@ -2267,9 +2299,12 @@ public function all_customer()
 
     $this->load->model('queries');
     $comp_id = $this->session->userdata('comp_id');
+    $selected_blanch_id = (int) $this->input->get('blanch_id', true);
 
     // Get all customers (as an array)
-    $customers = $this->queries->get_allcutomer($comp_id);
+    $customers = $selected_blanch_id > 0
+        ? $this->queries->get_customer_blanch($selected_blanch_id)
+        : $this->queries->get_allcutomer($comp_id);
     $blanch    = $this->queries->get_blanch($comp_id);
 
     if (!empty($customers)) {
@@ -2298,7 +2333,7 @@ public function all_customer()
     }
 
     // Load the view with all customers and blanch
-    $this->load->view('admin/all_customer', ['customer' => $customers, 'blanch' => $blanch]);
+    $this->load->view('admin/all_customer', ['customer' => $customers, 'blanch' => $blanch, 'selected_blanch_id' => $selected_blanch_id]);
 }
 
 
@@ -3014,13 +3049,16 @@ $comp_phone = $compdata->comp_number;
     public function loan_pending(){
     	$this->load->model('queries');
     	$comp_id = $this->session->userdata('comp_id');
-        $loan_pending = $this->queries->get_loanPending($comp_id);
+        $selected_blanch_id = (int) $this->input->get('blanch_id', true);
+        $loan_pending = $selected_blanch_id > 0
+            ? $this->queries->get_loanPendingBlanch($selected_blanch_id)
+            : $this->queries->get_loanPending($comp_id);
         $blanch = $this->queries->get_blanch($comp_id);
             //     echo "<pre>";
             // print_r( $loan_pending);
             //     echo "<pre>";
             //         exit();
-    	$this->load->view('admin/loan_pending',['loan_pending'=>$loan_pending,'blanch'=>$blanch]);
+        $this->load->view('admin/loan_pending',['loan_pending'=>$loan_pending,'blanch'=>$blanch,'selected_blanch_id'=>$selected_blanch_id]);
     }
 
 
@@ -4164,15 +4202,20 @@ public function disburse($loan_id){
 	public function disburse_loan(){
 		$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
-		$disburse = $this->queries->get_today_disbursed_loans($comp_id);
-		$total_loanDis = $this->queries->get_sum_loanDisbursed($comp_id);
-		$total_interest_loan = $this->queries->get_sum_loanDisburse_interest($comp_id);
+        $selected_blanch_id = (int) $this->input->get('blanch_id', true);
+        $disburse = $this->queries->get_today_disbursed_loans($comp_id, $selected_blanch_id > 0 ? $selected_blanch_id : null);
+        $total_loanDis = $selected_blanch_id > 0
+            ? $this->queries->get_sum_loanDisbursedBlanch($selected_blanch_id)
+            : $this->queries->get_sum_loanDisbursed($comp_id);
+        $total_interest_loan = $selected_blanch_id > 0
+            ? $this->queries->get_sum_loanDisburse_interestBlanch($selected_blanch_id)
+            : $this->queries->get_sum_loanDisburse_interest($comp_id);
 
 		    // echo "<pre>";
 		    // print_r($disburse);
 		    // echo "</pre>";
 		    //     exit();
-		$this->load->view('admin/disburse_loan',['disburse'=>$disburse,'total_loanDis'=>$total_loanDis,'total_interest_loan'=>$total_interest_loan]);
+        $this->load->view('admin/disburse_loan',['disburse'=>$disburse,'total_loanDis'=>$total_loanDis,'total_interest_loan'=>$total_interest_loan,'selected_blanch_id'=>$selected_blanch_id]);
 	}
 
 
@@ -4372,12 +4415,12 @@ public function loan_withdrawal()
 
     // Collect filters safely
     $filters = [
-        'blanch_id'   => $this->input->post('blanch_id', true),
-        'from'        => $this->input->post('from', true),
-        'to'          => $this->input->post('to', true),
-        'loan_name'   => $this->input->post('loan_name', true),
-        'loan_status' => $this->input->post('loan_status', true),
-        'paid_today'  => $this->input->post('paid_today', true),
+        'blanch_id'   => $this->input->get_post('blanch_id', true),
+        'from'        => $this->input->get_post('from', true),
+        'to'          => $this->input->get_post('to', true),
+        'loan_name'   => $this->input->get_post('loan_name', true),
+        'loan_status' => $this->input->get_post('loan_status', true),
+        'paid_today'  => $this->input->get_post('paid_today', true),
     ];
 
     // Fetch filtered data
@@ -7574,20 +7617,23 @@ public function print_cash(){
         $comp_id = $this->session->userdata('comp_id');
         $blanch = $this->queries->get_blanch($comp_id);
 
-        $from = $this->input->post('from');
-        $to = $this->input->post('to');
-        $blanch_id = $this->input->post('blanch_id');
+        $from = $this->input->get_post('from', true);
+        $to = $this->input->get_post('to', true);
+        $blanch_id = $this->input->get_post('blanch_id', true);
+        if ($blanch_id === 'all' || $blanch_id === '') {
+            $blanch_id = null;
+        }
 
         if (!empty($from) && !empty($to)) {
             $new_pending = $this->queries->get_total_loan_pendingComp_by_date($comp_id, $from, $to, $blanch_id);
             $total_pending_new = $this->queries->get_total_pend_loan_company_by_date($comp_id, $from, $to, $blanch_id);
         } else {
-            $new_pending = $this->queries->get_total_loan_pendingComp($comp_id);
-            $total_pending_new = $this->queries->get_total_pend_loan_company($comp_id);
+            $new_pending = $this->queries->get_total_loan_pendingComp($comp_id, $blanch_id);
+            $total_pending_new = $this->queries->get_total_pend_loan_company($comp_id, $blanch_id);
         }
 
-        $old_newpend = $this->queries->get_pending_reportLoancompany($comp_id);
-        $pend = $this->queries->get_sun_loanPendingcompany($comp_id);
+        $old_newpend = $this->queries->get_pending_reportLoancompany($comp_id, $blanch_id);
+        $pend = $this->queries->get_sun_loanPendingcompany($comp_id, $blanch_id);
 
         //    echo "<pre>";
         //   print_r($new_pending);
@@ -8816,9 +8862,14 @@ public function create_requstion_form(){
    public function get_expences_notAcceptable(){
    	$this->load->model('queries');
    	$comp_id = $this->session->userdata('comp_id');
-   	$data = $this->queries->get_expences_requestNotDone($comp_id);
+	   $selected_blanch_id = (int) $this->input->get('blanch_id', true);
+	   $data = $this->queries->get_expences_requestNotDone($comp_id, $selected_blanch_id > 0 ? $selected_blanch_id : null);
     $blanch = $this->queries->get_blanch($comp_id);
-    $tota_exp = $this->queries->get_sum_expencesnotAccept($comp_id);
+    $total_amount = 0;
+    foreach ($data as $row) {
+        $total_amount += (float) ($row->req_amount ?? 0);
+    }
+    $tota_exp = (object) ['total_expences' => $total_amount];
     $account = $this->queries->get_account_transaction($comp_id);
 
     // Build branch accounts map: blanch_id => [accounts with balance]
@@ -8830,7 +8881,7 @@ public function create_requstion_form(){
         }
     }
 
-   	$this->load->view('admin/recomended_request',['data'=>$data,'blanch'=>$blanch,'tota_exp'=>$tota_exp,'account'=>$account,'branch_accounts'=>$branch_accounts]);
+       $this->load->view('admin/recomended_request',['data'=>$data,'blanch'=>$blanch,'tota_exp'=>$tota_exp,'account'=>$account,'branch_accounts'=>$branch_accounts,'selected_blanch_id'=>$selected_blanch_id]);
    }
 
    public function get_accepted_expenses(){
@@ -8840,6 +8891,12 @@ public function create_requstion_form(){
    	$filter_from = $this->input->get('from');
    	$filter_to = $this->input->get('to');
    	$filter_branch = $this->input->get('branch');
+       if (empty($filter_branch)) {
+           $filter_branch = $this->input->get('blanch_id');
+       }
+       if ($filter_branch === 'all') {
+           $filter_branch = '';
+       }
    	$filter_expense = $this->input->get('expense');
 
    	$has_filter = (!empty($filter_from) && !empty($filter_to)) || !empty($filter_branch) || !empty($filter_expense);
@@ -9701,7 +9758,16 @@ return true;
 
     // Get filters from POST
     $blanch_id = $this->input->post('blanch_id');
+    if ($blanch_id === null || $blanch_id === '') {
+        $blanch_id = $this->input->get('blanch_id');
+    }
+    if ($blanch_id === 'all' || $blanch_id === '') {
+        $blanch_id = null;
+    }
     $empl_id = $this->input->post('empl_id');
+    if ($empl_id === null || $empl_id === '') {
+        $empl_id = $this->input->get('empl_id');
+    }
 
     $today_recevable = $this->queries->get_today_recevable_loan($comp_id, $blanch_id, $empl_id);
 
@@ -9710,7 +9776,9 @@ return true;
 
     $this->load->view('admin/today_recevable', [
         'today_recevable' => $today_recevable,
-        'blanch' => $blanch
+        'blanch' => $blanch,
+        'selected_blanch_id' => $blanch_id,
+        'selected_empl_id' => $empl_id,
     ]);
 }
 
@@ -9723,9 +9791,15 @@ public function today_expiring_loans()
 
     // Get filters from POST
     $blanch_id = $this->input->post('blanch_id');
+    if ($blanch_id === null || $blanch_id === '') {
+        $blanch_id = $this->input->get('blanch_id');
+    }
+    if ($blanch_id === 'all' || $blanch_id === '') {
+        $blanch_id = null;
+    }
     $empl_id = $this->input->post('empl_id');
 
-    $today_recevable = $this->queries->get_week_ending_loans($comp_id);
+    $today_recevable = $this->queries->get_week_ending_loans($comp_id, $blanch_id);
 
 	// echo "<pre>";
 	// print_r($today_recevable);
@@ -9738,7 +9812,8 @@ public function today_expiring_loans()
 
     $this->load->view('admin/today_endings', [
         'today_recevable' => $today_recevable,
-        'blanch' => $blanch
+        'blanch' => $blanch,
+        'selected_blanch_id' => $blanch_id,
     ]);
 
 }
@@ -9819,16 +9894,23 @@ public function today_expiring_loans()
 	public function today_receved_loan(){
 		$this->load->model('queries');
 		$comp_id = $this->session->userdata('comp_id');
-		$received = $this->queries->get_today_received_loan($comp_id);
-		$total_receved = $this->queries->get_sumReceived_amount($comp_id);
+        $selected_blanch_id = (int) $this->input->get('blanch_id', true);
+        $received = $selected_blanch_id > 0
+            ? $this->queries->get_received_loanBlanch($selected_blanch_id)
+            : $this->queries->get_today_received_loan($comp_id);
+        $total_receved = $this->queries->get_sumReceived_amount($comp_id, $selected_blanch_id > 0 ? $selected_blanch_id : null);
 		$blanch = $this->queries->get_blanch($comp_id);
-		$total_principal_receive = $this->queries->get_sum_principal_depost($comp_id);
-		$total_interest = $this->queries->get_sum_interest_depost($comp_id);
+        $total_principal_receive = $selected_blanch_id > 0
+            ? $this->queries->get_sum_principal_depostBranch($selected_blanch_id)
+            : $this->queries->get_sum_principal_depost($comp_id);
+        $total_interest = $selected_blanch_id > 0
+            ? $this->queries->get_sum_interest_depostBlanch($selected_blanch_id)
+            : $this->queries->get_sum_interest_depost($comp_id);
 
 		//     echo "<pre>";
 		//   print_r($received);
 		//           exit();
-		$this->load->view('admin/today_received',['received'=>$received,'total_receved'=>$total_receved,'blanch'=>$blanch,'total_principal_receive'=>$total_principal_receive,'total_interest'=>$total_interest]);
+        $this->load->view('admin/today_received',['received'=>$received,'total_receved'=>$total_receved,'blanch'=>$blanch,'total_principal_receive'=>$total_principal_receive,'total_interest'=>$total_interest,'selected_blanch_id'=>$selected_blanch_id]);
 	}
 
 	public function get_blanch_receved(){

@@ -37,6 +37,21 @@ $txt_tt_today_penalty_paid = $lang_line('tt_today_penalty_paid', 'Total penaltie
 $txt_expected_vs_paid_today = $lang_line('expected_vs_paid_today', 'Expected vs Paid Today');
 $txt_expected_collection = $lang_line('expected_collection', 'Expected Collection');
 $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
+$txt_overdue_vs_paid_today = $lang_line('overdue_vs_paid_today', 'Overdue vs Paid Overdue Today');
+$txt_all_overdue_loans = $lang_line('all_overdue_loans', 'All Overdue Loans');
+$txt_paid_overdue_today = $lang_line('paid_overdue_today', 'Paid Overdue Today');
+$txt_all_branches = $lang_line('all_branches', 'All Branches');
+$txt_switch_branch = $lang_line('switch_branch', 'Badili Tawi');
+
+$selected_blanch_id = isset($selected_blanch_id) ? (int) $selected_blanch_id : 0;
+$selected_blanch_name = !empty($selected_blanch_name) ? $selected_blanch_name : $txt_all_branches;
+$admin_link = function ($path) use ($selected_blanch_id) {
+  $url = base_url($path);
+  if ($selected_blanch_id > 0) {
+    $url .= (strpos($url, '?') === false ? '?' : '&') . 'blanch_id=' . (int) $selected_blanch_id;
+  }
+  return $url;
+};
 ?>
 
 <style>
@@ -101,9 +116,22 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
                 </p>
             </div>
             <div>
-                <?php // Optional action button, e.g., for the "Branches" dropdown
-                // We will integrate the "Branches" dropdown within the "Quick Stats & Actions" card as per your old layout.
-                ?>
+              <form action="<?php echo base_url('admin/index'); ?>" method="get" class="flex items-center gap-2">
+                <label for="dashboard-branch-switch" class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  <?php echo $txt_switch_branch; ?>
+                </label>
+                <select id="dashboard-branch-switch" name="blanch_id" onchange="this.form.submit()"
+                    class="py-2 px-3 pe-9 block w-full min-w-56 border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
+                  <option value="all" <?php echo $selected_blanch_id === 0 ? 'selected' : ''; ?>><?php echo htmlspecialchars($txt_all_branches, ENT_QUOTES, 'UTF-8'); ?></option>
+                  <?php if (!empty($blanch) && is_array($blanch)): ?>
+                    <?php foreach ($blanch as $blanchs): ?>
+                      <option value="<?php echo (int) ($blanchs->blanch_id ?? 0); ?>" <?php echo ($selected_blanch_id === (int) ($blanchs->blanch_id ?? 0)) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                      </option>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </select>
+              </form>
             </div>
         </div>
    
@@ -114,7 +142,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 
   <!-- 1️⃣ Due Today (Within Agreement) -->
-<a href="<?= base_url('admin/today_recevable_loan'); ?>" class="block">
+<a href="<?= $admin_link('admin/today_recevable_loan'); ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
       <div class="flex items-center justify-between">
         <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
@@ -140,7 +168,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 
 
   <!-- 2️⃣ Overdue (Out of Agreement) -->
- <a href="<?= base_url('admin/get_outstand_loan'); ?>" class="block">
+ <a href="<?= $admin_link('admin/get_outstand_loan'); ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
       <div class="flex items-center justify-between">
         <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
@@ -166,7 +194,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 
 
   <!-- 3️⃣ Expiring Today -->
-  <a href="<?= base_url('admin/today_expiring_loans') ?>" class="block">
+  <a href="<?= $admin_link('admin/today_expiring_loans') ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     <div class="flex items-center justify-between">
       <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">📅 <?php echo $this->lang->line('upcoming_loan_deadlines'); ?></p>
@@ -202,13 +230,21 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
   </div>
 </div>
 
+<!-- Overdue vs Paid Overdue Today Pie Chart -->
+<div class="mt-4 bg-white rounded-2xl shadow-xl p-6">
+  <h2 class="text-xl font-bold text-gray-700 mb-4">📉 <?php echo $txt_overdue_vs_paid_today; ?></h2>
+  <div class="max-w-md mx-auto">
+    <canvas id="overdueVsPaidPieChart" height="140"></canvas>
+  </div>
+</div>
+
 <!-- ====================== -->
 <!-- Paid Cards Section -->
 <!-- ====================== -->
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
 
   <!-- 1️⃣ Paid Today (Within Agreement) -->
-  <a href="<?= base_url('admin/today_receved_loan') ?>" class="block">
+  <a href="<?= $admin_link('admin/today_receved_loan') ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     
     <div class="flex items-center justify-between">
@@ -235,7 +271,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 
 
   <!-- 2️⃣ Paid Overdue -->
- <a href="<?= base_url('admin/disburse_loan') ?>" class="block">
+ <a href="<?= $admin_link('admin/disburse_loan') ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 
               text-white border border-transparent rounded-2xl shadow-xl p-5 
               transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
@@ -271,7 +307,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 
 
   <!-- 3️⃣ Paid Expiring Today -->
-<a href="<?= base_url('admin/loan_withdrawal') ?>" class="block">
+<a href="<?= $admin_link('admin/loan_withdrawal') ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     
     <div class="flex items-center justify-between">
@@ -301,7 +337,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 
 <!-- <div class="grid grid-cols-2 gap-4"> -->
     <!-- 3️⃣ Paid Expiring Today -->
-<a href="<?= base_url('admin/income_dashboard') ?>" class="block">
+<a href="<?= $admin_link('admin/income_dashboard') ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     
     <div class="flex items-center justify-between">
@@ -332,7 +368,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
   $pe_count = isset($pending_expenses->total_count) ? (int)$pending_expenses->total_count : 0;
   $pe_amount = isset($pending_expenses->total_amount) ? $pending_expenses->total_amount : 0;
 ?>
-<a href="<?= base_url('admin/get_expences_notAcceptable'); ?>" class="block">
+<a href="<?= $admin_link('admin/get_expences_notAcceptable'); ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4 relative">
     <?php if($pe_count > 0): ?>
       <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full size-7 flex items-center justify-center shadow-lg animate-pulse"><?= $pe_count; ?></span>
@@ -364,7 +400,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
   $ae_count = isset($accepted_expenses->total_count) ? (int)$accepted_expenses->total_count : 0;
   $ae_amount = isset($accepted_expenses->total_amount) ? $accepted_expenses->total_amount : 0;
 ?>
-<a href="<?= base_url('admin/get_accepted_expenses'); ?>" class="block">
+<a href="<?= $admin_link('admin/get_accepted_expenses'); ?>" class="block">
   <div class="flex flex-col bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     <div class="flex items-center justify-between">
       <p class="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
@@ -389,7 +425,7 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
 </a>
 
   <!-- 3️⃣ Paid Expiring Today -->
-<a href="<?= base_url('admin/loan_withdrawal') ?>" class="block">
+<a href="<?= $admin_link('admin/loan_withdrawal') ?>" class="block">
   <!-- <div class="flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-green-600 text-white border border-transparent rounded-2xl shadow-xl p-5 transition-transform transform hover:scale-[1.02] hover:shadow-2xl mb-4">
     
     <div class="flex items-center justify-between">
@@ -528,7 +564,9 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
   const expectedVsPaidCanvas = document.getElementById('expectedVsPaidPieChart');
   if (expectedVsPaidCanvas) {
     const expectedToday = <?php echo (float)($receivable_total->total_rejesho ?? 0); ?>;
-    const paidToday = <?php echo (float)($total_receved->total_depost ?? 0); ?>;
+    const paidTodayGross = <?php echo (float)($total_receved->total_depost ?? 0); ?>;
+    const overduePaidToday = <?php echo (float)($total_default_paid->total_default ?? 0); ?>;
+    const paidToday = Math.max(paidTodayGross - overduePaidToday, 0);
 
     new Chart(expectedVsPaidCanvas.getContext('2d'), {
       type: 'pie',
@@ -537,6 +575,50 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
         datasets: [{
           data: [expectedToday, paidToday],
           backgroundColor: ['#0891b2', '#10b981'],
+          borderColor: ['#ffffff', '#ffffff'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          datalabels: {
+            color: '#ffffff',
+            font: {
+              weight: 'bold',
+              size: 12
+            },
+            formatter: function(value) {
+              return Number(value).toLocaleString();
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + Number(context.raw).toLocaleString() + ' TZS';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  const overdueVsPaidCanvas = document.getElementById('overdueVsPaidPieChart');
+  if (overdueVsPaidCanvas) {
+    const overdueTotal = <?php echo (float)($total_overdue->total_out ?? 0); ?>;
+    const overduePaidToday = <?php echo (float)($total_default_paid->total_default ?? 0); ?>;
+
+    new Chart(overdueVsPaidCanvas.getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['<?php echo addslashes($txt_all_overdue_loans); ?>', '<?php echo addslashes($txt_paid_overdue_today); ?>'],
+        datasets: [{
+          data: [overdueTotal, overduePaidToday],
+          backgroundColor: ['#ef4444', '#22c55e'],
           borderColor: ['#ffffff', '#ffffff'],
           borderWidth: 2
         }]
@@ -833,9 +915,10 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
                   <?php echo $txt_quick_overview; ?>
                 </h3>
+                <span class="text-xs text-gray-500 dark:text-gray-400"><?php echo htmlspecialchars($selected_blanch_name, ENT_QUOTES, 'UTF-8'); ?></span>
                 <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
                     <button id="branches-dropdown-btn" type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
-                        <!-- Branches -->
+                        <?php echo htmlspecialchars($selected_blanch_name, ENT_QUOTES, 'UTF-8'); ?>
                         <svg class="hs-dropdown-open:rotate-180 size-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
@@ -843,14 +926,13 @@ $txt_total_paid_today = $lang_line('total_paid_today', 'Total Paid Today');
                     <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-40 z-20 bg-white shadow-md rounded-lg p-2 mt-2 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="branches-dropdown-btn">
                         <div class="py-2 first:pt-0 last:pb-0">
                             <span class="block py-2 px-3 text-xs font-medium uppercase text-gray-400 dark:text-gray-500"><?php echo $txt_branches_list; ?></span>
+                          <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="<?php echo base_url('admin/index?blanch_id=all'); ?>">
+                            <?php echo htmlspecialchars($txt_all_branches, ENT_QUOTES, 'UTF-8'); ?>
+                          </a>
                             <?php if (isset($blanch) && is_array($blanch)): ?>
                                 <?php foreach ($blanch as $blanchs): ?>
                                 <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-cyan-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                  
-
-                                   href="<?php echo base_url(
-    'admin/view_blanchPanel/' . ($blanchs->blanch_id ?? '')
-); ?>"
+                               href="<?php echo base_url('admin/index?blanch_id=' . (int) ($blanchs->blanch_id ?? 0)); ?>">
 
                                     <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 2A1.5 1.5 0 0 0 2 3.5v13A1.5 1.5 0 0 0 3.5 18h13a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 16.5 2h-13ZM12.25 8.25a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5h-1.5ZM12.25 12a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5h-1.5ZM6.25 6.75a.75.75 0 0 0-.75.75v5.5a.75.75 0 0 0 1.5 0v-5.5a.75.75 0 0 0-.75-.75ZM8.25 5a.75.75 0 0 0-.75.75v8.5a.75.75 0 0 0 1.5 0v-8.5A.75.75 0 0 0 8.25 5Z" /></svg>
                                     <?php
@@ -870,8 +952,22 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     // --- DUMMY DATA for quick stats - REMOVE and use controller data ---
                     // TODO: !! IMPORTANT, COMMENTED THESE BECAUSE OF TABLE MISSING ERROR, SHOULD BE UNCOMMENTED
                     $comp_id = $_SESSION['comp_id'] ?? null;
+                    $selected_blanch_filter_id = isset($selected_blanch_id) ? (int) $selected_blanch_id : 0;
+                    $customer_branch_where = $selected_blanch_filter_id > 0 ? " AND blanch_id = '{$selected_blanch_filter_id}'" : '';
+                    $loan_branch_where = $selected_blanch_filter_id > 0 ? " AND blanch_id = '{$selected_blanch_filter_id}'" : '';
+                    $pending_branch_where = $selected_blanch_filter_id > 0 ? " AND blanch_id = '{$selected_blanch_filter_id}'" : '';
                     // Simulating data fetching - this should be in your controller
-                   $employee_count = $comp_id ? ($this->db->query("SELECT COUNT(*) as count FROM tbl_employee WHERE comp_id = ?", [$comp_id])->row()->count ?? 0) : 0;
+                    if ($comp_id) {
+                      $employee_sql = "SELECT COUNT(*) as count FROM tbl_employee WHERE comp_id = ?";
+                      $employee_params = [$comp_id];
+                      if ($selected_blanch_filter_id > 0) {
+                        $employee_sql .= " AND blanch_id = ?";
+                        $employee_params[] = $selected_blanch_filter_id;
+                      }
+                      $employee_count = $this->db->query($employee_sql, $employee_params)->row()->count ?? 0;
+                    } else {
+                      $employee_count = 0;
+                    }
                     // $customer_total = $comp_id ? ($this->db->query("SELECT COUNT(*) as count FROM tbl_customer WHERE comp_id = ?", [$comp_id])->row()->count ?? 0) : 0;
                     // $customer_active = $comp_id ? ($this->db->query("SELECT COUNT(*) as count FROM tbl_customer WHERE comp_id = ? AND customer_status = 'open'", [$comp_id])->row()->count ?? 0) : 0;
                     // $customer_pending = $comp_id ? ($this->db->query("SELECT COUNT(*) as count FROM tbl_customer WHERE comp_id = ? AND customer_status = 'pending'", [$comp_id])->row()->count ?? 0) : 0;
@@ -885,7 +981,7 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     // --- END DUMMY DATA ---
                     ?>
                     <!-- Stat Card: Employees -->
-                    <a href="<?php echo base_url("admin/all_employee"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <a href="<?php echo $admin_link('admin/all_employee'); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/users.png'); ?>" class="size-10" alt="Employees"> -->
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_employees; ?></h2>
@@ -895,14 +991,14 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     </a>
 
                     <!-- Stat Card: Customers -->
-                    <a href="<?php echo base_url("admin/all_customer"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <a href="<?php echo $admin_link('admin/all_customer'); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
-                        <?php $customer = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id'");
-							$male = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND gender = 'male'");
-							$female = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND gender = 'female'");
-							$active = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND customer_status = 'open'");
-							$pendin = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND customer_status = 'pending'");
-							$closed = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND customer_status = 'close'");
+                        <?php $customer = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' {$customer_branch_where}");
+              $male = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND gender = 'male' {$customer_branch_where}");
+              $female = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND gender = 'female' {$customer_branch_where}");
+              $active = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND customer_status = 'open' {$customer_branch_where}");
+              $pendin = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND customer_status = 'pending' {$customer_branch_where}");
+              $closed = $this->db->query("SELECT * FROM tbl_customer WHERE comp_id = '$comp_id' AND customer_status = 'close' {$customer_branch_where}");
 							 ?>
                              <!-- <img src="</?php echo base_url('assets/img/users.png'); ?>" class="size-10" alt="Customers"> -->
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_customers; ?></h2>
@@ -916,12 +1012,12 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     </a>
                     
                     <!-- Stat Card: Loan Requests -->
-                    <a href="<?php echo base_url("admin/loan_pending"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <a href="<?php echo $admin_link('admin/loan_pending'); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                              <!-- <img src="<//?php echo base_url('assets/img/hukumu.png'); ?>" class="size-10" alt="Loan Requests"> -->
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_loan_requests; ?></h2>
                         </div>
-                        <?php $new_loan = $this->db->query("SELECT * FROM tbl_loans WHERE comp_id = '$comp_id' AND loan_status = 'open'"); ?>
+                        <?php $new_loan = $this->db->query("SELECT * FROM tbl_loans WHERE comp_id = '$comp_id' AND loan_status = 'open' {$loan_branch_where}"); ?>
                         <p class="text-2xl font-bold text-red-600 dark:text-red-400"><?php echo ($new_loan->num_rows());  ?></p>
                           <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $txt_new_loan_applications; ?></p>
                     </a>
@@ -930,12 +1026,12 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
 
 
                     <!-- Stat Card: Today Loan Pending -->
-                     <a href="<?php echo base_url("admin/loan_pending_time"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                     <a href="<?php echo $admin_link('admin/loan_pending_time'); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/penart.png'); ?>" class="size-10" alt="Today Pending"> -->
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_today_loan_pending; ?></h2>
                         </div>
-                        <?php $laza = $this->db->query("SELECT * FROM tbl_pending_total WHERE comp_id = '$comp_id' AND total_pend IS NOT FALSE");
+                        <?php $laza = $this->db->query("SELECT * FROM tbl_pending_total WHERE comp_id = '$comp_id' AND total_pend IS NOT FALSE {$pending_branch_where}");
                
 							 ?>
                         <p class="text-2xl font-bold text-gray-800 dark:text-gray-200"><?php echo $laza->num_rows(); ?></p>
@@ -943,7 +1039,7 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     </a>
 
                     <!-- Stat Card: Today Receivable -->
-                    <a href="<?php echo base_url("admin/today_recevable_loan"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <a href="<?php echo $admin_link('admin/today_recevable_loan'); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/money.png'); ?>" class="size-10" alt="Today Receivable"> -->
                                 <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_today_receivable; ?></h2>
@@ -953,7 +1049,7 @@ echo htmlspecialchars($blanchs->blanch_name ?? '', ENT_QUOTES, 'UTF-8');
                     </a>
 
                     <!-- Stat Card: Today Received -->
-                    <a href="<?php echo base_url("admin/today_receved_loan"); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <a href="<?php echo $admin_link('admin/today_receved_loan'); ?>" class="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex items-center gap-x-3 mb-3">
                             <!-- <img src="</?php echo base_url('assets/img/money.png'); ?>" class="size-10" alt="Today Received"> -->
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200"><?php echo $txt_today_collected; ?></h2>

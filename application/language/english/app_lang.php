@@ -26,6 +26,7 @@ $lang['download_pdf'] = 'Download PDF';
 $lang['from'] = 'From:';
 $lang['to'] = 'To:';
 $lang['branch'] = 'Branch:';
+$lang['switch_branch'] = 'Switch Branch';
 $lang['all_branches'] = 'All Branches';
 $lang['all_statuses'] = 'All Statuses';
 $lang['filter'] = 'Filter';
@@ -141,6 +142,9 @@ $lang['paid_today'] = 'Paid Today';
 $lang['today_loan_approved'] = 'Today Loan Approved';
 $lang['today_loan_withdraw'] = 'Today Loan Withdraw';
 $lang['today_penalty_paid'] = 'Today Penalty Paid';
+$lang['overdue_vs_paid_today'] = 'Overdue vs Paid Overdue Today';
+$lang['all_overdue_loans'] = 'All Overdue Loans';
+$lang['paid_overdue_today'] = 'Paid Overdue Today';
 
 $lang['loan_category'] = 'Loan Category';
 $lang['manage_loan_categories'] = 'Manage Loan Categories';

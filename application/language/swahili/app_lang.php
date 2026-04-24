@@ -26,6 +26,7 @@ $lang['download_pdf'] = 'Pakua PDF';
 $lang['from'] = 'Kuanzia:';
 $lang['to'] = 'Mpaka:';
 $lang['branch'] = 'Tawi:';
+$lang['switch_branch'] = 'Badili Tawi';
 $lang['all_branches'] = 'Matawi Yote';
 $lang['all_statuses'] = 'Hali Zote';
 $lang['filter'] = 'Chuja';
@@ -141,6 +142,9 @@ $lang['paid_today'] = 'Yaliyolipwa Leo';
 $lang['today_loan_approved'] = 'Mikopo Iliyokubaliwa Leo';
 $lang['today_loan_withdraw'] = 'Mikopo Iliyotolewa Leo';
 $lang['today_penalty_paid'] = 'Faini Zilizolipwa Leo';
+$lang['overdue_vs_paid_today'] = 'Mikopo Iliyochelewa dhidi ya Iliyolipwa Leo';
+$lang['all_overdue_loans'] = 'Mikopo Yote Iliyochelewa';
+$lang['paid_overdue_today'] = 'Iliyolipwa Leo kwa Iliyochelewa';
 
 $lang['loan_category'] = 'Aina ya Mkopo';
 $lang['manage_loan_categories'] = ' Aina za Mikopo';
