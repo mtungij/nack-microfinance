@@ -1,10 +1,6 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
 
-$is_super_admin = ($this->session->userdata('role') === 'admin');
-$can_penalty_edit = $is_super_admin || has_permission('Penalty Setting', 'can_edit');
-$can_penalty_delete = $is_super_admin || has_permission('Penalty Setting', 'can_delete');
-
 // --- DUMMY DATA---
 // Simulate if a penalty setting exists or not.
 // Your controller should set $penart to the penalty object if it exists, or FALSE/null if not.
@@ -56,7 +52,6 @@ $can_penalty_delete = $is_super_admin || has_permission('Penalty Setting', 'can_
                     <?php echo ($penart && isset($penart->penalt_id)) ? $this->lang->line('update_penalty_setting') : $this->lang->line('set_penalty'); ?>
                 </h3>
 
-                <?php if ($can_penalty_edit): ?>
                 <?php
                 $form_action = ($penart && isset($penart->penalt_id)) ? "admin/modify_penart/{$penart->penalt_id}" : "admin/create_penarty";
                 echo form_open($form_action, ['novalidate' => true]);
@@ -102,7 +97,6 @@ $can_penalty_delete = $is_super_admin || has_permission('Penalty Setting', 'can_
                         </div>
                     </div>
                 <?php echo form_close(); ?>
-                <?php endif; ?>
             </div>
         </div>
         <!-- End Card: Penalty Setting Form -->
@@ -140,12 +134,10 @@ $can_penalty_delete = $is_super_admin || has_permission('Penalty Setting', 'can_
                                         ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                        <?php if ($can_penalty_delete): ?>
                                         <a href="<?php echo base_url("admin/delete_penart/{$penart->penalt_id}"); ?>" onclick="return confirm('<?php echo $this->lang->line('confirm_delete_penalty_setting'); ?>')" class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400">
                                             <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                             <?php echo $this->lang->line('delete'); ?>
                                         </a>
-                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             </tbody>
