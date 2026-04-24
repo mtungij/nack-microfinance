@@ -181,7 +181,7 @@ public function create_blanch()
 
 
 	public function login(){
-		$this->load->view('home/login');
+        return redirect('welcome/employee_login');
 	}
 
 
@@ -221,7 +221,7 @@ public function create_blanch()
 					//     exit();
 					if ($userexit->comp_status == 'close'){
                $this->session->set_flashdata('mass','Your Account Is Blocked');
-                  return redirect("welcome/login");  	
+                        return redirect('welcome/employee_login');
                       }elseif ($userexit->comp_status == 'open') {
                     $this->session->set_userdata($sessionData);
                     $this->session->set_flashdata('massage','Log in successsfuly');
@@ -232,7 +232,7 @@ public function create_blanch()
 				
 			}else{
 				$this->session->set_flashdata('mass','Your Phone number or password is invalid please try again');
-				return redirect("welcome/login");
+                return redirect('welcome/employee_login');
 			}
 		}
 		else{

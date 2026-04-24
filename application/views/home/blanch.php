@@ -104,7 +104,7 @@
 
           <p class="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
             Already have an account?
-            <a class="text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="<?php echo base_url("welcome/login"); ?>">
+            <a class="text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="<?php echo base_url('welcome/employee_login'); ?>">
               Sign In
             </a>
           </p>

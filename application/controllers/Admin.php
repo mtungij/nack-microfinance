@@ -13155,7 +13155,7 @@ $idiom = ($ui_lang === 'swahili') ? 'swahili' : 'english';
 $this->lang->load('app', $idiom);
 
 if (!$this->session->userdata("comp_id"))
-	return redirect("welcome/login");
+    return redirect('welcome/employee_login');
 }
 
     // ============================================================
