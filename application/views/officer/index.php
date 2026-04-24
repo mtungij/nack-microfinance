@@ -250,6 +250,16 @@ echo "<!-- Session comp_name: " . ($this->session->userdata('comp_name') ?? 'NUL
                 </div>
             </div>
         </div>
+
+        <div class="bg-white shadow rounded p-4 flex items-center">
+                 <img src="https://www.wrraptheme.com/templates/lucid/html/assets/images/coin/neo.svg" class="w-8 h-8 mr-3" />
+            <div>
+                <div class="text-xs text-gray-500 font-semibold"><?php echo $this->lang->line('customers_due_tomorrow'); ?></div>
+                <div class="text-xl font-bold text-gray-800">
+                   <?= $customers_due_tomorrow ?? 0 ?>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Second Row: 3 Colored Cards -->

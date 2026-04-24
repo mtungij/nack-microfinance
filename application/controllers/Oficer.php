@@ -125,6 +125,7 @@ class Oficer extends CI_Controller{
       // $pending_customer = $this->queries->count_pending_customers_by_branch($blanch_id);
       $default_customer = $this->queries->count_default_customers_by_branch($blanch_id);
       $done_customer = $this->queries->count_done_loans_with_today_deposit_by_branch($blanch_id);
+      $customers_due_tomorrow = $this->queries->count_customers_ending_loan_tomorrow($blanch_id);
       $collect = $this->queries->get_total_recevableBlanch($blanch_id);
       
       $total_default = $this->queries->get_depositing_out_total_blanch($blanch_id);
@@ -161,6 +162,7 @@ class Oficer extends CI_Controller{
     'active_customer'=>$active_customer,
     'default_customer'=>$default_customer,
     'done_customer'=>$done_customer,
+    'customers_due_tomorrow'=>$customers_due_tomorrow,
     'total_customers' =>  $total_customers,
     'total_active'=> $active,
     'new_loans' => $new_loans,

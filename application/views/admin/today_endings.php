@@ -29,10 +29,10 @@ include_once APPPATH . "views/partials/header.php";
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-                     This week Expiring Loans
+                     <?php echo $this->lang->line('this_week_expiring_loans'); ?>
                 </h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Mikopo inayoisha kuwa ndani ya mkataba kwa wiki hii
+                    <?php echo $this->lang->line('this_week_expiring_loans_subtitle'); ?>
                 </p>
             </div>
         </div>
@@ -46,7 +46,7 @@ include_once APPPATH . "views/partials/header.php";
                               
                             </div>
                             <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" 
-							placeholder="tafuta mteja hapa"
+						placeholder="<?php echo $this->lang->line('search_customer'); ?>"
         data-hs-datatable-search="#shareholder_table"
         aria-label="Search share holders"
 							>
@@ -71,17 +71,17 @@ include_once APPPATH . "views/partials/header.php";
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-4 py-3 dark:text-white">S/No</th>
-                <th scope="col" class="uppercase px-4 py-3 dark:text-white">Customer Name</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Branch Name</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Phone Number</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Duration Type</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Loan Amount</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Collection</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Paid Total</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Remain Debt</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Remain Days</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">End Date</th>
-                <th scope="col" class="px-4 py-3 dark:text-white">Employee</th>
+                <th scope="col" class="uppercase px-4 py-3 dark:text-white"><?php echo $this->lang->line('customer_name'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('duration_type'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_amount'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('expected_collection'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('paid_total'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('remain_debt'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('remain_days'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('loan_end_date'); ?></th>
+                <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('employee'); ?></th>
             </tr>
         </thead>
         <tbody>
@@ -108,9 +108,9 @@ include_once APPPATH . "views/partials/header.php";
                     <td class="px-4 py-3 dark:text-white"><?= $today_recevables->phone_no; ?></td>
                     <td class="px-4 py-3 dark:text-white">
                         <?php 
-                            if ($today_recevables->day == 1) echo "Daily";
-                            elseif ($today_recevables->day == 7) echo "Weekly";
-                            elseif (in_array($today_recevables->day, [28,29,30,31])) echo "Monthly";
+                            if ($today_recevables->day == 1) echo $this->lang->line('daily');
+                            elseif ($today_recevables->day == 7) echo $this->lang->line('weekly');
+                            elseif (in_array($today_recevables->day, [28,29,30,31])) echo $this->lang->line('monthly');
                         ?>
                     </td>
                     <td class="px-4 py-3 dark:text-white"><?= number_format($today_recevables->loan_int); ?></td>
@@ -128,7 +128,7 @@ include_once APPPATH . "views/partials/header.php";
 
             <!-- Totals Row -->
             <tr class="bg-gray-100 dark:bg-gray-700 font-bold">
-                <td colspan="5" class="px-4 py-3 dark:text-white text-right">Total</td>
+                <td colspan="5" class="px-4 py-3 dark:text-white text-right"><?php echo $this->lang->line('total'); ?></td>
                 <td class="px-4 py-3 dark:text-white"><?= number_format($total_loan); ?></td>
                 <td class="px-4 py-3 dark:text-white"><?= number_format($total_collection); ?></td>
                 <td class="px-4 py-3 dark:text-white"><?= number_format($total_paid); ?></td>

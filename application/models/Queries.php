@@ -3318,7 +3318,19 @@ public function count_customers_completed_loan_today_officer($blanch_id, $empl_i
     return $query->row()->total_customers;
 }
 
+public function count_customers_ending_loan_tomorrow($blanch_id) {
+    $tomorrow = date("Y-m-d", strtotime('+1 day'));
+    $query = $this->db->query("
+        SELECT COUNT(DISTINCT l.customer_id) AS total_customers
+        FROM tbl_loans l
+        JOIN tbl_outstand o ON o.loan_id = l.loan_id
+        WHERE l.blanch_id = ?
+          AND l.loan_status = 'withdrawal'
+          AND DATE(o.loan_end_date) = ?
+    ", array($blanch_id, $tomorrow));
 
+    return (int) ($query->row()->total_customers ?? 0);
+}
 
 public function count_new_customers_by_customer_id_today($blanch_id) {
     $today = date("Y-m-d");
