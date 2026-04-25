@@ -3,8 +3,8 @@
 include_once APPPATH . "views/partials/header.php";
 
 $is_super_admin = ($this->session->userdata('role') === 'admin');
-$can_customer_view = $is_super_admin || has_permission('All Customers', 'can_view') || has_permission('Wateja', 'can_view') || has_permission('Customer List', 'can_view');
-$can_customer_delete = $is_super_admin || has_permission('All Customers', 'can_delete') || has_permission('Wateja', 'can_delete') || has_permission('Customer List', 'can_delete');
+$can_customer_view = true;
+$can_customer_delete = true;
 
 $registered_today_count = 0;
 if (isset($customer) && is_array($customer) && !empty($customer)) {
