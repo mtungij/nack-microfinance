@@ -16,7 +16,7 @@ include_once APPPATH . "views/partials/guest_header.php";
     <div class="w-full max-w-md grid grid-cols-1 gap-6">
       <div class="bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-gray-800 dark:border-gray-600 p-5 sm:p-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Omba Tokeni ya Kurejesha Nenosiri</h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ingiza namba yako ya simu uliyopo kwenye mfumo. Tokeni itatumwa kwa menejimenti.</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ingiza namba yako ya simu uliyopo kwenye mfumo. Tokeni itatumwa kwa viongozi ili uwaombe wakutajie.</p>
 
         <?php if ($msg = $this->session->flashdata('massage')): ?>
         <div class="mt-4 p-3 bg-teal-100 border border-teal-200 text-teal-800 rounded-lg text-sm dark:bg-teal-900/30 dark:border-teal-700 dark:text-teal-200"><?php echo $msg; ?></div>
@@ -29,7 +29,7 @@ include_once APPPATH . "views/partials/guest_header.php";
         <?php echo form_open('welcome/request_employee_reset_code', ['class' => 'mt-4 grid gap-y-4']); ?>
           <div>
             <label for="empl_no" class="block text-sm mb-2 dark:text-white">Namba yako ya simu uliyopo kwenye mfumo</label>
-            <input type="tel" id="empl_no" name="empl_no" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm text-gray-800 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-300" required autocomplete="off" placeholder="mf. 2557XXXXXXXX">
+            <input type="tel" id="empl_no" name="empl_no" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm text-gray-800 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-300" required autocomplete="off" placeholder="mf. 07XXXXXXXX">
             <?php echo form_error('empl_no', '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
           </div>
           <button type="submit" class="w-full py-2.5 px-4 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700">Tuma Tokeni kwa Menejimenti</button>
