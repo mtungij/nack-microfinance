@@ -247,6 +247,152 @@ public function create_blanch()
     $this->load->view('home/employee_login', $data);
 }
 
+public function employee_forgot_password()
+{
+    $this->load->view('home/employee_forgot_password');
+}
+
+public function employee_reset_password()
+{
+    $this->load->view('home/employee_reset_password');
+}
+
+public function request_employee_reset_code()
+{
+    $this->form_validation->set_rules('empl_no', 'Namba yako ya simu uliyopo kwenye mfumo', 'required|trim');
+    $this->form_validation->set_error_delimiters('<div class="text-danger">', '</div>');
+
+    if (!$this->form_validation->run()) {
+        return $this->employee_forgot_password();
+    }
+
+    $empl_no = trim((string) $this->input->post('empl_no', true));
+
+    $this->load->model('queries');
+    $employee = $this->queries->get_employee_by_phone($empl_no);
+
+    if (empty($employee)) {
+        $this->session->set_flashdata('mass', 'Kama namba ipo, ombi la tokeni limetumwa kwa menejimenti.');
+        return redirect('welcome/employee_forgot_password');
+    }
+
+    $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    $expires_at = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+
+    $saved = $this->queries->store_employee_password_reset_code(
+        (int) $employee->empl_id,
+        (int) $employee->comp_id,
+        $empl_no,
+        $code,
+        $expires_at
+    );
+
+    if (!$saved) {
+        $this->session->set_flashdata('mass', 'Imeshindikana kutuma ombi la kurejesha nenosiri. Tafadhali jaribu tena.');
+        return redirect('welcome/employee_forgot_password');
+    }
+
+    $this->session->set_flashdata('massage', 'Ombi limetumwa. Menejimenti wataona token kwenye notifications za navbar na watakupatia.');
+    return redirect('welcome/employee_forgot_password');
+}
+
+public function reset_employee_password_with_code()
+{
+    $this->form_validation->set_rules('empl_no', 'Namba yako ya simu uliyopo kwenye mfumo', 'required|trim');
+    $this->form_validation->set_rules('reset_code', 'Tokeni ya uthibitisho', 'required|trim|min_length[6]|max_length[6]');
+    $this->form_validation->set_rules('new_password', 'Nenosiri jipya', 'required|min_length[6]');
+    $this->form_validation->set_rules('confirm_password', 'Uthibitisho wa nenosiri', 'required|matches[new_password]');
+    $this->form_validation->set_error_delimiters('<div class="text-danger">', '</div>');
+
+    if (!$this->form_validation->run()) {
+        return $this->employee_reset_password();
+    }
+
+    $empl_no = trim((string) $this->input->post('empl_no', true));
+    $reset_code = trim((string) $this->input->post('reset_code', true));
+    $new_password = (string) $this->input->post('new_password', true);
+
+    $this->load->model('queries');
+    $employee = $this->queries->get_employee_by_phone($empl_no);
+
+    if (empty($employee)) {
+        $this->session->set_flashdata('mass', 'Namba ya simu au tokeni si sahihi.');
+        return redirect('welcome/employee_reset_password');
+    }
+
+    $reset_row = $this->queries->verify_employee_password_reset_code((int) $employee->empl_id, $reset_code);
+    if (empty($reset_row)) {
+        $this->session->set_flashdata('mass', 'Tokeni si sahihi au muda wake umeisha. Tafadhali omba tokeni mpya.');
+        return redirect('welcome/employee_reset_password');
+    }
+
+    $new_hash = password_hash($new_password, PASSWORD_BCRYPT);
+    $updated = $this->db->where('empl_id', (int) $employee->empl_id)
+        ->update('tbl_employee', ['password' => $new_hash]);
+
+    if (!$updated) {
+        $this->session->set_flashdata('mass', 'Imeshindikana kuweka nenosiri jipya. Tafadhali jaribu tena.');
+        return redirect('welcome/employee_reset_password');
+    }
+
+    $this->queries->mark_employee_password_reset_used((int) $reset_row->id);
+
+    // Auto-login immediately after successful reset.
+    if ($employee->empl_status !== 'open') {
+        $this->session->set_flashdata('mass', $this->lang->line('blocked_menu'));
+        return redirect('welcome/employee_login');
+    }
+
+    $sessionData = [
+        'empl_id'       => $employee->empl_id,
+        'user_id'       => $employee->empl_id,
+        'empl_name'     => $employee->empl_name,
+        'username'      => $employee->username,
+        'blanch_id'     => $employee->blanch_id,
+        'comp_id'       => $employee->comp_id ?? null,
+        'position_id'   => $employee->position_id,
+        'position_name' => $employee->position ?? null,
+        'must_update'   => $employee->must_update ?? 0,
+    ];
+
+    $company_logo = null;
+    $company_name = null;
+    if (!empty($employee->comp_id)) {
+        $company = $this->queries->get_company_by_id($employee->comp_id);
+        if ($company) {
+            $company_logo = $company->comp_logo ?? null;
+            $company_name = $company->comp_name ?? null;
+        }
+    }
+
+    $sessionData['company_logo'] = $company_logo;
+    $sessionData['comp_name'] = $company_name;
+    $sessionData['permissions'] = $this->queries->get_employee_links($employee->empl_id);
+
+    $this->session->set_userdata($sessionData);
+    $this->session->set_flashdata('massage', 'Nenosiri jipya limewekwa kwa mafanikio.');
+
+    if ((int) $employee->position_id === 22 && (int) ($employee->must_update ?? 0) === 1) {
+        return redirect('welcome/update_profile');
+    }
+
+    if (empty($employee->passport)) {
+        return redirect('welcome/upload_passport');
+    }
+
+    switch ((string) $employee->position_id) {
+        case '1':
+        case '2':
+        case '6':
+        case '17':
+            return redirect('oficer/index');
+        case '22':
+            return redirect('admin/index');
+        default:
+            return redirect('oficer/index');
+    }
+}
+
 
 
 	

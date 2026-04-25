@@ -46,6 +46,132 @@ public function get_employee_by_phone($phone)
     return $this->db->where('empl_no', $phone)->get('tbl_employee')->row();
 }
 
+public function ensure_employee_password_reset_table()
+{
+	$sql = "CREATE TABLE IF NOT EXISTS tbl_employee_password_reset (
+		id INT(11) NOT NULL AUTO_INCREMENT,
+		empl_id INT(11) NOT NULL,
+		comp_id INT(11) NOT NULL,
+		requested_phone VARCHAR(30) DEFAULT NULL,
+		reset_code_plain VARCHAR(10) DEFAULT NULL,
+		reset_code_hash VARCHAR(255) NOT NULL,
+		expires_at DATETIME NOT NULL,
+		used TINYINT(1) NOT NULL DEFAULT 0,
+		created_at DATETIME NOT NULL,
+		used_at DATETIME DEFAULT NULL,
+		PRIMARY KEY (id),
+		KEY idx_employee_reset_empl (empl_id),
+		KEY idx_employee_reset_comp (comp_id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+	$this->db->query($sql);
+
+	$has_plain_column = $this->db->query("SHOW COLUMNS FROM tbl_employee_password_reset LIKE 'reset_code_plain'")->row();
+	if (empty($has_plain_column)) {
+		$this->db->query("ALTER TABLE tbl_employee_password_reset ADD COLUMN reset_code_plain VARCHAR(10) DEFAULT NULL AFTER requested_phone");
+	}
+
+	return true;
+}
+
+public function store_employee_password_reset_code($empl_id, $comp_id, $phone, $code, $expires_at)
+{
+	$this->ensure_employee_password_reset_table();
+
+	// Invalidate previous pending codes for the same employee.
+	$this->db->where('empl_id', $empl_id)
+		->where('used', 0)
+		->update('tbl_employee_password_reset', [
+			'used' => 1,
+			'used_at' => date('Y-m-d H:i:s')
+		]);
+
+	return $this->db->insert('tbl_employee_password_reset', [
+		'empl_id' => (int) $empl_id,
+		'comp_id' => (int) $comp_id,
+		'requested_phone' => $phone,
+		'reset_code_plain' => (string) $code,
+		'reset_code_hash' => hash('sha256', (string) $code),
+		'expires_at' => $expires_at,
+		'used' => 0,
+		'created_at' => date('Y-m-d H:i:s')
+	]);
+}
+
+public function verify_employee_password_reset_code($empl_id, $code)
+{
+	$this->ensure_employee_password_reset_table();
+
+	$row = $this->db->select('*')
+		->from('tbl_employee_password_reset')
+		->where('empl_id', (int) $empl_id)
+		->where('used', 0)
+		->where('expires_at >=', date('Y-m-d H:i:s'))
+		->order_by('id', 'DESC')
+		->limit(1)
+		->get()
+		->row();
+
+	if (empty($row)) {
+		return null;
+	}
+
+	$incoming_hash = hash('sha256', (string) $code);
+	if (!hash_equals($row->reset_code_hash, $incoming_hash)) {
+		return null;
+	}
+
+	return $row;
+}
+
+public function mark_employee_password_reset_used($id)
+{
+	return $this->db->where('id', (int) $id)
+		->update('tbl_employee_password_reset', [
+			'used' => 1,
+			'used_at' => date('Y-m-d H:i:s')
+		]);
+}
+
+public function get_management_employee_phones($comp_id)
+{
+	return $this->db->select('empl_no')
+		->from('tbl_employee')
+		->where('comp_id', (int) $comp_id)
+		->where('position_id', 22)
+		->where('empl_status', 'open')
+		->where('ac_status', 'empl')
+		->get()
+		->result();
+}
+
+public function count_pending_employee_password_reset_notifications($comp_id)
+{
+	$this->ensure_employee_password_reset_table();
+
+	return (int) $this->db->from('tbl_employee_password_reset')
+		->where('comp_id', (int) $comp_id)
+		->where('used', 0)
+		->where('expires_at >=', date('Y-m-d H:i:s'))
+		->count_all_results();
+}
+
+public function get_pending_employee_password_reset_notifications($comp_id, $limit = 10)
+{
+	$this->ensure_employee_password_reset_table();
+
+	return $this->db->select('r.id, r.empl_id, r.requested_phone, r.reset_code_plain, r.expires_at, r.created_at, e.empl_name')
+		->from('tbl_employee_password_reset r')
+		->join('tbl_employee e', 'e.empl_id = r.empl_id', 'left')
+		->where('r.comp_id', (int) $comp_id)
+		->where('r.used', 0)
+		->where('r.expires_at >=', date('Y-m-d H:i:s'))
+		->order_by('r.id', 'DESC')
+		->limit((int) $limit)
+		->get()
+		->result();
+}
+
 
 
 

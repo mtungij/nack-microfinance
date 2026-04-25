@@ -30,7 +30,7 @@ include_once APPPATH . "views/partials/guest_header.php";
 
     <?php // Main Login Card ?>
     <div class="w-full max-w-md">
-      <div class="bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-gray-900 dark:border-gray-700">
+      <div class="bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-gray-800 dark:border-gray-600">
         <div class="p-4 sm:p-7">
           <div class="text-center">
      
@@ -42,9 +42,9 @@ include_once APPPATH . "views/partials/guest_header.php";
                 </svg>
               </div>
             </div>
-     <p id="companyName" 
-   class="text-center text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 min-h-[24px] uppercase">
-   Loan Management System
+    <p id="companyName" 
+      class="text-center text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 min-h-[24px] uppercase">
+      Loan Management System
 </p>
 
 
@@ -69,7 +69,7 @@ include_once APPPATH . "views/partials/guest_header.php";
 
           <?php // Flash Messages - Tailwind styled (both shown as danger as per original) ?>
           <?php if ($das = $this->session->flashdata('massage')): ?>
-          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-500" role="alert">
+          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-300" role="alert">
              <div class="flex">
               <div class="flex-shrink-0">
                 <svg class="flex-shrink-0 size-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -86,7 +86,7 @@ include_once APPPATH . "views/partials/guest_header.php";
           <?php endif; ?>
 
           <?php if ($das = $this->session->flashdata('mass')): ?>
-          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-500" role="alert">
+          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-300" role="alert">
              <div class="flex">
               <div class="flex-shrink-0">
                 <svg class="flex-shrink-0 size-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -107,10 +107,10 @@ include_once APPPATH . "views/partials/guest_header.php";
           <?php echo form_open("welcome/Employee_signin", ['class' => 'mt-5 grid gap-y-4']); // Form action updated ?>
             <!-- Form Group for Employee Phone Number -->
             <div>
-              <label for="empl_no" class="block text-sm mb-2 dark:text-white">Phone Number</label>
+              <label for="empl_no" class="block text-sm mb-2 dark:text-white">Namba ya Simu</label>
               <div class="relative">
                 <?php // type="tel" is semantically better for phone numbers ?>
-                <input type="tel" id="empl_no" name="empl_no" class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:placeholder-gray-500 dark:focus:ring-gray-600" required autocomplete="off" placeholder="Enter Your phone number">
+                <input type="tel" id="empl_no" name="empl_no" class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg text-sm text-gray-800 focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-300 dark:focus:ring-gray-500" required autocomplete="off" placeholder="Ingiza namba ya simu">
                 <?php
                   // Input name and error key updated to empl_no
                   $empl_no_error = form_error("empl_no");
@@ -132,12 +132,15 @@ include_once APPPATH . "views/partials/guest_header.php";
             <!-- Form Group for Password -->
             <div>
               <div class="flex flex-wrap justify-between items-center gap-2">
-                <label for="password" class="block text-sm dark:text-white">Password</label>
+                <label for="password" class="block text-sm dark:text-white">Nenosiri</label>
                 <?php // "Forgot password?" from new template. Adjust link if needed or remove. ?>
-                <a class="inline-flex items-center gap-x-1 text-sm text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="#">Forgot password?</a>
+                <a class="inline-flex items-center gap-x-1 text-sm text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="<?php echo base_url('welcome/employee_forgot_password'); ?>">Umesahau nenosiri?</a>
+              </div>
+              <div class="mt-1">
+                <a class="inline-flex items-center gap-x-1 rounded-md px-2 py-1 text-xs font-semibold text-cyan-700 bg-cyan-50 decoration-2 hover:underline focus:outline-none focus:underline dark:text-cyan-200 dark:bg-cyan-900/30" href="<?php echo base_url('welcome/employee_reset_password'); ?>">Nina token tayari? Jaza token, nenosiri na uthibitisho</a>
               </div>
               <div class="relative mt-2">
-                <input type="password" id="password" name="password" class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:placeholder-gray-500 dark:focus:ring-gray-600" required autocomplete="off" placeholder="******">
+                <input type="password" id="password" name="password" class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg text-sm text-gray-800 focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-300 dark:focus:ring-gray-500" required autocomplete="off" placeholder="******">
                 <?php
                   $password_error = form_error("password");
                   if ($password_error):
@@ -166,14 +169,14 @@ include_once APPPATH . "views/partials/guest_header.php";
             </div>
             <!-- End Checkbox -->
 
-            <button type="submit" class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:pointer-events-none">Login</button>
+            <button type="submit" class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:pointer-events-none">Ingia</button>
 
           <?php echo form_close(); ?>
    
     <!-- Divider -->
     <div class="flex items-center my-6">
       <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-      <span class="mx-3 text-xs text-gray-500 uppercase tracking-wider">Or</span>
+      <span class="mx-3 text-xs text-gray-500 uppercase tracking-wider">AU</span>
       <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
     </div>
 
@@ -208,7 +211,7 @@ include_once APPPATH . "views/partials/guest_header.php";
 <!-- Support Section Above Sign Up -->
 <div class="mt-8 text-center">
     <div class="flex items-center justify-center gap-3 mb-4 animate-pulse">
-        <span class="text-base font-medium text-gray-700 dark:text-gray-900">Need help or support?</span>
+        <span class="text-base font-medium text-gray-700 dark:text-gray-200">Unahitaji msaada?</span>
         <a href="https://wa.me/255629364847?text=<?php echo urlencode('Nahitaji kufahamu zaidi kuhusu software hii ya mikopo ya Loan-Pocket'); ?>" target="_blank"
            class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-200 shadow-lg">
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">

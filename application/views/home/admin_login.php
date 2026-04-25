@@ -31,7 +31,7 @@ include_once APPPATH . "views/partials/guest_header.php";
 
     <?php // Main Login Card ?>
     <div class="w-full max-w-md">
-      <div class="bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-gray-900 dark:border-gray-700">
+      <div class="bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-gray-800 dark:border-gray-600">
         <div class="p-4 sm:p-7">
           <div class="text-center">
             <?php // The new template has a "Sign in" title, let's use a more specific one or remove if redundant with above.
@@ -59,7 +59,7 @@ include_once APPPATH . "views/partials/guest_header.php";
 
           <?php // Flash Messages - Tailwind styled (both shown as danger as per original) ?>
           <?php if ($das = $this->session->flashdata('massage')): ?>
-          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-500" role="alert">
+          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-300" role="alert">
              <div class="flex">
               <div class="flex-shrink-0">
                 <svg class="flex-shrink-0 size-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -76,7 +76,7 @@ include_once APPPATH . "views/partials/guest_header.php";
           <?php endif; ?>
 
           <?php if ($das = $this->session->flashdata('mass')): ?>
-          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-500" role="alert">
+          <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-800/10 dark:border-red-900 dark:text-red-300" role="alert">
              <div class="flex">
               <div class="flex-shrink-0">
                 <svg class="flex-shrink-0 size-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -98,7 +98,7 @@ include_once APPPATH . "views/partials/guest_header.php";
             <div>
               <label for="comp_phone" class="block text-sm mb-2 dark:text-white">Phone Number</label>
               <div class="relative">
-                <input type="tel" id="comp_phone" name="comp_phone" class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:placeholder-gray-500 dark:focus:ring-gray-600" required autocomplete="off" placeholder="Enter phone number">
+                <input type="tel" id="comp_phone" name="comp_phone" class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg text-sm text-gray-800 focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-300 dark:focus:ring-gray-500" required autocomplete="off" placeholder="Enter phone number">
                 <?php
                   $comp_phone_error = form_error("comp_phone");
                   if ($comp_phone_error):
@@ -120,11 +120,10 @@ include_once APPPATH . "views/partials/guest_header.php";
             <div>
               <div class="flex flex-wrap justify-between items-center gap-2">
                 <label for="password" class="block text-sm dark:text-white">Password</label>
-                <?php // "Forgot password?" from new template. Adjust link if needed or remove. ?>
-                <a class="inline-flex items-center gap-x-1 text-sm text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="#">Forgot password?</a>
+                <a class="inline-flex items-center gap-x-1 text-sm text-cyan-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-cyan-500" href="<?php echo base_url('welcome/employee_forgot_password'); ?>">Reset password</a>
               </div>
               <div class="relative mt-2">
-                <input type="password" id="password" name="password" class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:placeholder-gray-500 dark:focus:ring-gray-600" required autocomplete="off" placeholder="******">
+                <input type="password" id="password" name="password" class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg text-sm text-gray-800 focus:border-cyan-500 focus:ring-cyan-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-300 dark:focus:ring-gray-500" required autocomplete="off" placeholder="******">
                 <?php
                   $password_error = form_error("password");
                   if ($password_error):

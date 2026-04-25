@@ -44,14 +44,50 @@
           <?php echo $lang_button_label; ?>
         </a>
 
-        <?php // Optional: Notification Bell
-        /*
-        <button type="button" class="p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-300 dark:hover:bg-gray-700">
-          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-          <span class="sr-only">View notifications</span>
-        </button>
-        */
+        <?php
+          $is_management_user = ((int) $this->session->userdata('position_id') === 22);
+          $reset_notifications = [];
+          $reset_notification_count = 0;
+          if ($is_management_user && !empty($this->session->userdata('comp_id'))) {
+              $this->load->model('queries');
+              $comp_id = (int) $this->session->userdata('comp_id');
+              $reset_notification_count = $this->queries->count_pending_employee_password_reset_notifications($comp_id);
+              $reset_notifications = $this->queries->get_pending_employee_password_reset_notifications($comp_id, 10);
+          }
         ?>
+
+        <?php if ($is_management_user): ?>
+        <div class="hs-dropdown [--placement:bottom-right] relative inline-flex">
+          <button id="hs-reset-code-notification" type="button" class="hs-dropdown-toggle relative p-2 inline-flex justify-center items-center gap-x-2 rounded-full border border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+            <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M10 17a2 2 0 1 0 4 0"/></svg>
+            <?php if ($reset_notification_count > 0): ?>
+            <span class="absolute -top-1 -inset-e-1 inline-flex items-center justify-center min-w-5 h-5 rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white"><?php echo $reset_notification_count; ?></span>
+            <?php endif; ?>
+            <span class="sr-only">Reset code notifications</span>
+          </button>
+
+          <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-80 max-w-sm bg-white shadow-md rounded-lg p-2 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-reset-code-notification">
+            <div class="py-2 px-3 border-b border-gray-200 dark:border-gray-700">
+              <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Password Reset Tokens</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Share token with employee to reset password</p>
+            </div>
+
+            <div class="max-h-80 overflow-y-auto">
+              <?php if (!empty($reset_notifications)): ?>
+                <?php foreach ($reset_notifications as $item): ?>
+                <div class="py-2 px-3 border-b border-gray-100 dark:border-gray-700/60 last:border-b-0">
+                  <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo htmlspecialchars($item->empl_name ?? 'Employee', ENT_QUOTES, 'UTF-8'); ?> (<?php echo htmlspecialchars($item->requested_phone ?? '-', ENT_QUOTES, 'UTF-8'); ?>)</p>
+                  <p class="text-sm font-mono font-semibold text-cyan-700 dark:text-cyan-300 tracking-wider"><?php echo htmlspecialchars($item->reset_code_plain ?? '------', ENT_QUOTES, 'UTF-8'); ?></p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Expires: <?php echo htmlspecialchars($item->expires_at ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+                </div>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <div class="py-8 px-3 text-center text-sm text-gray-500 dark:text-gray-400">No pending reset token notifications.</div>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+        <?php endif; ?>
 
         <?php // Theme switcher button (Dark/Light mode) - Preline has examples for this.
               // This logic is already in your new partials/header.php's <script> section.
