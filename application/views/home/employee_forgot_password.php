@@ -32,7 +32,7 @@ include_once APPPATH . "views/partials/guest_header.php";
             <input type="tel" id="empl_no" name="empl_no" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm text-gray-800 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-300" required autocomplete="off" placeholder="mf. 07XXXXXXXX">
             <?php echo form_error('empl_no', '<p class="text-xs text-red-600 mt-2">', '</p>'); ?>
           </div>
-          <button type="submit" class="w-full py-2.5 px-4 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700">Tuma Tokeni kwa Menejimenti</button>
+          <button type="submit" class="w-full py-2.5 px-4 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-transparent bg-cyan-600 text-white hover:bg-cyan-700">Tuma Tokeni</button>
         <?php echo form_close(); ?>
 
         <a href="<?php echo base_url('welcome/employee_reset_password'); ?>" class="mt-4 inline-flex items-center gap-x-1 text-sm text-emerald-600 hover:underline dark:text-emerald-400">Nina token tayari? Weka nenosiri jipya</a>
