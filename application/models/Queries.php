@@ -996,7 +996,7 @@ public function get_total_pay_description_acount_statement($loan_id)
       
         ORDER BY p.pay_id DESC
     ");
-    return $query->result();
+				$this->db->where($branch_sql);
 }
 
 
@@ -4219,13 +4219,12 @@ public function update_password_data($comp_id, $userdata)
 
 public function get_today_recevable_loan($comp_id, $blanch_id = null, $empl_id = null)
 {
-    $today = date("Y-m-d");
-
     $this->db->select('l.*, 
                        b.blanch_name, 
                        c.f_name, c.m_name, c.l_name, c.phone_no, 
                        e.empl_name, 
                        SUM(d.depost) AS total_deposit, 
+                       SUM(CASE WHEN DATE(d.depost_day) = CURDATE() THEN d.depost ELSE 0 END) AS deposits_today,
                        MAX(o.loan_end_date) AS loan_end_date, 
                        MAX(o.loan_stat_date) AS loan_stat_date,
                        DATEDIFF(MAX(o.loan_end_date), CURDATE()) AS remain_days');
@@ -4236,9 +4235,44 @@ public function get_today_recevable_loan($comp_id, $blanch_id = null, $empl_id =
     $this->db->join('tbl_depost d', 'd.loan_id = l.loan_id', 'left');
     $this->db->join('tbl_outstand o', 'o.loan_id = l.loan_id', 'left');
 
-    $this->db->where('l.date_show', $today);
     $this->db->where('l.loan_status', 'withdrawal');
     $this->db->where('l.comp_id', $comp_id);
+	$this->db->where('o.loan_stat_date IS NOT NULL', null, false);
+	$this->db->where('CURDATE() >= DATE(o.loan_stat_date)', null, false);
+	$this->db->where('CURDATE() <= DATE(o.loan_end_date)', null, false);
+
+	$this->db->where("(
+		NULLIF(TRIM(l.session), '') IS NULL
+		OR CAST(l.session AS UNSIGNED) = 0
+		OR (
+			(CAST(l.day AS UNSIGNED) = 1 AND DATEDIFF(CURDATE(), DATE(o.loan_stat_date)) < CAST(l.session AS UNSIGNED))
+			OR (CAST(l.day AS UNSIGNED) = 7 AND FLOOR(DATEDIFF(CURDATE(), DATE(o.loan_stat_date)) / 7) BETWEEN 1 AND CAST(l.session AS UNSIGNED))
+			OR (CAST(l.day AS UNSIGNED) IN (30, 31) AND TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), CURDATE()) BETWEEN 1 AND CAST(l.session AS UNSIGNED))
+		)
+	)", null, false);
+
+	$this->db->where("(
+		CAST(l.day AS UNSIGNED) = 1
+		OR (
+			CAST(l.day AS UNSIGNED) = 7
+			AND DATEDIFF(CURDATE(), DATE(o.loan_stat_date)) >= 7
+			AND MOD(DATEDIFF(CURDATE(), DATE(o.loan_stat_date)), 7) = 0
+		)
+		OR (
+			CAST(l.day AS UNSIGNED) IN (30, 31)
+			AND (
+				(
+					TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), CURDATE()) >= 1
+					AND DAY(CURDATE()) = DAY(DATE(o.loan_stat_date))
+				)
+				OR (
+					DAY(DATE(o.loan_stat_date)) > DAY(LAST_DAY(CURDATE()))
+					AND TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), CURDATE()) >= 1
+					AND DAY(CURDATE()) = DAY(LAST_DAY(CURDATE()))
+				)
+			)
+		)
+	)", null, false);
 
     // Branch-only filter
     if (!empty($blanch_id)) {
@@ -4250,6 +4284,9 @@ public function get_today_recevable_loan($comp_id, $blanch_id = null, $empl_id =
 	}
 
     $this->db->group_by('l.loan_id');
+    
+    // Filter: show only customers who have NOT paid today
+    $this->db->having("SUM(CASE WHEN DATE(d.depost_day) = CURDATE() THEN d.depost ELSE 0 END) = 0", null, false);
 
     return $this->db->get()->result();
 }
@@ -4485,22 +4522,71 @@ public function get_next7days_ending_loans_restriction($comp_id, $blanch_id = nu
 
 
     public function get_total_recevable($comp_id, $blanch_id = null){
-    	$date = date("Y-m-d");
-	    $branch_sql = '';
-	    $params = [$comp_id, $date];
-	    if (!empty($blanch_id)) {
-	    	$branch_sql = ' AND blanch_id = ? ';
-	    	$params[] = (int) $blanch_id;
-	    }
-	    $today_data = $this->db->query("SELECT SUM(restration) AS total_rejesho FROM tbl_loans WHERE comp_id = ? AND loan_status = 'withdrawal' AND date_show = ? {$branch_sql}", $params);
-    	return $today_data->row();
+	    	$date = date("Y-m-d");
+	    	$branch_sql = '';
+	    	$params = [$comp_id];
+	    	if (!empty($blanch_id)) {
+	    		$branch_sql = ' AND l.blanch_id = ? ';
+	    		$params[] = (int) $blanch_id;
+	    	}
+	    	$params = array_merge($params, [$date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date]);
+
+	    	$today_data = $this->db->query(
+	    		"SELECT COALESCE(SUM(filtered_loans.restration), 0) AS total_rejesho
+	    		 FROM (
+	    		     SELECT l.*, o.loan_stat_date, o.loan_end_date,
+	    		            COALESCE(d.total_deposit, 0) AS total_deposit,
+	    		            COALESCE(d.deposits_today, 0) AS deposits_today
+	    		     FROM tbl_loans l
+	    		     JOIN tbl_outstand o ON o.loan_id = l.loan_id
+	    		     LEFT JOIN (
+	    		         SELECT loan_id, 
+	    		                SUM(depost) AS total_deposit,
+	    		                SUM(CASE WHEN DATE(depost_day) = CURDATE() THEN depost ELSE 0 END) AS deposits_today
+	    		         FROM tbl_depost
+	    		         GROUP BY loan_id
+	    		     ) d ON d.loan_id = l.loan_id
+	    		     WHERE l.loan_status = 'withdrawal'
+	    		       AND l.comp_id = ?
+	    		       {$branch_sql}
+	    		       AND o.loan_stat_date IS NOT NULL
+	    		       AND DATE(?) >= DATE(o.loan_stat_date)
+	    		       AND DATE(?) <= DATE(o.loan_end_date)
+	    		       AND (
+	    		            NULLIF(TRIM(l.session), '') IS NULL
+	    		            OR CAST(l.session AS UNSIGNED) = 0
+	    		            OR (
+	    		                (CAST(l.day AS UNSIGNED) = 1 AND DATEDIFF(DATE(?), DATE(o.loan_stat_date)) < CAST(l.session AS UNSIGNED))
+	    		                OR (CAST(l.day AS UNSIGNED) = 7 AND FLOOR(DATEDIFF(DATE(?), DATE(o.loan_stat_date)) / 7) BETWEEN 1 AND CAST(l.session AS UNSIGNED))
+	    		                OR (CAST(l.day AS UNSIGNED) IN (30, 31) AND TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) BETWEEN 1 AND CAST(l.session AS UNSIGNED))
+	    		            )
+	    		       )
+	    		       AND (
+	    		            CAST(l.day AS UNSIGNED) = 1
+	    		            OR (CAST(l.day AS UNSIGNED) = 7 AND DATEDIFF(DATE(?), DATE(o.loan_stat_date)) >= 7 AND MOD(DATEDIFF(DATE(?), DATE(o.loan_stat_date)), 7) = 0)
+	    		            OR (
+	    		                CAST(l.day AS UNSIGNED) IN (30, 31)
+	    		                AND (
+	    		                    TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) >= 1
+	    		                    AND DAY(DATE(?)) = DAY(DATE(o.loan_stat_date))
+	    		                    OR (
+	    		                        DAY(DATE(o.loan_stat_date)) > DAY(LAST_DAY(DATE(?)))
+	    		                        AND TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) >= 1
+	    		                        AND DAY(DATE(?)) = DAY(LAST_DAY(DATE(?)))
+	    		                    )
+	    		                )
+	    		            )
+	    		       )
+	    		       AND COALESCE(d.deposits_today, 0) = 0
+	    		 ) AS filtered_loans",
+	    		$params
+	    	);
+	    	return $today_data->row();
     }
 
 
     public function get_total_recevableBl($blanch_id){
-    	$date = date("Y-m-d");
-    	$today_data = $this->db->query("SELECT SUM(restration) AS total_rejesho FROM tbl_loans WHERE blanch_id = '$blanch_id' AND loan_status = 'withdrawal' AND date_show = '$date'");
-    	return $today_data->row();
+	    	return $this->get_total_recevableBlanch($blanch_id);
     }
 
 
@@ -4539,42 +4625,112 @@ public function get_depositing_sugu_blanch($blanch_id){
 	}
 
 
-  public function get_total_recevableBlanch($blanch_id){
-    $date = date("Y-m-d");
-    $today_data = $this->db->query("
-        SELECT COALESCE(SUM(restration), 0) AS total_rejesho  
-        FROM tbl_loans 
-        WHERE blanch_id = '$blanch_id' 
-        AND loan_status = 'withdrawal' 
-        AND date_show = '$date'
-    ");
-    return $today_data->row(); // this will now return object with total_rejesho = 0 if nothing found
+public function get_total_recevableBlanch($blanch_id){
+	$blanch_id = (int) $blanch_id;
+	if ($blanch_id <= 0) {
+		return (object) ['total_rejesho' => 0];
+	}
+
+	$branch = $this->db
+		->select('comp_id')
+		->from('tbl_blanch')
+		->where('blanch_id', $blanch_id)
+		->limit(1)
+		->get()
+		->row();
+
+	if (empty($branch) || empty($branch->comp_id)) {
+		return (object) ['total_rejesho' => 0];
+	}
+
+	// Reuse company query so branch totals always follow the exact same conditions.
+	return $this->get_total_recevable((int) $branch->comp_id, $blanch_id);
 }
 
 
 	
 public function get_total_recevableBlanch_by_officer($blanch_id, $empl_id){
-    $date = date("Y-m-d");
-    $today_data = $this->db->query("
-        SELECT COALESCE(SUM(restration), 0) AS total_rejesho  
-        FROM tbl_loans 
-        WHERE blanch_id = '$blanch_id' 
-        AND empl_id = '$empl_id' 
-        AND loan_status = 'withdrawal' 
-        AND date_show = '$date'
-    ");
-    return $today_data->row(); // same here
+	$date = date("Y-m-d");
+	$today_data = $this->db->query(
+		"SELECT COALESCE(SUM(l.restration), 0) AS total_rejesho
+		 FROM tbl_loans l
+		 JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		 WHERE l.blanch_id = ?
+		   AND l.empl_id = ?
+		   AND l.loan_status = 'withdrawal'
+		   AND o.loan_stat_date IS NOT NULL
+		   AND DATE(?) >= DATE(o.loan_stat_date)
+		   AND DATE(?) <= DATE(o.loan_end_date)
+		   AND (
+		        NULLIF(TRIM(l.session), '') IS NULL
+		        OR CAST(l.session AS UNSIGNED) = 0
+		        OR (
+		            (CAST(l.day AS UNSIGNED) = 1 AND DATEDIFF(DATE(?), DATE(o.loan_stat_date)) < CAST(l.session AS UNSIGNED))
+		            OR (CAST(l.day AS UNSIGNED) = 7 AND FLOOR(DATEDIFF(DATE(?), DATE(o.loan_stat_date)) / 7) BETWEEN 1 AND CAST(l.session AS UNSIGNED))
+		            OR (CAST(l.day AS UNSIGNED) IN (30, 31) AND TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) BETWEEN 1 AND CAST(l.session AS UNSIGNED))
+		        )
+		   )
+		   AND (
+				CAST(l.day AS UNSIGNED) = 1
+				OR (CAST(l.day AS UNSIGNED) = 7 AND DATEDIFF(DATE(?), DATE(o.loan_stat_date)) >= 7 AND MOD(DATEDIFF(DATE(?), DATE(o.loan_stat_date)), 7) = 0)
+				OR (
+					CAST(l.day AS UNSIGNED) IN (30, 31)
+					AND (
+						TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) >= 1
+						AND DAY(DATE(?)) = DAY(DATE(o.loan_stat_date))
+						OR (
+							DAY(DATE(o.loan_stat_date)) > DAY(LAST_DAY(DATE(?)))
+							AND TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) >= 1
+							AND DAY(DATE(?)) = DAY(LAST_DAY(DATE(?)))
+						)
+					)
+				)
+		   )",
+		[$blanch_id, $empl_id, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date]
+	);
+	return $today_data->row();
 }
 
 	
 
 	public function get_total_recevableByOfficer($empl_id) {
 		$date = date("Y-m-d");
-		$query = $this->db->query("
-			SELECT SUM(restration) AS total_rejesho
-			FROM tbl_loans
-			WHERE empl_id = ? AND loan_status = 'withdrawal' AND date_show = ?
-		", [$empl_id, $date]);
+		$query = $this->db->query(
+			"SELECT COALESCE(SUM(l.restration), 0) AS total_rejesho
+			 FROM tbl_loans l
+			 JOIN tbl_outstand o ON o.loan_id = l.loan_id
+			 WHERE l.empl_id = ?
+			   AND l.loan_status = 'withdrawal'
+			   AND o.loan_stat_date IS NOT NULL
+			   AND DATE(?) >= DATE(o.loan_stat_date)
+			   AND DATE(?) <= DATE(o.loan_end_date)
+			   AND (
+			        NULLIF(TRIM(l.session), '') IS NULL
+			        OR CAST(l.session AS UNSIGNED) = 0
+			        OR (
+			            (CAST(l.day AS UNSIGNED) = 1 AND DATEDIFF(DATE(?), DATE(o.loan_stat_date)) < CAST(l.session AS UNSIGNED))
+			            OR (CAST(l.day AS UNSIGNED) = 7 AND FLOOR(DATEDIFF(DATE(?), DATE(o.loan_stat_date)) / 7) BETWEEN 1 AND CAST(l.session AS UNSIGNED))
+			            OR (CAST(l.day AS UNSIGNED) IN (30, 31) AND TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) BETWEEN 1 AND CAST(l.session AS UNSIGNED))
+			        )
+			   )
+			   AND (
+			        CAST(l.day AS UNSIGNED) = 1
+			        OR (CAST(l.day AS UNSIGNED) = 7 AND DATEDIFF(DATE(?), DATE(o.loan_stat_date)) >= 7 AND MOD(DATEDIFF(DATE(?), DATE(o.loan_stat_date)), 7) = 0)
+			        OR (
+			            CAST(l.day AS UNSIGNED) IN (30, 31)
+			            AND (
+			                TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) >= 1
+			                AND DAY(DATE(?)) = DAY(DATE(o.loan_stat_date))
+			                OR (
+			                    DAY(DATE(o.loan_stat_date)) > DAY(LAST_DAY(DATE(?)))
+			                    AND TIMESTAMPDIFF(MONTH, DATE(o.loan_stat_date), DATE(?)) >= 1
+			                    AND DAY(DATE(?)) = DAY(LAST_DAY(DATE(?)))
+			                )
+			            )
+			        )
+			   )",
+			[$empl_id, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date, $date]
+		);
 	
 		return $query->row();
 	}
@@ -5803,8 +5959,66 @@ public function get_defaulters_3_30_days_by_branch($blanch_id)
  }
 
  public function get_loanSchedule($loan_id){
- 	$data = $this->db->query("SELECT * FROM tbl_test_date t LEFT JOIN tbl_loans l ON l.loan_id = t.loan_id WHERE t.loan_id = '$loan_id'");
- 	return $data->result();
+	$loan_id = (int) $loan_id;
+	if ($loan_id <= 0) {
+		return [];
+	}
+
+	$loan = $this->db->query("SELECT l.loan_id, l.restration, l.day, l.session, o.loan_stat_date
+		FROM tbl_loans l
+		LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
+		WHERE l.loan_id = '$loan_id'
+		LIMIT 1")->row();
+
+	if (empty($loan) || empty($loan->loan_stat_date)) {
+		return [];
+	}
+
+	$interval = (int) $loan->day;
+	$installments = (int) $loan->session;
+	$amount = (float) $loan->restration;
+
+	if ($interval <= 0 || $installments <= 0) {
+		return [];
+	}
+
+	$deposit_rows = $this->db->query("SELECT depost_day, SUM(depost) AS total_paid
+		FROM tbl_depost
+		WHERE loan_id = '$loan_id'
+		GROUP BY depost_day")->result();
+
+	$paid_by_date = [];
+	foreach ($deposit_rows as $row) {
+		if (!empty($row->depost_day)) {
+			$paid_by_date[$row->depost_day] = (float) $row->total_paid;
+		}
+	}
+
+	$today = date('Y-m-d');
+	$schedule = [];
+	$start_date = $loan->loan_stat_date;
+
+	for ($i = 1; $i <= $installments; $i++) {
+		$due_date = date('Y-m-d', strtotime($start_date . ' +' . ($i * $interval) . ' day'));
+
+		$paid_amount = $paid_by_date[$due_date] ?? 0;
+		if ($paid_amount >= $amount && $amount > 0) {
+			$status = 'paid';
+		} elseif ($due_date > $today) {
+			$status = 'withdrawal';
+		} else {
+			$status = 'not paid';
+		}
+
+		$schedule[] = (object) [
+			'loan_id' => $loan_id,
+			'date' => $due_date,
+			'restration' => $amount,
+			'date_status' => $status,
+		];
+	}
+
+	return $schedule;
  }
 
 

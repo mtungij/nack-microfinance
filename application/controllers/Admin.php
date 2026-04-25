@@ -11118,6 +11118,30 @@ public function send_email(){
        	$this->load->view('admin/loan_shedure_list',['data_loan'=>$data_loan,'loan'=>$loan,'loan_id'=>$loan_id]);
        }
 
+       public function loan_schedule_detail($loan_id = null){
+        $this->load->model('queries');
+
+        $loan_id = (int) $loan_id;
+        if ($loan_id <= 0) {
+            show_404();
+            return;
+        }
+
+        $data_loan = $this->queries->get_loanSchedule($loan_id);
+        $loan = $this->queries->get_loan_day($loan_id);
+
+        if (empty($loan)) {
+            show_404();
+            return;
+        }
+
+        $this->load->view('admin/loan_shedure_list', [
+            'data_loan' => $data_loan,
+            'loan' => $loan,
+            'loan_id' => $loan_id,
+        ]);
+    }
+
        public function print_loan_shedure($loan_id){
        $this->load->model('queries');
        $comp_id = $this->session->userdata('comp_id');

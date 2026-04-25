@@ -120,6 +120,15 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
         </div>
         <?php endif; ?>
 
+        <?php if (!empty($customer_loan->loan_id)): ?>
+        <div class="mt-2 text-center">
+          <a href="<?= base_url('oficer/loan_schedule_detail/' . $customer_loan->loan_id); ?>"
+             class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all">
+            Ratiba ya Mkopo
+          </a>
+        </div>
+        <?php endif; ?>
+
         <div class="mt-4 text-center">
   <a href="<?= base_url('oficer/send_payment/' . $customer->customer_id); ?>" 
      class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">

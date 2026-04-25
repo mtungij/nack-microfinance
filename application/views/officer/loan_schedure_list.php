@@ -1,5 +1,6 @@
+
 <?php
-include_once APPPATH . "views/partials/header.php";
+include_once APPPATH . "views/partials/officerheader.php";
 
 $lang_line = function ($key, $fallback) {
   $value = $this->lang->line($key);

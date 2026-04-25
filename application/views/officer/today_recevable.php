@@ -179,7 +179,12 @@ if ($position === 'LOAN OFFICER'): ?>
 					</td>
 
 					<td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-						<?php echo $today_recevables->date_show; ?>
+            <?php
+            $display_date = !empty($today_recevables->loan_stat_date)
+              ? substr((string) $today_recevables->loan_stat_date, 0, 10)
+              : date('Y-m-d');
+            echo $display_date;
+            ?>
 					</td>
                    
                 </tr>

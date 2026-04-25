@@ -40,7 +40,7 @@ $customer_passport_src = $resolve_image_src($customer->passport ?? '', 'assets/i
 $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'assets/img/customer21.png');
 ?>
 <!-- ========== MAIN CONTENT BODY ========== -->
-<div class="w-full lg:ps-64">
+<div class="w-full lg:ps-64 min-h-screen bg-gray-100 dark:bg-gray-900">
     <div class="p-4 sm:p-6 space-y-6">
 
         <?php if ($das = $this->session->flashdata('massage')): ?>
@@ -53,7 +53,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
         </div>
         <?php endif; ?>
 
-        <div class="bg-gray-100">
+        <div class="bg-gray-100 dark:bg-gray-900">
     <div class="w-full bg-cyan-600 text-white">
         <div class="flex flex-col max-w-screen-xl px-4 mx-auto md:flex-row md:justify-between md:px-6 lg:px-8">
             <div class="p-4 flex flex-row items-center justify-between">
@@ -74,13 +74,27 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
                                                              </?php //print_r($end_deposit); ?>
 
-<div class=" w-full">
+<?php
+  $customer_loan = !empty($customer->customer_id) ? $this->queries->get_loan_active_customer($customer->customer_id) : null;
+  $total_deposit = $this->queries->get_total_amount_paid_loan($customer_loan->loan_id ?? 0);
+  $loan_int = $customer_loan->loan_int ?? 0;
+  $deposit = $total_deposit->total_Deposit ?? 0;
+  $status_label = 'Not Active';
+  $status_class = 'bg-blue-600 text-white';
+  if (!empty($customer_loan)) {
+    switch ($customer_loan->loan_status) {
+    case 'withdrawal': $status_label = 'Active'; $status_class = 'bg-teal-500 text-white'; break;
+    case 'done': $status_label = 'Done'; $status_class = 'bg-yellow-500 text-white'; break;
+    case 'out': $status_label = 'Nje Mkataba'; $status_class = 'bg-red-500 text-white'; break;
+    }
+  }
+?>
+
+<div class="w-full">
   <div class="md:flex md:justify-between md:items-start md:space-x-2">
 
-    <!-- Customer Card -->
-   <div class="w-full md:w-1/6 mb-4 md:mb-0">
-
-      <div class="bg-white p-4 border-t-4 border-green-500 rounded-lg shadow-md">
+    <div class="w-full md:w-1/6 mb-4 md:mb-0">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 border-t-4 border-t-green-500 rounded-lg shadow-md">
         <div class="image overflow-hidden mb-4 text-center">
           <img class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= $customer_passport_src ?>" alt="Customer Passport">
         </div>
@@ -88,38 +102,19 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
           <?= strtoupper($customer->f_name) . " " . strtoupper($customer->m_name) . " " . strtoupper($customer->l_name) ?>
         </h1>
         <h2 class="text-sm text-green-500 text-center font-semibold">(<?= $customer->famous_area; ?>)</h2>
-        <p class="text-center mt-2 text-gray-800 font-medium"><?= $customer->phone_no; ?></p>
+        <p class="text-center mt-2 text-gray-800 dark:text-gray-200 font-medium"><?= $customer->phone_no; ?></p>
 
-               <div class="mt-4 flex flex-col gap-2">
-  <!-- View Customer Button -->
-  <button type="button" 
-          data-hs-overlay="#view-customer-modal-<?= $customer->customer_id; ?>"
-          class="inline-flex items-center justify-center px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
-     👤 Badilisha Namba Ya Simu
-  </button>
-  
-  <!-- Send SMS Button -->
-  <a href="<?= base_url('Admin/send_payment/' . $customer->customer_id); ?>" 
-     class="inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
-     📩 Tuma SMS ya Malipo
-  </a>
-</div>
-
-        <?php
-          $customer_loan = !empty($customer->customer_id) ? $this->queries->get_loan_active_customer($customer->customer_id) : null;
-          $total_deposit = $this->queries->get_total_amount_paid_loan($customer_loan->loan_id ?? 0);
-          $loan_int = $customer_loan->loan_int ?? 0;
-          $deposit = $total_deposit->total_Deposit ?? 0;
-          $status_label = 'Not Active';
-          $status_class = 'bg-blue-600 text-white';
-          if (!empty($customer_loan)) {
-            switch ($customer_loan->loan_status) {
-              case 'withdrawal': $status_label = 'Active'; $status_class = 'bg-teal-500 text-white'; break;
-              case 'done': $status_label = 'Done'; $status_class = 'bg-yellow-500 text-white'; break;
-              case 'out': $status_label = 'Nje Mkataba'; $status_class = 'bg-red-500 text-white'; break;
-            }
-          }
-        ?>
+        <div class="mt-4 flex flex-col gap-2">
+          <button type="button"
+                  data-hs-overlay="#view-customer-modal-<?= $customer->customer_id; ?>"
+                  class="inline-flex items-center justify-center px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+            👤 Badilisha Namba Ya Simu
+          </button>
+          <a href="<?= base_url('Admin/send_payment/' . $customer->customer_id); ?>"
+             class="inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+            📩 Tuma SMS ya Malipo
+          </a>
+        </div>
 
         <?php if (!empty($customer->customer_id) && !empty($customer_loan->loan_id) && !empty($customer_loan->loan_status) && in_array($customer_loan->loan_status, ['withdrawal', 'out', 'done'], true)): ?>
         <div class="mt-3 text-center">
@@ -130,48 +125,54 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
         </div>
         <?php endif; ?>
 
-        <ul class="mt-5 bg-gray-100 text-gray-700 divide-y divide-gray-300 rounded-lg shadow-sm text-sm">
+        <?php if (!empty($customer_loan->loan_id)): ?>
+        <div class="mt-2 text-center">
+          <a href="<?= base_url('admin/loan_schedule_detail/' . $customer_loan->loan_id); ?>"
+             class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50">
+            Ratiba ya Mkopo
+          </a>
+        </div>
+        <?php endif; ?>
+
+        <ul class="mt-5 bg-gray-100 text-gray-700 divide-y divide-gray-300 rounded-lg shadow-sm text-sm dark:bg-gray-900 dark:text-gray-200 dark:divide-gray-700 dark:border dark:border-gray-700">
           <li class="flex items-center justify-between py-2 px-3">
             <span class="font-bold text-base">Status</span>
             <span class="px-3 py-1 rounded-full text-xs font-medium <?= $status_class; ?>"><?= $status_label; ?></span>
           </li>
-          <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Customer Code</span><span><?= $customer->code; ?></span></li>
+          <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Code</span><span><?= $customer->code; ?></span></li>
           <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Gawa</span><span><?= $customer_loan->loan_stat_date ?? 'YY-MM-DD'; ?></span></li>
           <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Mwisho</span><span><?= !empty($customer_loan->loan_end_date) ? substr($customer_loan->loan_end_date, 0, 10) : 'YY-MM-DD'; ?></span></li>
           <li class="flex items-center justify-between py-2 px-3 font-bold text-base"><span>Rejesho</span><span><?= safe_number_format($customer_loan->restration ?? 0); ?></span></li>
-
         </ul>
 
-         <div class="mt-6">
-                <h3 class="text-sm font-semibold text-gray-800 mb-2">📎 Customer Documents:</h3>
-                <div class="flex flex-col gap-2 text-sm">
-                    <?php if (!empty($customer->barua_path)): ?>
-                        <a href="<?= base_url('assets/sponser_documents/' . basename($customer->barua_path)); ?>" 
-                           target="_blank"
-                           class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
-                            📄 Barua ya Utambulisho
-                        </a>
-                    <?php endif; ?>
+        <div class="mt-6">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">📎 Customer Documents:</h3>
+          <div class="flex flex-col gap-2 text-sm">
+            <?php if (!empty($customer->barua_path)): ?>
+            <a href="<?= base_url('assets/sponser_documents/' . basename($customer->barua_path)); ?>"
+               target="_blank"
+               class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
+              📄 Barua ya Utambulisho
+            </a>
+            <?php endif; ?>
 
-                    <?php if (!empty($customer->kitambulisho_path)): ?>
-                        <a href="<?= base_url('assets/sponser_documents/' . basename($customer->kitambulisho_path)); ?>" 
-                           target="_blank"
-                           class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
-                            📄 Kitambulisho
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-        
+            <?php if (!empty($customer->kitambulisho_path)): ?>
+            <a href="<?= base_url('assets/sponser_documents/' . basename($customer->kitambulisho_path)); ?>"
+               target="_blank"
+               class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
+              📄 Kitambulisho
+            </a>
+            <?php endif; ?>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Table in Middle -->
-  <div class="w-full md:w-4/6 mb-4 md:mb-0">
-      <div class="bg-white p-4 rounded-lg shadow-md overflow-auto">
+    <div class="w-full md:w-4/6 mb-4 md:mb-0">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg shadow-md overflow-auto">
         <h2 class="text-lg font-bold text-green-600 mb-3">Loan Information</h2>
-        <table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
-          <thead class="bg-green-100 text-green-800 font-semibold">
+        <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700">
+          <thead class="bg-green-100 text-green-800 font-semibold dark:bg-gray-700 dark:text-gray-200">
             <tr>
               <th class="px-4 py-2 border-b">Loan Amount</th>
               <th class="px-4 py-2 border-b">Paid Amount</th>
@@ -179,26 +180,18 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
             </tr>
           </thead>
           <tbody>
-           
-              <tr class="hover:bg-gray-50">
-                <td class="px-4 py-2 border-b"><?= safe_number_format($loan_int); ?></td>
-                <td class="px-4 py-2 border-b"><?= $deposit > $loan_int ? safe_number_format($deposit - $loan_int) : safe_number_format($deposit); ?></td>
-                <td class="px-4 py-2 border-b"><?= safe_number_format(max(0, $loan_int - $deposit)); ?></td>
-              </tr>
-            
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+              <td class="px-4 py-2 border-b border-gray-200 dark:border-gray-700"><?= safe_number_format($loan_int); ?></td>
+              <td class="px-4 py-2 border-b border-gray-200 dark:border-gray-700"><?= $deposit > $loan_int ? safe_number_format($deposit - $loan_int) : safe_number_format($deposit); ?></td>
+              <td class="px-4 py-2 border-b border-gray-200 dark:border-gray-700"><?= safe_number_format(max(0, $loan_int - $deposit)); ?></td>
+            </tr>
           </tbody>
         </table>
-
-        
-        
       </div>
     </div>
 
-    <!-- Sponsor Card -->
-    <!-- Sponsor Card -->
-<div class="w-full md:w-1/6">
-
-      <div class="bg-white p-4 border-t-4 border-green-500 rounded-lg shadow-md">
+    <div class="w-full md:w-1/6">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 border-t-4 border-t-green-500 rounded-lg shadow-md">
         <div class="image overflow-hidden mb-4 text-center">
           <img class="w-32 h-32 mx-auto rounded-full object-cover border-4 border-green-400" src="<?= $sponsor_passport_src ?>" alt="Sponsor Passport">
         </div>
@@ -206,98 +199,41 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
           <?= strtoupper($customer->sp_name) . " " . strtoupper($customer->sp_mname) . " " . strtoupper($customer->sp_lname) ?>
         </h1>
         <h2 class="text-sm text-green-500 text-center font-semibold">(<?= $customer->famous_area; ?>)</h2>
-        <p class="text-center mt-2 text-gray-800 font-medium"><?= $customer->sp_phone_no; ?></p>
+        <p class="text-center mt-2 text-gray-800 dark:text-gray-200 font-medium"><?= $customer->sp_phone_no; ?></p>
 
-        <ul class="mt-5 bg-gray-100 text-gray-700 divide-y divide-gray-300 rounded-lg shadow-sm text-sm">
+        <ul class="mt-5 bg-gray-100 text-gray-700 divide-y divide-gray-300 rounded-lg shadow-sm text-sm dark:bg-gray-900 dark:text-gray-200 dark:divide-gray-700 dark:border dark:border-gray-700">
           <li class="flex items-center justify-between py-2 px-3"><span>Namba ya Simu</span><span><?= $customer->sp_phone_no; ?></span></li>
           <li class="flex items-center justify-between py-2 px-3"><span>Uhusiano</span><span><?= ucfirst($customer->sp_relation) ?></span></li>
           <li class="flex items-center justify-between py-2 px-3"><span>Biashara/Kazi</span><span><?= $customer->nature; ?></span></li>
         </ul>
 
-         <div class="mt-6">
-                <h3 class="text-sm font-semibold text-gray-800 mb-2">📎 Sponsor Documents:</h3>
-                <div class="flex flex-col gap-2 text-sm">
-                    <?php if (!empty($customer->barua_path)): ?>
-                        <a href="<?= base_url('assets/sponser_documents/' . basename($customer->barua_path)); ?>" 
-                           target="_blank"
-                           class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
-                            📄 Barua ya Utambulisho
-                        </a>
-                    <?php endif; ?>
+        <div class="mt-6">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">📎 Sponsor Documents:</h3>
+          <div class="flex flex-col gap-2 text-sm">
+            <?php if (!empty($customer->barua_path)): ?>
+            <a href="<?= base_url('assets/sponser_documents/' . basename($customer->barua_path)); ?>"
+               target="_blank"
+               class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
+              📄 Barua ya Utambulisho
+            </a>
+            <?php endif; ?>
 
-                    <?php if (!empty($customer->kitambulisho_path)): ?>
-                        <a href="<?= base_url('assets/sponser_documents/' . basename($customer->kitambulisho_path)); ?>" 
-                           target="_blank"
-                           class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
-                            📄 Kitambulisho
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
+            <?php if (!empty($customer->kitambulisho_path)): ?>
+            <a href="<?= base_url('assets/sponser_documents/' . basename($customer->kitambulisho_path)); ?>"
+               target="_blank"
+               class="text-cyan-600 hover:underline hover:text-cyan-800 transition-all">
+              📄 Kitambulisho
+            </a>
+            <?php endif; ?>
+          </div>
+        </div>
       </div>
     </div>
 
   </div>
 </div>
 
-  
-
-<!-- Table Section -->
-<!-- Table Section -->
-        <div>
-
-        
-    <div >
-        <div class="flex justify-end  items-center gap-2">
-        <?php if (!empty($customer_loan->loan_status)) {
-    $status = $customer_loan->loan_status;
-
-    if ($status === 'withdrawal' || $status === 'out') { ?>
-          <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-scale-animation-modal" data-hs-overlay="#hs-edit-deposit-modal">
-            <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-          </svg>
-      Deposit
-    </button>
-    <?php } elseif ($status === 'disbarsed') { ?>
-        <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-green-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-edit-shareholder-modal-<?= $customer->customer_id; ?>">
-        <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-          </svg>
-        Withdraw
-      </button>
-    <?php } elseif ($status === 'done') { ?>
-   
-   <button id="defaultModalButton" 
-    data-modal-target="defaultModal" 
-    data-modal-toggle="defaultModal"
-    type="button"
-    class="block text-white 
-           bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none 
-           focus:ring-red-300 
-           font-medium rounded-lg text-sm px-5 py-2.5 text-center 
-           dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800
-           transition-colors duration-200">
-    Samehe Penalt
-</button>
-
-
-<?php }
-} ?>
-        </div>
-    </div>
-  
-</div>
-
-
-
-
-               
-                  <div class="p-4 md:p-6">
+<div class="p-4 md:p-6">
                   <?php echo form_open("admin/search_customerData", [
     'novalidate' => true,
     'id' => 'customerSearchForm'
@@ -306,9 +242,9 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
     <div class="w-full  md:flex-row items-center ">
         <!-- Search Dropdown -->
         <div class="w-full">
-            <label for="branchSelect" class="block text-sm font-medium mb-1 dark:text-gray-300">* Search Customer:</label>
+            <label for="branchSelect" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">* Search Customer:</label>
             <select id="branchSelect" required name="customer_id"
-                class="py-2 px-3 block w-full bg-cyan-600 border border-gray-300 rounded-md text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 dark:placeholder-gray-500 select2">
+              class="py-2 px-3 block w-full bg-white text-gray-900 border border-gray-300 rounded-md text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 select2">
                 <option value="">Search Customer</option>
                 <?php foreach ($customery as $customers): ?>
                     <option value="<?= $customers->customer_id ?>">
@@ -335,19 +271,19 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
                 <div class="overflow-x-auto">
                     <div class="min-w-full inline-block align-middle">
-                        <div class="border rounded-lg overflow-hidden dark:border-gray-700">
+                        <div class="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
                            <div class="bg-cyan-600 px-4 py-2">
         <h2 class="text-white font-semibold text-lg uppercase">Min Statement</h2>
     </div>
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="shareholder_table">
-                                <thead class="bg-cyan-600 dark:bg-cyan-600">
+                              <table class="w-full divide-y divide-gray-200 dark:divide-gray-700 table-auto" id="shareholder_table">
+                                <thead class="bg-gray-100 dark:bg-gray-700">
                                     <tr>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Date</span></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">description</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Deposit</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                         <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Withdraw</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Balance</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
-                                           <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-white">Deni</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-300">Date</span></div></th>
+                            <th scope="col" class="py-3 px-6 text-start w-[36%]"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-300">description</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-300">Deposit</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                         <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-300">Withdraw</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                        <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-300">Balance</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
+                                           <th scope="col" class="py-3 px-6 text-start"><div class="inline-flex items-center gap-x-2"><span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-300">Deni</span><svg class="size-3.5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="hs-datatable-ordering-desc:text-cyan-600 dark:hs-datatable-ordering-desc:text-cyan-500" d="m7 15 5 5 5-5"></path><path class="hs-datatable-ordering-asc:text-cyan-600 dark:hs-datatable-ordering-asc:text-cyan-500" d="m7 9 5-5 5 5"></path></svg></div></th>
 
                                     </tr>
                                 </thead>
@@ -369,7 +305,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
                                         <?php foreach ($loan_desc  as $payisnulls): ?>
                                             <tr>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><?php echo $payisnulls->date_data; ?></td>
-    <td class=" uppercase px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
+    <td class="uppercase px-6 py-4 text-sm text-gray-800 dark:text-gray-200 whitespace-normal wrap-break-word max-w-md leading-6">
     <?= $payisnulls->emply ? $payisnulls->emply . ' / ' : ''; ?>
 <?= $payisnulls->description; ?>
 <?= $payisnulls->p_method ? ' / ' . $payisnulls->account_name : ''; ?>
@@ -433,7 +369,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
     <!-- Total Withdraw -->
     <div class="sm:col-span-6">
-      <label for="withdrow_<?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="withdrow_<?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Amount to withdraw:
       </label>
       <input type="text" id="withdrow_<?php echo $customer->customer_id; ?>" name="withdrow"
@@ -445,7 +381,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
     <!-- Payment Method -->
     <div class="sm:col-span-6">
-      <label for="method_<?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="method_<?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Njia Za Malipo:
       </label>
       <select id="method_<?php echo $customer->customer_id; ?>" name="method"
@@ -459,7 +395,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
     <!-- Date -->
     <div class="sm:col-span-6">
-      <label for="with_date_<?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="with_date_<?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Tarehe:
       </label>
       <input type="date" id="with_date_<?php echo $customer->customer_id; ?>" name="with_date"
@@ -470,7 +406,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
     <!-- Code -->
     <!-- <div class="sm:col-span-6">
-      <label for="code_</?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="code_</?php echo $customer->customer_id; ?>" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Code Number:
       </label>
       <input type="number" placeholder="andika code ya Mteja" id="code_<?php echo $customer->customer_id; ?>" name="code"
@@ -534,6 +470,44 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 <div class="grid gap-4 mb-4 sm:grid-cols-2">
     <div>
         <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+
+    <!-- Table Section -->
+    <div>
+      <div>
+        <div class="flex justify-end items-center gap-2">
+        <?php if (!empty($customer_loan->loan_status)) {
+          $status = $customer_loan->loan_status;
+
+          if ($status === 'withdrawal' || $status === 'out') { ?>
+            <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-scale-animation-modal" data-hs-overlay="#hs-edit-deposit-modal">
+              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+              </svg>
+              Deposit
+            </button>
+          <?php } elseif ($status === 'disbarsed') { ?>
+            <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-green-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-edit-shareholder-modal-<?= $customer->customer_id; ?>">
+              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+              </svg>
+              Withdraw
+            </button>
+          <?php } elseif ($status === 'done') { ?>
+            <button id="defaultModalButton"
+              data-modal-target="defaultModal"
+              data-modal-toggle="defaultModal"
+              type="button"
+              class="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 transition-colors duration-200">
+              Samehe Penalt
+            </button>
+          <?php }
+        } ?>
+        </div>
+      </div>
+    </div>
+
             Jumla Ya Faini
         </label>
         <input type="text" name="name" id="name" 
@@ -630,7 +604,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
 
   <div class="sm:col-span-6">
-      <label for="depost" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="depost" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Loan Applied:
       </label>
       <input type="text" id="depost" name="depost"
@@ -639,7 +613,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
     </div>
 
      <div class="sm:col-span-6">
-      <label for="depost" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="depost" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         *Amount Paid:
       </label>
       <input type="text" id="depost" name="depost"
@@ -655,7 +629,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
     
 
         <div class="sm:col-span-6">
-      <label for="depost" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="depost" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Due Amount:
       </label>
       <input type="text" id="depost" name="depost"
@@ -692,7 +666,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
 
       <div class="sm:col-span-6">
-      <label for="depost" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="depost" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Penalt:
       </label>
       <input type="text" id="depost" name="depost"
@@ -703,7 +677,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
 
     <div class="sm:col-span-6">
-      <label for="depost" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="depost" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Deposit:
       </label>
       <input type="text" id="depost" name="depost"
@@ -713,7 +687,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
     <!-- Payment Method -->
     <div class="sm:col-span-6">
-      <label for="p_method" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="p_method" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Njia Za Malipo:
       </label>
       <select id="p_method" name="p_method"
@@ -730,7 +704,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
     <!-- Wakala Field -->
     <div class="sm:col-span-6" id="wakala_field" style="display:none;">
-      <label for="wakala_name" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="wakala_name" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Jina la Wakala:
       </label>
       <input type="text" id="wakala_name" name="wakala_name" 
@@ -739,7 +713,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 
     <!-- Date -->
     <div class="sm:col-span-6">
-      <label for="deposit_date" class="block text-sm font-medium mb-2 dark:text-gray-300">
+      <label for="deposit_date" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
         * Tarehe:
       </label>
       <input type="date" id="deposit_date" name="deposit_date"
@@ -791,19 +765,29 @@ include_once APPPATH . "views/partials/footer.php";
 
 <style>
 .select2-container--default .select2-selection--single {
-    background-color: #1f2937;
-    border: 1px solid #374151;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
     border-radius: 0.5rem;
     padding: 0.75rem 2.5rem 0.75rem 1rem;
     height: auto;
-    color: #06b6d4; 
+  color: #111827;
     font-size: 0.875rem;
     position: relative;
+}
+.dark .select2-container--default .select2-selection--single {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #d1d5db;
 }
 .select2-selection__rendered,
 .select2-selection__clear,
 .select2-selection__arrow {
-    color: #d1d5db;
+  color: #374151;
+}
+.dark .select2-selection__rendered,
+.dark .select2-selection__clear,
+.dark .select2-selection__arrow {
+  color: #d1d5db;
 }
 .select2-selection__arrow {
     right: 1rem;
@@ -818,25 +802,37 @@ include_once APPPATH . "views/partials/footer.php";
     position: absolute;
 }
 .custom-select2-dropdown {
-    background-color: #1f2937;
-    color: #d1d5db;
-    border: 1px solid #374151;
+  background-color: #ffffff;
+  color: #111827;
+  border: 1px solid #d1d5db;
     border-radius: 0.5rem;
     padding: 0.5rem;
 }
+.dark .custom-select2-dropdown {
+  background-color: #1f2937;
+  color: #d1d5db;
+  border-color: #374151;
+}
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #ffffff !important; /* Force white text */
+  color: #111827 !important;
+}
+.dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #ffffff !important;
 }
 .custom-select2-dropdown .select2-results__option--highlighted {
-    background-color: #06b6d4 !important; /* Tailwind cyan-400 */
+  background-color: #06b6d4 !important;
     color: #ffffff !important;
 }
 
-/* White text in the dropdown input if searchable */
 .select2-search__field {
-    color: #ffffff !important;
-    background-color: #1f2937 !important; /* match dark bg */
-    border: 1px solid #374151;
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db;
+}
+.dark .select2-search__field {
+  color: #ffffff !important;
+  background-color: #1f2937 !important;
+  border-color: #374151;
 }
 .custom-select2-dropdown .select2-results__option--highlighted {
     background-color: #06b6d4;
@@ -949,7 +945,7 @@ function getAge(dob) {
           </svg>
           <span class="truncate">Customer Information</span>
         </h3>
-        <button type="button" class="size-7 sm:size-8 inline-flex justify-center items-center rounded-full border border-transparent bg-white/20 hover:bg-white/30 text-white flex-shrink-0" data-hs-overlay="#view-customer-modal-<?= $customer->customer_id; ?>">
+        <button type="button" class="size-7 sm:size-8 inline-flex justify-center items-center rounded-full border border-transparent bg-gray-100/90 hover:bg-gray-200 text-cyan-700 dark:bg-gray-700/70 dark:hover:bg-gray-700 dark:text-gray-200 flex-shrink-0" data-hs-overlay="#view-customer-modal-<?= $customer->customer_id; ?>">
           <span class="sr-only">Close</span>
           <svg class="size-3 sm:size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>

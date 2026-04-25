@@ -134,6 +134,15 @@ include_once APPPATH . "views/partials/officerheader.php";
         </div>
         <?php endif; ?>
 
+        <?php if (!empty($customer_loan->loan_id)): ?>
+        <div class="mt-2 text-center">
+          <a href="<?= base_url('oficer/loan_schedule_detail/' . $customer_loan->loan_id); ?>"
+             class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all">
+            Ratiba ya Mkopo
+          </a>
+        </div>
+        <?php endif; ?>
+
         <ul class="mt-5 bg-gray-100 text-gray-700 divide-y divide-gray-300 rounded-lg shadow-sm text-sm">
           <li class="flex items-center justify-between py-2 px-3">
             <span class="font-bold text-base">Status</span>

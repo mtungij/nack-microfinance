@@ -1024,6 +1024,18 @@ $lang['ps_total_deficit'] = 'Jumla ya Upungufu';
 $lang['ps_no_schedule'] = 'Hakuna data ya ratiba kwa mkopo huu.';
 $lang['ps_select_customer_first'] = 'Chagua mteja kuona mikopo yake.';
 $lang['ps_no_loans'] = 'Hakuna mikopo iliyopatikana kwa mteja huyu.';
+$lang['ls_loan_schedule'] = 'Ratiba ya Mkopo';
+$lang['ls_amount'] = 'Kiasi';
+$lang['ls_cycle'] = 'Mzunguko';
+$lang['ls_sessions'] = 'Malipo';
+$lang['ls_total_collection'] = 'Jumla ya Makusanyo';
+$lang['ls_paid_dates'] = 'Tarehe Zilizolipwa';
+$lang['ls_pending_upcoming'] = 'Yanayosubiri / Yanayokuja';
+$lang['ls_upcoming_status'] = 'Inakuja';
+$lang['ls_custom_cycle'] = 'Maalum';
+$lang['ls_daily_cycle'] = 'Kila Siku';
+$lang['ls_weekly_cycle'] = 'Kila Wiki';
+$lang['ls_monthly_cycle'] = 'Kila Mwezi';
 
 // Expenses Requisition
 $lang['requisition_form'] = 'Fomu ya Mahitaji';

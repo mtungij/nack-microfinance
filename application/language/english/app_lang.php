@@ -1023,6 +1023,18 @@ $lang['ps_total_deficit'] = 'Total Deficit';
 $lang['ps_no_schedule'] = 'No schedule data available for this loan.';
 $lang['ps_select_customer_first'] = 'Select a customer to view their loans.';
 $lang['ps_no_loans'] = 'No loans found for this customer.';
+$lang['ls_loan_schedule'] = 'Loan Schedule';
+$lang['ls_amount'] = 'Amount';
+$lang['ls_cycle'] = 'Cycle';
+$lang['ls_sessions'] = 'Sessions';
+$lang['ls_total_collection'] = 'Total Collection';
+$lang['ls_paid_dates'] = 'Paid Dates';
+$lang['ls_pending_upcoming'] = 'Pending / Upcoming';
+$lang['ls_upcoming_status'] = 'Upcoming';
+$lang['ls_custom_cycle'] = 'Custom';
+$lang['ls_daily_cycle'] = 'Daily';
+$lang['ls_weekly_cycle'] = 'Weekly';
+$lang['ls_monthly_cycle'] = 'Monthly';
 
 // Expenses Requisition
 $lang['requisition_form'] = 'Requisition Form';

@@ -8713,10 +8713,10 @@ $total_depost=$this->queries->get_total_amount_paid_loan($loan_id);
     public function today_recevable_loan(){
     $this->load->model('queries');
     // $position = strtoupper(trim($this->session->userdata('position_name')));
-    $blanch_id = $this->session->userdata('blanch_id');
     $empl_id = $this->session->userdata('empl_id');
     $manager_data = $this->queries->get_manager_data($empl_id);
     $comp_id = $manager_data->comp_id;
+      $blanch_id = $manager_data->blanch_id;
     $company_data = $this->queries->get_companyData($comp_id);
     $blanch_data = $this->queries->get_blanchData($blanch_id);
     $empl_data = $this->queries->get_employee_data($empl_id);
@@ -8741,7 +8741,7 @@ $total_depost=$this->queries->get_total_amount_paid_loan($loan_id);
   
   // } elseif ($position === 'BRANCH MANAGER') {
     $rejesho = $this->queries->get_total_recevableBlanch($blanch_id);
-    $today_recevable = $this->queries->get_today_recevable_loanBlanch($blanch_id);
+    $today_recevable = $this->queries->get_today_recevable_loan($comp_id, $blanch_id, null);
       // echo "<pre>";
       // print_r($today_recevable);
       //     exit();
@@ -10347,6 +10347,30 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost' WHERE `pay_id`= 
         //          exit();
         $this->load->view('admin/loan_shedure_list',['data_loan'=>$data_loan,'loan'=>$loan,'loan_id'=>$loan_id]);
        }
+
+         public function loan_schedule_detail($loan_id = null){
+        $this->load->model('queries');
+
+        $loan_id = (int) $loan_id;
+        if ($loan_id <= 0) {
+          show_404();
+          return;
+        }
+
+        $data_loan = $this->queries->get_loanSchedule($loan_id);
+        $loan = $this->queries->get_loan_day($loan_id);
+
+        if (empty($loan)) {
+          show_404();
+          return;
+        }
+
+        $this->load->view('officer/loan_schedure_list', [
+          'data_loan' => $data_loan,
+          'loan' => $loan,
+          'loan_id' => $loan_id,
+        ]);
+         }
 
        public function print_loan_shedure($loan_id){
        $this->load->model('queries');
