@@ -2280,13 +2280,6 @@ public function create_customer()
 
 public function all_customer()
 {
-    $can_view_customers = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('All Customers', 'can_view') || has_permission('Wateja', 'can_view') || has_permission('Customer List', 'can_view')));
-    if (!$can_view_customers) {
-        $this->session->set_flashdata('error', 'You do not have permission to view customers.');
-        return redirect('admin/index');
-    }
-
     $this->load->model('queries');
     $comp_id = $this->session->userdata('comp_id');
     $selected_blanch_id = (int) $this->input->get('blanch_id', true);
@@ -2477,13 +2470,6 @@ public function delete_accountType($account_id){
 
 
 public function view_more_customer($customer_id){
-    $can_view_customer_detail = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('All Customers', 'can_view') || has_permission('Wateja', 'can_view') || has_permission('Customer List', 'can_view')));
-    if (!$can_view_customer_detail) {
-        $this->session->set_flashdata('error', 'You do not have permission to view customer details.');
-        return redirect('admin/all_customer');
-    }
-
 	$this->load->model('queries');
 	$comp_id = $this->session->userdata('comp_id');
 	$customer_profile = $this->queries->get_customer_profileData_update($customer_id);
@@ -7097,13 +7083,6 @@ public function previous_transfor(){
 
  public function delete_customerData($customer_id)
 {
-    $can_delete_customers = ($this->session->userdata('role') === 'admin')
-        || (function_exists('has_permission') && (has_permission('All Customers', 'can_delete') || has_permission('Wateja', 'can_delete') || has_permission('Customer List', 'can_delete')));
-    if (!$can_delete_customers) {
-        $this->session->set_flashdata('error', 'You do not have permission to delete customers.');
-        return redirect('admin/all_customer');
-    }
-
     ini_set("max_execution_time", 3600);
     $this->load->model('queries');
 
