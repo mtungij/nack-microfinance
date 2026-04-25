@@ -267,6 +267,40 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
     <?php echo form_close(); ?>
 </div>
 
+<div class="px-4 md:px-6 pb-2">
+  <div class="flex justify-end items-center gap-2">
+    <?php if (!empty($customer_loan->loan_status)) {
+      $status = $customer_loan->loan_status;
+
+      if ($status === 'withdrawal' || $status === 'out') { ?>
+        <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-scale-animation-modal" data-hs-overlay="#hs-edit-deposit-modal">
+          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+          </svg>
+          Deposit
+        </button>
+      <?php } elseif ($status === 'disbarsed') { ?>
+        <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-green-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-edit-shareholder-modal-<?= $customer->customer_id; ?>">
+          <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+          </svg>
+          Withdraw
+        </button>
+      <?php } elseif ($status === 'done') { ?>
+        <button id="defaultModalButton"
+          data-modal-target="defaultModal"
+          data-modal-toggle="defaultModal"
+          type="button"
+          class="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 transition-colors duration-200">
+          Samehe Penalt
+        </button>
+      <?php }
+    } ?>
+  </div>
+</div>
+
        
 
                 <div class="overflow-x-auto">
@@ -470,43 +504,6 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 <div class="grid gap-4 mb-4 sm:grid-cols-2">
     <div>
         <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-
-    <!-- Table Section -->
-    <div>
-      <div>
-        <div class="flex justify-end items-center gap-2">
-        <?php if (!empty($customer_loan->loan_status)) {
-          $status = $customer_loan->loan_status;
-
-          if ($status === 'withdrawal' || $status === 'out') { ?>
-            <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-scale-animation-modal" data-hs-overlay="#hs-edit-deposit-modal">
-              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-              </svg>
-              Deposit
-            </button>
-          <?php } elseif ($status === 'disbarsed') { ?>
-            <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-green-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-basic-modal" data-hs-overlay="#hs-edit-shareholder-modal-<?= $customer->customer_id; ?>">
-              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-              </svg>
-              Withdraw
-            </button>
-          <?php } elseif ($status === 'done') { ?>
-            <button id="defaultModalButton"
-              data-modal-target="defaultModal"
-              data-modal-toggle="defaultModal"
-              type="button"
-              class="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 transition-colors duration-200">
-              Samehe Penalt
-            </button>
-          <?php }
-        } ?>
-        </div>
-      </div>
-    </div>
 
             Jumla Ya Faini
         </label>
