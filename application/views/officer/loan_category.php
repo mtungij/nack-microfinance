@@ -154,14 +154,7 @@
 							<span class="kt-nav__link-text">Edit</span>
 						</a>
 					</li>
-					<li class="kt-nav__item">
-						<a href="<?php echo base_url("admin/delete_loancategory/{$loan_categorys->category_id}") ?>" class="kt-nav__link" onclick="return confirm('Are you sure?')">
-							<i class="kt-nav__link-icon flaticon-delete"></i>
-							<span class="kt-nav__link-text">Delete</span>
-						</a>
-					</li>
-					
-					
+
 				</ul>
 			</div>
 	</div>

@@ -157,6 +157,8 @@ $lang['to_max_amount'] = 'Mpaka (Kiasi cha Juu)';
 $lang['amount_example_small'] = 'mfano, 1000';
 $lang['amount_example_large'] = 'mfano, 10000';
 $lang['loan_interest_percent'] = 'Riba ya Mkopo (%)';
+$lang['minimum_loan_amount'] = 'Kiasi cha Chini cha Mkopo';
+$lang['maximum_loan_amount'] = 'Kiasi cha Juu cha Mkopo';
 $lang['interest_example'] = 'mfano, 10.5';
 $lang['loan_category_list'] = 'Orodha ya Aina za Mikopo';
 $lang['no_loan_categories_found'] = 'Hakuna aina za mikopo zilizopatikana.';
@@ -819,6 +821,37 @@ $lang['id_card_pdf'] = 'Kitambulisho (PDF)';
 $lang['search_customer_for_loan'] = 'Tafuta Mteja kwa Ajili ya Ombi la Mkopo';
 $lang['loan_incomplete_note'] = 'Kumbuka ikiwa wana mkopo usiotimizwa, mfumo utatakataa kuomba mkopo mpya.';
 $lang['daily_collection_report'] = 'Ripoti ya Makusanyo ya Kila Siku';
+$lang['all_customer_list_title'] = 'Orodha ya Wateja Wote';
+$lang['all_customer_list_subtitle'] = 'Orodha ya wateja wote waliosajiliwa.';
+$lang['print_label'] = 'Chapisha';
+
+// Officer View More Customer page
+$lang['vmc_back_all_customers'] = 'Rudi kwa Wateja Wote';
+$lang['vmc_all_loans'] = 'Mikopo Yote';
+$lang['vmc_nature'] = 'Biashara/Kazi';
+$lang['vmc_loan_approved'] = 'Mkopo Uliopitishwa';
+$lang['vmc_principal_interest'] = 'Msingi + Riba';
+$lang['vmc_start_date'] = 'Tarehe ya Kuanza';
+$lang['vmc_end_date'] = 'Tarehe ya Mwisho';
+$lang['vmc_loan_agreement'] = 'Mkataba wa Mkopo';
+$lang['vmc_view_loan_agreement'] = 'Tazama Mkataba wa Mkopo';
+$lang['vmc_no_agreement'] = 'Hakuna Mkataba';
+$lang['vmc_admin'] = 'Admin';
+$lang['vmc_approved'] = 'Imepitishwa';
+$lang['vmc_done'] = 'Imekamilika';
+$lang['vmc_default'] = 'Nje ya Mkataba';
+$lang['vmc_update_upload_passport'] = 'Sasisha/Pakia Picha ya Pasipoti';
+$lang['upload'] = 'Pakia';
+$lang['collateral_list'] = 'Orodha ya Dhamana';
+$lang['collateral_current_value'] = 'Thamani ya Sasa ya Dhamana';
+$lang['collateral_photo'] = 'Picha ya Dhamana';
+$lang['crop_image'] = 'Kata Picha';
+$lang['crop_ready'] = 'Ukataji umekamilika';
+$lang['crop_required'] = 'Tafadhali kata picha kabla ya kutuma.';
+$lang['apply_crop'] = 'Tumia Ukataji';
+$lang['vmc_crop_photo'] = 'Kata Picha';
+$lang['vmc_apply_crop'] = 'Tumia Ukataji';
+
 // Officer Search Customer Page
 $lang['validation_errors'] = 'Makosa ya Uhalali';
 $lang['customer_profile'] = 'Wasifu wa Mteja';

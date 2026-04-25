@@ -2572,6 +2572,75 @@ public function validate_pdf_upload($str, $field_name)
         ]);
       }
 
+      public function update_customer_passport_inline($customer_id)
+      {
+        $cropped_data = $this->input->post('passport_cropped');
+
+        if (empty($cropped_data) && empty($_FILES['passport']['name'])) {
+          $this->session->set_flashdata('error', 'Please choose and crop passport image.');
+          return redirect('oficer/view_more_customer/' . $customer_id);
+        }
+
+        $existing = $this->db->select('passport')
+          ->where('customer_id', $customer_id)
+          ->get('tbl_sub_customer')
+          ->row();
+
+        $config['upload_path'] = FCPATH . 'assets/uploads/';
+        $config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
+        $config['max_size'] = 4096;
+        $config['encrypt_name'] = TRUE;
+        $config['remove_spaces'] = TRUE;
+
+        if (!is_dir($config['upload_path'])) {
+          mkdir($config['upload_path'], 0755, true);
+        }
+
+        if (!empty($cropped_data)) {
+          $base64 = preg_replace('#^data:image/\w+;base64,#i', '', $cropped_data);
+          $decoded = base64_decode($base64, true);
+
+          if ($decoded === false) {
+            $this->session->set_flashdata('error', 'Invalid cropped passport image data.');
+            return redirect('oficer/view_more_customer/' . $customer_id);
+          }
+
+          $file_name = 'passport_' . $customer_id . '_' . time() . '_' . mt_rand(100, 999) . '.jpg';
+          $full_path = $config['upload_path'] . $file_name;
+
+          if (file_put_contents($full_path, $decoded) === false) {
+            $this->session->set_flashdata('error', 'Failed to save cropped passport image.');
+            return redirect('oficer/view_more_customer/' . $customer_id);
+          }
+
+          $new_path = 'assets/uploads/' . $file_name;
+        } else {
+          $this->load->library('upload', $config);
+          $this->upload->initialize($config);
+
+          if (!$this->upload->do_upload('passport')) {
+            $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+            return redirect('oficer/view_more_customer/' . $customer_id);
+          }
+
+          $upload_data = $this->upload->data();
+          $new_path = 'assets/uploads/' . $upload_data['file_name'];
+        }
+
+        if (!empty($existing->passport)) {
+          $old_full = FCPATH . ltrim($existing->passport, '/');
+          if (file_exists($old_full)) {
+            @unlink($old_full);
+          }
+        }
+
+        $this->db->where('customer_id', $customer_id)
+          ->update('tbl_sub_customer', ['passport' => $new_path]);
+
+        $this->session->set_flashdata('massage', 'Customer passport updated successfully.');
+        return redirect('oficer/view_more_customer/' . $customer_id);
+      }
+
       private function get_latest_customer_passport($customer_id)
       {
         $passport_row = $this->db->select('passport')
@@ -2734,7 +2803,7 @@ $this->load->view('officer/customer_profile',['customer_profile'=>$customer_prof
             $this->load->model('queries');
         
             // Get session data
-            $position   = strtoupper($this->session->userdata('position_name'));
+        
             $blanch_id  = $this->session->userdata('blanch_id');
             $empl_id    = $this->session->userdata('empl_id');
         
@@ -2747,14 +2816,12 @@ $this->load->view('officer/customer_profile',['customer_profile'=>$customer_prof
             $privillage    = $this->queries->get_position_empl($empl_id);
             $manager       = $this->queries->get_position_manager($empl_id);
         
-            // Load customer data based on role
-            if (strtoupper(trim($position)) === 'LOAN OFFICER') {
-                $customer = $this->queries->get_customers_by_officer($empl_id);
-            } elseif ($position === 'BRANCH MANAGER') {
-                $customer = $this->queries->get_customer_blanch($blanch_id);
-            } else {
-                $customer = []; // fallback: empty list
-            }
+          $customer = $this->queries->get_customer_blanch($blanch_id);
+          
+            //    echo "<pre>";
+            // print_r($customer);
+            //  echo "</pre>";
+            //   exit();
 
 //             echo "Position: $position<br>";
 // echo "Employee ID: $empl_id<br>";
@@ -3483,6 +3550,9 @@ public function  view_aggrement($customer_id, $loan_id = null){
     $customer  = $this->queries->get_aggrement($customer_id, $comp_id);
     if (!empty($loan_id)) {
       $loan_form = $this->queries->get_formloanDataByLoanId($customer_id, $comp_id, $loan_id);
+      if (empty($loan_form)) {
+        $loan_form = $this->queries->get_formloanDataByLoanIdAnyCompany($customer_id, $loan_id);
+      }
     } else {
       $loan_form = $this->queries->get_formloanData($customer_id, $comp_id);
     }
@@ -9047,6 +9117,79 @@ public function oficer_profile(){
         return redirect('oficer/edit_viewSponser/'.$customer_id);
       }
       $this->edit_viewSponser();
+    }
+
+    public function update_sponsor_passport($sp_id, $customer_id)
+    {
+      $cropped_data = $this->input->post('passport_cropped');
+
+      if (empty($cropped_data) && empty($_FILES['passport']['name'])) {
+        $this->session->set_flashdata('error', 'Please choose and crop passport image.');
+        return redirect('oficer/view_more_customer/' . $customer_id);
+      }
+
+      $existing = $this->db
+        ->select('passport_path')
+        ->where('sp_id', $sp_id)
+        ->where('customer_id', $customer_id)
+        ->get('tbl_sponser')
+        ->row();
+
+      $config['upload_path'] = FCPATH . 'assets/sponser_passport/';
+      $config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
+      $config['max_size'] = 4096;
+      $config['encrypt_name'] = TRUE;
+      $config['remove_spaces'] = TRUE;
+
+      if (!is_dir($config['upload_path'])) {
+        mkdir($config['upload_path'], 0755, true);
+      }
+
+      if (!empty($cropped_data)) {
+        $base64 = preg_replace('#^data:image/\w+;base64,#i', '', $cropped_data);
+        $decoded = base64_decode($base64, true);
+
+        if ($decoded === false) {
+          $this->session->set_flashdata('error', 'Invalid cropped passport image data.');
+          return redirect('oficer/view_more_customer/' . $customer_id);
+        }
+
+        $file_name = 'sponsor_passport_' . $sp_id . '_' . time() . '_' . mt_rand(100, 999) . '.jpg';
+        $full_path = $config['upload_path'] . $file_name;
+
+        if (file_put_contents($full_path, $decoded) === false) {
+          $this->session->set_flashdata('error', 'Failed to save cropped passport image.');
+          return redirect('oficer/view_more_customer/' . $customer_id);
+        }
+
+        $new_path = 'assets/sponser_passport/' . $file_name;
+      } else {
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('passport')) {
+          $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+          return redirect('oficer/view_more_customer/' . $customer_id);
+        }
+
+        $upload_data = $this->upload->data();
+        $new_path = 'assets/sponser_passport/' . $upload_data['file_name'];
+      }
+
+      if (!empty($existing->passport_path)) {
+        $old_full = FCPATH . ltrim($existing->passport_path, '/');
+        if (file_exists($old_full)) {
+          @unlink($old_full);
+        }
+      }
+
+      $this->db
+        ->where('sp_id', $sp_id)
+        ->where('customer_id', $customer_id)
+        ->update('tbl_sponser', ['passport_path' => $new_path]);
+
+      $this->session->set_flashdata('massage', 'Sponsor passport updated successfully.');
+      return redirect('oficer/view_more_customer/' . $customer_id);
     }
 
 

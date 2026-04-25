@@ -1975,7 +1975,7 @@ public function update()
 		$this->loan_category();
 	}
 
-		public function update_loanCategory($category_id){
+        public function update_loanCategory($category_id){
 		$this->form_validation->set_rules('loan_name','Loan name','required');
 		$this->form_validation->set_rules('loan_price','price','required');
 		 $this->form_validation->set_rules('loan_perday','loan perday','required');
@@ -2021,16 +2021,6 @@ public function update()
 		$this->loan_fee();
 	}
 
-
-
-
-
-	public function delete_loancategory($category_id){
-		$this->load->model('queries');
-		if($this->queries->remove_loacategory($category_id));
-		$this->session->set_flashdata('massage','Data Deleted successfully');
-		 return redirect('admin/loan_category');
-	}
 
 	public function customer(){
 		$this->load->model('queries');
@@ -3685,6 +3675,8 @@ public function get_loan_aproved(){
 public function loan_fee(){
 	$this->load->model('queries');
 	$comp_id = $this->session->userdata('comp_id');
+    $this->queries->cleanup_duplicate_loanfee_categories($comp_id);
+    $this->queries->cleanup_duplicate_loanfee_types($comp_id);
 	$loan_fee = $this->queries->get_loanfee($comp_id);
 	$fee_type = $this->queries->get_loanfee_type($comp_id);
 	$fee_data = $this->queries->get_loanfee_typeData($comp_id);
@@ -3705,16 +3697,32 @@ public function create_loanfee_category(){
 	$this->form_validation->set_error_delimiters('<div class="text-danger">','</div>');
 
 	if ($this->form_validation->run()) {
-		 $data = $this->input->post();
-		 // print_r($data);
-		 //       exit();
-		 $this->load->model('queries');
-		 if ($this->queries->insert_loanFee_category($data)) {
-		 	 $this->session->set_flashdata('massage','Data saved successfully');
-		 }else{
-		 	$this->session->set_flashdata('error','Failed');
-		 }
-		 return redirect('admin/loan_fee');
+        $data = $this->input->post();
+        $this->load->model('queries');
+        $this->queries->cleanup_duplicate_loanfee_categories($data['comp_id']);
+
+        $current_fee_category = $this->queries->get_loanfee_categoryData($data['comp_id']);
+
+        if (!empty($current_fee_category)) {
+            if ($current_fee_category->fee_category === $data['fee_category']) {
+                $this->session->set_flashdata('massage', 'Loan fee category already set to selected value.');
+                return redirect('admin/loan_fee');
+            }
+
+            if ($this->queries->modify_loanFee_category(['fee_category' => $data['fee_category']], $current_fee_category->id)) {
+                $this->session->set_flashdata('massage', 'Loan fee category updated successfully');
+            } else {
+                $this->session->set_flashdata('error', 'Failed');
+            }
+            return redirect('admin/loan_fee');
+        }
+
+        if ($this->queries->insert_loanFee_category($data)) {
+            $this->session->set_flashdata('massage','Data saved successfully');
+        }else{
+            $this->session->set_flashdata('error','Failed');
+        }
+        return redirect('admin/loan_fee');
 	}
 	$this->loan_fee();
 }
@@ -3747,14 +3755,30 @@ public function create_loanfee_type(){
 
 	if ($this->form_validation->run()) {
 		$data = $this->input->post();
-		// print_r($data);
-		//      exit();
 		$this->load->model('queries');
-		if ($this->queries->insert_loanfee_type($data)) {
-			$this->session->set_flashdata("massage",'Loan Fee Type Saved successfully');
-		}else{
-			$this->session->set_flashdata("error",'Failed');
-		}
+        $this->queries->cleanup_duplicate_loanfee_types($data['comp_id']);
+
+        $current_fee_type = $this->queries->get_loanfee_type($data['comp_id']);
+
+        if (!empty($current_fee_type)) {
+            if ($current_fee_type->type === $data['type']) {
+                $this->session->set_flashdata("massage", 'General loan fee type already set to selected value.');
+                return redirect('admin/loan_fee');
+            }
+
+            if ($this->queries->update_loanfee_type(['type' => $data['type']], $current_fee_type->id)) {
+                $this->session->set_flashdata("massage", 'Loan Fee Type updated successfully');
+            } else {
+                $this->session->set_flashdata("error", 'Failed');
+            }
+            return redirect('admin/loan_fee');
+        }
+
+        if ($this->queries->insert_loanfee_type($data)) {
+            $this->session->set_flashdata("massage",'Loan Fee Type Saved successfully');
+        }else{
+            $this->session->set_flashdata("error",'Failed');
+        }
 		return redirect('admin/loan_fee');
 	}
 	$this->loan_fee();
@@ -11073,6 +11097,7 @@ public function send_email(){
      public function formular_setting(){
   	$this->load->model('queries');
   	$comp_id = $this->session->userdata('comp_id');
+		$this->queries->cleanup_duplicate_interest_formulas($comp_id);
   	$data = $this->queries->get_interestFormular($comp_id);
   	 // print_r($data);
   	 //       exit();
@@ -11081,25 +11106,20 @@ public function send_email(){
 
 
   public function create_interest_formular(){
-        $validation  = array( array('field'=> 'formular_name[]','rules'=>'required'));
-          $this->form_validation->set_rules($validation);
-           if ($this->form_validation->run() == true) {
-               $formular_name  = $this->input->post('formular_name[]');
-               $comp_id = $this->input->post('comp_id');
-              //    echo "<pre>";
-              //  print_r($formular_name);
-              //     echo "<br>";
-              //  print_r($comp_id);
-              // //    echo "<br>";
-              //      exit();
-            foreach ($formular_name as $key => $value){
-      $this->db->query("INSERT INTO  tbl_formular_setting(`formular_name`,`comp_id`) VALUES ('$value','$comp_id')");
-            }   
-          $this->session->set_flashdata('massage','Interest formular Setting Sucessfully');
-       
-           }
-           return redirect("admin/formular_setting"); 
-       }
+		$this->form_validation->set_rules('comp_id', 'Company', 'required');
+		if ($this->form_validation->run() == true) {
+			$formular_name  = $this->input->post('formular_name[]');
+			$comp_id = $this->input->post('comp_id');
+
+			$this->load->model('queries');
+			if ($this->queries->replace_interest_formulas($comp_id, $formular_name)) {
+				$this->session->set_flashdata('massage','Interest formular setting updated successfully');
+			} else {
+				$this->session->set_flashdata('error','Failed to update interest formular setting');
+			}
+		}
+		return redirect("admin/formular_setting"); 
+	}
 
        public function loan_schedule(){
        	$this->load->model('queries');
@@ -11612,6 +11632,10 @@ $this->load->view('admin/sms_history',['history'=>$history,'sms_jumla'=>$sms_jum
       	  	     // print_r($data);
       	  	     //       exit();
       	  	     $this->load->model('queries');
+                     if ($this->queries->account_name_exists_ci($data['comp_id'], $data['account_name'])) {
+                     	$this->session->set_flashdata("error","Account name already exists");
+                     	return redirect('admin/transaction_account');
+                     }
       	  	     if ($this->queries->insert_account_name($data)) {
       	  	     	$this->session->set_flashdata("massage","Data saved successfully");
       	  	     }else{

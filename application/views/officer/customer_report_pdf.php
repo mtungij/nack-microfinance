@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,122 +15,171 @@
   $txt_phone_number = $lang_line('phone_number', 'Phone Number');
   $txt_date_of_birth = $lang_line('date_of_birth', 'Date Of Birth');
   $txt_sex = $lang_line('sex', 'Sex');
-  $txt_branch_name = $lang_line('branch_name', 'Branch');
+  $txt_branch_name = $lang_line('branch', 'Branch');
   $txt_region = $lang_line('region', 'Region');
   $txt_district = $lang_line('district', 'District');
   $txt_ward = $lang_line('ward', 'Ward');
   $txt_street = $lang_line('street', 'Street');
   $txt_joining_date = $lang_line('joining_date', 'Joining Date');
-  ?>
-  <title><?php echo $compdata->comp_name; ?> | <?php echo $txt_all_customer_report; ?> </title>
-</head>
-<body>
+  $txt_total = $lang_line('total_customers', 'Total Customers');
 
-<div id="container">
+  $company_name = isset($compdata->comp_name) ? $compdata->comp_name : '';
+  $company_address = isset($compdata->adress) ? $compdata->adress : '';
+  $branch_name = isset($blanch->blanch_name) ? $blanch->blanch_name : '';
+  $company_logo = isset($compdata->comp_logo) ? $compdata->comp_logo : '';
+
+  $logo_url = '';
+  if (!empty($company_logo) && file_exists(FCPATH . 'assets/images/company_logo/' . $company_logo)) {
+    $logo_url = 'file://' . FCPATH . 'assets/images/company_logo/' . $company_logo;
+  } elseif (!empty($company_logo) && file_exists(FCPATH . 'assets/img/' . $company_logo)) {
+    $logo_url = 'file://' . FCPATH . 'assets/img/' . $company_logo;
+  }
+  ?>
+  <title><?php echo $company_name; ?> | <?php echo $txt_all_customer_report; ?></title>
   <style>
-    .display{
-      display: flex;
-      
+    body {
+      font-family: sans-serif;
+      color: #1f2937;
+      font-size: 11px;
+    }
+
+    .letterhead {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 0;
+    }
+
+    .letterhead td {
+      border: none;
+      vertical-align: middle;
+      padding: 0;
+    }
+
+    .logo-cell {
+      width: 90px;
+      padding-right: 10px;
+      text-align: center;
+    }
+
+    .logo-cell img {
+      max-height: 72px;
+      max-width: 80px;
+    }
+
+    .comp-name {
+      font-size: 20px;
+      font-weight: bold;
+      color: #0891b2;
+      margin: 0 0 3px 0;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .comp-address {
+      font-size: 12px;
+      color: #374151;
+      margin: 0 0 3px 0;
+      text-transform: uppercase;
+    }
+
+    .report-meta {
+      font-size: 11px;
+      color: #0e7490;
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .divider {
+      border: none;
+      border-top: 2px solid #06b6d4;
+      margin: 8px 0 8px 0;
+    }
+
+    .summary {
+      margin: 0 0 8px 0;
+      font-size: 11px;
+      color: #0f172a;
+    }
+
+    table.report {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+    }
+
+    table.report th,
+    table.report td {
+      border: 1px solid #a5f3fc;
+      padding: 6px 7px;
+      text-align: left;
+    }
+
+    table.report th {
+      background: #ecfeff;
+      color: #0e7490;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 10.5px;
+    }
+
+    table.report tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .uppercase {
+      text-transform: uppercase;
     }
   </style>
-     <style>
-             .c {
-               text-transform: uppercase;
-               }
-                
-      </style>
-<table  style="border: none">
-<tr style="border: none">
-<td style="border: none">
-
-
-<div style="width: 20%;">
-<img src="<?php echo base_url().'assets/img/'.$compdata->comp_logo ?>" style="width: 100px;height: 80px;">
-</div> 
-
-</td>
-<td style="border: none">
-<div class="pull">
-<p style="font-size:14px;" class="c"><b> <?php echo $compdata->comp_name; ?></b><br>
-<b><?php echo $compdata->adress; ?></b> <br>
-<?php //$day = date("d-m-Y"); ?>
-</p>
-<p style="font-size:12px;text-align:center;" class="c"><?php echo $blanch->blanch_name; ?> - <?php echo $txt_all_customer_report; ?> <?php //echo $day; ?></p>
-
-</div>
-</td>
-</tr>
-</table>
-
-    
- 
-  <div id="body">
-  <style> 
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 5px;
-}
-
-tr:nth-child(even) {
-  background-color: ;
-}
-
-</style>
 </head>
 <body>
- <hr>
 
-
-<table>
+<table class="letterhead">
   <tr>
-    <th style="font-size:12px;border: none;"><?php echo $txt_s_no; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_customer_id; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_customer_name; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_phone_number; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_date_of_birth; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_sex; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_branch_name; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_region; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_district; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_ward; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_street; ?></th>
-    <th style="font-size:12px;border: none;"><?php echo $txt_joining_date; ?></th>
+    <?php if ($logo_url): ?>
+      <td class="logo-cell"><img src="<?php echo $logo_url; ?>" alt="Logo"></td>
+    <?php endif; ?>
+    <td>
+      <p class="comp-name"><?php echo htmlspecialchars($company_name); ?></p>
+      <p class="comp-address"><?php echo htmlspecialchars($company_address); ?></p>
+      <p class="report-meta"><?php echo htmlspecialchars($branch_name); ?> - <?php echo $txt_all_customer_report; ?></p>
+    </td>
   </tr>
-   <?php $no = 1; ?>
-  <?php foreach ($customer as $customers): ?>
-    
- 
- <tr>
-    <td style="font-size:12px;border: none;" class="c"><?php echo $no++; ?>.</td>
-    <td style="font-size:12px;border: none;" class="c"><?php echo $customers->customer_code; ?></td>
-    <td style="font-size:12px;border: none;" class="c">
-      <?php echo $customers->f_name; ?> <?php echo $customers->m_name; ?> <?php echo $customers->l_name; ?> 
-      </td>
-    <td style="font-size:12px;border: none;" class="c"><?php echo $customers->phone_no; ?></td>
-    <td style="font-size:12px;border: none;"><?php echo $customers->date_birth; ?></td>
-    <td style="font-size:12px;border: none;"><?php echo $customers->gender; ?></td>
-    <td style="font-size:12px;border: none;"><?php echo $customers->blanch_name; ?></td>
-    <td style="font-size:12px;border: none;"><?php echo $customers->region_name; ?></td>
-    <td style="font-size:12px;border: none;"><?php echo $customers->district; ?></td>
-    <td style="font-size:12px;border: none;"><?php echo $customers->ward; ?></td>
-    <td style="font-size:12px;border: none;"><?php echo $customers->street; ?></td>
-    <td style="font-size:12px;border: none;"><?php echo substr($customers->customer_day, 0,10); ?></td>
-  </tr>
- <?php endforeach; ?>
- 
-
 </table>
 
-  </div>
+<hr class="divider">
 
-</div>
+<p class="summary"><strong><?php echo $txt_total; ?>:</strong> <?php echo is_array($customer) ? count($customer) : 0; ?></p>
+
+<table class="report">
+  <thead>
+    <tr>
+      <th><?php echo $txt_s_no; ?></th>
+      <th><?php echo $txt_customer_id; ?></th>
+      <th><?php echo $txt_customer_name; ?></th>
+      <th><?php echo $txt_phone_number; ?></th>
+      <th><?php echo $txt_date_of_birth; ?></th>
+      <th><?php echo $txt_sex; ?></th>
+      <th><?php echo $txt_branch_name; ?></th>
+   
+      <th><?php echo $txt_joining_date; ?></th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php $no = 1; ?>
+    <?php foreach ($customer as $customers): ?>
+      <tr>
+        <td><?php echo $no++; ?>.</td>
+        <td class="uppercase"><?php echo $customers->customer_code; ?></td>
+        <td class="uppercase"><?php echo $customers->f_name . ' ' . $customers->m_name . ' ' . $customers->l_name; ?></td>
+        <td><?php echo $customers->phone_no; ?></td>
+        <td><?php echo $customers->date_birth; ?></td>
+        <td><?php echo $customers->gender; ?></td>
+        <td><?php echo $customers->blanch_name; ?></td>
+        <td><?php echo substr($customers->customer_day, 0, 10); ?></td>
+      </tr>
+    <?php endforeach; ?>
+  </tbody>
+</table>
 
 </body>
 </html>

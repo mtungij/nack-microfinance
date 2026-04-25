@@ -1307,15 +1307,46 @@ public function get_total_pay_description_acount_statement($loan_id)
 				cb.passport AS creator_passport,
 				vb.empl_name AS verifier_name
 			FROM tbl_loans l
-			JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
-			JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
-			JOIN tbl_customer c ON c.customer_id = l.customer_id 
-			JOIN tbl_employee e ON e.empl_id = l.empl_id
-			JOIN tbl_employee cb ON cb.empl_id = l.created_by
+			LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
+			LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
+			LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
+			LEFT JOIN tbl_employee e ON e.empl_id = l.empl_id
+			LEFT JOIN tbl_employee cb ON cb.empl_id = l.created_by
 			LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
 			LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
 			WHERE l.customer_id = '$customer_id'
 			AND l.comp_id = '$comp_id'
+			AND l.loan_id = '$loan_id'
+			LIMIT 1
+		");
+		return $data->row();
+	}
+
+	public function get_formloanDataByLoanIdAnyCompany($customer_id, $loan_id) {
+		$data = $this->db->query("
+			SELECT 
+				l.*,
+				o.loan_stat_date,
+				o.loan_end_date,
+				lc.*, 
+				c.*, 
+				b.*, 
+				e.*, 
+				cb.empl_name AS creator_name,
+				cb.empl_email AS creator_email,
+				cb.empl_no AS creator_no,
+				cb.empl_sex AS creator_sex,
+				cb.passport AS creator_passport,
+				vb.empl_name AS verifier_name
+			FROM tbl_loans l
+			LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
+			LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
+			LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
+			LEFT JOIN tbl_employee e ON e.empl_id = l.empl_id
+			LEFT JOIN tbl_employee cb ON cb.empl_id = l.created_by
+			LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
+			LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
+			WHERE l.customer_id = '$customer_id'
 			AND l.loan_id = '$loan_id'
 			LIMIT 1
 		");
@@ -6724,6 +6755,68 @@ public function get_interestFormular($comp_id){
 	return $data->result();
 }
 
+public function cleanup_duplicate_interest_formulas($comp_id){
+	$rows = $this->db
+		->select('id, formular_name')
+		->where('comp_id', $comp_id)
+		->order_by('id', 'ASC')
+		->get('tbl_formular_setting')
+		->result();
+
+	$seen = [];
+	$deleted = 0;
+	foreach ($rows as $row) {
+		$key = strtoupper(trim((string) $row->formular_name));
+		if ($key === '') {
+			$this->db->delete('tbl_formular_setting', ['id' => $row->id]);
+			$deleted++;
+			continue;
+		}
+
+		if (isset($seen[$key])) {
+			$this->db->delete('tbl_formular_setting', ['id' => $row->id]);
+			$deleted++;
+			continue;
+		}
+
+		$seen[$key] = true;
+	}
+
+	return $deleted;
+}
+
+public function replace_interest_formulas($comp_id, $formular_names){
+	$this->db->where('comp_id', $comp_id)->delete('tbl_formular_setting');
+
+	if (empty($formular_names) || !is_array($formular_names)) {
+		return true;
+	}
+
+	$allowed = ['SIMPLE', 'FLAT RATE', 'REDUCING'];
+	$unique = [];
+	foreach ($formular_names as $name) {
+		$normalized = strtoupper(trim((string) $name));
+		if ($normalized === '' || !in_array($normalized, $allowed, true)) {
+			continue;
+		}
+		$unique[$normalized] = true;
+	}
+
+	if (empty($unique)) {
+		return true;
+	}
+
+	$insert_data = [];
+	foreach (array_keys($unique) as $normalized) {
+		$insert_data[] = [
+			'formular_name' => $normalized,
+			'comp_id' => $comp_id,
+		];
+	}
+
+	return $this->db->insert_batch('tbl_formular_setting', $insert_data) !== false;
+}
+
 public function remove_formular($id){
 	return $this->db->delete('tbl_formular_setting',['id'=>$id]);
 }
@@ -6809,7 +6902,25 @@ public function getEmployeesByBranch($comp_id, $blanch_id){
 //Account Transaction
 
 public function insert_account_name($data){
+	if (isset($data['account_name'])) {
+		$data['account_name'] = trim($data['account_name']);
+	}
 	return $this->db->insert('tbl_account_transaction',$data);
+}
+
+public function account_name_exists_ci($comp_id, $account_name){
+	$normalized = trim((string) $account_name);
+	if ($normalized === '') {
+		return false;
+	}
+
+	$this->db->select('trans_id');
+	$this->db->from('tbl_account_transaction');
+	$this->db->where('comp_id', $comp_id);
+	$this->db->where('LOWER(TRIM(account_name)) = LOWER(' . $this->db->escape($normalized) . ')', null, false);
+	$this->db->limit(1);
+
+	return $this->db->get()->num_rows() > 0;
 }
 
 public function get_account_transaction($comp_id){
@@ -7993,8 +8104,26 @@ public function insert_loanfee_type($data){
 	return $this->db->insert('tbl_fee_type',$data);
 }
 
+public function cleanup_duplicate_loanfee_types($comp_id){
+	$latest = $this->db
+		->select_max('id')
+		->where('comp_id', $comp_id)
+		->get('tbl_fee_type')
+		->row();
+
+	if (empty($latest) || empty($latest->id)) {
+		return 0;
+	}
+
+	$this->db->where('comp_id', $comp_id);
+	$this->db->where('id !=', (int) $latest->id);
+	$this->db->delete('tbl_fee_type');
+
+	return $this->db->affected_rows();
+}
+
 public function get_loanfee_type($comp_id){
-	$data = $this->db->query("SELECT * FROM tbl_fee_type WHERE comp_id = '$comp_id'");
+	$data = $this->db->query("SELECT * FROM tbl_fee_type WHERE comp_id = '$comp_id' ORDER BY id DESC LIMIT 1");
 	return $data->row();
 }
 
@@ -8167,6 +8296,24 @@ public function get_loanfee_category($comp_id){
 public function get_loanfee_categoryData($comp_id){
 	$data = $this->db->query("SELECT * FROM tbl_fee_category WHERE comp_id = '$comp_id'");
 	return $data->row();
+}
+
+public function cleanup_duplicate_loanfee_categories($comp_id){
+	$latest = $this->db
+		->select_max('id')
+		->where('comp_id', $comp_id)
+		->get('tbl_fee_category')
+		->row();
+
+	if (empty($latest) || empty($latest->id)) {
+		return 0;
+	}
+
+	$this->db->where('comp_id', $comp_id);
+	$this->db->where('id !=', (int) $latest->id);
+	$this->db->delete('tbl_fee_category');
+
+	return $this->db->affected_rows();
 }
 
 

@@ -157,6 +157,8 @@ $lang['to_max_amount'] = 'To (Max Amount)';
 $lang['amount_example_small'] = 'e.g., 1000';
 $lang['amount_example_large'] = 'e.g., 10000';
 $lang['loan_interest_percent'] = 'Loan Interest (%)';
+$lang['minimum_loan_amount'] = 'Minimum Loan Amount';
+$lang['maximum_loan_amount'] = 'Maximum Loan Amount';
 $lang['interest_example'] = 'e.g., 10.5';
 $lang['loan_category_list'] = 'Loan Category List';
 $lang['no_loan_categories_found'] = 'No loan categories found.';
@@ -818,6 +820,36 @@ $lang['identification_letter_pdf'] = 'Identification Letter (PDF)';
 $lang['id_card_pdf'] = 'ID Card (PDF)';
 $lang['search_customer_for_loan'] = 'Search Customer for Loan Application';
 $lang['loan_incomplete_note'] = 'Remember if they have an incomplete loan, the system will refuse to apply for a new loan.';
+$lang['all_customer_list_title'] = 'All Customer List';
+$lang['all_customer_list_subtitle'] = 'List of all registered customers.';
+$lang['print_label'] = 'Print';
+
+// Officer View More Customer page
+$lang['vmc_back_all_customers'] = 'Back to All Customers';
+$lang['vmc_all_loans'] = 'All Loans';
+$lang['vmc_nature'] = 'Nature';
+$lang['vmc_loan_approved'] = 'Loan Approved';
+$lang['vmc_principal_interest'] = 'Principal + Interest';
+$lang['vmc_start_date'] = 'Start Date';
+$lang['vmc_end_date'] = 'End Date';
+$lang['vmc_loan_agreement'] = 'Loan Agreement';
+$lang['vmc_view_loan_agreement'] = 'View Loan Agreement';
+$lang['vmc_no_agreement'] = 'No Agreement';
+$lang['vmc_admin'] = 'Admin';
+$lang['vmc_approved'] = 'Approved';
+$lang['vmc_done'] = 'Done';
+$lang['vmc_default'] = 'Default';
+$lang['vmc_update_upload_passport'] = 'Update/Upload Passport';
+$lang['upload'] = 'Upload';
+$lang['collateral_list'] = 'Collateral List';
+$lang['collateral_current_value'] = 'Collateral Current Value';
+$lang['collateral_photo'] = 'Collateral Photo';
+$lang['crop_image'] = 'Crop Image';
+$lang['crop_ready'] = 'Crop ready';
+$lang['crop_required'] = 'Please crop image before submitting.';
+$lang['apply_crop'] = 'Apply Crop';
+$lang['vmc_crop_photo'] = 'Crop Photo';
+$lang['vmc_apply_crop'] = 'Apply Crop';
 
 // Officer Search Customer Page
 $lang['validation_errors'] = 'Validation Errors';
