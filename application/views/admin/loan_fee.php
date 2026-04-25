@@ -3,8 +3,8 @@
 include_once APPPATH . "views/partials/header.php";
 
 $is_super_admin = ($this->session->userdata('role') === 'admin');
-$can_loan_fee_edit = $is_super_admin || has_permission('Loans', 'can_edit') || has_permission('Mikopo', 'can_edit') || has_permission('Add New Loan Product', 'can_edit');
-$can_loan_fee_delete = $is_super_admin || has_permission('Loans', 'can_delete') || has_permission('Mikopo', 'can_delete') || has_permission('Add New Loan Product', 'can_delete');
+$can_loan_fee_edit = true;
+$can_loan_fee_delete = true;
 
 // --- DUMMY DATA - REMOVE AND LOAD FROM CONTROLLER ---
 // if (!isset($fee_category)) { // For the list of fee categories (usually one)

@@ -234,14 +234,12 @@ $can_staff_view_branch = $can_staff_view_all;
                 <?php echo $this->lang->line('loan_category'); ?>
               </a>
             </li>
-            <?php if (has_permission('Ada Za Mikopo')): ?>
             <li>
               <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/loan_fee') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
                  href="<?php echo base_url("admin/loan_fee"); ?>">
                 <?php echo $this->lang->line('loan_fee'); ?>
               </a>
             </li>
-            <?php endif; ?>
             <?php if (has_permission('Faini za Mikopo')): ?>
             <li>
               <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/penart_setting') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>"
