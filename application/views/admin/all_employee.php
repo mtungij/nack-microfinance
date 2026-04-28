@@ -80,19 +80,19 @@ $officer_action_labels = [
                 </div>
             </div>
             <div class="overflow-x-auto">
-                <table id="shareholder_table"  class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-500 dark:text-gray-400">
+                <table id="shareholder_table"  class="w-full text-sm text-left text-gray-900 dark:text-gray-300">
+                  <thead class="text-xs text-black uppercase bg-gray-50 dark:bg-cyan-500 dark:text-white">
                         <tr>
-                 <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('sno'); ?></th>
-								<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('staff_name'); ?></th>
-               <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('branch_name'); ?></th>
-               <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('email'); ?></th>
-						 <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('phone_number'); ?></th>
-            <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('position'); ?></th>
-             <th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('account_status'); ?></th>
-							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('created_at'); ?></th>
+                 <th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('sno'); ?></th>
+								<th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('staff_name'); ?></th>
+               <th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('branch_name'); ?></th>
+               <th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('email'); ?></th>
+						 <th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('phone_number'); ?></th>
+            <th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('position'); ?></th>
+             <th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('account_status'); ?></th>
+							<th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('created_at'); ?></th>
 			
-							<th scope="col" class="px-4 py-3 dark:text-white"><?php echo $this->lang->line('action'); ?></th>
+							<th scope="col" class="px-4 py-3 "><?php echo $this->lang->line('action'); ?></th>
                         </tr>
                     </thead>
 					<tbody>
@@ -105,16 +105,16 @@ $officer_action_labels = [
         ?>
         <tr class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $no++ ?></th>
-            <td class="uppercase px-4 py-3 dark:text-white">
+            <td class="uppercase px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                <?= $employees->empl_name ?>
             </td>
-              <td class="px-4 py-3 dark:text-white"><?= $employees->blanch_name ?></td>
-            <td class="px-4 py-3 dark:text-white"><?= $employees->empl_email; ?></td>
-            <td class="px-4 py-3 dark:text-white"><?= $employees->empl_no ?></td>
-            <td class="px-4 py-3 dark:text-white"><?= $employees->position; ?></td>
+              <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $employees->blanch_name ?></td>
+            <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $employees->empl_email; ?></td>
+            <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $employees->empl_no ?></td>
+            <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?= $employees->position; ?></td>
 
             <!-- Principal -->
-            <td class="px-4 py-3 dark:text-white">
+            <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
               <?php
                 $status = strtolower($employees->empl_status);   // e.g. "open" or "close"
               
@@ -152,7 +152,7 @@ $officer_action_labels = [
             </td>
 
             <!-- Session -->
-            <td class="px-4 py-3 dark:text-white"><?php echo !empty($employees->empl_day) ? date('Y-m-d H:i', strtotime($employees->empl_day)) : '-'; ?></td>
+            <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><?php echo !empty($employees->empl_day) ? date('Y-m-d H:i', strtotime($employees->empl_day)) : '-'; ?></td>
            
 
             <!-- Collection -->

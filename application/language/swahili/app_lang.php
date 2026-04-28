@@ -263,7 +263,8 @@ $lang['all_customer'] = 'Wateja Wote';
 
 $lang['loan'] = 'Mkopo';
 $lang['loan_application'] = 'Ombi la Mkopo';
-$lang['loan_pending_approve'] = 'Uthibitisho wa Ombi la Mkopo';
+$lang['loan_pending_approve'] = 'Maombi ya Mkopo';
+$lang['loan_pending_approve_desc'] = 'Omba upitishiwe ili uwahudumie.';
 $lang['loan_approved_not_disbursed'] = 'Mikopo Iliyokubaliwa Haijatolewa';
 $lang['loan_disbursed'] = 'Mikopo Iliyopitishwa';
 $lang['loan_withdrawal'] = 'Mikopo Iliyotolewa';
@@ -771,6 +772,13 @@ $lang['repayment_of'] = 'Marejesho Ya';
 $lang['total_repayments'] = 'Idadi Jumla Ya Marejesho';
 $lang['loan_application_date'] = 'Tarehe Ya Maombi Ya Mkopo';
 $lang['loan_requesting_officer'] = 'Afisa Aliyeomba Mkopo';
+$lang['loan_amount_applied'] = 'Kiasi cha Mkopo';
+$lang['search_loan_pending'] = 'Tafuta mikopo inayosubiri...';
+$lang['day_label'] = 'Siku';
+$lang['week_label'] = 'Wiki';
+$lang['month_label'] = 'Mwezi';
+$lang['not_applicable_label'] = 'N/A';
+$lang['not_new_customer'] = 'Sio Mteja Mpya';
 $lang['approve'] = 'Pitisha';
 $lang['reject'] = 'Kataa';
 

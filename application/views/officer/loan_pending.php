@@ -21,18 +21,18 @@ include_once APPPATH . "views/partials/officerheader.php";
         <!-- Page Title / Subheader -->
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-               Loan Pending Approve
+               <?php echo $this->lang->line('loan_pending_approve') ?? 'Loan Pending Approve'; ?>
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Omba upitishiwe ili uwahudumie.
+                <?php echo $this->lang->line('loan_pending_approve_desc') ?? 'Request approval so you can serve customers.'; ?>
             </p>
         </div>
 
 
 		<div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                     <div class="relative max-w-xs w-full">
-                        <label for="shareholder-table-search" class="sr-only">Search</label>
-                        <input type="text" name="shareholder-table-search" id="shareholder-table-search" class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" placeholder="Search share holders..." data-hs-datatable-search="#shareholder_table">
+                        <label for="shareholder-table-search" class="sr-only"><?php echo $this->lang->line('search') ?? 'Search'; ?></label>
+                        <input type="text" name="shareholder-table-search" id="shareholder-table-search" class="py-2 px-3 ps-9 block w-full border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600" placeholder="<?php echo $this->lang->line('search_loan_pending') ?? 'Search pending loans...'; ?>" data-hs-datatable-search="#shareholder_table">
                         <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-3"><svg class="size-4 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
                     </div>
                 </div>
@@ -40,19 +40,19 @@ include_once APPPATH . "views/partials/officerheader.php";
 <!-- Table Section -->
 <div class="overflow-x-auto">
                     <div class="min-w-full inline-block align-middle">
-                        <div class="border rounded-lg overflow-hidden dark:border-gray-700">
+                        <div class="border rounded-lg overflow-hidden text-gray-800 dark:border-gray-700 dark:text-gray-200">
 		<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="shareholder_table" data-hs-datatable>
-    <thead class="bg-gray-50 dark:bg-gray-700">
+    <thead class="bg-cyan-600 text-white dark:bg-cyan-700 dark:text-white">
         <tr>
-            <th class="py-3 px-6 text-start">S/No.</th>
-            <th class="py-3 px-6 text-start">Customer Name</th>
-            <th class="py-3 px-6 text-start">Phone Number</th>
-            <th class="py-3 px-6 text-start">Branch</th>
-            <th class="py-3 px-6 text-start">Loan Amount Applied</th>
-            <th class="py-3 px-6 text-start">Duration Type</th>
-            <th class="py-3 px-6 text-start">Loan Type</th>
-            <th class="py-3 px-6 text-end">Loan Status</th>
-            <th class="py-3 px-6 text-end">Application Date</th>
+            <th class="py-3 px-6 text-start"><?php echo $this->lang->line('sno') ?? 'S/No.'; ?></th>
+            <th class="py-3 px-6 text-start"><?php echo $this->lang->line('customer_name') ?? 'Customer Name'; ?></th>
+            <th class="py-3 px-6 text-start"><?php echo $this->lang->line('phone_number') ?? 'Phone Number'; ?></th>
+            <th class="py-3 px-6 text-start"><?php echo $this->lang->line('branch_sw') ?? 'Branch'; ?></th>
+            <th class="py-3 px-6 text-start"><?php echo $this->lang->line('loan_amount_applied') ?? 'Loan Amount Applied'; ?></th>
+            <th class="py-3 px-6 text-start"><?php echo $this->lang->line('duration_type') ?? 'Duration Type'; ?></th>
+            <th class="py-3 px-6 text-start"><?php echo $this->lang->line('loan_type') ?? 'Loan Type'; ?></th>
+            <th class="py-3 px-6 text-end"><?php echo $this->lang->line('loan_status') ?? 'Loan Status'; ?></th>
+            <th class="py-3 px-6 text-end"><?php echo $this->lang->line('loan_application_date') ?? 'Loan Application Date'; ?></th>
             <th class="py-3 px-6 text-center"><?php echo $this->lang->line('verification_status') ?? 'Verification'; ?></th>
             <th class="py-3 px-6 text-end"><?php echo $this->lang->line('action') ?? 'Action'; ?></th>
         </tr>
@@ -93,13 +93,13 @@ include_once APPPATH . "views/partials/officerheader.php";
             <td class="px-6 py-4 text-sm">
                 <?php
                     if ($loan_pendings->day == 1) {
-                        echo "Siku";
+                        echo $this->lang->line('day_label') ?? 'Day';
                     } elseif ($loan_pendings->day == 7) {
-                        echo "Wiki";
+                        echo $this->lang->line('week_label') ?? 'Week';
                     } elseif (in_array($loan_pendings->day, [28, 29, 30, 31])) {
-                        echo "Mwezi";
+                        echo $this->lang->line('month_label') ?? 'Month';
                     } else {
-                        echo "N/A";
+                        echo $this->lang->line('not_applicable_label') ?? 'N/A';
                     }
 
                     echo " (" . htmlspecialchars($loan_pendings->session, ENT_QUOTES, 'UTF-8') . ")";
@@ -111,7 +111,7 @@ include_once APPPATH . "views/partials/officerheader.php";
             </td>
 
             <td class="px-6 py-4 text-sm">
-                <?php echo ($loan_pendings->loan_count > 1) ? 'Sio Mteja Mpya' : 'Mteja Mpya'; ?>
+                <?php echo ($loan_pendings->loan_count > 1) ? ($this->lang->line('not_new_customer') ?? 'Existing Customer') : ($this->lang->line('new_customer') ?? 'New Customer'); ?>
             </td>
 
             <td class="px-6 py-4 text-sm">
@@ -138,12 +138,12 @@ include_once APPPATH . "views/partials/officerheader.php";
             <td class="px-6 py-4 text-end text-sm">
                 <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
                     <button id="hs-table-action-sh-<?php echo $loan_pendings->loan_id; ?>" type="button"
-                        class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
+                        class="hs-dropdown-toggle py-1.5 px-2.5 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm hover:bg-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
                         <?php echo $this->lang->line('action') ?? 'Action'; ?>
                         <svg class="size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                     </button>
 
-                    <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-40 bg-white shadow-md rounded-lg p-2 mt-2 z-20 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-table-action-sh-<?php echo $loan_pendings->loan_id; ?>">
+                    <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-40 bg-gray-100 shadow-md rounded-lg p-2 mt-2 z-20 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="hs-table-action-sh-<?php echo $loan_pendings->loan_id; ?>">
 
                         <a href="<?= base_url("oficer/view_Dataloan/{$loan_pendings->customer_id}/{$loan_pendings->comp_id}") ?>"
                            class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300">
@@ -172,8 +172,8 @@ include_once APPPATH . "views/partials/officerheader.php";
         <?php endforeach; ?>
 
         <!-- TOTAL ROW -->
-        <tr class="bg-gray-100 font-semibold">
-            <td colspan="4" class="px-6 py-4 text-end">TOTAL:</td>
+        <tr class="bg-gray-100 font-semibold dark:bg-gray-700 dark:text-gray-200">
+            <td colspan="4" class="px-6 py-4 text-end"><?php echo ($this->lang->line('total') ?? 'TOTAL') . ':'; ?></td>
             <td class="px-6 py-4">
                 <?php echo number_format($total_loan, 0, '.', ','); ?>
             </td>

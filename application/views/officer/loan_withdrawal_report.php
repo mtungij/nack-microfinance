@@ -13,7 +13,7 @@
         <html lang="en">
         <head>
             <meta charset="UTF-8" />
-            <title><?= htmlspecialchars($compdata->comp_name ?? 'Loan Withdrawal Report') ?></title>
+            <title><?= htmlspecialchars($compdata->comp_name ?? 'Ripoti ya Mikopo Iliyotolewa') ?></title>
             <style>
                 html, body { margin: 0; padding: 0; width: 100%; box-sizing: border-box; }
                 body { font-family: Arial, sans-serif; font-size: 10px; color: #222; }
@@ -71,18 +71,18 @@
             <?php endif; ?>
             <?php if (!empty($compdata->comp_email) || !empty($compdata->comp_phone)): ?>
                 <p>
-                    <?php if (!empty($compdata->comp_email)): ?>Email: <?= htmlspecialchars($compdata->comp_email) ?><?php endif; ?>
+                    <?php if (!empty($compdata->comp_email)): ?>Barua Pepe: <?= htmlspecialchars($compdata->comp_email) ?><?php endif; ?>
                     <?php if (!empty($compdata->comp_email) && !empty($compdata->comp_phone)): ?> &nbsp;|&nbsp; <?php endif; ?>
-                    <?php if (!empty($compdata->comp_phone)): ?>Phone: <?= htmlspecialchars($compdata->comp_phone) ?><?php endif; ?>
+                    <?php if (!empty($compdata->comp_phone)): ?>Simu: <?= htmlspecialchars($compdata->comp_phone) ?><?php endif; ?>
                 </p>
             <?php endif; ?>
         </div>
 
         <!-- Report Title -->
         <div class="report-title">
-            <h3>Loan Withdrawal Report &mdash; <?= htmlspecialchars($blanch->blanch_name ?? '') ?></h3>
+            <h3>Ripoti ya Mikopo Iliyotolewa &mdash; <?= htmlspecialchars($blanch->blanch_name ?? '') ?></h3>
             <div class="date-range">
-                Period: <strong><?= htmlspecialchars($from_date) ?></strong> to <strong><?= htmlspecialchars($to_date) ?></strong>
+                Kipindi: <strong><?= htmlspecialchars($from_date) ?></strong> hadi <strong><?= htmlspecialchars($to_date) ?></strong>
             </div>
         </div>
 
@@ -91,20 +91,20 @@
             <thead>
                 <tr>
                     <th class="text-center">#</th>
-                    <th>Customer Name</th>
-                    <th>Phone</th>
-                    <th>Branch</th>
-                    <th class="text-right">Principal</th>
-                    <th class="text-right">Loan Amount</th>
-                    <th>Duration Type</th>
-                    <th class="text-right">Collection</th>
-                    <th>Product</th>
-                    <th>Method</th>
-                    <th>Withdraw Date</th>
-                    <th>End Date</th>
-                    <th class="text-right">Amount Paid</th>
-                    <th class="text-right">Remain Debt</th>
-                    <th class="text-center">Status</th>
+                    <th>Jina la Mteja</th>
+                    <th>Simu</th>
+                    <th>Tawi</th>
+                    <th class="text-right">Mkopo Halisi</th>
+                    <th class="text-right">Jumla ya Mkopo</th>
+                    <th>Aina ya Muda</th>
+                    <th class="text-right">Makusanyo</th>
+                    <th>Bidhaa</th>
+                    <th>Njia</th>
+                    <th>Tarehe ya Utoaji</th>
+                    <th>Tarehe ya Mwisho</th>
+                    <th class="text-right">Kiasi Kilicholipwa</th>
+                    <th class="text-right">Deni Lililobaki</th>
+                    <th class="text-center">Hali</th>
                 </tr>
             </thead>
             <tbody>
@@ -126,19 +126,19 @@
                 $total_paid       += $row_paid;
                 $total_remain     += $row_remain;
 
-                if ($loan->day == 1)                          $duration = 'Daily';
-                elseif ($loan->day == 7)                      $duration = 'Weekly';
-                elseif (in_array($loan->day, [28,29,30,31]))  $duration = 'Monthly';
-                else                                          $duration = 'Other';
+                if ($loan->day == 1)                          $duration = 'Kila Siku';
+                elseif ($loan->day == 7)                      $duration = 'Kila Wiki';
+                elseif (in_array($loan->day, [28,29,30,31]))  $duration = 'Kila Mwezi';
+                else                                          $duration = 'Nyingine';
                 $duration .= ' (' . $loan->session . ')';
 
                 $status = $loan->loan_status ?? '';
                 switch ($status) {
-                    case 'withdrawal': $badge = 'badge-active';    $label = 'Active';    break;
-                    case 'out':        $badge = 'badge-expired';   $label = 'Expired';   break;
-                    case 'done':       $badge = 'badge-fullpaid';  $label = 'Full Paid'; break;
-                    case 'disbarsed':  $badge = 'badge-disbarsed'; $label = 'Disbursed'; break;
-                    case 'aproved':    $badge = 'badge-aproved';   $label = 'Approved';  break;
+                    case 'withdrawal': $badge = 'badge-active';    $label = 'Inaendelea'; break;
+                    case 'out':        $badge = 'badge-expired';   $label = 'Imechelewa'; break;
+                    case 'done':       $badge = 'badge-fullpaid';  $label = 'Imelipwa'; break;
+                    case 'disbarsed':  $badge = 'badge-disbarsed'; $label = 'Imetolewa'; break;
+                    case 'aproved':    $badge = 'badge-aproved';   $label = 'Imeidhinishwa'; break;
                     default:           $badge = 'badge-default';   $label = ucfirst($status);
                 }
             ?>
@@ -163,7 +163,7 @@
             </tbody>
             <tfoot>
                 <tr class="total-row">
-                    <td colspan="4" class="text-right">TOTAL</td>
+                    <td colspan="4" class="text-right">JUMLA</td>
                     <td class="text-right"><?= number_format($total_principal) ?></td>
                     <td class="text-right"><?= number_format($total_loan_int) ?></td>
                     <td></td>

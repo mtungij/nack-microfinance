@@ -8,6 +8,7 @@ $penalty_total = !empty($penalty_today->total_receved) ? (float) $penalty_today-
 $processing_fee_total = !empty($processing_fee->total_deducted) ? (float) $processing_fee->total_deducted : 0;
 $outside_contract_total = !empty($outside_contract_received->total_outside_contract) ? (float) $outside_contract_received->total_outside_contract : 0;
 $account_payment_summary = !empty($account_payment_summary) ? $account_payment_summary : array();
+$withdraw_total = !empty($total_today_with->total_loan_withcomp) ? (float) $total_today_with->total_loan_withcomp : 0;
 
 $total_opening_balance = 0.0;
 $total_closing_balance = 0.0;
@@ -19,8 +20,6 @@ foreach ($account_payment_summary as $account_row) {
     $total_withdraw_by_account += !empty($account_row->today_loan_withdraw) ? (float) $account_row->today_loan_withdraw : 0;
     $total_received_by_account += !empty($account_row->today_received) ? (float) $account_row->today_received : 0;
 }
-
-$withdraw_total = $total_withdraw_by_account;
 $received_total = $total_received_by_account;
 $computed_closing_balance = $total_opening_balance + $total_received_by_account - $total_withdraw_by_account;
 

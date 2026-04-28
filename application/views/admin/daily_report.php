@@ -15,6 +15,9 @@ $not_paid_today = !empty($payment_breakdown->not_paid_today) ? (float) $payment_
 $penalty_total = !empty($penalty_today->total_receved) ? (float) $penalty_today->total_receved : 0;
 $processing_fee_total = !empty($processing_fee->total_deducted) ? (float) $processing_fee->total_deducted : 0;
 $outside_contract_total = !empty($outside_contract_received->total_outside_contract) ? (float) $outside_contract_received->total_outside_contract : 0;
+$total_customers_count = !empty($total_customers->total_customers) ? (float) $total_customers->total_customers : 0;
+$customers_paid_count = !empty($customers_paid->total_paid_customers) ? (float) $customers_paid->total_paid_customers : 0;
+$new_customers_count = !empty($new_customers->total_new_customers) ? (float) $new_customers->total_new_customers : 0;
 $received_by_account = !empty($received_by_account) ? $received_by_account : array();
 $account_payment_summary = !empty($account_payment_summary) ? $account_payment_summary : array();
 
@@ -30,7 +33,6 @@ foreach ($account_payment_summary as $account_row) {
 }
 
 $received_total = $total_received_by_account;
-$withdraw_total = $total_withdraw_by_account;
 $computed_closing_balance = $total_opening_balance + $total_received_by_account - $total_withdraw_by_account;
 $branch_count = !empty($blanch) ? count($blanch) : 0;
 $selected_blanch_id = !empty($selected_blanch_id) ? (int) $selected_blanch_id : 0;
@@ -92,6 +94,12 @@ $txt_closing_balance_current = $lang_line('daily_report_closing_balance_current'
 $txt_closing_balance_by_account = $lang_line('daily_report_closing_balance_by_account', 'Closing Balance -');
 $txt_total_branches = $lang_line('daily_report_total_branches', 'Total Branches');
 $txt_no_branch_data = $lang_line('daily_report_no_branch_data', 'No branch data available.');
+$txt_total_customers = $lang_line('daily_report_total_customers_with_loans', 'IDADI YA WATEJA');
+$txt_total_customers_note = $lang_line('daily_report_total_customers_with_loans_note', 'All customers in the selected branch/company with active or overdue loans.');
+$txt_customers_paid = $lang_line('daily_report_customers_paid_today', 'WALIOLETA');
+$txt_customers_paid_note = $lang_line('daily_report_customers_paid_today_note', 'Total customers who made payment on the selected date.');
+$txt_new_customers = $lang_line('daily_report_new_customers_today', 'WATEJA WAPYA');
+$txt_new_customers_note = $lang_line('daily_report_new_customers_today_note', 'Customers registered on the selected date with exactly one loan on that date.');
 ?>
 
 <style>
@@ -443,6 +451,24 @@ $txt_no_branch_data = $lang_line('daily_report_no_branch_data', 'No branch data 
 				</div>
 
 				<div class="daily-report-card">
+					<div class="daily-report-label"><?php echo $txt_total_customers; ?></div>
+					<div class="daily-report-value"><?php echo number_format($total_customers_count); ?></div>
+					<div class="daily-report-note"><?php echo $txt_total_customers_note; ?></div>
+				</div>
+
+				<div class="daily-report-card">
+					<div class="daily-report-label"><?php echo $txt_customers_paid; ?></div>
+					<div class="daily-report-value"><?php echo number_format($customers_paid_count); ?></div>
+					<div class="daily-report-note"><?php echo $txt_customers_paid_note; ?></div>
+				</div>
+
+				<div class="daily-report-card">
+					<div class="daily-report-label"><?php echo $txt_new_customers; ?></div>
+					<div class="daily-report-value"><?php echo number_format($new_customers_count); ?></div>
+					<div class="daily-report-note"><?php echo $txt_new_customers_note; ?></div>
+				</div>
+
+				<div class="daily-report-card">
 					<div class="daily-report-label"><?php echo $txt_branches; ?></div>
 					<div class="daily-report-value"><?php echo number_format($branch_count); ?></div>
 					<div class="daily-report-note"><?php echo $txt_branches_note; ?></div>
@@ -486,10 +512,15 @@ $txt_no_branch_data = $lang_line('daily_report_no_branch_data', 'No branch data 
 						</tr>
 						<?php if (!empty($account_payment_summary)): ?>
 							<?php foreach ($account_payment_summary as $account_row): ?>
-								<?php if ((float) $account_row->today_loan_withdraw > 0): ?>
+								<?php
+									$account_name = !empty($account_row->account_name) ? trim((string) $account_row->account_name) : '';
+									$is_cash_account = strcasecmp($account_name, 'CASH') === 0;
+									$account_withdraw = $is_cash_account ? (float) $withdraw_total : (float) $account_row->today_loan_withdraw;
+								?>
+								<?php if ($account_withdraw > 0): ?>
 									<tr>
 										<td data-label="<?php echo $txt_item; ?>"><?php echo $txt_withdraw_by_account; ?> <?php echo !empty($account_row->account_name) ? $account_row->account_name : $txt_unknown_account; ?></td>
-										<td data-label="<?php echo $txt_amount; ?>"><?php echo number_format((float) $account_row->today_loan_withdraw); ?></td>
+										<td data-label="<?php echo $txt_amount; ?>"><?php echo number_format($account_withdraw); ?></td>
 									</tr>
 								<?php endif; ?>
 							<?php endforeach; ?>
@@ -537,6 +568,18 @@ $txt_no_branch_data = $lang_line('daily_report_no_branch_data', 'No branch data 
 						<tr>
 							<td data-label="<?php echo $txt_item; ?>" style="color:#7d3c98; font-weight:600;"><?php echo $txt_processing_fees; ?></td>
 							<td data-label="<?php echo $txt_amount; ?>" style="color:#7d3c98; font-weight:600;"><?php echo number_format($processing_fee_total); ?></td>
+						</tr>
+						<tr>
+							<td data-label="<?php echo $txt_item; ?>" style="font-weight:600;"><?php echo $txt_total_customers; ?></td>
+							<td data-label="<?php echo $txt_amount; ?>"><?php echo number_format($total_customers_count); ?></td>
+						</tr>
+						<tr>
+							<td data-label="<?php echo $txt_item; ?>" style="font-weight:600;"><?php echo $txt_customers_paid; ?></td>
+							<td data-label="<?php echo $txt_amount; ?>"><?php echo number_format($customers_paid_count); ?></td>
+						</tr>
+						<tr>
+							<td data-label="<?php echo $txt_item; ?>" style="font-weight:600;"><?php echo $txt_new_customers; ?></td>
+							<td data-label="<?php echo $txt_amount; ?>"><?php echo number_format($new_customers_count); ?></td>
 						</tr>
 						<tr>
 							<td data-label="<?php echo $txt_item; ?>" style="font-weight:600; background:#f9fbfd;"><?php echo $txt_opening_balance_all; ?></td>

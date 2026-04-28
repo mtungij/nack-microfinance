@@ -1,9 +1,8 @@
 <?php
 include_once APPPATH . "views/partials/header.php";
 
-$is_super_admin = ($this->session->userdata('role') === 'admin');
-$can_share_edit = $is_super_admin || has_permission('Register Shareholder', 'can_edit') || has_permission('Shareholders', 'can_edit');
-$can_share_delete = $is_super_admin || has_permission('Register Shareholder', 'can_delete') || has_permission('Shareholders', 'can_delete');
+$can_share_edit = true;
+$can_share_delete = true;
 
 // --- DUMMY DATA - REMOVE AND LOAD FROM YOUR CONTROLLER ---
 // Controller should pass $share, an array of shareholder objects.

@@ -282,12 +282,8 @@ $can_staff_view_branch = $can_staff_view_all;
         </button>
         <div id="capital-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo $capital_submenu_active ? '' : 'hidden'; ?>">
             <ul class="pt-2 ps-2">
-            <?php if (has_permission('Wanahisa (ShareHolders)')): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/shareHolder') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/shareHolder"); ?>"><?php echo $this->lang->line('share_holder'); ?></a></li>
-                <?php endif; ?>
-                <?php if (has_permission('Record mtaji Wa Kampuni')): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/capital') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/capital"); ?>"><?php echo $this->lang->line('add_capital'); ?></a></li>
-                <?php endif; ?>
                 <?php if (has_permission('Gawa Float Tawini')): ?>
                 <li><a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg <?php echo is_active_link('admin/transfar_amount') ? 'text-cyan-600 dark:text-cyan-500' : 'text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 dark:text-gray-400 dark:hover:text-gray-300'; ?>" href="<?php echo base_url("admin/transfar_amount"); ?>"><?php echo $this->lang->line('float'); ?></a></li>
                 <?php endif; ?>

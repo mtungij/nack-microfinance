@@ -614,63 +614,6 @@ public function count_default_customers_by_branch($blanch_id) {
 		return $this->db->count_all_results('tbl_customer'); // Returns count directly
 	}
 
-	public function get_daily_report_customer_count($comp_id, $blanch_id = null) {
-		$sql = "SELECT COUNT(DISTINCT l.customer_id) AS total_customers
-				FROM tbl_loans l
-				WHERE l.comp_id = ?
-				  AND l.loan_status IN ('withdrawal', 'out')";
-		$params = array($comp_id);
-
-		if (!empty($blanch_id)) {
-			$sql .= " AND l.blanch_id = ?";
-			$params[] = (int) $blanch_id;
-		}
-
-		$query = $this->db->query($sql, $params);
-		return $query->row();
-	}
-
-	public function get_daily_report_customers_paid_count($comp_id, $report_date, $blanch_id = null) {
-		$sql = "SELECT COUNT(DISTINCT pr.customer_id) AS total_paid_customers
-				FROM tbl_prev_lecod pr
-				WHERE pr.comp_id = ?
-				  AND pr.lecod_day = ?
-				  AND COALESCE(pr.depost, 0) > 0";
-		$params = array($comp_id, $report_date);
-
-		if (!empty($blanch_id)) {
-			$sql .= " AND pr.blanch_id = ?";
-			$params[] = (int) $blanch_id;
-		}
-
-		$query = $this->db->query($sql, $params);
-		return $query->row();
-	}
-
-	public function get_daily_report_new_customers_count($comp_id, $report_date, $blanch_id = null) {
-		$sql = "SELECT COUNT(*) AS total_new_customers
-				FROM (
-					SELECT c.customer_id
-					FROM tbl_customer c
-					INNER JOIN tbl_loans l ON l.customer_id = c.customer_id
-					WHERE c.comp_id = ?
-					  AND DATE(c.reg_date) = ?
-					  AND DATE(l.loan_day) = ?";
-		$params = array($comp_id, $report_date, $report_date);
-
-		if (!empty($blanch_id)) {
-			$sql .= " AND c.blanch_id = ? AND l.blanch_id = ?";
-			$params[] = (int) $blanch_id;
-			$params[] = (int) $blanch_id;
-		}
-
-		$sql .= " GROUP BY c.customer_id HAVING COUNT(l.loan_id) = 1
-				) AS new_customers";
-
-		$query = $this->db->query($sql, $params);
-		return $query->row();
-	}
-
 	public function count_by_company($comp_id, $blanch_id = null)
 		{
 			$this->db->where('comp_id', $comp_id);
@@ -1703,11 +1646,11 @@ public function get_total_pay_description_acount_statement($loan_id)
 
     $this->db->where('l.comp_id', $comp_id);
 
-	// Date logic: filter by Withdraw Date from tbl_outstand
-	if (!empty($filters['from']) && !empty($filters['to'])) {
-		$this->db->where('DATE(ot.loan_stat_date) >=', $filters['from']);
-		$this->db->where('DATE(ot.loan_stat_date) <=', $filters['to']);
-	}
+    // Date logic
+    if (!empty($filters['from']) && !empty($filters['to'])) {
+        $this->db->where('ot.loan_stat_date >=', $filters['from'] . ' 00:00:00');
+        $this->db->where('ot.loan_stat_date <=', $filters['to'] . ' 23:59:59');
+    }
 
     if (!empty($filters['blanch_id'])) {
         $this->db->where('l.blanch_id', $filters['blanch_id']);
@@ -1721,23 +1664,13 @@ public function get_total_pay_description_acount_statement($loan_id)
         $this->db->where('l.loan_status', $filters['loan_status']);
     }
 
-	if (!empty($filters['exclude_loan_status'])) {
-		$this->db->where("LOWER(l.loan_status) !=", strtolower((string) $filters['exclude_loan_status']));
-	}
-
     // Filter: only loans with a deposit made today
     if (!empty($filters['paid_today'])) {
         $paidToday = date('Y-m-d');
         $this->db->where("EXISTS (SELECT 1 FROM tbl_depost d WHERE d.loan_id = l.loan_id AND DATE(d.depost_day) = '$paidToday')", NULL, FALSE);
     }
 
-	if (!empty($filters['group_by_customer'])) {
-		// Keep all loans for the same customer adjacent in reports
-		$this->db->order_by('c.customer_id', 'ASC');
-		$this->db->order_by('l.loan_id', 'DESC');
-	} else {
-		$this->db->order_by('l.loan_id', 'DESC');
-	}
+    $this->db->order_by('l.loan_id', 'DESC');
     return $this->db->get()->result();
 }
 
@@ -5215,32 +5148,6 @@ public function get_privData($priv_id){
 
 public function insert_todayCash($data){
 	return $this->db->insert(' tbl_cash_inhand',$data);
-}
-
-public function save_cash_inhand_balance($comp_id, $blanch_id, $trans_id, $empl_id, $cash_amount, $cash_day = null){
-	$blanch_id = (int) $blanch_id;
-	$trans_id = (int) $trans_id;
-	$target_day = empty($cash_day) ? date('Y-m-d') : $cash_day;
-
-	$existing = $this->db->query(
-		"SELECT hand_id FROM tbl_cash_inhand WHERE blanch_id = ? AND trans_id = ? AND cash_day = ? ORDER BY hand_id DESC LIMIT 1",
-		array($blanch_id, $trans_id, $target_day)
-	)->row();
-
-	$payload = array(
-		'comp_id' => $comp_id,
-		'blanch_id' => $blanch_id,
-		'trans_id' => $trans_id,
-		'empl_id' => $empl_id,
-		'cash_amount' => $cash_amount,
-		'cash_day' => $target_day,
-	);
-
-	if (!empty($existing->hand_id)) {
-		return $this->db->where('hand_id', $existing->hand_id)->update('tbl_cash_inhand', $payload);
-	}
-
-	return $this->db->insert('tbl_cash_inhand', $payload);
 }
 
 public function get_todayCah($blanch_id){
@@ -9417,14 +9324,14 @@ public function get_daily_account_payment_summary_blanch($blanch_id, $date = nul
 
 	$withdraw_rows = $this->db->query(
 		"SELECT
-			p.p_method AS trans_id,
-			COALESCE(SUM(p.withdrow), 0) AS total_withdraw
-		FROM tbl_pay p
-		WHERE p.blanch_id = ?
-			AND p.pay_status = '2'
-			AND p.date_pay = ?
-			AND p.p_method IS NOT NULL
-		GROUP BY p.p_method",
+			l.method AS trans_id,
+			COALESCE(SUM(l.loan_aprove), 0) AS total_withdraw
+		FROM tbl_loans l
+		WHERE l.blanch_id = ?
+			AND l.loan_status = 'withdrawal'
+			AND l.disburse_day = ?
+			AND l.method IS NOT NULL
+		GROUP BY l.method",
 		array($blanch_id, $today)
 	)->result();
 
@@ -10136,205 +10043,6 @@ public function get_eploye_deposit($blanch_id){
   	return $data->row();
   }
 
-	public function get_mauzo_jana_blanch($blanch_id, $date = null){
-		$report_date = empty($date) ? date('Y-m-d', strtotime('-1 day')) : $date;
-		$total = $this->get_branch_total_balance_on_date($blanch_id, $report_date);
-		return (object) array('total_jana' => $total);
-	}
-
-	public function get_mauzo_leo_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$total = $this->get_branch_total_balance_on_date($blanch_id, $report_date);
-		$amount_out_row = $this->db->query(
-			"SELECT COALESCE(SUM(amount_out), 0) AS total_amount_out
-			 FROM tbl_account_balance_ledger
-			 WHERE blanch_id = ? AND movement_date = ? AND reference_type != 'manual_balance_adjustment'",
-			array($blanch_id, $report_date)
-		)->row();
-		$total_amount_out = !empty($amount_out_row->total_amount_out) ? (float) $amount_out_row->total_amount_out : 0;
-		$total += $total_amount_out;
-		return (object) array('total_leo' => $total);
-	}
-
-	public function get_mauzo_gawa_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$data = $this->db->query("SELECT SUM(loan_aprove) AS total_gawa FROM tbl_loans WHERE blanch_id = ? AND loan_status = 'withdrawal' AND disburse_day = ?", array($blanch_id, $report_date));
-		return $data->row();
-	}
-
-	public function get_mauzo_double_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$data = $this->db->query("SELECT SUM(pr.depost - l.restration) AS total_double FROM tbl_prev_lecod pr LEFT JOIN tbl_loans l ON l.loan_id = pr.loan_id WHERE pr.blanch_id = ? AND DATE(pr.time_rec) = ? AND pr.depost > l.restration", array($blanch_id, $report_date));
-		return $data->row();
-	}
-
-	public function get_mauzo_fee_jana_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$yesterday = date('Y-m-d', strtotime($report_date . ' -1 day'));
-		$data = $this->db->query("SELECT SUM(deducted_balance) AS total_fee_jana FROM tbl_deducted_fee WHERE blanch_id = ? AND deducted_date = ?", array($blanch_id, $yesterday));
-		return $data->row();
-	}
-
-	public function get_mauzo_fee_leo_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$data = $this->db->query("SELECT SUM(deducted_balance) AS total_fee_leo FROM tbl_deducted_fee WHERE blanch_id = ? AND deducted_date = ?", array($blanch_id, $report_date));
-		return $data->row();
-	}
-
-	public function get_mauzo_fine_jana_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$yesterday = date('Y-m-d', strtotime($report_date . ' -1 day'));
-		$data = $this->db->query("SELECT SUM(penart_paid) AS total_fine_jana FROM tbl_pay_penart WHERE blanch_id = ? AND penart_date = ?", array($blanch_id, $yesterday));
-		return $data->row();
-	}
-
-	public function get_mauzo_fine_leo_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$data = $this->db->query("SELECT SUM(penart_paid) AS total_fine_leo FROM tbl_pay_penart WHERE blanch_id = ? AND penart_date = ?", array($blanch_id, $report_date));
-		return $data->row();
-	}
-
-	public function get_mauzo_sugu_jana_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$yesterday = date('Y-m-d', strtotime($report_date . ' -1 day'));
-		$data = $this->db->query(
-			"SELECT SUM(pr.depost) AS total_sugu_jana
-			 FROM tbl_prev_lecod pr
-			 LEFT JOIN tbl_loans l ON l.loan_id = pr.loan_id
-			 LEFT JOIN tbl_outstand ot ON ot.loan_id = pr.loan_id
-			 WHERE pr.blanch_id = ?
-			   AND DATE(pr.time_rec) = ?
-			   AND (l.loan_status = 'out' OR (ot.loan_end_date IS NOT NULL AND ot.loan_end_date < DATE(pr.time_rec)))",
-			array($blanch_id, $yesterday)
-		);
-		return $data->row();
-	}
-
-	public function get_mauzo_sugu_leo_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$data = $this->db->query(
-			"SELECT SUM(pr.depost) AS total_sugu_leo
-			 FROM tbl_prev_lecod pr
-			 LEFT JOIN tbl_loans l ON l.loan_id = pr.loan_id
-			 LEFT JOIN tbl_outstand ot ON ot.loan_id = pr.loan_id
-			 WHERE pr.blanch_id = ?
-			   AND DATE(pr.time_rec) = ?
-			   AND (l.loan_status = 'out' OR (ot.loan_end_date IS NOT NULL AND ot.loan_end_date < DATE(pr.time_rec)))",
-			array($blanch_id, $report_date)
-		);
-		return $data->row();
-	}
-
-	public function get_mauzo_sugu_lala_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$data = $this->db->query(
-			"SELECT SUM(pr.depost) AS total_sugu_lala
-			 FROM tbl_prev_lecod pr
-			 LEFT JOIN tbl_loans l ON l.loan_id = pr.loan_id
-			 LEFT JOIN tbl_outstand ot ON ot.loan_id = pr.loan_id
-			 WHERE pr.blanch_id = ?
-			   AND DATE(pr.time_rec) <= ?
-			   AND (l.loan_status = 'out' OR (ot.loan_end_date IS NOT NULL AND ot.loan_end_date < DATE(pr.time_rec)))",
-			array($blanch_id, $report_date)
-		);
-		return $data->row();
-	}
-
-	public function get_mauzo_expenses_jana_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$yesterday = date('Y-m-d', strtotime($report_date . ' -1 day'));
-		$data = $this->db->query("SELECT SUM(req_amount) AS total_expenses_jana FROM tbl_request_exp WHERE blanch_id = ? AND req_status = 'accept' AND req_date = ?", array($blanch_id, $yesterday));
-		return $data->row();
-	}
-
-	public function get_mauzo_expenses_leo_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$data = $this->db->query("SELECT SUM(req_amount) AS total_expenses_leo FROM tbl_request_exp WHERE blanch_id = ? AND req_status = 'accept' AND req_date = ?", array($blanch_id, $report_date));
-		return $data->row();
-	}
-
-	public function get_mauzo_expenses_accounts_blanch($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		$data = $this->db->query(
-			"SELECT
-				 CASE
-					 WHEN re.deduct_type = 'daily_allowance' THEN CONCAT(COALESCE(emp.empl_name, 'Unknown Employee'), ' (Posho)-', COALESCE(at.account_name, 'Unknown Account'))
-					 ELSE CONCAT(COALESCE(e.ex_name, 'Other Expense'), '-', COALESCE(at.account_name, 'Unknown Account'))
-				 END AS expense_name,
-				 re.req_amount AS total_expense
-			 FROM tbl_request_exp re
-			 LEFT JOIN tbl_expenses e ON e.ex_id = re.ex_id
-			 LEFT JOIN tbl_employee emp ON emp.empl_id = re.empl_id
-			 LEFT JOIN tbl_account_transaction at ON at.trans_id = re.trans_id
-			 WHERE re.blanch_id = ?
-				 AND re.req_status = 'accept'
-				 AND re.req_date = ?
-			 ORDER BY re.deduct_type DESC, expense_name ASC",
-			array($blanch_id, $report_date)
-		);
-		return $data->result();
-	}
-
-	public function get_mauzo_lala_accounts_blanch($blanch_id, $date = null){
-		$report_date = empty($date) ? date('Y-m-d') : $date;
-		return $this->get_branch_account_balances_on_date($blanch_id, $report_date);
-	}
-
-	public function get_branch_total_balance_on_date($blanch_id, $date){
-		$accounts = $this->get_branch_account_balances_on_date($blanch_id, $date);
-		$total = 0;
-		foreach ($accounts as $acc) {
-			$total += !empty($acc->closing_balance) ? (float) $acc->closing_balance : 0;
-		}
-		return $total;
-	}
-
-	public function get_branch_account_balances_on_date($blanch_id, $date){
-		$blanch_id = (int) $blanch_id;
-		$target_date = empty($date) ? date('Y-m-d') : $date;
-
-		// Get latest balance_after per account from tbl_account_balance_ledger up to target date
-		return $this->db->query(
-			"SELECT
-				l.trans_id,
-				COALESCE(l.account_name, 'Akaunti') AS account_name,
-				COALESCE(l.balance_after, 0) AS closing_balance
-			 FROM tbl_account_balance_ledger l
-			 INNER JOIN (
-				SELECT trans_id, MAX(ledger_id) AS max_ledger_id
-				FROM tbl_account_balance_ledger
-				WHERE blanch_id = ? AND movement_date <= ?
-				GROUP BY trans_id
-			 ) lx ON lx.max_ledger_id = l.ledger_id
-			 WHERE l.blanch_id = ?
-			 ORDER BY l.account_name ASC",
-			array($blanch_id, $target_date, $blanch_id)
-		)->result();
-	}
-
-	 public function get_yesterday_balance($blanch_id, $date = null){
-	 	$blanch_id = (int) $blanch_id;
-	 	$target_date = empty($date) ? date('Y-m-d', strtotime('-1 day')) : $date;
-	 	$data = $this->db->query(
-	 		"SELECT * FROM tbl_cash_inhand WHERE blanch_id = ? AND cash_day = ? ORDER BY hand_id DESC LIMIT 1",
-	 		array($blanch_id, $target_date)
-	 	);
-	 	return $data->row();
- }
-
    public function get_today_receivable_comp($comp_id){
   	$date = date("Y-m-d");
   	$data = $this->db->query("SELECT SUM(restration) AS total_restoration_comp FROM tbl_loans WHERE comp_id = '$comp_id' AND date_show = '$date' AND loan_status = 'withdrawal'");
@@ -10455,81 +10163,6 @@ public function fetch_employee($blanch_id)
  public function get_blanch_balance_expenses($blanch_id,$trans_id){
  $data = $this->db->query("SELECT * FROM tbl_blanch_account ba WHERE ba.blanch_id = '$blanch_id' AND ba.receive_trans_id = '$trans_id'");
  return $data->row();
- }
-
- public function get_blanch_balance_account_details($blanch_id, $trans_id){
- 	$data = $this->db->query(
- 		"SELECT ba.*, at.account_name
- 		 FROM tbl_blanch_account ba
- 		 LEFT JOIN tbl_account_transaction at ON at.trans_id = ba.receive_trans_id
- 		 WHERE ba.blanch_id = ? AND ba.receive_trans_id = ?",
- 		array($blanch_id, $trans_id)
- 	);
- 	return $data->row();
- }
-
- public function record_account_balance_movement($data){
- 	$blanch_id = isset($data['blanch_id']) ? (int) $data['blanch_id'] : 0;
- 	$trans_id = isset($data['trans_id']) ? (int) $data['trans_id'] : 0;
- 	$movement_date = !empty($data['movement_date']) ? $data['movement_date'] : date('Y-m-d');
-
- 	if ($blanch_id <= 0 || $trans_id <= 0) {
- 		return false;
- 	}
-
- 	$account = $this->get_blanch_balance_account_details($blanch_id, $trans_id);
- 	$account_name = !empty($data['account_name']) ? $data['account_name'] : (!empty($account->account_name) ? $account->account_name : null);
-
-	if ($this->db->table_exists('tbl_account_balance_ledger')) {
- 		$ledger_data = array(
- 			'comp_id' => !empty($data['comp_id']) ? (int) $data['comp_id'] : null,
- 			'blanch_id' => $blanch_id,
- 			'trans_id' => $trans_id,
- 			'account_name' => $account_name,
- 			'reference_type' => !empty($data['reference_type']) ? $data['reference_type'] : 'balance_adjustment',
- 			'reference_id' => isset($data['reference_id']) ? $data['reference_id'] : null,
- 			'movement_date' => $movement_date,
- 			'amount_in' => isset($data['amount_in']) ? (float) $data['amount_in'] : 0,
- 			'amount_out' => isset($data['amount_out']) ? (float) $data['amount_out'] : 0,
- 			'balance_before' => isset($data['balance_before']) ? (float) $data['balance_before'] : 0,
- 			'balance_after' => isset($data['balance_after']) ? (float) $data['balance_after'] : 0,
- 			'description' => !empty($data['description']) ? $data['description'] : null,
- 			'created_by' => !empty($data['created_by']) ? (int) $data['created_by'] : null,
- 		);
-		$ok = $this->db->insert('tbl_account_balance_ledger', $ledger_data);
-		if (!$ok) {
-			$db_error = $this->db->error();
-			log_message('error', 'Ledger insert failed: ' . json_encode($db_error) . ' payload=' . json_encode($ledger_data));
-		} else {
-			log_message('info', 'Ledger insert OK: ref=' . $ledger_data['reference_type'] . ' id=' . (string) $ledger_data['reference_id'] . ' branch=' . (string) $blanch_id . ' trans=' . (string) $trans_id);
-		}
-	} else {
-		log_message('error', 'Ledger table missing: tbl_account_balance_ledger');
- 	}
-
- 	if ($this->db->table_exists('tbl_daily_balance_snapshot')) {
- 		$snapshot_data = array(
- 			'blanch_id' => $blanch_id,
- 			'trans_id' => $trans_id,
- 			'account_name' => $account_name,
- 			'balance_amount' => isset($data['balance_after']) ? (float) $data['balance_after'] : 0,
- 			'snapshot_date' => $movement_date,
- 		);
-
- 		$existing = $this->db->get_where('tbl_daily_balance_snapshot', array(
- 			'blanch_id' => $blanch_id,
- 			'trans_id' => $trans_id,
- 			'snapshot_date' => $movement_date,
- 		))->row();
-
- 		if ($existing) {
- 			$this->db->where('snapshot_id', $existing->snapshot_id)->update('tbl_daily_balance_snapshot', $snapshot_data);
- 		} else {
- 			$this->db->insert('tbl_daily_balance_snapshot', $snapshot_data);
- 		}
- 	}
-
- 	return true;
  }
 
 

@@ -1,6 +1,6 @@
 {
-  "name": "Triplea finance",
-  "short_name": "Triplea",
+  "name": "Loan-Pocket",
+  "short_name": "LoanPocket",
   "description": "Manage loans, payments, and customer data easily.",
   "start_url": "/",
   "scope": "/",

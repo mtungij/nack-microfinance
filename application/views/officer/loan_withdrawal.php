@@ -82,6 +82,12 @@ include_once APPPATH . "views/partials/officerheader.php";
     <!-- Date Range Filter Form -->
     <form method="get" action="<?php echo base_url('oficer/loan_withdrawal'); ?>" class="flex flex-wrap items-center gap-2">
       <div class="flex items-center gap-1">
+        <label for="filter_month" class="text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">Month:</label>
+        <input type="month" id="filter_month" name="filter_month"
+          value="<?php echo htmlspecialchars($filter_month ?? ''); ?>"
+          class="py-1.5 px-2 block border border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+      </div>
+      <div class="flex items-center gap-1">
         <label for="from_date" class="text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">From:</label>
         <input type="date" id="from_date" name="from_date"
           value="<?php echo htmlspecialchars($from_date ?? ''); ?>"
@@ -97,12 +103,27 @@ include_once APPPATH . "views/partials/officerheader.php";
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-3.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
         Filter
       </button>
+      <a href="<?php echo base_url('oficer/loan_withdrawal?filter_month=' . date('Y-m')); ?>" class="py-1.5 px-3 inline-flex items-center gap-x-1 text-sm font-medium rounded-lg border border-transparent bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700">
+        This Month
+      </a>
       <?php if (!empty($from_date) || !empty($to_date)): ?>
       <a href="<?php echo base_url('oficer/loan_withdrawal'); ?>" class="py-1.5 px-3 inline-flex items-center gap-x-1 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         Clear
       </a>
       <?php endif; ?>
+
+      <?php
+        $download_params = [];
+        if (!empty($from_date)) $download_params['from_date'] = $from_date;
+        if (!empty($to_date)) $download_params['to_date'] = $to_date;
+        if (!empty($filter_month)) $download_params['filter_month'] = $filter_month;
+        $download_pdf_url = base_url('oficer/print_manager_withdrawal_pdf') . (!empty($download_params) ? '?' . http_build_query($download_params) : '');
+      ?>
+      <a href="<?php echo $download_pdf_url; ?>" class="py-1.5 px-3 inline-flex items-center gap-x-1 text-sm font-medium rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:bg-emerald-700" target="_blank" rel="noopener">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l4-4m-4 4l-4-4M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1"/></svg>
+        Download PDF
+      </a>
     </form>
 
     <!-- Optional Spacer for Layout (hidden on small screens) -->
@@ -147,6 +168,7 @@ if ($position === 'LOAN OFFICER'): ?>
 
   <?php
     $pdf_params = [];
+    if (!empty($filter_month)) $pdf_params['filter_month'] = $filter_month;
     if (!empty($from_date)) $pdf_params['from_date'] = $from_date;
     if (!empty($to_date))   $pdf_params['to_date']   = $to_date;
     $pdf_url = base_url('oficer/print_manager_withdrawal_pdf') . (!empty($pdf_params) ? '?' . http_build_query($pdf_params) : '');

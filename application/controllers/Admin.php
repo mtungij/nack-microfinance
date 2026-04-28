@@ -8,43 +8,19 @@ class Admin extends CI_Controller {
 	{
 	$this->load->model('queries');
 	$comp_id = $this->session->userdata('comp_id');
-    $selected_blanch_input = $this->input->get('blanch_id', true);
-    $selected_blanch_id = 0;
-    if ($selected_blanch_input !== null && $selected_blanch_input !== '' && strtolower((string) $selected_blanch_input) !== 'all') {
-        $selected_blanch_id = (int) $selected_blanch_input;
-    }
-    if ($selected_blanch_id < 0) {
-        $selected_blanch_id = 0;
-    }
-    $blanch = $this->queries->get_blanch($comp_id);
-    $selected_blanch_name = '';
-    if ($selected_blanch_id > 0) {
-        $is_valid_branch = false;
-        foreach ($blanch as $branch_row) {
-            if ((int) $branch_row->blanch_id === $selected_blanch_id) {
-                $is_valid_branch = true;
-                $selected_blanch_name = (string) $branch_row->blanch_name;
-                break;
-            }
-        }
-        if (!$is_valid_branch) {
-            $selected_blanch_id = 0;
-        }
-    }
-    $active_blanch_id = $selected_blanch_id > 0 ? $selected_blanch_id : null;
    $compdata = $this->queries->get_companyData($comp_id);
 
  
 
 
-    $receivable_total = $this->queries->get_total_recevable($comp_id, $active_blanch_id);
+    $receivable_total = $this->queries->get_total_recevable($comp_id);
     $total_received = $this->queries->get_sumReceived_amount($comp_id);
     $total_loan_pending = $this->queries->get_sun_loanPending($comp_id);
-    $total_loanWithdrawal = $this->queries->get_today_withdrawal_loan($comp_id, $active_blanch_id);
+    $total_loanWithdrawal = $this->queries->get_today_withdrawal_loan($comp_id);
     $today_penart = $this->queries->get_total_penartToday($comp_id);
     $prepaid_today = $this->queries->prepaid_pay($comp_id);
 	$manager_data = $this->queries->get_compan_data($comp_id);
-      	$total_penalt = $this->queries->get_sum_income($comp_id, null, $active_blanch_id);
+  	$total_penalt = $this->queries->get_sum_income($comp_id);
 	
 
      $total_received = $this->queries->get_sumReceived_amount($comp_id);
@@ -60,14 +36,14 @@ class Admin extends CI_Controller {
      $cash_bank = $this->queries->get_sum_cashInHandcomp($comp_id);
      $principal_loan = $this->queries->get_total_principal($comp_id);
      $done_loan = $this->queries->get_totalLoanRepayment($comp_id);
-    $total_receved = $this->queries->get_sumReceived_amount($comp_id, $active_blanch_id);
-	 	$total_loanDis = $this->queries->get_today_disbursed_loans_sum($comp_id, $active_blanch_id);
+     $total_receved = $this->queries->get_sumReceived_amount($comp_id);
+	 	$total_loanDis = $this->queries->get_today_disbursed_loans_sum($comp_id);
      
      //new code 
      $cash_depost = $this->queries->get_today_chashData_Comp($comp_id);
      $cash_income = $this->queries->get_today_incomeBlanchDataComp($comp_id);
      $cash_expences = $this->queries->get_today_expencesDataComp($comp_id);
-    $blanch = $this->queries->get_blanch($comp_id);
+     $blanch = $this->queries->get_blanch($comp_id);
      $total_remain = $this->queries->total_outstand_loan($comp_id);
      $today_total_loan_pend = $this->queries->get_sum_loanpend($comp_id);
 
@@ -78,8 +54,6 @@ class Admin extends CI_Controller {
      $receive_Amount = $this->queries->get_sumReceve($comp_id);
      $loan_fee = $this->queries->get_total_loanFee($comp_id);
      $request_expences = $this->queries->get_expencesData($comp_id);
-    $pending_expenses = $this->queries->get_pending_expenses_summary($comp_id, $active_blanch_id);
-    $accepted_expenses = $this->queries->get_accepted_expenses_summary($comp_id, $active_blanch_id);
 
      $sum_comp_capital = $this->queries->get_sum_companyBalance($comp_id);
 
@@ -89,40 +63,38 @@ class Admin extends CI_Controller {
 
 	 $blanch_capital_circle = $this->queries->get_total_blanch_capital($comp_id);
 
-     $employee_count = $this->queries->count_employee_company($comp_id, $active_blanch_id);
+	 $employee_count = $this->queries->count_employee_company($comp_id);
 
 	 $new_customer = $this->queries->get_today_registered_customers_count($comp_id);
-     $all_customer_count = $this->queries->count_by_company($comp_id, $active_blanch_id);
+	 $all_customer_count = $this->queries->count_by_company($comp_id);
 	 $done_customer_count = $this->queries->count_completed_today($comp_id);
 	 $default_customer_count = $this->queries->count_default_loans_today($comp_id);
 	 $deposit_daily = $this->queries->fetch_today_deposit_daily_comp($comp_id);
-     $total_deposit_daily = $this->queries->get_today_received_loan_total($comp_id, $active_blanch_id);
-     $total_deposit_weekly = $this->queries->get_weekly_received_loan_total($comp_id, $active_blanch_id);
-     $total_deposit_monthly = $this->queries->get_monthly_received_loan($comp_id, $active_blanch_id);
-     $total_withdrawal_daily = $this->queries->get_today_withdrawal_daily_comp($comp_id, $active_blanch_id);
-     $total_withdrawal_weekly = $this->queries->get_total_principal_weekly($comp_id, $active_blanch_id);
-     $total_withdrawal_monthly = $this->queries->get_total_principal_monthly($comp_id, $active_blanch_id);
+	 $total_deposit_daily = $this->queries->get_today_received_loan_total($comp_id);
+	 $total_deposit_weekly = $this->queries->get_weekly_received_loan_total($comp_id);
+	 $total_deposit_monthly = $this->queries->get_monthly_received_loan($comp_id);
+	 $total_withdrawal_daily = $this->queries->get_today_withdrawal_daily_comp($comp_id);
+	 $total_withdrawal_weekly = $this->queries->get_total_principal_weekly($comp_id);
+	 $total_withdrawal_monthly = $this->queries->get_total_principal_monthly($comp_id);
 	 $top_employees = $this->queries->get_top_5_employees_today_loans($comp_id);
 	 $branchwise_deposits = $this->queries->get_branchwise_today_deposit($comp_id);
 
-	 $top_depositors = $this->queries->get_top_5_deposit_employees($comp_id, $active_blanch_id);
-     $top_branch_deposits = $this->queries->get_top_10_branch_deposit_today($comp_id, $active_blanch_id);
+	 $top_depositors = $this->queries->get_top_5_deposit_employees($comp_id);
+     $top_branch_deposits = $this->queries->get_top_10_branch_deposit_today($comp_id);
 
 	 $disbursed_loans= $this->queries->get_sum_loanDisbursed($comp_id);
 
- $today_enddate_collection = $this->queries->get_next7days_ending_loans_restriction($comp_id, $active_blanch_id);
+ $today_enddate_collection = $this->queries->get_next7days_ending_loans_restriction($comp_id);
 
 		//      echo "<pre>";
 	    //  print_r(   $today_enddate_collection);
 	    //  exit();
 	 
 
-     $total_overdue= $this->queries->total_outstand_loans($comp_id, $active_blanch_id);
+	 $total_overdue= $this->queries->total_outstand_loans($comp_id);
 	 $total_deni = $this->queries->total_outstand_loan_today($comp_id);
 	 $total_active_paid= $this->queries->get_today_received_from_receivale	($comp_id);
- $total_default_paid = $active_blanch_id
-     ? $this->queries->get_depositing_out_total_blanch($active_blanch_id)
-     : $this->queries->get_depositing_out_total_comp($comp_id);
+ $total_default_paid=$this->queries->get_depositing_out_total_comp($comp_id);
  $today_endactive_paid=$this->queries->get_depositing_out_todayend_comp($comp_id);
 
 //   $today_deposits = $this->queries->get_today_received_loan($comp_id);
@@ -157,8 +129,6 @@ class Admin extends CI_Controller {
 	      //         exit();
 	$this->load->view('admin/index',['receivable_total'=>$receivable_total,'total_deposit_monthly'=>$total_deposit_monthly,'total_deposit_weekly'=> $total_deposit_weekly,'total_deposit_daily'=> $total_deposit_daily,'deposit_daily'=> $deposit_daily,'done_customer_count'=>$done_customer_count,'all_customer_count'=>$all_customer_count,
     'new_customer'=> $new_customer,'top_depositors'=> $top_depositors,'top_branch_deposits' => $top_branch_deposits,
-    'selected_blanch_id' => $selected_blanch_id,
-    'selected_blanch_name' => $selected_blanch_name,
 	'total_deni'=> $total_deni,
 	'today_enddate_collection' => $today_enddate_collection,
 	'total_loanWithdrawal'=>$total_loanWithdrawal,
@@ -171,8 +141,9 @@ class Admin extends CI_Controller {
 	'total_default_paid'=> $total_default_paid,
 	'total_withdrawal_daily'=> $total_withdrawal_daily,'total_withdrawal_weekly'=> $total_withdrawal_weekly,'total_withdrawal_monthly'=>$total_withdrawal_monthly,
 	'total_overdue'=> $total_overdue,
-	 'employee_count'=> $employee_count,'top_employees'=>$top_employees,'default_customer_count'=>$default_customer_count,'manager_data' => $manager_data,'total_received'=>$total_received,'total_loan_pending'=>$total_loan_pending,'total_loanWithdrawal'=>$total_loanWithdrawal,'today_penart'=>$today_penart,'prepaid_today'=>$prepaid_today,'total_received'=>$total_received,'prepaid_today'=>$prepaid_today,'total_loan_fee'=>$total_loan_fee,'today_income'=>$today_income,'toay_expences'=>$toay_expences,'total_capital'=>$total_capital,'out_float'=>$out_float,'cash_bank'=>$cash_bank,'principal_loan'=>$principal_loan,'done_loan'=>$done_loan,'total_expect'=>$total_expect,'total_receved'=>$total_receved,'cash_depost'=>$cash_depost,'cash_income'=>$cash_income,'cash_expences'=>$cash_expences,'blanch'=>$blanch,'total_remain'=>$total_remain,'today_total_loan_pend'=>$today_total_loan_pend,'loanAprove'=>$loanAprove,'withdrawal'=>$withdrawal,'loan_depost'=>$loan_depost,'receive_Amount'=>$receive_Amount,'loan_fee'=>$loan_fee,'request_expences'=>$request_expences,'pending_expenses'=>$pending_expenses,'accepted_expenses'=>$accepted_expenses,'sum_comp_capital'=>$sum_comp_capital,'total_deducted_balance'=>$total_deducted_balance,'total_non'=>$total_non,'blanch_capital_circle'=>$blanch_capital_circle]);
+	 'employee_count'=> $employee_count,'top_employees'=>$top_employees,'default_customer_count'=>$default_customer_count,'manager_data' => $manager_data,'total_received'=>$total_received,'total_loan_pending'=>$total_loan_pending,'total_loanWithdrawal'=>$total_loanWithdrawal,'today_penart'=>$today_penart,'prepaid_today'=>$prepaid_today,'total_received'=>$total_received,'prepaid_today'=>$prepaid_today,'total_loan_fee'=>$total_loan_fee,'today_income'=>$today_income,'toay_expences'=>$toay_expences,'total_capital'=>$total_capital,'out_float'=>$out_float,'cash_bank'=>$cash_bank,'principal_loan'=>$principal_loan,'done_loan'=>$done_loan,'total_expect'=>$total_expect,'total_receved'=>$total_receved,'cash_depost'=>$cash_depost,'cash_income'=>$cash_income,'cash_expences'=>$cash_expences,'blanch'=>$blanch,'total_remain'=>$total_remain,'today_total_loan_pend'=>$today_total_loan_pend,'loanAprove'=>$loanAprove,'withdrawal'=>$withdrawal,'loan_depost'=>$loan_depost,'receive_Amount'=>$receive_Amount,'loan_fee'=>$loan_fee,'request_expences'=>$request_expences,'sum_comp_capital'=>$sum_comp_capital,'total_deducted_balance'=>$total_deducted_balance,'total_non'=>$total_non,'blanch_capital_circle'=>$blanch_capital_circle]);
 	}
+
 
 
 	public function sub_admin(){
@@ -5408,7 +5379,31 @@ public function create_withdrow_balance($customer_id) {
         $this->witdrow_balance($loan_id, $comp_id, $blanch_id, $customer_id, $new_balance, $with_balance, $description, $empl_data->empl_name, $group_id, $method);
         $this->insert_loan_lecordData($comp_id, $customer_id, $loan_id, $blanch_id, $new_balance, $group_id, $trans_id, $restoration, $loan_aprove, $empl_id);
         $this->withdrawal_blanch_capital($blanch_id, $method, $withMoney);
-        $this->insert_deducted_fee($comp_id, $blanch_id, $loan_id, $sum_total_loanFee, $group_id);
+
+        $this->queries->record_account_balance_movement(array(
+          'comp_id' => $comp_id,
+          'blanch_id' => $blanch_id,
+          'trans_id' => $method,
+          'reference_type' => 'loan_withdrawal',
+          'reference_id' => $loan_id,
+          'movement_date' => $with_date,
+          'amount_out' => $new_balance + $sum_total_loanFee,
+          'balance_before' => $blanch_capital,
+          'balance_after' => $withMoney,
+          'description' => 'Loan withdrawal with processing fee',
+          'created_by' => $empl_id,
+        ));
+
+        $this->queries->save_cash_inhand_balance(
+          $comp_id,
+          $blanch_id,
+          $method,
+          $empl_id,
+          $withMoney,
+          $with_date
+        );
+
+      $this->insert_deducted_fee($comp_id, $blanch_id, $loan_id, $sum_total_loanFee, $group_id);
 
         // Update deducted record
         $check_deducted = $this->queries->get_deducted_blanch($blanch_id);
@@ -5470,8 +5465,8 @@ public function create_withdrow_balance($customer_id) {
       $this->db->query("INSERT INTO tbl_receive_deducted (`comp_id`,`blanch_id`,`deducted`) VALUES ('$comp_id','$blanch_id','$sum_total_loanFee')");	
      }
 //insert deducted fee
- public function insert_deducted_fee($comp_id,$blanch_id,$loan_id,$sum_total_loanFee,$group_id){
-  $day = date("Y-m-d");
+ public function insert_deducted_fee($comp_id,$blanch_id,$loan_id,$sum_total_loanFee,$group_id,$deducted_date = null){
+    $day = !empty($deducted_date) ? $deducted_date : date("Y-m-d");
     $this->db->query("INSERT INTO tbl_deducted_fee (`comp_id`,`blanch_id`,`loan_id`,`deducted_balance`,`deducted_date`,`group_id`) VALUES ('$comp_id','$blanch_id','$loan_id','$sum_total_loanFee','$day','$group_id')");	
  }
 //withdral blanch Float
@@ -6536,11 +6531,38 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
     }
 
    public function depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name,$baki){
+    $this->load->model('queries');
+    $account_before = $this->queries->get_blanch_balance_account_details($blanch_id, $p_method);
+    $balance_before = !empty($account_before->blanch_capital) ? (float) $account_before->blanch_capital : 0;
+    $balance_after = $balance_before + (float) $new_depost;
    	$day = date("Y-m-d");
   $this->db->query("INSERT INTO tbl_pay (`loan_id`,`blanch_id`,`comp_id`,`customer_id`,`depost`,`balance`,`description`,`pay_status`,`stat`,`date_pay`,`emply`,`group_id`,`date_data`,`p_method`,`dep_id`,`wakala_name`,`rem_debt`) VALUES ('$loan_id','$blanch_id','$comp_id','$customer_id','$new_depost','$sum_balance','CASH DEPOSIT','1','1','$day','$role','$group_id','$deposit_date','$p_method','$dep_id','$wakala_name','$baki')");
 
     // Increase branch account capital on the selected payment account.
     $this->db->query("UPDATE `tbl_blanch_account` SET `blanch_capital` = `blanch_capital` + '$new_depost' WHERE `blanch_id` = '$blanch_id' AND `receive_trans_id` = '$p_method'");
+
+    $this->queries->record_account_balance_movement(array(
+      'comp_id' => $comp_id,
+      'blanch_id' => $blanch_id,
+      'trans_id' => $p_method,
+      'reference_type' => 'loan_payment',
+      'reference_id' => $dep_id,
+      'movement_date' => $deposit_date,
+      'amount_in' => $new_depost,
+      'balance_before' => $balance_before,
+      'balance_after' => $balance_after,
+      'description' => 'Loan repayment received',
+      'created_by' => $this->session->userdata('empl_id'),
+    ));
+
+    $this->queries->save_cash_inhand_balance(
+      $comp_id,
+      $blanch_id,
+      $p_method,
+      $this->session->userdata('empl_id'),
+      $balance_after,
+      $deposit_date
+    );
 
       }
 
@@ -6885,6 +6907,7 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
  	$this->form_validation->set_error_delimiters('<div class="text-danger">','</div>');
  	if ($this->form_validation->run()) {
  		  $data = $this->input->post();
+		  $empl_id = $this->session->userdata('empl_id');
  		  $comp_id = $data['comp_id'];
  		  $blanch_id = $data['blanch_id'];
  		  $blanch_amount_data = $data['blanch_amount'];
@@ -6893,12 +6916,15 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
  		  $charger = $data['charger'];
  		  $trans_id = $from_account;
  		  $blanch_amount = $blanch_amount_data + $charger;
+ 		  $trans_day = !empty($data['trans_day']) ? $data['trans_day'] : date('Y-m-d');
         //    print_r($blanch_amount);
         //          exit();
      @$main_account = $this->queries->get_account_balance($trans_id);
      $old_blanch_amount = $this->queries->get_ledyAmount($to_account,$blanch_id);
      $capital_blanch = @$old_blanch_amount->blanch_capital;
      $newAmount = $capital_blanch  + $blanch_amount - $charger;
+ 		 $balance_before = !empty($capital_blanch) ? (float) $capital_blanch : 0;
+ 		 $balance_after = $balance_before + (float) ($blanch_amount - $charger);
      //          echo "<pre>";
      // //print_r($capital_blanch);
      // print_r($old_blanch_amount);
@@ -6923,8 +6949,46 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
             }else{
            $this->insert_blanch_amountAccount($comp_id,$blanch_id,$to_account,$after_makato);
            $this->update_remain_accountCompany($comp_id,$trans_id,$transaction);
-         	
          }
+
+            // RECEIVER side: branch account receiving float
+            $this->queries->record_account_balance_movement(array(
+              'comp_id' => $comp_id,
+              'blanch_id' => $blanch_id,
+              'trans_id' => $to_account,
+              'reference_type' => 'float_transfer_in',
+              'reference_id' => 0,
+              'movement_date' => $trans_day,
+              'amount_in' => $after_makato,
+              'balance_before' => $balance_before,   // branch balance before
+              'balance_after' => $balance_after,     // branch balance after
+              'description' => 'Float transfer to branch account',
+              'created_by' => $empl_id,
+            ));
+
+            $this->queries->save_cash_inhand_balance(
+              $comp_id,
+              $blanch_id,
+              $to_account,
+              $empl_id,
+              $balance_after,
+              $trans_day
+            );
+
+            // GIVER side: company account sending float (blanch_id = 0, company-level)
+            $this->queries->record_account_balance_movement(array(
+              'comp_id' => $comp_id,
+              'blanch_id' => 0,
+              'trans_id' => $from_account,
+              'reference_type' => 'float_transfer_out',
+              'reference_id' => 0,
+              'movement_date' => $trans_day,
+              'amount_out' => $blanch_amount,
+              'balance_before' => (float) $account_balance,   // company balance before
+              'balance_after' => (float) $transaction,        // company balance after
+              'description' => 'Float transfer out from company account to branch ' . (int) $blanch_id,
+              'created_by' => $empl_id,
+            ));
 
          }
           $this->session->set_flashdata('massage','Transaction successfully');
@@ -7086,28 +7150,32 @@ public function previous_transfor(){
     ini_set("max_execution_time", 3600);
     $this->load->model('queries');
 
-    // Call the model function to archive and delete customer
-    $deleted = $this->queries->remove_customer($customer_id);
+    $this->db->trans_begin();
 
-    if ($deleted) {
-        // Proceed to delete related data only if main customer delete succeeded
-        $this->delete_from_paytable($customer_id);
-        $this->delete_from_subcustomer($customer_id);
-        $this->delete_from_loans($customer_id);
-        $this->delete_from_depost($customer_id);
-        $this->delete_from_prev_lecod($customer_id);
-        $this->delete_from_receive($customer_id);
-        $this->delete_from_store_penart($customer_id);
-        $this->delete_from_sponser($customer_id);
-        $this->delete_from_paypenart($customer_id);
-        $this->delete_from_outstand_loan($customer_id);
-        $this->delete_from_loanPending($customer_id);
-        $this->delete_from_customer_report($customer_id);
-        $this->delete_from_customer_pending_data($customer_id);
+    // Delete child records first, then parent customer row.
+    $this->delete_from_paytable($customer_id);          // tbl_pay
+    $this->delete_from_depost($customer_id);            // tbl_depost
+    $this->delete_from_prev_lecod($customer_id);        // tbl_prev_lecod
+    $this->delete_from_deducted_fee_by_customer($customer_id); // tbl_deducted_fee (processing fees)
+    $this->delete_from_loans($customer_id);             // tbl_loans
+    $this->delete_from_subcustomer($customer_id);
+    $this->delete_from_receive($customer_id);
+    $this->delete_from_store_penart($customer_id);
+    $this->delete_from_sponser($customer_id);
+    $this->delete_from_paypenart($customer_id);
+    $this->delete_from_outstand_loan($customer_id);
+    $this->delete_from_loanPending($customer_id);
+    $this->delete_from_customer_report($customer_id);
+    $this->delete_from_customer_pending_data($customer_id);
 
-        $this->session->set_flashdata('message', 'Customer deleted successfully and archived.');
+    $this->queries->remove_customer($customer_id);
+
+    if ($this->db->trans_status() === FALSE) {
+        $this->db->trans_rollback();
+        $this->session->set_flashdata('message', 'Customer deletion failed.');
     } else {
-        $this->session->set_flashdata('message', 'Customer deletion failed or customer not found.');
+        $this->db->trans_commit();
+        $this->session->set_flashdata('message', 'Customer and related loans/deposits/payments deleted successfully.');
     }
 
     return redirect('admin/all_customer');
@@ -7129,6 +7197,11 @@ public function previous_transfor(){
 
  public function delete_from_loans($customer_id){
  	return $this->db->delete('tbl_loans',['customer_id'=>$customer_id]);	
+ }
+
+ public function delete_from_deducted_fee_by_customer($customer_id){
+    $customer_id = (int) $customer_id;
+    return $this->db->query("DELETE df FROM tbl_deducted_fee df INNER JOIN tbl_loans l ON l.loan_id = df.loan_id WHERE l.customer_id = '$customer_id'");
  }
 
   public function delete_from_depost($customer_id){
@@ -8787,6 +8860,18 @@ public function create_requstion_form(){
 		}else{
 		$this->insert_expenses_request($comp_id,$blanch_id,$ex_id,$req_description,$req_amount,$trans_id);
 		$this->update_blanch_account_balance($comp_id,$blanch_id,$trans_id,$remain_blanch_remain);
+        $this->queries->record_account_balance_movement(array(
+            'comp_id' => $comp_id,
+            'blanch_id' => $blanch_id,
+            'trans_id' => $trans_id,
+            'reference_type' => 'expense_accepted',
+            'movement_date' => date('Y-m-d'),
+            'amount_out' => $req_amount,
+            'balance_before' => $balance_blanch,
+            'balance_after' => $remain_blanch_remain,
+            'description' => $req_description,
+            'created_by' => $this->session->userdata('empl_id'),
+        ));
        $this->session->set_flashdata("massage",'Successfully');
        
 			}
@@ -9044,6 +9129,19 @@ $data_exp_category = $this->queries->get_expenses_category_total($comp_id);
             //Storing insertion status message.
             if($data){
             	$this->withdraw_expences($blanch_id,$trans_id,$removed_expences);
+                	$this->queries->record_account_balance_movement(array(
+                		'comp_id' => $comp_id,
+                		'blanch_id' => $blanch_id,
+                		'trans_id' => $trans_id,
+                		'reference_type' => 'expense_approved',
+                		'reference_id' => $req_id,
+                		'movement_date' => date('Y-m-d'),
+                		'amount_out' => $req_amount,
+                		'balance_before' => $blanch_balance,
+                		'balance_after' => $removed_expences,
+                		'description' => 'Admin approved expense request',
+                		'created_by' => $this->session->userdata('empl_id'),
+                	));
             	//$this->withdraw_expencesCompbalance($comp_id,$req_amount);
                 $this->session->set_flashdata('massage','Expenses Accepted successfully');
             }
@@ -11355,9 +11453,62 @@ $this->load->view('admin/sms_history',['history'=>$history,'sms_jumla'=>$sms_jum
             return;
         }
 
+        // Get balances before and after
+        $balance_before = (float) $row->blanch_capital;
+        $balance_after = (float) $blanch_capital;
+        $blanch_id = $row->blanch_id;
+        $trans_id = $row->receive_trans_id;
+        $adjustment_amount = $balance_after - $balance_before;
+        $today = date('Y-m-d');
+        $empl_id = $this->session->userdata('empl_id');
+
+        // Update the branch account
         $this->db->where('ac_id', $ac_id);
         $this->db->where('comp_id', $comp_id);
         $this->db->update('tbl_blanch_account', ['blanch_capital' => $blanch_capital]);
+
+        // Record in cash-in-hand
+        $this->queries->save_cash_inhand_balance(
+            $comp_id,
+            $blanch_id,
+            $trans_id,
+            $empl_id,
+            $balance_after,
+            $today
+        );
+
+        // Record in ledger: determine if it's a debit (amount_out) or credit (amount_in)
+        if ($adjustment_amount > 0) {
+            // Balance increased (deposit/credit)
+            $this->queries->record_account_balance_movement(array(
+                'comp_id' => $comp_id,
+                'blanch_id' => $blanch_id,
+                'trans_id' => $trans_id,
+                'reference_type' => 'manual_balance_adjustment',
+                'reference_id' => $ac_id,
+                'movement_date' => $today,
+                'amount_in' => $adjustment_amount,
+                'balance_before' => $balance_before,
+                'balance_after' => $balance_after,
+                'description' => 'Manual balance adjustment by admin (increase)',
+                'created_by' => $empl_id,
+            ));
+        } else if ($adjustment_amount < 0) {
+            // Balance decreased (withdrawal/debit)
+            $this->queries->record_account_balance_movement(array(
+                'comp_id' => $comp_id,
+                'blanch_id' => $blanch_id,
+                'trans_id' => $trans_id,
+                'reference_type' => 'manual_balance_adjustment',
+                'reference_id' => $ac_id,
+                'movement_date' => $today,
+                'amount_out' => abs($adjustment_amount),
+                'balance_before' => $balance_before,
+                'balance_after' => $balance_after,
+                'description' => 'Manual balance adjustment by admin (decrease)',
+                'created_by' => $empl_id,
+            ));
+        }
 
         echo json_encode(['status' => 'success']);
     }
@@ -11446,6 +11597,30 @@ $this->load->view('admin/sms_history',['history'=>$history,'sms_jumla'=>$sms_jum
          	echo "chukua mule mule interest";
          }
            $this->return_loan_withdrawal($blanch_id,$payment_method,$balance);
+           // Record principal return in ledger and cache
+           $new_balance_after_return = $blanch_balance_account + (float) $balance;
+           $this->queries->record_account_balance_movement(array(
+             'comp_id' => $comp_id,
+             'blanch_id' => $blanch_id,
+             'trans_id' => $payment_method,
+             'reference_type' => 'loan_withdrawal_reversal',
+             'reference_id' => $loan_id,
+             'movement_date' => date('Y-m-d'),
+             'amount_in' => (float) $balance,
+             'balance_before' => $blanch_balance_account,
+             'balance_after' => $new_balance_after_return,
+             'description' => 'Loan withdrawal reversed - principal returned',
+             'created_by' => $this->session->userdata('empl_id'),
+           ));
+
+           $this->queries->save_cash_inhand_balance(
+             $comp_id,
+             $blanch_id,
+             $payment_method,
+             $this->session->userdata('empl_id'),
+             $new_balance_after_return,
+             date('Y-m-d')
+           );
 		   $this->remove_deducted_balance_account($blanch_id,$remain_deducted_balance);
            $this->remove_nonDeducted_amount($blanch_id,$remain_nonBalance);
            $this->delete_from_tbl_pay($loan_id);
@@ -12400,6 +12575,9 @@ public function check_miamala($id){
             $penalty_today = $this->queries->get_sum_incomeBlanchData($selected_blanch_id, $report_date);
             $processing_fee = $this->queries->get_total_deducted_income_blanch_data($selected_blanch_id, $report_date);
             $outside_contract_received = $this->queries->get_received_outside_contract_blanch($selected_blanch_id, $report_date);
+            $total_customers = $this->queries->get_daily_report_customer_count($comp_id, $selected_blanch_id);
+            $customers_paid = $this->queries->get_daily_report_customers_paid_count($comp_id, $report_date, $selected_blanch_id);
+            $new_customers = $this->queries->get_daily_report_new_customers_count($comp_id, $report_date, $selected_blanch_id);
         } else {
             $total_today_with = $this->queries->get_today_loan_withdrawalComp($comp_id, $report_date);
             $total_received = $this->queries->get_total_deposit($comp_id, $report_date);
@@ -12410,7 +12588,15 @@ public function check_miamala($id){
             $penalty_today = $this->queries->get_sum_income($comp_id, $report_date);
             $processing_fee = $this->queries->get_total_deducted_income($comp_id, $report_date);
             $outside_contract_received = $this->queries->get_received_outside_contract($comp_id, $report_date);
+            $total_customers = $this->queries->get_daily_report_customer_count($comp_id);
+            $customers_paid = $this->queries->get_daily_report_customers_paid_count($comp_id, $report_date);
+            $new_customers = $this->queries->get_daily_report_new_customers_count($comp_id, $report_date);
         }
+
+        // echo "<pre>";
+        // print_r($account_payment_summary);
+        // echo "</pre>";
+        // exit();
 
         return array(
             'selected_branch_name' => $selected_branch_name,
@@ -12423,6 +12609,9 @@ public function check_miamala($id){
             'penalty_today' => $penalty_today,
             'processing_fee' => $processing_fee,
             'outside_contract_received' => $outside_contract_received,
+            'total_customers' => $total_customers,
+            'customers_paid' => $customers_paid,
+            'new_customers' => $new_customers,
         );
     }
 
@@ -12843,6 +13032,8 @@ public function update_customer_details($customer_id){
 			$customer_id = $deposit->customer_id;
 			$loan_id = $deposit->loan_id;
 			$dep_id = $pay_id;
+			$empl_id = $this->session->userdata('empl_id');
+			$movement_day = !empty($deposit->lecod_day) ? $deposit->lecod_day : date('Y-m-d');
 	   
 			$remain_depost = $depost - $depost;
 	   
@@ -12909,6 +13100,24 @@ public function update_customer_details($customer_id){
 				$this->update_blanch_amount_outstand($comp_id,$blanch_id,$new_out_balance,$trans_id);
 			}else{
 			$this->insert_blanch_amount_deposit($blanch_id,$deposit_new,$trans_id);	
+			}
+
+			$this->db->where('comp_id', $comp_id);
+			$this->db->where('blanch_id', $blanch_id);
+			$this->db->where('trans_id', $trans_id);
+			$this->db->where('reference_id', $dep_id);
+			$this->db->where_in('reference_type', array('loan_payment', 'deposit_received'));
+			$this->db->delete('tbl_account_balance_ledger');
+
+			if ($description != 'SYSTEM / DEFAULT LOAN RETURN') {
+				$this->queries->save_cash_inhand_balance(
+					$comp_id,
+					$blanch_id,
+					$trans_id,
+					$empl_id,
+					$deposit_new,
+					$movement_day
+				);
 			}
 			
 			$this->update_prev_record_data($pay_id,$remain_depost);
