@@ -23,10 +23,15 @@
 </button>
 
 <script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('Service Worker Registered'))
-        .catch(err => console.log('SW Error: ', err));
+if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' })
+      .then(reg => {
+        console.log('Service Worker Registered');
+        reg.update();
+      })
+      .catch(err => console.log('SW Error: ', err));
+  });
 }
 
 // Optional: Listen for beforeinstallprompt to trigger install manually
