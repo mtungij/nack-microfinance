@@ -13444,7 +13444,9 @@ if (!$this->session->userdata("comp_id"))
 
         // Keyed by date string 'Y-m-d'
         $deposits_by_date  = $this->queries->get_deposits_by_date_for_loan($loan_id);
-        $penalties_by_date = $this->queries->get_penalties_by_date_for_loan($loan_id);
+        $penalties_by_date = $loan->loan_status === 'out'
+            ? $this->queries->get_penalties_by_date_for_out_loan($loan_id)
+            : $this->queries->get_penalties_by_date_for_loan($loan_id);
 
         // Build repayment schedule using loan logic (same as withdraw_automatic_loan)
         $schedule      = [];

@@ -2289,7 +2289,7 @@ public function get_totalLoanout($customer_id){
 
 
          public function get_loan_LoandataAutomatic($loan_id){
-        $data = $this->db->query("SELECT * FROM tbl_pay p LEFT JOIN tbl_loans l ON l.loan_id = p.loan_id LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id LEFT JOIN tbl_penat pe ON pe.comp_id = l.comp_id LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id  WHERE p.loan_id = '$loan_id' ORDER BY p.pay_id DESC");
+        $data = $this->db->query("SELECT l.*, lc.*, pe.*, o.loan_stat_date, o.loan_end_date, ol.outstand_date FROM tbl_loans l LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id LEFT JOIN tbl_penat pe ON pe.comp_id = l.comp_id LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id LEFT JOIN tbl_outstand_loan ol ON ol.loan_id = l.loan_id WHERE l.loan_id = '$loan_id' LIMIT 1");
         	 return $data->row();
         }
 
@@ -12911,6 +12911,23 @@ public function get_customer_all_loans($customer_id) {
              WHERE loan_id = ?
              GROUP BY DATE(penart_day)
              ORDER BY DATE(penart_day) ASC",
+            [(int)$loan_id]
+        );
+        $result = [];
+        foreach ($data->result() as $row) {
+            $result[$row->pen_date] = (float)$row->total_penalty;
+        }
+        return $result;
+    }
+
+    public function get_penalties_by_date_for_out_loan($loan_id) {
+        $data = $this->db->query(
+            "SELECT DATE(rep_date) AS pen_date, SUM(penart_amount) AS total_penalty
+             FROM tbl_customer_report
+             WHERE loan_id = ?
+               AND COALESCE(penart_amount, 0) > 0
+             GROUP BY DATE(rep_date)
+             ORDER BY DATE(rep_date) ASC",
             [(int)$loan_id]
         );
         $result = [];

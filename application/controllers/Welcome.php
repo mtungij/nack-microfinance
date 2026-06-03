@@ -979,16 +979,21 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
      //begin withdrawal function
 	//withdrow auto matic time
 	public function get_autodata(){
-    $data = $this->db->query("SELECT * FROM tbl_loans WHERE loan_status IN ('withdrawal','out')");
-      $all_loans = $data->result();
-        foreach($all_loans as $loan){
-        	  //  echo "<br>";
-        	  //  echo $loan->loan_id;
-        	  //   echo "<br>";
-        	  // exit();
-      $this->withdraw_automatic_loan($loan->loan_id);
-        }
+          set_time_limit(0);
+          $today = date('Y-m-d');
+          $data = $this->db->query(
+              "SELECT * FROM tbl_loans WHERE loan_status = 'out' OR (loan_status = 'withdrawal' AND DATE(return_date) <= ?)",
+              [$today]
+          );
+          $all_loans = $data->result();
+          $processed = 0;
 
+          foreach ($all_loans as $loan) {
+              $processed++;
+              $this->withdraw_automatic_loan($loan->loan_id);
+          }
+
+          echo "Processed {$processed} overdue/out loans for {$today}.";
       }
 
       // public 
@@ -1002,17 +1007,17 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
       	  $category_id = $loan_data->category_id;
       	  $loan_aprove = $loan_data->loan_aprove;
       	  $session = $loan_data->session;
-      	  $balance = $loan_data->balance;
-      	  $description = $loan_data->description;
+      	  $loan_int = $loan_data->loan_int;
+      	  $balance = isset($loan_data->balance) ? $loan_data->balance : $loan_int;
+      	  $description = !empty($loan_data->description ?? null) ? $loan_data->description : (!empty($loan_data->reason ?? null) ? $loan_data->reason : 'SYSTEM/LOAN RETURN');
       	  $comp_id = $loan_data->comp_id;
       	  $blanch_id = $loan_data->blanch_id;
       	  $customer_id = $loan_data->customer_id;
       	  $group_id = $loan_data->group_id;
       	  $loan_status = $loan_data->loan_status;
       	  $loan_end_date = $loan_data->loan_end_date;
-      	  $depost = $loan_data->depost;
+      	  $depost = isset($loan_data->depost) ? $loan_data->depost : 0;
       	  $restoration = $loan_data->restration;
-      	  $loan_int = $loan_data->loan_int;
       	  $kumaliza = $depost;
       	    // print_r($group_id);
       	    //      exit();
@@ -1075,7 +1080,7 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
       	   $lejesho = $restoration_loan;
 
            // Determine whether today is a scheduled repayment day based on outstand start/end dates and loan day interval.
-           $loan_start_date_raw = !empty($loan_data->loan_stat_date) ? $loan_data->loan_stat_date : null;
+           $loan_start_date_raw = !empty($loan_data->loan_stat_date) ? $loan_data->loan_stat_date : (!empty($loan_data->outstand_date) ? $loan_data->outstand_date : null);
            $loan_end_date_raw = !empty($loan_data->loan_end_date) ? $loan_data->loan_end_date : null;
            $loan_start_date = $loan_start_date_raw ? date('Y-m-d', strtotime($loan_start_date_raw)) : null;
            $loan_end_date_schedule = $loan_end_date_raw ? date('Y-m-d', strtotime($loan_end_date_raw)) : null;
@@ -1113,30 +1118,90 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
 	           ->where('DATE(penart_day)', $today_date)
 	           ->count_all_results() > 0;
 
-           // Grace period rule for expired loans (based on tbl_outstand.loan_end_date):
-           // if overdue for more than 3 days, add daily 1% penalty of restration.
+           // Grace period rule for outstanding loans (loan_status = 'out'): insert any missing daily penalties
            $grace_period_days = 3;
            $daily_overdue_penalty_rate = 1;
            $is_grace_penalty_due_today = false;
            $grace_penalty_amount = 0;
 
-           if (!empty($loan_end_date_schedule)) {
-            	$days_since_end = (int)((strtotime($today_date) - strtotime($loan_end_date_schedule)) / 86400);
-            	if ($days_since_end > $grace_period_days) {
-            		$grace_penalty_amount = round(((float)$lejesho * $daily_overdue_penalty_rate) / 100, 2);
-            		if ($grace_penalty_amount > 0 && !$has_penalty_today && ($loan_status === 'withdrawal' || $loan_status === 'out')) {
-            			$is_grace_penalty_due_today = true;
-            		}
-            	}
+           if ($loan_status === 'out' && !empty($loan_start_date)) {
+               $existing_penalty_dates = [];
+               $existing_penalties = $this->db
+                   ->select('DATE(penart_day) AS pen_date', false)
+                   ->from('tbl_store_penalt')
+                   ->where('loan_id', $loan_id)
+                   ->get()
+                   ->result();
+
+               foreach ($existing_penalties as $pen_row) {
+                   $existing_penalty_dates[$pen_row->pen_date] = true;
+               }
+
+               $first_penalty_date = date('Y-m-d', strtotime($loan_start_date . ' +'.($grace_period_days + 1).' days'));
+               if ($today_date >= $first_penalty_date) {
+                   $current_date = $first_penalty_date;
+                   while ($current_date <= $today_date) {
+                       if (!isset($existing_penalty_dates[$current_date])) {
+                           $daily_penalty_amount = round(((float)$lejesho * $daily_overdue_penalty_rate) / 100, 2);
+                           if ($daily_penalty_amount > 0) {
+                               $this->insert_loanPenart_moneyValue_with_date(
+                                   $comp_id,
+                                   $blanch_id,
+                                   $customer_id,
+                                   $loan_id,
+                                   $daily_penalty_amount,
+                                   $group_id,
+                                   $current_date . ' 23:59:59'
+                               );
+                               $this->insert_out_loan_penalty_report_with_date(
+                                   $comp_id,
+                                   $blanch_id,
+                                   $customer_id,
+                                   $loan_id,
+                                   $daily_penalty_amount,
+                                   $group_id,
+                                   $current_date
+                               );
+                           }
+                       }
+
+                       $current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
+                   }
+               }
+
+               // Refresh today's penalty state after backfill.
+               $has_penalty_today = $this->db
+                   ->from('tbl_store_penalt')
+                   ->where('loan_id', $loan_id)
+                   ->where('DATE(penart_day)', $today_date)
+                   ->count_all_results() > 0;
+
+               // Out loans are handled by backfill logic; do not add another duplicate penalty later.
+               $is_grace_penalty_due_today = false;
+           }
+           // Grace period rule for expired withdrawal loans (based on loan_end_date):
+           // if overdue for more than 3 days, add daily 1% penalty of restration.
+           elseif ($loan_status === 'withdrawal' && !empty($loan_end_date_schedule)) {
+           	$days_since_end = (int)((strtotime($today_date) - strtotime($loan_end_date_schedule)) / 86400);
+           	if ($days_since_end > $grace_period_days) {
+           		$grace_penalty_amount = round(((float)$lejesho * $daily_overdue_penalty_rate) / 100, 2);
+           		if ($grace_penalty_amount > 0 && !$has_penalty_today) {
+           			$is_grace_penalty_due_today = true;
+           		}
+           	}
            }
 
            if ($is_grace_penalty_due_today) {
             	$this->insert_loanPenart_moneyValue($comp_id, $blanch_id, $customer_id, $loan_id, $grace_penalty_amount, $group_id);
-            	$has_penalty_today = true;
-           }
+             	$this->insert_out_loan_penalty_report($comp_id, $blanch_id, $customer_id, $loan_id, $grace_penalty_amount, $group_id);
            
       	   //asilimia lejesho
       	   $percent_calc = $money_value / 100 * $lejesho;
+
+        //    echo '<pre>';
+        //    print_r($percent_calc);
+        //    echo '</pre>';
+        //    exit();
             
            if ($old_balance_data >= $loanreturn) {
       	       $sua = 0;
@@ -1174,7 +1239,8 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
                        	//echo"tayali";
                        }elseif($return_date == NULL){
                        	//echo "bado sana";
-                       }elseif($is_due_repayment_today){
+                       }elseif($loan_status !== 'out' && $is_due_repayment_today){
+                       	// Note: 'out' status loans only receive grace period penalties, not scheduled repayment penalties
                        if($old_balance_data < $loanreturn and $penart_status == 'YES' and $action == 'MONEY VALUE' and $is_payment_missing_today){ 
                     	//insert penart money value
                     	//echo "penati ya hela";
@@ -1240,6 +1306,7 @@ $massage .= "MKOPO PAMOJA NA RIBA = $total_loan_int";
                  // elseif($old_balance_data < $loanreturn){
                  // {
                  //    }
+                }
     
           //update return date
 public function update_returntime($loan_id,$instalment,$dis_date){
@@ -1312,9 +1379,13 @@ $sqldata="UPDATE `tbl_customer` SET `customer_status`= 'close' WHERE `customer_i
 
    //insert penart in fixed amount by samwel damian
            public function insert_loanPenart_moneyValue($comp_id,$blanch_id,$customer_id,$loan_id,$money_value,$group_id){
-    	$day_penart = date("Y-m-d H:i");
+     	$day_penart = date("Y-m-d H:i");
     $this->db->query("INSERT INTO tbl_store_penalt (`comp_id`,`blanch_id`,`customer_id`,`loan_id`,`total_penart`,`penart_day`,`group_id`) VALUES ('$comp_id','$blanch_id','$customer_id','$loan_id','$money_value','$day_penart','$group_id')");
        }  
+
+       public function insert_loanPenart_moneyValue_with_date($comp_id,$blanch_id,$customer_id,$loan_id,$money_value,$group_id,$penart_day){
+    $this->db->query("INSERT INTO tbl_store_penalt (`comp_id`,`blanch_id`,`customer_id`,`loan_id`,`total_penart`,`penart_day`,`group_id`) VALUES ('$comp_id','$blanch_id','$customer_id','$loan_id','$money_value','$penart_day','$group_id')");
+       }
 
        //insert penart in percentage by samwel damian
      public function insert_loanPenart_percentage_Value($comp_id,$blanch_id,$customer_id,$loan_id,$percent_calc,$group_id){
@@ -1335,7 +1406,16 @@ $sqldata="UPDATE `tbl_customer` SET `customer_status`= 'close' WHERE `customer_i
 
 
 
-       //insert loan free penart
+              public function insert_out_loan_penalty_report($comp_id,$blanch_id,$customer_id,$loan_id,$penalty_amount,$group_id){
+        	$report_day = date("Y-m-d");
+    $this->db->query("INSERT INTO tbl_customer_report (`comp_id`,`blanch_id`,`customer_id`,`loan_id`,`recevable_amount`,`pending_amount`,`penart_amount`,`rep_date`,`group_id`) VALUES ('$comp_id','$blanch_id','$customer_id','$loan_id','0','0','$penalty_amount','$report_day','$group_id')");
+       }
+
+       public function insert_out_loan_penalty_report_with_date($comp_id,$blanch_id,$customer_id,$loan_id,$penalty_amount,$group_id,$report_day){
+    $this->db->query("INSERT INTO tbl_customer_report (`comp_id`,`blanch_id`,`customer_id`,`loan_id`,`recevable_amount`,`pending_amount`,`penart_amount`,`rep_date`,`group_id`) VALUES ('$comp_id','$blanch_id','$customer_id','$loan_id','0','0','$penalty_amount','$report_day','$group_id')");
+       }
+
+//insert loan free penart
        public function insert_loan_penart_free($comp_id,$blanch_id,$customer_id,$loan_id,$loanreturn,$sua,$group_id){
        		$report_day = date("Y-m-d");
     $this->db->query("INSERT INTO tbl_customer_report (`comp_id`,`blanch_id`,`customer_id`,`loan_id`,`recevable_amount`,`pending_amount`,`rep_date`,`group_id`) VALUES ('$comp_id','$blanch_id','$customer_id','$loan_id','$loanreturn','$sua','$report_day','$group_id')");
