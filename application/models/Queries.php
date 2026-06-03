@@ -1255,7 +1255,7 @@ public function get_total_pay_description_acount_statement($loan_id)
 				b.*, 
 				s.*, 
 				e.empl_name as created_by_name,
-				vb.empl_name as verifier_name
+				NULL AS verifier_name
 			FROM 
 				tbl_loans l 
 				LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
@@ -1263,8 +1263,7 @@ public function get_total_pay_description_acount_statement($loan_id)
 				LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
 				LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id  
 				LEFT JOIN tbl_employee e ON e.empl_id = l.created_by
-				LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
-			WHERE 
+							WHERE 
 				l.loan_status = 'open' 
 				AND l.comp_id = '$comp_id' 
 			ORDER BY 
@@ -1287,7 +1286,7 @@ public function get_total_pay_description_acount_statement($loan_id)
 
 
         public function get_loanPendingBlanch($blanch_id){
-       	$loan = $this->db->query("SELECT l.*, c.*, lt.*, b.*, s.*, vb.empl_name as verifier_name FROM tbl_loans l LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by WHERE l.loan_status = 'open' AND l.blanch_id = '$blanch_id' ORDER BY l.loan_id DESC ");
+       	$loan = $this->db->query("SELECT l.*, c.*, lt.*, b.*, s.*, NULL AS verifier_name FROM tbl_loans l LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id LEFT JOIN tbl_loan_category lt ON lt.category_id = l.category_id LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id LEFT JOIN tbl_sub_customer s ON s.customer_id = l.customer_id  WHERE l.loan_status = 'open' AND l.blanch_id = '$blanch_id' ORDER BY l.loan_id DESC ");
        	   return $loan->result();
        }
 
@@ -1309,8 +1308,7 @@ public function get_total_pay_description_acount_statement($loan_id)
                LEFT JOIN tbl_employee e ON e.empl_id = l.created_by
                WHERE l.loan_status = 'open' 
                AND l.blanch_id = ?
-               AND l.verified_by IS NULL
-               ORDER BY l.loan_id DESC
+                              ORDER BY l.loan_id DESC
            ", [$blanch_id]);
            return $loan->result();
        }
@@ -1456,15 +1454,14 @@ public function get_total_pay_description_acount_statement($loan_id)
 				cb.empl_no AS creator_no,
 				cb.empl_sex AS creator_sex,
 				cb.passport AS creator_passport,
-				vb.empl_name AS verifier_name
+				NULL AS verifier_name
 			FROM tbl_loans l
 			JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
 			JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
 			JOIN tbl_customer c ON c.customer_id = l.customer_id 
 			JOIN tbl_employee e ON e.empl_id = l.empl_id
 			JOIN tbl_employee cb ON cb.empl_id = l.created_by
-			LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
-			LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
+						LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
 			WHERE l.customer_id = '$customer_id' 
 			AND l.comp_id = '$comp_id' 
 			ORDER BY l.loan_id DESC 
@@ -1488,15 +1485,14 @@ public function get_total_pay_description_acount_statement($loan_id)
 				cb.empl_no AS creator_no,
 				cb.empl_sex AS creator_sex,
 				cb.passport AS creator_passport,
-				vb.empl_name AS verifier_name
+				NULL AS verifier_name
 			FROM tbl_loans l
 			LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
 			LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
 			LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
 			LEFT JOIN tbl_employee e ON e.empl_id = l.empl_id
 			LEFT JOIN tbl_employee cb ON cb.empl_id = l.created_by
-			LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
-			LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
+						LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
 			WHERE l.customer_id = '$customer_id'
 			AND l.comp_id = '$comp_id'
 			AND l.loan_id = '$loan_id'
@@ -1520,15 +1516,14 @@ public function get_total_pay_description_acount_statement($loan_id)
 				cb.empl_no AS creator_no,
 				cb.empl_sex AS creator_sex,
 				cb.passport AS creator_passport,
-				vb.empl_name AS verifier_name
+				NULL AS verifier_name
 			FROM tbl_loans l
 			LEFT JOIN tbl_loan_category lc ON lc.category_id = l.category_id 
 			LEFT JOIN tbl_blanch b ON b.blanch_id = l.blanch_id 
 			LEFT JOIN tbl_customer c ON c.customer_id = l.customer_id 
 			LEFT JOIN tbl_employee e ON e.empl_id = l.empl_id
 			LEFT JOIN tbl_employee cb ON cb.empl_id = l.created_by
-			LEFT JOIN tbl_employee vb ON vb.empl_id = l.verified_by
-			LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
+						LEFT JOIN tbl_outstand o ON o.loan_id = l.loan_id
 			WHERE l.customer_id = '$customer_id'
 			AND l.loan_id = '$loan_id'
 			LIMIT 1

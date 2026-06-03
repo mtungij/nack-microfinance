@@ -4984,15 +4984,20 @@ public function get_blanch_withdraw()
    $depost_blanch_account = $this->queries->get_blanch_depost_Balance($comp_id);
    $loan_withdrawal_blanch = $this->queries->get_total_loanWithdrawal($comp_id);
 
+   $out_stand = (object) ['total_out' => 0];
+   $customer_loan = $this->queries->get_loan_active_customer($customer_id);
+   if (!empty($customer_loan) && $customer_loan->loan_status === 'out') {
+       $out_stand = $this->queries->get_outstand_loan_customer($customer_loan->loan_id);
+       if (empty($out_stand)) {
+           $out_stand = (object) ['total_out' => 0];
+       }
+   }
+
     //   echo "<pre>";
     //   print_r( $customer);
     //  echo "</pre>";
     //   exit();
- $this->load->view('admin/search_loan_customer',['opening_blanch'=>$opening_blanch,'depost_blanch_account'=>$depost_blanch_account,'loan_withdrawal_blanch'=>$loan_withdrawal_blanch,'customer'=>$customer,'customery'=>$customery,'acount'=>$acount]);
-}
-
-public function view_aggrement($customer_id, $loan_id = null)
-{
+ $this->load->view('admin/search_loan_customer',['opening_blanch'=>$opening_blanch,'depost_blanch_account'=>$depost_blanch_account,'loan_withdrawal_blanch'=>$loan_withdrawal_blanch,'customer'=>$customer,'customery'=>$customery,'acount'=>$acount,'out_stand'=>$out_stand]);
     $this->load->model('queries');
 
     $comp_id = $this->session->userdata('comp_id');
