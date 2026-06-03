@@ -4998,62 +4998,7 @@ public function get_blanch_withdraw()
     //  echo "</pre>";
     //   exit();
  $this->load->view('admin/search_loan_customer',['opening_blanch'=>$opening_blanch,'depost_blanch_account'=>$depost_blanch_account,'loan_withdrawal_blanch'=>$loan_withdrawal_blanch,'customer'=>$customer,'customery'=>$customery,'acount'=>$acount,'out_stand'=>$out_stand]);
-    $this->load->model('queries');
-
-    $comp_id = $this->session->userdata('comp_id');
-    if (empty($comp_id)) {
-        show_error('Company not found in session. Please login again.');
-    }
-
-    $customer = $this->queries->get_aggrement($customer_id, $comp_id);
-    if (!empty($loan_id)) {
-        $loan_form = $this->queries->get_formloanDataByLoanId($customer_id, $comp_id, $loan_id);
-    } else {
-        $loan_form = $this->queries->get_formloanData($customer_id, $comp_id);
-    }
-    $compdata = $this->queries->get_comp_data($comp_id);
-    $mdhamini = $this->queries->get_guarator_data($customer_id, $comp_id);
-
-    $resolved_loan_id = $loan_form ? $loan_form->loan_id : null;
-    if (!$resolved_loan_id) {
-        show_error('Loan ID not found. Please check the loan data.');
-    }
-
-    $collateral = $this->queries->get_colateral_data($resolved_loan_id);
-    $local_officer = $this->queries->get_loacagovment_data($resolved_loan_id);
-    $inc_history = $this->queries->get_loanIncomeHistory($customer_id);
-
-    $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4']);
-    $watermark_text = strtoupper(trim((string) ($compdata->comp_name ?? '')));
-    if ($watermark_text !== '') {
-        $mpdf->SetWatermarkText($watermark_text, 0.08);
-        $mpdf->showWatermarkText = true;
-    }
-
-    $html = $this->load->view('officer/loan_aggrement', [
-        'customer' => $customer,
-        'loan_form' => $loan_form,
-        'mdhamini' => $mdhamini,
-        'compdata' => $compdata,
-        'collateral' => $collateral,
-        'local_officer' => $local_officer,
-        'inc_history' => $inc_history,
-    ], true);
-
-    $footer_text = strtoupper(trim((string) ($compdata->comp_name ?? '')));
-    if ($footer_text === '') {
-        $footer_text = 'COMPANY';
-    }
-    $mpdf->SetFooter($footer_text);
-    $mpdf->WriteHTML($html);
-    $customer_name_for_file = trim((string) (($customer->f_name ?? '') . '_' . ($customer->m_name ?? '') . '_' . ($customer->l_name ?? '')));
-    $customer_name_for_file = strtolower(preg_replace('/[^a-zA-Z0-9_]+/', '_', $customer_name_for_file));
-    $customer_name_for_file = trim(preg_replace('/_+/', '_', $customer_name_for_file), '_');
-    if ($customer_name_for_file === '') {
-        $customer_name_for_file = (string) $customer_id;
-    }
-    $download_file_name = 'mkataba_wa_' . $customer_name_for_file . '.pdf';
-    $mpdf->Output($download_file_name, 'I');
+    return;
 }
 
 public function samehe_faini($customer_id)
