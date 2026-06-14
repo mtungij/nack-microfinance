@@ -4994,7 +4994,7 @@ public function get_blanch_withdraw()
    }
 
     //   echo "<pre>";
-    //   print_r( $customer);
+    //   print_r(  $out_stand);
     //  echo "</pre>";
     //   exit();
  $this->load->view('admin/search_loan_customer',['opening_blanch'=>$opening_blanch,'depost_blanch_account'=>$depost_blanch_account,'loan_withdrawal_blanch'=>$loan_withdrawal_blanch,'customer'=>$customer,'customery'=>$customery,'acount'=>$acount,'out_stand'=>$out_stand]);
@@ -5032,8 +5032,17 @@ $empl_id = $this->session->userdata('empl_id');
             'created_at'  => date('Y-m-d H:i:s')
         ];
 
-        // Insert record
-        if ($this->queries->insert_msamaha($insert_data)) {
+        $existing_waiver = $this->queries->get_penart_check($data['loan_id']);
+        $saved = $existing_waiver && $existing_waiver->status === 'checked'
+            ? true
+            : $this->queries->insert_msamaha($insert_data);
+
+        if ($saved && $this->is_loan_and_penalty_fully_paid($data['loan_id'])) {
+            $this->update_loastatus_done($data['loan_id']);
+            $this->update_customer_statusclose($data['customer_id']);
+        }
+
+        if ($saved) {
             $this->session->set_flashdata("massage",'Umefanikiwa Kusamehe Faini Ahsante');
         } else {
             $this->session->set_flashdata("massage",'Tatizo limejitokeza. Jaribu tena.');
@@ -5224,13 +5233,24 @@ public function data_with_depost($customer_id){
     @$blanch_id = $customer->blanch_id;
     $acount = $this->queries->get_customer_account_verfied($blanch_id);
 
+
+     $out_stand = (object) ['total_out' => 0];
+   $customer_loan = $this->queries->get_loan_active_customer($customer_id);
+   if (!empty($customer_loan) && $customer_loan->loan_status === 'out') {
+       $out_stand = $this->queries->get_outstand_loan_customer($customer_loan->loan_id);
+       if (empty($out_stand)) {
+           $out_stand = (object) ['total_out' => 0];
+       }
+   }
+
     $this->load->view('admin/depost_withdrow', [
         'opening_blanch'=>$opening_blanch,
         'depost_blanch_account'=>$depost_blanch_account,
         'loan_withdrawal_blanch'=>$loan_withdrawal_blanch,
         'customer'=>$customer,
         'customery'=>$customery,
-        'acount'=>$acount
+        'acount'=>$acount,
+        'out_stand'=>$out_stand
     ]);
 }
 
@@ -5775,7 +5795,7 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
               // echo "bado sana";
 	       }elseif($kumaliza_depost > $loan_int){
 	       	//echo "hapana";
-           }elseif($kumaliza_depost == $loan_int){
+           }elseif($kumaliza_depost == $loan_int && $this->is_loan_and_penalty_fully_paid($loan_id, $kumaliza)){
            	$this->update_loastatus_done($loan_id);
             $this->insert_loan_kumaliza($comp_id,$blanch_id,$customer_id,$loan_id,$kumaliza,$group_id);
             $this->update_customer_statusclose($customer_id);
@@ -5843,7 +5863,10 @@ public function insert_loan_lecordData($comp_id,$customer_id,$loan_id,$blanch_id
 	      }
         $this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date,$dep_id,$wakala_name,$baki);
 	     $this->insert_remainloan($loan_id,$depost_amount,$paid_out,$dep_id);
+	     if ($this->is_loan_and_penalty_fully_paid($loan_id)) {
 	     $this->update_loastatus($loan_id);
+	     $this->update_customer_statusclose($customer_id);
+	     }
 	     //$this->depost_balance($loan_id,$comp_id,$blanch_id,$customer_id,$new_depost,$sum_balance,$description,$role,$group_id,$p_method,$deposit_date);
 	     //$this->depost_Blanch_accountBalance($comp_id,$blanch_id,$payment_method,$depost_money);
 	        if (@$principal_blanch == TRUE) {
@@ -6157,6 +6180,27 @@ VALUES ('$comp_id','$blanch_id','$customer_id','$loan_id','$update_res','0','SYS
     //    exit();
   $query = $this->db->query($sqldata);
    return true;
+}
+
+private function is_loan_and_penalty_fully_paid($loan_id, $extra_loan_payment = 0){
+	$this->load->model('queries');
+
+	$loan = $this->queries->get_loan_income($loan_id);
+	if (empty($loan)) {
+		return false;
+	}
+
+	$total_deposit = $this->queries->get_sum_dapost($loan_id);
+	$total_penart = $this->queries->get_total_penart_loan($loan_id);
+	$total_paid_penart = $this->queries->get_total_paypenart($loan_id);
+	$penart_check = $this->queries->get_penart_check($loan_id);
+	$penalty_waived = !empty($penart_check) && $penart_check->status === 'checked';
+
+	$paid_loan = (float)($total_deposit->remain_balance_loan ?? 0) + (float)$extra_loan_payment;
+	$loan_due = max(0, (float)$loan->loan_int - $paid_loan);
+	$penalty_due = $penalty_waived ? 0 : max(0, (float)($total_penart->total_penart ?? 0) - (float)($total_paid_penart->total_penart_paid ?? 0));
+
+	return $loan_due <= 0 && $penalty_due <= 0;
 }
 
   public function insert_loan_kumaliza($comp_id,$blanch_id,$customer_id,$loan_id,$kumaliza,$group_id){
@@ -6615,7 +6659,9 @@ $sqldata="UPDATE `tbl_depost` SET `depost`= '$remain_oldDepost',`sche_principal`
                   if($loan_end_date == $today and $loan_status == 'withdrawal'){
                   	  echo "jamaa unazingua";
                    }elseif($depost_data >= $totalloan){
+                    if ($this->is_loan_and_penalty_fully_paid($loan_id)) {
                     $this->update_loastatus($loan_id);
+                    }
                     // $this->update_customer_status($customer_id);
                        	//echo"tayali";
                      }elseif($return_date == NULL){
@@ -9587,6 +9633,10 @@ echo $this->queries->fetch_loancustomer($this->input->post('customer_id'));
 			  $this->insert_income($comp_id,$inc_id,$blanch_id,$customer_id,$username,$penart_paid,$penart_date,$loan_id,$group_id);
 			  $this->session->set_flashdata('massage','Tsh. '.$penart_paid .' Paid successfully');
 			     }
+			     if ($this->is_loan_and_penalty_fully_paid($loan_id)) {
+			     $this->update_loastatus_done($loan_id);
+			     $this->update_customer_statusclose($customer_id);
+			     }
 			  // //print_r($alphabet);
 			  //      exit();
 
@@ -11036,6 +11086,10 @@ public function send_email(){
          $this->insert_penartPaid($loan_id,$inc_id,$blanch_id,$comp_id,$penart_paid,$username,$customer_id,$penart_date,$group_id);
          $this->add_penalty_to_cash_account($comp_id, $blanch_id, $loan_id, $customer_id, $penart_paid, $username, $group_id, $penart_date);
         }
+         if ($this->is_loan_and_penalty_fully_paid($loan_id)) {
+         $this->update_loastatus_done($loan_id);
+         $this->update_customer_statusclose($customer_id);
+         }
       	 $this->session->set_flashdata('massage','Penart '.$penart_paid .'Paid successfully');	
       		}
       		return redirect('admin/loan_collection');

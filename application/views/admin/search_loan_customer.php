@@ -77,8 +77,14 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
 <?php
   $customer_loan = !empty($customer->customer_id) ? $this->queries->get_loan_active_customer($customer->customer_id) : null;
   $total_deposit = $this->queries->get_total_amount_paid_loan($customer_loan->loan_id ?? 0);
+  $total_penart = $this->queries->get_total_penart_loan($customer_loan->loan_id ?? 0);
+  $total_deposit_penart = $this->queries->get_total_paypenart($customer_loan->loan_id ?? 0);
+  $penart_check = $this->queries->get_penart_check($customer_loan->loan_id ?? 0);
+  $penalty_waived = !empty($penart_check) && $penart_check->status === 'checked';
   $loan_int = $customer_loan->loan_int ?? 0;
   $deposit = $total_deposit->total_Deposit ?? 0;
+  $penalty_due = $penalty_waived ? 0 : max(0, (float)($total_penart->total_penart ?? 0) - (float)($total_deposit_penart->total_penart_paid ?? 0));
+  $remain_debt = max(0, (float)$loan_int - (float)$deposit) + $penalty_due;
   $status_label = 'Not Active';
   $status_class = 'bg-blue-600 text-white';
   if (!empty($customer_loan)) {
@@ -183,7 +189,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40">
               <td class="px-4 py-2 border-b border-gray-200 dark:border-gray-700"><?= safe_number_format($loan_int); ?></td>
               <td class="px-4 py-2 border-b border-gray-200 dark:border-gray-700"><?= $deposit > $loan_int ? safe_number_format($deposit - $loan_int) : safe_number_format($deposit); ?></td>
-              <td class="px-4 py-2 border-b border-gray-200 dark:border-gray-700"><?= safe_number_format(max(0, $loan_int - $deposit)); ?></td>
+              <td class="px-4 py-2 border-b border-gray-200 dark:border-gray-700"><?= safe_number_format($remain_debt); ?></td>
             </tr>
           </tbody>
         </table>
@@ -497,7 +503,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
             <?php 
    $jumla_faini    = (float)($total_penart->total_penart ?? 0);
    $faini_alilipa  = (float)($total_deposit_penart->total_penart_paid ?? 0);
-   $faini_baki     = $jumla_faini - $faini_alilipa;
+   $faini_baki     = $penalty_waived ? 0 : max(0, $jumla_faini - $faini_alilipa);
 ?>
 
 <?php echo form_open("admin/samehe_faini/{$customer->customer_id}"); ?>
@@ -652,7 +658,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
                             ?>
                             <span style="color:red;">Default Amount</span>
                             <input type="text" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
-                                value="<?php echo number_format($out_stand->total_out); ?>.00" readonly style="color:red">
+                                value="<?php echo $out_stand->total_out; ?>.00" readonly style="color:red">
                         <?php } else { ?>
                             <span>Recovery Amount</span>
                             <input type="text" class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
@@ -688,7 +694,7 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
         * Njia Za Malipo:
       </label>
       <select id="p_method" name="p_method"
-        class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600"
+        class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-gray-600" required
         onchange="handlePaymentChange(this)">
         <option value="">Chagua Malipo</option>
         <?php foreach ($acount as $acounts): ?>

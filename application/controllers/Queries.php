@@ -3036,7 +3036,28 @@ public function update_guarantor($id, $data)
  	 }
 
 	   public function insert_msamaha($data){
-   	return $this->db->insert('tbl_penart_check',$data);
+	$table = 'tbl_penart_check';
+	$insert_data = [];
+
+	foreach (['comp_id', 'blanch_id', 'customer_id', 'loan_id', 'checked_by'] as $field) {
+		if ($this->db->field_exists($field, $table) && isset($data[$field])) {
+			$insert_data[$field] = $data[$field];
+		}
+	}
+
+	if ($this->db->field_exists('status', $table)) {
+		$insert_data['status'] = $data['status'] ?? 'checked';
+	} elseif ($this->db->field_exists('status_check', $table)) {
+		$insert_data['status_check'] = $data['status'] ?? $data['status_check'] ?? 'checked';
+	}
+
+	if ($this->db->field_exists('created_at', $table)) {
+		$insert_data['created_at'] = $data['created_at'] ?? date('Y-m-d H:i:s');
+	} elseif ($this->db->field_exists('date_check', $table)) {
+		$insert_data['date_check'] = $data['created_at'] ?? $data['date_check'] ?? date('Y-m-d H:i:s');
+	}
+
+	return $this->db->insert($table, $insert_data);
    }
 	
 
@@ -4747,8 +4768,17 @@ public function get_total_recevableBlanch_by_officer($blanch_id, $empl_id){
 
 
    public function get_penart_check($loan_id){
-   	$data = $this->db->query("SELECT * FROM tbl_penart_check WHERE loan_id = '$loan_id'");
-   	return $data->row();
+	$data = $this->db
+		->where('loan_id', $loan_id)
+		->order_by('id', 'DESC')
+		->get('tbl_penart_check');
+
+	$row = $data->row();
+	if ($row && !isset($row->status) && isset($row->status_check)) {
+		$row->status = $row->status_check;
+	}
+
+	return $row;
    }
 
 
@@ -12549,4 +12579,3 @@ public function get_customer_all_loans($customer_id) {
     }
 
 }
-

@@ -84,8 +84,13 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
         <?php
           $customer_loan = !empty($customer->customer_id) ? $this->queries->get_loan_active_customer($customer->customer_id) : null;
           $total_deposit = $this->queries->get_total_amount_paid_loan($customer_loan->loan_id ?? 0);
+           $total_penart = $this->queries->get_total_penart_loan($customer_loan->loan_id ?? 0);
+             $total_deposit_penart = $this->queries->get_total_paypenart($customer_loan->loan_id ?? 0);
+               $penalty_waived = !empty($penart_check) && $penart_check->status === 'checked';
           $loan_int = $customer_loan->loan_int ?? 0;
           $deposit = $total_deposit->total_Deposit ?? 0;
+            $penalty_due = $penalty_waived ? 0 : max(0, (float)($total_penart->total_penart ?? 0) - (float)($total_deposit_penart->total_penart_paid ?? 0));
+           $remain_debt = max(0, (float)$loan_int - (float)$deposit) + $penalty_due;
           $status_label = 'Not Active';
           $status_class = 'bg-blue-600 text-white';
           if (!empty($customer_loan)) {
@@ -584,6 +589,15 @@ $sponsor_passport_src = $resolve_image_src($customer->passport_path ?? '', 'asse
            dark:focus:ring-gray-600">
 </div>
 
+  <div class="sm:col-span-6">
+      <label for="depost" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
+        * Penalt:
+      </label>
+      <input type="text" id="depost" name="depost"
+        class="py-2.5 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:ring-gray-600"
+        value="<?php echo number_format($total_penart->total_penart - $total_deposit_penart->total_penart_paid); ?>.00"
+                            readonly style="color:red">
+    </div>
 
 
     <!-- <div class="sm:col-span-6">
